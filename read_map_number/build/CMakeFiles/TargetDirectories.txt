@@ -1,3 +1,0 @@
-/home/wzm/tmp/read_map_number/build/CMakeFiles/edit_cache.dir
-/home/wzm/tmp/read_map_number/build/CMakeFiles/rebuild_cache.dir
-/home/wzm/tmp/read_map_number/build/CMakeFiles/read_map_number.dir

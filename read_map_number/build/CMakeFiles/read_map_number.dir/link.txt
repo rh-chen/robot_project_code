@@ -1,1 +1,0 @@
-/usr/bin/c++      CMakeFiles/read_map_number.dir/src/read_map_number.cpp.o CMakeFiles/read_map_number.dir/src/main.cpp.o  -o read_map_number -rdynamic 
