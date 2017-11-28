@@ -1,6 +1,15 @@
 #include "read_map_number.h"
+
+#define linux
+
+#ifdef linux  
 #include <unistd.h>  
 #include <dirent.h>  
+#endif  
+#ifdef WIN32  
+#include <direct.h>  
+#include <io.h>  
+#endif 
 
 bool HandleMapFile::FindMapFile()
 {
@@ -39,7 +48,7 @@ bool HandleMapFile::FindMapFile()
 
 	if ((dir = opendir(msMapFilePath.c_str())) == NULL)
 	{
-		perror("Open dir error...");
+		std::cout << "Open dir error..." << std::endl;
 		return false;
 	}
 
@@ -157,9 +166,9 @@ bool HandleMapFile::IsMapFile(string map_file)
 void HandleMapFile::DeleteMapFile()
 {
 	
-	if (mMapFileCount > MAP_LIMIT_N)
+	if (mMapFileCount >= MAP_LIMIT_N)
 	{
-		for (int i = 0; i < mMapFileCount - MAP_LIMIT_N; i++)
+		for (int i = 0; i <= mMapFileCount - MAP_LIMIT_N; i++)
 		{
 			string map_file_deleted = msMapFilePath + mvMapFile[i];
 			std::cout << "map_file_deleted:" << std::endl;

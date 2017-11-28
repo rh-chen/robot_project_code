@@ -10,7 +10,8 @@
 #include <algorithm> 
 #include <functional>
 #include <stdio.h> 
-#include <string.h> 
+#include <string.h>
+#include <glog/logging.h>  
 
 
 using namespace std;
