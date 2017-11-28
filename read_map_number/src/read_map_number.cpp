@@ -1,15 +1,6 @@
 #include "read_map_number.h"
-
-#define linux
-
-#ifdef linux  
 #include <unistd.h>  
 #include <dirent.h>  
-#endif  
-#ifdef WIN32  
-#include <direct.h>  
-#include <io.h>  
-#endif 
 
 bool HandleMapFile::FindMapFile()
 {
