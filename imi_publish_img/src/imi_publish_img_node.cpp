@@ -355,8 +355,74 @@ int main(int argc, char** argv)
   ros::NodeHandle nh_;
   image_transport::ImageTransport it_(nh_);
   image_transport::Publisher image_pub_color_ = it_.advertise("/camera/rgb/image_color", 1);
-  image_transport::Publisher image_pub_depth_ = it_.advertise("/camera/depth/image", 1);
+  image_transport::Publisher image_pub_depth_ = it_.advertise("/camera/depth/image_raw", 1);
+  ROS_INFO("start publish camera infomation.................");
+  ros::Publisher pub_ = nh_.advertise<sensor_msgs::CameraInfo>("/camera/depth/camera_info", 1);
+  ROS_INFO("end publish camera infomation.................");
 
+  sensor_msgs::CameraInfo camerainfo_msg;
+	ROS_INFO("end publish camera infomation.................");
+	camerainfo_msg.height = 480;
+	camerainfo_msg.width = 640;
+	
+	//(k1, k2, t1, t2, k3)
+	std::vector<double> D_;
+	D_.push_back(0);
+	D_.push_back(0);
+	D_.push_back(0);
+	D_.push_back(0);
+	D_.push_back(0);
+	
+	camerainfo_msg.distortion_model = "plumb_bob";
+	camerainfo_msg.D = D_;
+	//camerainfo_msg.D[1] = 0;
+	//camerainfo_msg.D[2] = 0;
+	//camerainfo_msg.D[3] = 0;
+	//camerainfo_msg.D[4] = 0;
+
+
+	ROS_INFO("end publish camera infomation.................");
+	camerainfo_msg.K[0] = 563.5757;
+	camerainfo_msg.K[1] = 0;
+	camerainfo_msg.K[2] = 315.3763;
+	camerainfo_msg.K[3] = 0;
+	camerainfo_msg.K[4] = 565.0243;
+	camerainfo_msg.K[5] = 241.8793;
+	camerainfo_msg.K[6] = 0;
+	camerainfo_msg.K[7] = 0;
+	camerainfo_msg.K[8] = 1;
+
+	camerainfo_msg.R[0] = 1;
+	camerainfo_msg.R[1] = 0;
+	camerainfo_msg.R[2] = 0;
+	camerainfo_msg.R[3] = 0;
+	camerainfo_msg.R[4] = 1;
+	camerainfo_msg.R[5] = 0;
+	camerainfo_msg.R[6] = 0;
+	camerainfo_msg.R[7] = 0;
+	camerainfo_msg.R[8] = 1;
+
+	camerainfo_msg.P[0] = 563.5757;
+	camerainfo_msg.P[1] = 0;
+	camerainfo_msg.P[2] = 315.3763;
+	camerainfo_msg.P[3] = 0;
+
+	camerainfo_msg.P[4] = 0;
+	camerainfo_msg.P[5] = 565.0243;
+	camerainfo_msg.P[6] = 241.8793;
+	camerainfo_msg.P[7] = 0;
+
+	camerainfo_msg.P[8] = 0;
+	camerainfo_msg.P[9] = 0;
+	camerainfo_msg.P[10] = 1;
+	camerainfo_msg.P[11] = 0;
+
+	camerainfo_msg.binning_x = 1;
+	camerainfo_msg.binning_y = 1;
+
+	camerainfo_msg.roi.width = 640;
+	camerainfo_msg.roi.height = 480;
+	ROS_INFO("end publish camera infomation.................");
 	cv::Mat cv_image_color(cv::Size(COLOR_IMAGE_WIDTH,COLOR_IMAGE_HEIGHT),CV_8UC3);
 	cv::Mat cv_image_depth(cv::Size(DEPTH_IMAGE_WIDTH,DEPTH_IMAGE_HEIGHT),CV_16UC1);
 	cv::Mat cv_image_gray(cv::Size(DEPTH_IMAGE_WIDTH,DEPTH_IMAGE_HEIGHT),CV_8U);
@@ -380,14 +446,15 @@ int main(int argc, char** argv)
 		continue;
 	}
 
-	conDepthToGray(cv_image_depth,cv_image_gray);
+	/*conDepthToGray(cv_image_depth,cv_image_gray);
 
   	imshow("cv_image_color",cv_image_color);
   	imshow("cv_image_gray",cv_image_gray);
 
-	cv::waitKey(10);
+	cv::waitKey(10);*/
 
 	ros::Time time = ros::Time::now(); 
+	camerainfo_msg.header.stamp = time;
 
   	cv_bridge::CvImage cvi_color;
   	cvi_color.header.stamp = time;
@@ -403,7 +470,7 @@ int main(int argc, char** argv)
   	cv_bridge::CvImage cvi_depth;
   	cvi_depth.header.stamp = time;
   	cvi_depth.header.frame_id = "image_depth";
-  	cvi_depth.encoding = "mono16";
+  	cvi_depth.encoding = sensor_msgs::image_encodings::TYPE_16UC1;
   	cvi_depth.image = cv_image_depth;
 	
 	ROS_INFO("start transfer image depth data to ros message");
@@ -413,6 +480,8 @@ int main(int argc, char** argv)
 
   	image_pub_color_.publish(msg_im_color);
 	image_pub_depth_.publish(msg_im_depth);
+	
+	pub_.publish(camerainfo_msg);
 
   	ros::spinOnce();
   	loop_rate.sleep();
