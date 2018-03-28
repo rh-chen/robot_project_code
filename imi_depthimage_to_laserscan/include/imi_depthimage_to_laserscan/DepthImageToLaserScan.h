@@ -38,12 +38,12 @@
 #include <sensor_msgs/LaserScan.h>
 #include <sensor_msgs/image_encodings.h>
 #include <image_geometry/pinhole_camera_model.h>
-#include <depthimage_to_laserscan/depth_traits.h>
+#include <imi_depthimage_to_laserscan/depth_traits.h>
 #include <sstream>
 #include <limits.h>
 #include <math.h>
 
-namespace depthimage_to_laserscan
+namespace imi_depthimage_to_laserscan
 { 
   class DepthImageToLaserScan
   {
@@ -174,7 +174,7 @@ namespace depthimage_to_laserscan
       float center_y = cam_model.cy();
 
       // Combine unit conversion (if necessary) with scaling by focal length for computing (X,Y)
-      double unit_scaling = depthimage_to_laserscan::DepthTraits<T>::toMeters( T(1) );
+      double unit_scaling = imi_depthimage_to_laserscan::DepthTraits<T>::toMeters( T(1) );
       float constant_x = unit_scaling / cam_model.fx();
       float constant_y = unit_scaling / cam_model.fy();
       
@@ -193,10 +193,10 @@ namespace depthimage_to_laserscan
 		  double th = -atan2((double)(u - center_x) * constant_x, unit_scaling); // Atan2(x, z), but depth divides out
 		  int index = (th - scan_msg->angle_min) / scan_msg->angle_increment;
 		  
-		  if (depthimage_to_laserscan::DepthTraits<T>::valid(depth)){ // Not NaN or Inf
+		  if (imi_depthimage_to_laserscan::DepthTraits<T>::valid(depth)){ // Not NaN or Inf
 		    // Calculate in XYZ
 		    double x = (u - center_x) * depth * constant_x;
-		    double z = depthimage_to_laserscan::DepthTraits<T>::toMeters(depth);
+		    double z = imi_depthimage_to_laserscan::DepthTraits<T>::toMeters(depth);
 		    
 		    // Calculate actual distance
 		    r = sqrt(pow(x, 2.0) + pow(z, 2.0));

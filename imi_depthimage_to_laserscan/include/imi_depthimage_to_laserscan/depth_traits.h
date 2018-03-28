@@ -37,7 +37,7 @@
 #include <algorithm>
 #include <limits>
 
-namespace depthimage_to_laserscan {
+namespace imi_depthimage_to_laserscan {
 
 // Encapsulate differences between processing float and uint16_t depths
 template<typename T> struct DepthTraits {};

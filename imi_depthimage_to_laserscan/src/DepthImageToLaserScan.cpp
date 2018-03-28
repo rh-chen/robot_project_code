@@ -31,9 +31,9 @@
  * Author: Chad Rockey
  */
 
-#include <depthimage_to_laserscan/DepthImageToLaserScan.h>
+#include <imi_depthimage_to_laserscan/DepthImageToLaserScan.h>
 
-using namespace depthimage_to_laserscan;
+using namespace imi_depthimage_to_laserscan;
   
 DepthImageToLaserScan::DepthImageToLaserScan(){
 }

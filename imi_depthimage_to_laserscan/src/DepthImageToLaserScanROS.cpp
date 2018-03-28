@@ -31,15 +31,15 @@
  * Author: Chad Rockey
  */
 
-#include <depthimage_to_laserscan/DepthImageToLaserScanROS.h>
+#include <imi_depthimage_to_laserscan/DepthImageToLaserScanROS.h>
 
-using namespace depthimage_to_laserscan;
+using namespace imi_depthimage_to_laserscan;
   
 DepthImageToLaserScanROS::DepthImageToLaserScanROS(ros::NodeHandle& n, ros::NodeHandle& pnh):pnh_(pnh), it_(n), srv_(pnh) {
   boost::mutex::scoped_lock lock(connect_mutex_);
   
   // Dynamic Reconfigure
-  dynamic_reconfigure::Server<depthimage_to_laserscan::DepthConfig>::CallbackType f;
+  dynamic_reconfigure::Server<imi_depthimage_to_laserscan::DepthConfig>::CallbackType f;
   f = boost::bind(&DepthImageToLaserScanROS::reconfigureCb, this, _1, _2);
   srv_.setCallback(f);
   
@@ -83,7 +83,8 @@ void DepthImageToLaserScanROS::disconnectCb(const ros::SingleSubscriberPublisher
   }
 }
 
-void DepthImageToLaserScanROS::reconfigureCb(depthimage_to_laserscan::DepthConfig& config, uint32_t level){
+void DepthImageToLaserScanROS::reconfigureCb(imi_depthimage_to_laserscan::DepthConfig& config, uint32_t level){
+	ROS_DEBUG("reconfigure laser scan information.");
     dtl_.set_scan_time(config.scan_time);
     dtl_.set_range_limits(config.range_min, config.range_max);
     dtl_.set_scan_height(config.scan_height);

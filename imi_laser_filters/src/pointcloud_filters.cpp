@@ -28,7 +28,7 @@
  */
 
 #include "sensor_msgs/PointCloud.h"
-#include "laser_filters/point_cloud_footprint_filter.h"
+#include "imi_laser_filters/point_cloud_footprint_filter.h"
 #include "pluginlib/class_list_macros.h"
 
 PLUGINLIB_EXPORT_CLASS(laser_filters::PointCloudFootprintFilter, filters::FilterBase<sensor_msgs::PointCloud>)

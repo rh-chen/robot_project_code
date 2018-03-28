@@ -245,7 +245,7 @@ bool get_img_data(cv::Mat imRGB,cv::Mat imD)
 
     // frame coming, read.
 	ImiImageFrame* imiFrame = NULL;
-    if (0 != imiReadNextFrame(g_streams[avStreamIndex], &imiFrame, 30)) 
+    if (0 != imiReadNextFrame(g_streams[avStreamIndex], &imiFrame, 15)) 
 	{
 		return false;
 	}
@@ -354,10 +354,10 @@ int main(int argc, char** argv)
 
   ros::NodeHandle nh_;
   image_transport::ImageTransport it_(nh_);
-  image_transport::Publisher image_pub_color_ = it_.advertise("/camera/rgb/image_color", 1);
-  image_transport::Publisher image_pub_depth_ = it_.advertise("/camera/depth/image_raw", 1);
+  image_transport::Publisher image_pub_color_ = it_.advertise("/camera/rgb/image_color", 1000);
+  image_transport::Publisher image_pub_depth_ = it_.advertise("/camera/depth/image_raw", 1000);
   ROS_INFO("start publish camera infomation.................");
-  ros::Publisher pub_ = nh_.advertise<sensor_msgs::CameraInfo>("/camera/depth/camera_info", 1);
+  ros::Publisher pub_ = nh_.advertise<sensor_msgs::CameraInfo>("/camera/depth/camera_info", 1000);
   ROS_INFO("end publish camera infomation.................");
 
   sensor_msgs::CameraInfo camerainfo_msg;
@@ -434,7 +434,7 @@ int main(int argc, char** argv)
 		return 0;
 	}
 
-  ros::Rate loop_rate(30);
+  ros::Rate loop_rate(60);
   while(ros::ok()){  
 
 	if(get_img_data(cv_image_color,cv_image_depth) == true){
@@ -483,7 +483,7 @@ int main(int argc, char** argv)
 	
 	pub_.publish(camerainfo_msg);
 
-  	ros::spinOnce();
+  	//ros::spinOnce();
   	loop_rate.sleep();
   }
 

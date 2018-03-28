@@ -31,14 +31,15 @@
  * Author: Chad Rockey
  */
 
-#include <depthimage_to_laserscan/DepthImageToLaserScanROS.h>
+#include <imi_depthimage_to_laserscan/DepthImageToLaserScanROS.h>
 
 int main(int argc, char **argv){
-  ros::init(argc, argv, "depthimage_to_laserscan");
+  ros::init(argc, argv, "imi_depthimage_to_laserscan");
   ros::NodeHandle n;
   ros::NodeHandle pnh("~");
   
-  depthimage_to_laserscan::DepthImageToLaserScanROS dtl(n, pnh);
+  ROS_INFO("start transfer depth image to laser scan.");
+  imi_depthimage_to_laserscan::DepthImageToLaserScanROS dtl(n, pnh);
   
   ros::spin();
 

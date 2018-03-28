@@ -27,8 +27,8 @@ target_link_libraries(DepthImageToLaserScanROS DepthImageToLaserScan ${catkin_LI
 add_library(DepthImageToLaserScanNodelet src/DepthImageToLaserScanNodelet.cpp)
 target_link_libraries(DepthImageToLaserScanNodelet DepthImageToLaserScanROS ${catkin_LIBRARIES})
 
-add_executable(depthimage_to_laserscan src/depthimage_to_laserscan.cpp)
-target_link_libraries(depthimage_to_laserscan DepthImageToLaserScanROS ${catkin_LIBRARIES})
+add_executable(imi_depthimage_to_laserscan src/depthimage_to_laserscan.cpp)
+target_link_libraries(imi_depthimage_to_laserscan DepthImageToLaserScanROS ${catkin_LIBRARIES})
 
 if(CATKIN_ENABLE_TESTING)
   # Test the library
@@ -40,7 +40,7 @@ endif()
 add_executable(test_dtl EXCLUDE_FROM_ALL test/depthimage_to_laserscan_rostest.cpp)
 
 # Install targets
-install(TARGETS DepthImageToLaserScan DepthImageToLaserScanROS DepthImageToLaserScanNodelet depthimage_to_laserscan
+install(TARGETS DepthImageToLaserScan DepthImageToLaserScanROS DepthImageToLaserScanNodelet imi_depthimage_to_laserscan
 	RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 	LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
 	ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION})

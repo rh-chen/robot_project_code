@@ -28,7 +28,7 @@
  *
  */
 
-#include "laser_filters/array_filter.h"
+#include "imi_laser_filters/array_filter.h"
 
 namespace laser_filters
 {
