@@ -20,6 +20,7 @@ find_package(catkin REQUIRED COMPONENTS
   geometry_msgs
 	cv_bridge
 	image_transport
+	ar_track_alvar_msgs
 )
 
 find_package(OpenCV REQUIRED)
