@@ -89,7 +89,7 @@ class robot_control{
 
 					tf::StampedTransform CameraToWorld;
     			try{
-						tf_listener->waitForTransform(world_frame+"_2", camera_frame, msg->header.stamp, ros::Duration(1.0));
+						tf_listener->waitForTransform(world_frame+"_2", camera_frame, msg->header.stamp, ros::Duration(0.5));
 						tf_listener->lookupTransform(world_frame+"_2", camera_frame, msg->header.stamp, CameraToWorld);
    				}
     			catch (tf::TransformException ex){
@@ -97,7 +97,7 @@ class robot_control{
     			}
 
 					marker_x = CameraToWorld.getOrigin().x();
-					marker_y = CameraToWorld.getOrigin().y();
+					marker_y = CameraToWorld.getOrigin().y()+0.06;
 					marker_z = CameraToWorld.getOrigin().z();
 
 					CameraToWorld.getBasis().getRPY(marker_roll,marker_pitch,marker_yaw);
@@ -106,9 +106,14 @@ class robot_control{
 					ROS_INFO("marker_x:%f\n",marker_x);
 					ROS_INFO("marker_y:%f\n",marker_y);
 					ROS_INFO("marker_z:%f\n",marker_z);
-					ROS_INFO("marker_yaw:%f\n",marker_yaw);
+					ROS_INFO("marker_pitch:%f\n",marker_pitch);
 
-					if(fabs(marker_yaw+PI) < 0.02)
+					/*if(marker_roll > 0)
+						marker_pitch = PI-marker_pitch;
+					else
+						marker_pitch = PI+marker_pitch;*/
+
+					if(fabs(marker_pitch) < 0.02)
 						if(fabs(marker_y) < 0.01)
 							is_forward_marker = true;
 						else
@@ -281,7 +286,7 @@ int main(int argc, char** argv)
 			else
 			{
 				rc.robot_move_base();
-				ros::Duration(10).sleep();						
+				ros::Duration(0.5).sleep();						
 			}		
 
 		}
