@@ -134,7 +134,7 @@ class robot_control{
 						marker_pitch = PI+marker_pitch;*/
 
 					if(fabs(marker_pitch) < 0.02)
-						if(fabs(alter_marker_y) < 0.01)
+						if(fabs(alter_marker_y) < 0.02)
 							is_forward_marker = true;
 						
 					if(fabs(marker_pitch) > 0.02)
@@ -143,7 +143,7 @@ class robot_control{
 						is_angle_unsuitable = true;
 					}
 					
-					if(fabs(alter_marker_y) > 0.01)
+					if(fabs(alter_marker_y) > 0.02)
 					{
 						is_forward_marker = false;
 						is_position_unsuitable = true;
@@ -186,10 +186,16 @@ void robot_control::robot_move_base()
 				//rotate
 				{
 					int rotation_time;
-					if(rotation_direction > 0)					
-						rotation_time = (int)((PI+rotation_angle)/wz+0.05)*10;								
+					if(rotation_direction > 0)
+					{					
+						ROS_INFO("rotate:%f",(PI+rotation_angle)*180/PI);
+						rotation_time = (int)((PI+rotation_angle)/wz+0.05)*10;
+					}								
 					else
-						rotation_time = (int)((PI-rotation_angle)/wz+0.05)*10;	
+					{
+						ROS_INFO("rotate:%f",(PI-rotation_angle)*180/PI);
+						rotation_time = (int)((PI-rotation_angle)/wz+0.05)*10;
+					}
 
 					ros::Rate r(10);
 					
@@ -245,14 +251,20 @@ void robot_control::robot_move_base()
 			}
 			else if(!is_position_unsuitable && is_angle_unsuitable)
 			{
-				ROS_INFO("rotate:%f",rotation_angle*180/PI);
+				//ROS_INFO("rotate:%f",rotation_angle*180/PI);
 				//rotate
 				{
 					int rotation_time;
-					if(rotation_direction > 0)					
-						rotation_time = (int)((PI+rotation_angle)/wz+0.05)*10;								
+					if(rotation_direction > 0)
+					{					
+						ROS_INFO("rotate:%f",(PI+rotation_angle)*180/PI);
+						rotation_time = (int)((PI+rotation_angle)/wz+0.05)*10;
+					}								
 					else
+					{
+						ROS_INFO("rotate:%f",(PI-rotation_angle)*180/PI);
 						rotation_time = (int)((PI-rotation_angle)/wz+0.05)*10;
+					}
 
 					ros::Rate r(10);
 				
