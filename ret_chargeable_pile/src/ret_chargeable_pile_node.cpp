@@ -85,8 +85,71 @@ class robot_control{
 	}
 	void poseCallback(const ar_track_alvar_msgs::AlvarMarkers::ConstPtr &msg);
 	void robot_move_base();
-
+	void rotate_n_angle(double n,int direction);
+	void straight_n_distance(double n);
 };
+
+
+	void robot_control::rotate_n_angle(double n,int direction)
+	{
+		if(direction  < 0)
+		{
+			ROS_INFO("SHUN_rotation_angle:%f",n*180/PI);
+			ros::Rate r(rate_frequency);
+			int rotation_time = (int)((n/wz+int_temp)*int_rate_frequency);	
+			for(int i = 0;i < rotation_time;i++)
+			{
+				common_move_cmd.linear.x = 0;
+				common_move_cmd.linear.y = 0;
+				common_move_cmd.linear.z = 0;
+				common_move_cmd.angular.x = 0;
+				common_move_cmd.angular.y = 0;
+				common_move_cmd.angular.z = -wz;
+			
+				cmd_vel_pub.publish(common_move_cmd);
+				r.sleep();
+			}
+		}
+		else
+		{
+			ROS_INFO("NI_rotation_angle:%f",n*180/PI);
+			ros::Rate r(rate_frequency);
+			int rotation_time = (int)((n/wz+int_temp)*int_rate_frequency);	
+			for(int i = 0;i < rotation_time;i++)
+			{
+				common_move_cmd.linear.x = 0;
+				common_move_cmd.linear.y = 0;
+				common_move_cmd.linear.z = 0;
+				common_move_cmd.angular.x = 0;
+				common_move_cmd.angular.y = 0;
+				common_move_cmd.angular.z = wz;
+			
+				cmd_vel_pub.publish(common_move_cmd);
+				r.sleep();
+			}
+		}
+	}
+
+	void robot_control::straight_n_distance(double n)
+	{
+		ros::Rate r(rate_frequency);
+		
+		int straight_time = (int)(n/vx*int_rate_frequency);
+
+		common_move_cmd.linear.x = vx;
+		common_move_cmd.linear.y = 0;
+		common_move_cmd.linear.z = 0;
+		common_move_cmd.angular.x = 0;
+		common_move_cmd.angular.y = 0;
+		common_move_cmd.angular.z = 0;
+
+		ROS_INFO("straight_distance:%f",n);
+		for(int i = 0;i < straight_time;i++)
+		{
+				cmd_vel_pub.publish(common_move_cmd);
+				r.sleep();
+		}
+	}
 
 	void robot_control::poseCallback(const ar_track_alvar_msgs::AlvarMarkers::ConstPtr &msg)
 	{
@@ -196,206 +259,47 @@ void robot_control::robot_move_base()
 		ROS_INFO("is_position_unsuitable:%d",is_position_unsuitable);
 		ROS_INFO("is_angle_unsuitable:%d",is_angle_unsuitable);
 #if 1
-			double distance_y = alter_marker_y;
-			double distance_z = alter_marker_z;
-			double rotation_angle = marker_pitch;
-
-			if(rotation_angle < 0)
-				rotation_direction = -1;//顺时针
-			else
-				rotation_direction = 1;//逆时针
-	
-			//double wz = 0.8;
-			//double vx = 0.1;
+			if(alter_marker_y > position_threshold)
+					rotation_direction = -1;//顺时针
+			else if(alter_marker_y < -position_threshold)
+					rotation_direction = 1;//逆时针
 					
 			if(is_position_unsuitable)
 			{
 				if(alter_marker_y > position_threshold)
 				{
-					ros::Rate r(rate_frequency);
-					//rotate
-					int rotation_time;
-					if(rotation_direction < 0)
-					{					
-						ROS_INFO("SHUN_rotate:%f",(PI/2+rotation_angle)*180/PI);
-						rotation_time = (int)(((PI/2+rotation_angle)/wz+int_temp)*int_rate_frequency);
-						ROS_INFO("SHUN_rotation_time:%d",rotation_time);
-					}								
-					else
-					{
-						ROS_INFO("SHUN_rotate:%f",(PI/2+rotation_angle)*180/PI);
-						rotation_time = (int)(((PI/2+rotation_angle)/wz+int_temp)*int_rate_frequency);
-						ROS_INFO("SHUN_rotation_time:%d",rotation_time);
-					}
-					
-					for(int i = 0;i < rotation_time;i++)
-					{
-						common_move_cmd.linear.x = 0;
-						common_move_cmd.linear.y = 0;
-						common_move_cmd.linear.z = 0;
-						common_move_cmd.angular.x = 0;
-						common_move_cmd.angular.y = 0;
-						common_move_cmd.angular.z = -wz;
-						
-						cmd_vel_pub.publish(common_move_cmd);
-						r.sleep();
-					}//rotate
-				
-					//straight
-					ros::Duration(1.0).sleep();		
-					common_move_cmd.linear.x = vx;
-					common_move_cmd.linear.y = 0;
-					common_move_cmd.linear.z = 0;
-					common_move_cmd.angular.x = 0;
-					common_move_cmd.angular.y = 0;
-					common_move_cmd.angular.z = 0;
-		
-					int straight_time = (int)(fabs(distance_y)/vx*int_rate_frequency);
-					ROS_INFO("straight_distance:%f",fabs(distance_y));
-					for(int i = 0;i < straight_time;i++)
-					{
-							cmd_vel_pub.publish(common_move_cmd);
-							r.sleep();
-					}//straight
-					
-					//rotate
+					rotate_n_angle(PI/2+marker_pitch,rotation_direction);
 					ros::Duration(1.0).sleep();
-					ROS_INFO("NI_rotate:%f",PI/2*180/PI);
-					rotation_time = (int)((PI/2/wz+int_temp)*int_rate_frequency);
-					ROS_INFO("NI_rotation_time:%d",rotation_time);
-
-					for(int i = 0;i < rotation_time;i++)
-					{
-						common_move_cmd.linear.x = 0;
-						common_move_cmd.linear.y = 0;
-						common_move_cmd.linear.z = 0;
-						common_move_cmd.angular.x = 0;
-						common_move_cmd.angular.y = 0;
-						common_move_cmd.angular.z = wz;
-							
-						cmd_vel_pub.publish(common_move_cmd);				
-						r.sleep();
-					}//rotate	
+					straight_n_distance(alter_marker_y);
+					ros::Duration(1.0).sleep();
+					rotate_n_angle(PI/2,-rotation_direction);
+					ros::Duration(1.0).sleep();
 				}//if(alter_marker_y > 0)
 				else if(alter_marker_y < -position_threshold)
 				{
-					ros::Rate r(rate_frequency);
-
-					//rotate
-					int rotation_time;
-					if(rotation_direction < 0)
-					{					
-						ROS_INFO("NI_rotate:%f",(PI/2-rotation_angle)*180/PI);
-						rotation_time = (int)(((PI/2-rotation_angle)/wz+int_temp)*int_rate_frequency);
-						ROS_INFO("NI_rotation_time:%d",rotation_time);
-					}								
-					else
-					{
-						ROS_INFO("NI_rotate:%f",(PI/2-rotation_angle)*180/PI);
-						rotation_time = (int)(((PI/2-rotation_angle)/wz+int_temp)*int_rate_frequency);
-						ROS_INFO("NI_rotation_time:%d",rotation_time);
-					}
-					
-					for(int i = 0;i < rotation_time;i++)
-					{
-						common_move_cmd.linear.x = 0;
-						common_move_cmd.linear.y = 0;
-						common_move_cmd.linear.z = 0;
-						common_move_cmd.angular.x = 0;
-						common_move_cmd.angular.y = 0;
-						common_move_cmd.angular.z = wz;
-						
-						cmd_vel_pub.publish(common_move_cmd);			
-						r.sleep();
-					}//rotate
-				
-					//straight
-					ros::Duration(1.0).sleep();		
-					common_move_cmd.linear.x = vx;
-					common_move_cmd.linear.y = 0;
-					common_move_cmd.linear.z = 0;
-					common_move_cmd.angular.x = 0;
-					common_move_cmd.angular.y = 0;
-					common_move_cmd.angular.z = 0;
-		
-					int straight_time = (int)(fabs(distance_y)/vx*int_rate_frequency);
-					ROS_INFO("straight_distance:%f",fabs(distance_y));
-					for(int i = 0;i < straight_time;i++)
-					{
-							cmd_vel_pub.publish(common_move_cmd);
-							r.sleep();
-					}//straight
-					
-					//rotate
+					rotate_n_angle(PI/2-marker_pitch,rotation_direction);
 					ros::Duration(1.0).sleep();
-					ROS_INFO("SHUN_rotate:%f",PI/2*180/PI);
-					rotation_time = (int)((PI/2/wz+int_temp)*int_rate_frequency);
-					ROS_INFO("NI_rotation_time:%d",rotation_time);
-					for(int i = 0;i < rotation_time;i++)
-					{
-						common_move_cmd.linear.x = 0;
-						common_move_cmd.linear.y = 0;
-						common_move_cmd.linear.z = 0;
-						common_move_cmd.angular.x = 0;
-						common_move_cmd.angular.y = 0;
-						common_move_cmd.angular.z = -wz;
-							
-						cmd_vel_pub.publish(common_move_cmd);				
-						r.sleep();
-					}//rotate
+					straight_n_distance(alter_marker_y);
+					ros::Duration(1.0).sleep();
+					rotate_n_angle(PI/2,-rotation_direction);
+					ros::Duration(1.0).sleep();
 				}//else if((alter_marker_y < -0.02))
 			}//if(is_position_unsuitable)
 			else if(!is_position_unsuitable && is_angle_unsuitable)
 			{
-				int rotation_time;
-				ros::Rate r(rate_frequency);
-
-				if(rotation_direction < 0)
+				if(marker_pitch < 0)
 				{
-					ROS_INFO("rotate:%f",rotation_angle*180/PI);
-					rotation_time = (int)((fabs(rotation_angle)/wz+int_temp)*int_rate_frequency);
-				}								
-				else
-				{
-					ROS_INFO("rotate:%f",rotation_angle*180/PI);
-					rotation_time = (int)((fabs(rotation_angle)/wz+int_temp)*int_rate_frequency);
-				}
-			
-				if(rotation_direction < 0)
-				{
-					for(int i = 0;i < rotation_time;i++)
-					{
-
-						common_move_cmd.linear.x = 0;
-						common_move_cmd.linear.y = 0;
-						common_move_cmd.linear.z = 0;
-						common_move_cmd.angular.x = 0;
-						common_move_cmd.angular.y = 0;
-						common_move_cmd.angular.z = wz;
-
-						cmd_vel_pub.publish(common_move_cmd);
-						r.sleep();
-					}
+					rotate_n_angle(fabs(marker_pitch),1);
+					ros::Duration(1.0).sleep();
 				}
 				else
 				{
-					for(int i = 0;i < rotation_time;i++)
-					{
-
-						common_move_cmd.linear.x = 0;
-						common_move_cmd.linear.y = 0;
-						common_move_cmd.linear.z = 0;
-						common_move_cmd.angular.x = 0;
-						common_move_cmd.angular.y = 0;
-						common_move_cmd.angular.z = -wz;
-
-						cmd_vel_pub.publish(common_move_cmd);
-						r.sleep();
-					}
-				}
+					rotate_n_angle(fabs(marker_pitch),-1);
+					ros::Duration(1.0).sleep();
+				}		
 		}//else if(!is_position_unsuitable && is_angle_unsuitable)
 #endif
-	
+			
 	}
 
 int main(int argc, char** argv)
