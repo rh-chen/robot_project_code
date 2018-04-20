@@ -120,8 +120,8 @@ class robot_control{
 					ROS_INFO("marker_pitch:%f\n",marker_pitch);
 				
 					alter_marker_x = marker_x;
-					alter_marker_y -= 0.06*cos(marker_pitch);
-					alter_marker_z += 0.06*sin(marker_pitch);
+					alter_marker_y = marker_y - 0.06*cos(marker_pitch);
+					alter_marker_z = marker_z + 0.06*sin(marker_pitch);
 
 					ROS_INFO("alter_marker_x:%f\n",alter_marker_x);
 					ROS_INFO("alter_marker_y:%f\n",alter_marker_y);
