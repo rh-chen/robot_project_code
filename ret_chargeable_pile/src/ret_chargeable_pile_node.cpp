@@ -65,7 +65,9 @@ double angle_threshold = 0.04;
 
 double rate_frequency = 100;
 int int_rate_frequency = 100;
-double wz = 0.8;
+double int_temp = 5*0.1/rate_frequency;
+
+double wz = 0.6;
 double vx = 0.1;
 
 class robot_control{
@@ -216,13 +218,13 @@ void robot_control::robot_move_base()
 					if(rotation_direction < 0)
 					{					
 						ROS_INFO("SHUN_rotate:%f",(PI/2+rotation_angle)*180/PI);
-						rotation_time = (int)((PI/2+rotation_angle)/wz*int_rate_frequency);
+						rotation_time = (int)(((PI/2+rotation_angle)/wz+int_temp)*int_rate_frequency);
 						ROS_INFO("SHUN_rotation_time:%d",rotation_time);
 					}								
 					else
 					{
 						ROS_INFO("SHUN_rotate:%f",(PI/2+rotation_angle)*180/PI);
-						rotation_time = (int)((PI/2+rotation_angle)/wz*int_rate_frequency);
+						rotation_time = (int)(((PI/2+rotation_angle)/wz+int_temp)*int_rate_frequency);
 						ROS_INFO("SHUN_rotation_time:%d",rotation_time);
 					}
 					
@@ -259,7 +261,7 @@ void robot_control::robot_move_base()
 					//rotate
 					ros::Duration(1.0).sleep();
 					ROS_INFO("NI_rotate:%f",PI/2*180/PI);
-					rotation_time = (int)(PI/2/wz*int_rate_frequency);
+					rotation_time = (int)((PI/2/wz+int_temp)*int_rate_frequency);
 					for(int i = 0;i < rotation_time;i++)
 					{
 						common_move_cmd.linear.x = 0;
@@ -282,13 +284,13 @@ void robot_control::robot_move_base()
 					if(rotation_direction < 0)
 					{					
 						ROS_INFO("NI_rotate:%f",(PI/2-rotation_angle)*180/PI);
-						rotation_time = (int)((PI/2-rotation_angle)/wz*int_rate_frequency);
+						rotation_time = (int)(((PI/2-rotation_angle)/wz+int_temp)*int_rate_frequency);
 						ROS_INFO("NI_rotation_time:%d",rotation_time);
 					}								
 					else
 					{
 						ROS_INFO("NI_rotate:%f",(PI/2-rotation_angle)*180/PI);
-						rotation_time = (int)((PI/2-rotation_angle)/wz*int_rate_frequency);
+						rotation_time = (int)(((PI/2-rotation_angle)/wz+int_temp)*int_rate_frequency);
 						ROS_INFO("NI_rotation_time:%d",rotation_time);
 					}
 					
@@ -325,7 +327,7 @@ void robot_control::robot_move_base()
 					//rotate
 					ros::Duration(1.0).sleep();
 					ROS_INFO("SHUN_rotate:%f",PI/2*180/PI);
-					rotation_time = (int)(PI/2/wz*int_rate_frequency);
+					rotation_time = (int)((PI/2/wz+int_temp)*int_rate_frequency);
 					for(int i = 0;i < rotation_time;i++)
 					{
 						common_move_cmd.linear.x = 0;
@@ -348,12 +350,12 @@ void robot_control::robot_move_base()
 				if(rotation_direction < 0)
 				{
 					ROS_INFO("rotate:%f",rotation_angle*180/PI);
-					rotation_time = (int)(fabs(rotation_angle)/wz*int_rate_frequency);
+					rotation_time = (int)((fabs(rotation_angle)/wz+int_temp)*int_rate_frequency);
 				}								
 				else
 				{
 					ROS_INFO("rotate:%f",rotation_angle*180/PI);
-					rotation_time = (int)(fabs(rotation_angle)/wz*int_rate_frequency);
+					rotation_time = (int)((fabs(rotation_angle)/wz+int_temp)*int_rate_frequency);
 				}
 			
 				if(rotation_direction < 0)
