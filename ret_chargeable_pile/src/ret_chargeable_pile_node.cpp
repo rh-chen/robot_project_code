@@ -164,9 +164,11 @@ class robot_control{
 	}
 void robot_control::robot_move_base()
 {
+		ROS_INFO("is_position_unsuitable:%d",is_position_unsuitable);
+		ROS_INFO("is_angle_unsuitable:%d",is_angle_unsuitable);
 #if 1
-			double distance_y = marker_y;
-			double distance_z = marker_z;
+			double distance_y = alter_marker_y;
+			double distance_z = alter_marker_z;
 			double rotation_angle = marker_pitch;
 
 			if(rotation_angle < 0)
@@ -183,16 +185,15 @@ void robot_control::robot_move_base()
 			{
 				//rotate
 				{
-					common_move_cmd.linear.x = 0;
-					common_move_cmd.linear.y = 0;
-					common_move_cmd.linear.z = 0;
-					common_move_cmd.angular.x = 0;
-					common_move_cmd.angular.y = 0;
-					common_move_cmd.angular.z = wz;
+					int rotation_time;
+					if(rotation_direction > 0)					
+						rotation_time = (int)((PI+rotation_angle)/wz+0.05)*10;								
+					else
+						rotation_time = (int)((PI-rotation_angle)/wz+0.05)*10;	
 
-					int rotation_time = (int)(rotation_angle/wz+0.05)*10;
 					ros::Rate r(10);
-				
+					
+					ROS_INFO("rotate:%f",rotation_angle*180/PI);
 					for(int i = 0;i < rotation_time;i++)
 					{
 							if(rotation_direction > 0)
@@ -203,7 +204,7 @@ void robot_control::robot_move_base()
 								common_move_cmd.angular.x = 0;
 								common_move_cmd.angular.y = 0;
 								common_move_cmd.angular.z = wz;
-
+								
 								cmd_vel_pub.publish(common_move_cmd);
 							}
 							else
@@ -221,6 +222,7 @@ void robot_control::robot_move_base()
 					}
 				}//rotate
 				
+				ROS_INFO("straight:%f",distance_y);
 				//straight
 				{
 					ros::Rate r(10);		
@@ -243,9 +245,15 @@ void robot_control::robot_move_base()
 			}
 			else if(!is_position_unsuitable && is_angle_unsuitable)
 			{
+				ROS_INFO("rotate:%f",rotation_angle*180/PI);
 				//rotate
 				{
-					int rotation_time = (int)(rotation_angle/wz+0.05)*10;
+					int rotation_time;
+					if(rotation_direction > 0)					
+						rotation_time = (int)((PI+rotation_angle)/wz+0.05)*10;								
+					else
+						rotation_time = (int)((PI-rotation_angle)/wz+0.05)*10;
+
 					ros::Rate r(10);
 				
 					for(int i = 0;i < rotation_time;i++)
@@ -341,7 +349,7 @@ int main(int argc, char** argv)
 			}
 			else
 			{
-				//rc.robot_move_base();
+				rc.robot_move_base();
 				ros::Duration(0.5).sleep();						
 			}		
 
