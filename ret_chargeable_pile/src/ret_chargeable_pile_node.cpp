@@ -52,6 +52,10 @@ geometry_msgs::Twist common_move_cmd;
 double marker_x;
 double marker_y;
 double marker_z;
+double alter_marker_x;
+double alter_marker_y;
+double alter_marker_z;
+
 double marker_yaw;
 double marker_roll;
 double marker_pitch;
@@ -104,7 +108,7 @@ class robot_control{
     			}
 
 					marker_x = CameraToWorld.getOrigin().x();
-					marker_y = CameraToWorld.getOrigin().y()+0.06;
+					marker_y = CameraToWorld.getOrigin().y();
 					marker_z = CameraToWorld.getOrigin().z();
 
 					CameraToWorld.getBasis().getRPY(marker_roll,marker_pitch,marker_yaw);
@@ -114,6 +118,15 @@ class robot_control{
 					ROS_INFO("marker_y:%f\n",marker_y);
 					ROS_INFO("marker_z:%f\n",marker_z);
 					ROS_INFO("marker_pitch:%f\n",marker_pitch);
+				
+					alter_marker_x = marker_x;
+					alter_marker_y -= 0.06*cos(marker_pitch);
+					alter_marker_z += 0.06*sin(marker_pitch);
+
+					ROS_INFO("alter_marker_x:%f\n",alter_marker_x);
+					ROS_INFO("alter_marker_y:%f\n",alter_marker_y);
+					ROS_INFO("alter_marker_z:%f\n",alter_marker_z);
+					ROS_INFO("marker_pitch:%f\n",marker_pitch);
 
 					/*if(marker_roll > 0)
 						marker_pitch = PI-marker_pitch;
@@ -121,7 +134,7 @@ class robot_control{
 						marker_pitch = PI+marker_pitch;*/
 
 					if(fabs(marker_pitch) < 0.02)
-						if(fabs(marker_y) < 0.01)
+						if(fabs(alter_marker_y) < 0.01)
 							is_forward_marker = true;
 						
 					if(fabs(marker_pitch) > 0.02)
@@ -130,7 +143,7 @@ class robot_control{
 						is_angle_unsuitable = true;
 					}
 					
-					if(fabs(marker_y) > 0.01)
+					if(fabs(alter_marker_y) > 0.01)
 					{
 						is_forward_marker = false;
 						is_position_unsuitable = true;
@@ -182,7 +195,7 @@ void robot_control::robot_move_base()
 				
 					for(int i = 0;i < rotation_time;i++)
 					{
-							if(rotation_direction > 1)
+							if(rotation_direction > 0)
 							{
 								common_move_cmd.linear.x = 0;
 								common_move_cmd.linear.y = 0;
@@ -206,7 +219,7 @@ void robot_control::robot_move_base()
 							}				
 							r.sleep();
 					}
-				}
+				}//rotate
 				
 				//straight
 				{
@@ -225,20 +238,19 @@ void robot_control::robot_move_base()
 							cmd_vel_pub.publish(common_move_cmd);
 							r.sleep();
 					}
-				}
+				}//straight
 
 			}
 			else if(!is_position_unsuitable && is_angle_unsuitable)
 			{
+				//rotate
 				{
-
 					int rotation_time = (int)(rotation_angle/wz+0.05)*10;
 					ros::Rate r(10);
 				
-					//rotate
 					for(int i = 0;i < rotation_time;i++)
 					{
-							if(rotation_direction > 1)
+							if(rotation_direction > 0)
 							{
 								common_move_cmd.linear.x = 0;
 								common_move_cmd.linear.y = 0;
@@ -262,7 +274,7 @@ void robot_control::robot_move_base()
 							}
 							r.sleep();
 					}
-				}
+				}//rotate
 			}
 #endif
 	
@@ -325,11 +337,11 @@ int main(int argc, char** argv)
 			if(is_forward_marker)
 			{
 				ROS_INFO("Is_Forward_Marker and Start Straight Line Move");
-				rc.cmd_vel_pub.publish(straight_move_cmd);
+				//rc.cmd_vel_pub.publish(straight_move_cmd);
 			}
 			else
 			{
-				rc.robot_move_base();
+				//rc.robot_move_base();
 				ros::Duration(0.5).sleep();						
 			}		
 
