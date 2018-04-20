@@ -191,9 +191,9 @@ void robot_control::robot_move_base()
 			double rotation_angle = marker_pitch;
 
 			if(rotation_angle < 0)
-				rotation_direction = 1;//顺时针
+				rotation_direction = -1;//顺时针
 			else
-				rotation_direction = -1;//逆时针
+				rotation_direction = 1;//逆时针
 
 			rotation_angle = fabs(rotation_angle);
 	
@@ -202,55 +202,37 @@ void robot_control::robot_move_base()
 					
 			if(is_position_unsuitable)
 			{
-				//rotate
+				if(alter_marker_y > 0.02)
 				{
+					ros::Rate r(10);
+					//rotate
 					int rotation_time;
-					if(rotation_direction > 0)
+					if(rotation_direction < 0)
 					{					
-						ROS_INFO("rotate:%f",(PI+rotation_angle)*180/PI);
-						rotation_time = (int)((PI+rotation_angle)/wz+0.05)*10;
+						ROS_INFO("rotate:%f",(PI/2+rotation_angle)*180/PI);
+						rotation_time = (int)((PI/2+rotation_angle)/wz+0.05)*10;
 					}								
 					else
 					{
-						ROS_INFO("rotate:%f",(PI-rotation_angle)*180/PI);
-						rotation_time = (int)((PI-rotation_angle)/wz+0.05)*10;
+						ROS_INFO("rotate:%f",(PI/2+rotation_angle)*180/PI);
+						rotation_time = (int)((PI/2+rotation_angle)/wz+0.05)*10;
 					}
-
-					ros::Rate r(10);
 					
-					//ROS_INFO("rotate:%f",rotation_angle*180/PI);
 					for(int i = 0;i < rotation_time;i++)
 					{
-							if(rotation_direction > 0)
-							{
-								common_move_cmd.linear.x = 0;
-								common_move_cmd.linear.y = 0;
-								common_move_cmd.linear.z = 0;
-								common_move_cmd.angular.x = 0;
-								common_move_cmd.angular.y = 0;
-								common_move_cmd.angular.z = -wz;
-								
-								cmd_vel_pub.publish(common_move_cmd);
-							}
-							else
-							{
-								common_move_cmd.linear.x = 0;
-								common_move_cmd.linear.y = 0;
-								common_move_cmd.linear.z = 0;
-								common_move_cmd.angular.x = 0;
-								common_move_cmd.angular.y = 0;
-								common_move_cmd.angular.z = wz;
-
-								cmd_vel_pub.publish(common_move_cmd);
-							}				
-							r.sleep();
-					}
-				}//rotate
+						common_move_cmd.linear.x = 0;
+						common_move_cmd.linear.y = 0;
+						common_move_cmd.linear.z = 0;
+						common_move_cmd.angular.x = 0;
+						common_move_cmd.angular.y = 0;
+						common_move_cmd.angular.z = -wz;
+						
+						cmd_vel_pub.publish(common_move_cmd);
+						r.sleep();
+					}//rotate
 				
-				ROS_INFO("straight:%f",distance_y);
-				//straight
-				{
-					ros::Rate r(10);		
+					//straight
+					ros::Duration(1.0).sleep();		
 					common_move_cmd.linear.x = vx;
 					common_move_cmd.linear.y = 0;
 					common_move_cmd.linear.z = 0;
@@ -258,63 +240,144 @@ void robot_control::robot_move_base()
 					common_move_cmd.angular.y = 0;
 					common_move_cmd.angular.z = 0;
 		
-					int straight_time = (int)(distance_y/vx+0.05)*10;
+					int straight_time = (int)(fabs(distance_y)/vx+0.05)*10;
 				
 					for(int i = 0;i < straight_time;i++)
 					{
 							cmd_vel_pub.publish(common_move_cmd);
 							r.sleep();
-					}
-				}//straight
-
-			}
-			else if(!is_position_unsuitable && is_angle_unsuitable)
-			{
-				//ROS_INFO("rotate:%f",rotation_angle*180/PI);
-				//rotate
+					}//straight
+					
+					//rotate
+					ros::Duration(1.0).sleep();
+					rotation_time = (int)(PI/2/wz+0.05)*10;
+					for(int i = 0;i < rotation_time;i++)
+					{
+						common_move_cmd.linear.x = 0;
+						common_move_cmd.linear.y = 0;
+						common_move_cmd.linear.z = 0;
+						common_move_cmd.angular.x = 0;
+						common_move_cmd.angular.y = 0;
+						common_move_cmd.angular.z = wz;
+							
+						cmd_vel_pub.publish(common_move_cmd);				
+						r.sleep();
+					}//rotate	
+				}//if(alter_marker_y > 0)
+				else if(alter_marker_y < -0.02)
 				{
+					ros::Rate r(10);
+
+					//rotate
 					int rotation_time;
-					if(rotation_direction > 0)
+					if(rotation_direction < 0)
 					{					
-						ROS_INFO("rotate:%f",(PI+rotation_angle)*180/PI);
-						rotation_time = (int)((PI+rotation_angle)/wz+0.05)*10;
+						ROS_INFO("rotate:%f",(PI/2-rotation_angle)*180/PI);
+						rotation_time = (int)((PI/2-rotation_angle)/wz+0.05)*10;
 					}								
 					else
 					{
-						ROS_INFO("rotate:%f",(PI-rotation_angle)*180/PI);
-						rotation_time = (int)((PI-rotation_angle)/wz+0.05)*10;
+						ROS_INFO("rotate:%f",(PI/2-rotation_angle)*180/PI);
+						rotation_time = (int)((PI/2-rotation_angle)/wz+0.05)*10;
 					}
-
-					ros::Rate r(10);
-				
+					
 					for(int i = 0;i < rotation_time;i++)
 					{
-							if(rotation_direction > 0)
-							{
-								common_move_cmd.linear.x = 0;
-								common_move_cmd.linear.y = 0;
-								common_move_cmd.linear.z = 0;
-								common_move_cmd.angular.x = 0;
-								common_move_cmd.angular.y = 0;
-								common_move_cmd.angular.z = -wz;
-
-								cmd_vel_pub.publish(common_move_cmd);
-							}
-							else
-							{
-								common_move_cmd.linear.x = 0;
-								common_move_cmd.linear.y = 0;
-								common_move_cmd.linear.z = 0;
-								common_move_cmd.angular.x = 0;
-								common_move_cmd.angular.y = 0;
-								common_move_cmd.angular.z = wz;
-
-								cmd_vel_pub.publish(common_move_cmd);
-							}
+						common_move_cmd.linear.x = 0;
+						common_move_cmd.linear.y = 0;
+						common_move_cmd.linear.z = 0;
+						common_move_cmd.angular.x = 0;
+						common_move_cmd.angular.y = 0;
+						common_move_cmd.angular.z = wz;
+						
+						cmd_vel_pub.publish(common_move_cmd);			
+						r.sleep();
+					}//rotate
+				
+					//straight
+					ros::Duration(1.0).sleep();		
+					common_move_cmd.linear.x = vx;
+					common_move_cmd.linear.y = 0;
+					common_move_cmd.linear.z = 0;
+					common_move_cmd.angular.x = 0;
+					common_move_cmd.angular.y = 0;
+					common_move_cmd.angular.z = 0;
+		
+					int straight_time = (int)(fabs(distance_y)/vx+0.05)*10;
+				
+					for(int i = 0;i < straight_time;i++)
+					{
+							cmd_vel_pub.publish(common_move_cmd);
 							r.sleep();
+					}//straight
+					
+					//rotate
+					ros::Duration(1.0).sleep();
+					rotation_time = (int)(PI/2/wz+0.05)*10;
+					for(int i = 0;i < rotation_time;i++)
+					{
+						common_move_cmd.linear.x = 0;
+						common_move_cmd.linear.y = 0;
+						common_move_cmd.linear.z = 0;
+						common_move_cmd.angular.x = 0;
+						common_move_cmd.angular.y = 0;
+						common_move_cmd.angular.z = -wz;
+							
+						cmd_vel_pub.publish(common_move_cmd);				
+						r.sleep();
+					}//rotate
+				}//else if((alter_marker_y < -0.02))
+			}//if(is_position_unsuitable)
+			else if(!is_position_unsuitable && is_angle_unsuitable)
+			{
+				int rotation_time;
+
+				if(rotation_direction < 0)
+				{
+					ROS_INFO("rotate:%f",rotation_angle*180/PI);
+					rotation_time = (int)(fabs(rotation_angle)/wz+0.05)*10;
+				}								
+				else
+				{
+					ROS_INFO("rotate:%f",rotation_angle*180/PI);
+					rotation_time = (int)(fabs(rotation_angle)/wz+0.05)*10;
+				}
+
+				ros::Rate r(10);
+			
+				if(rotation_direction < 0)
+				{
+					for(int i = 0;i < rotation_time;i++)
+					{
+
+						common_move_cmd.linear.x = 0;
+						common_move_cmd.linear.y = 0;
+						common_move_cmd.linear.z = 0;
+						common_move_cmd.angular.x = 0;
+						common_move_cmd.angular.y = 0;
+						common_move_cmd.angular.z = wz;
+
+						cmd_vel_pub.publish(common_move_cmd);
+						r.sleep();
 					}
-				}//rotate
-			}
+				}
+				else
+				{
+					for(int i = 0;i < rotation_time;i++)
+					{
+
+						common_move_cmd.linear.x = 0;
+						common_move_cmd.linear.y = 0;
+						common_move_cmd.linear.z = 0;
+						common_move_cmd.angular.x = 0;
+						common_move_cmd.angular.y = 0;
+						common_move_cmd.angular.z = -wz;
+
+						cmd_vel_pub.publish(common_move_cmd);
+						r.sleep();
+					}
+				}
+		}//else if(!is_position_unsuitable && is_angle_unsuitable)
 #endif
 	
 	}
