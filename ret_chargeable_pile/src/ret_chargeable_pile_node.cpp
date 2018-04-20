@@ -199,7 +199,7 @@ void robot_control::robot_move_base()
 
 					ros::Rate r(10);
 					
-					ROS_INFO("rotate:%f",rotation_angle*180/PI);
+					//ROS_INFO("rotate:%f",rotation_angle*180/PI);
 					for(int i = 0;i < rotation_time;i++)
 					{
 							if(rotation_direction > 0)
