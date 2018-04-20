@@ -80,8 +80,8 @@ class robot_control{
 
 	robot_control(ros::NodeHandle n):nh(n)
 	{
-		msg_sub = nh.subscribe("/ar_pose_marker", 1,&robot_control::poseCallback,this);
-		cmd_vel_pub = nh.advertise<geometry_msgs::Twist>("/cmd_vel_mux/input/navi",1);
+		msg_sub = nh.subscribe("/ar_pose_marker", 1000,&robot_control::poseCallback,this);
+		cmd_vel_pub = nh.advertise<geometry_msgs::Twist>("/cmd_vel_mux/input/navi",1000);
 	}
 	void poseCallback(const ar_track_alvar_msgs::AlvarMarkers::ConstPtr &msg);
 	void robot_move_base();
@@ -262,6 +262,8 @@ void robot_control::robot_move_base()
 					ros::Duration(1.0).sleep();
 					ROS_INFO("NI_rotate:%f",PI/2*180/PI);
 					rotation_time = (int)((PI/2/wz+int_temp)*int_rate_frequency);
+					ROS_INFO("NI_rotation_time:%d",rotation_time);
+
 					for(int i = 0;i < rotation_time;i++)
 					{
 						common_move_cmd.linear.x = 0;
@@ -328,6 +330,7 @@ void robot_control::robot_move_base()
 					ros::Duration(1.0).sleep();
 					ROS_INFO("SHUN_rotate:%f",PI/2*180/PI);
 					rotation_time = (int)((PI/2/wz+int_temp)*int_rate_frequency);
+					ROS_INFO("NI_rotation_time:%d",rotation_time);
 					for(int i = 0;i < rotation_time;i++)
 					{
 						common_move_cmd.linear.x = 0;
