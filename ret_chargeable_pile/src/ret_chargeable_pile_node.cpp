@@ -133,21 +133,23 @@ class robot_control{
 					else
 						marker_pitch = PI+marker_pitch;*/
 
-					if(fabs(marker_pitch) < 0.02)
-						if(fabs(alter_marker_y) < 0.02)
-							is_forward_marker = true;
-						
-					if(fabs(marker_pitch) > 0.02)
+					if(fabs(alter_marker_y) < 0.02)
 					{
-						is_forward_marker = false;
-						is_angle_unsuitable = true;
+						if(fabs(marker_pitch) < 0.02)
+							is_forward_marker = true;
+						else
+						{
+							is_forward_marker = false;
+							is_angle_unsuitable = true;
+						}
+
 					}
-					
-					if(fabs(alter_marker_y) > 0.02)
+					else
 					{
 						is_forward_marker = false;
 						is_position_unsuitable = true;
 					}
+						
 #endif
 			}
 			else
