@@ -94,6 +94,8 @@ class robot_control{
 #if 1
 				if(marker.pose.header.frame_id == world_frame+"_2")
 				{
+					is_forward_marker = false;
+					
 					ROS_INFO("world_frame:%s\n",(world_frame+"_2").c_str());
 					marker_is_visible = true;
 #if 1
@@ -136,18 +138,33 @@ class robot_control{
 					if(fabs(alter_marker_y) < 0.02)
 					{
 						if(fabs(marker_pitch) < 0.02)
+						{
 							is_forward_marker = true;
+							is_angle_unsuitable = false;
+							is_position_unsuitable = false;
+						}
 						else
 						{
 							is_forward_marker = false;
+							is_position_unsuitable = false;
 							is_angle_unsuitable = true;
 						}
 
 					}
 					else
 					{
-						is_forward_marker = false;
-						is_position_unsuitable = true;
+						if(fabs(marker_pitch) < 0.02)
+						{
+							is_forward_marker = false;
+							is_position_unsuitable = true;
+							is_angle_unsuitable = false;
+						}
+						else
+						{
+							is_forward_marker = false;
+							is_position_unsuitable = true;			
+							is_angle_unsuitable = true;
+						}
 					}
 						
 #endif
@@ -211,7 +228,7 @@ void robot_control::robot_move_base()
 								common_move_cmd.linear.z = 0;
 								common_move_cmd.angular.x = 0;
 								common_move_cmd.angular.y = 0;
-								common_move_cmd.angular.z = wz;
+								common_move_cmd.angular.z = -wz;
 								
 								cmd_vel_pub.publish(common_move_cmd);
 							}
@@ -222,7 +239,7 @@ void robot_control::robot_move_base()
 								common_move_cmd.linear.z = 0;
 								common_move_cmd.angular.x = 0;
 								common_move_cmd.angular.y = 0;
-								common_move_cmd.angular.z = -wz;
+								common_move_cmd.angular.z = wz;
 
 								cmd_vel_pub.publish(common_move_cmd);
 							}				
@@ -279,7 +296,7 @@ void robot_control::robot_move_base()
 								common_move_cmd.linear.z = 0;
 								common_move_cmd.angular.x = 0;
 								common_move_cmd.angular.y = 0;
-								common_move_cmd.angular.z = wz;
+								common_move_cmd.angular.z = -wz;
 
 								cmd_vel_pub.publish(common_move_cmd);
 							}
@@ -290,7 +307,7 @@ void robot_control::robot_move_base()
 								common_move_cmd.linear.z = 0;
 								common_move_cmd.angular.x = 0;
 								common_move_cmd.angular.y = 0;
-								common_move_cmd.angular.z = -wz;
+								common_move_cmd.angular.z = wz;
 
 								cmd_vel_pub.publish(common_move_cmd);
 							}
@@ -319,7 +336,7 @@ int main(int argc, char** argv)
 	rotate_move_cmd.linear.z = 0;
 	rotate_move_cmd.angular.x = 0;
 	rotate_move_cmd.angular.y = 0;
-	rotate_move_cmd.angular.z = 0.8;
+	rotate_move_cmd.angular.z = -0.8;
 
 	//straight
 	straight_move_cmd.linear.x = 0.2;
@@ -358,6 +375,7 @@ int main(int argc, char** argv)
 			ROS_INFO("Marker_Is_Visible");
 			if(is_forward_marker)
 			{
+				ros::Duration(0.5).sleep();
 				ROS_INFO("Is_Forward_Marker and Start Straight Line Move");
 				//rc.cmd_vel_pub.publish(straight_move_cmd);
 			}
