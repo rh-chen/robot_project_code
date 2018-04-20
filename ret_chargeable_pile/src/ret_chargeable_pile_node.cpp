@@ -201,12 +201,7 @@ class robot_control{
 					ROS_INFO("alter_marker_x:%f\n",alter_marker_x);
 					ROS_INFO("alter_marker_y:%f\n",alter_marker_y);
 					ROS_INFO("alter_marker_z:%f\n",alter_marker_z);
-					ROS_INFO("marker_pitch:%f\n",marker_pitch);
-
-					/*if(marker_roll > 0)
-						marker_pitch = PI-marker_pitch;
-					else
-						marker_pitch = PI+marker_pitch;*/					
+					ROS_INFO("marker_pitch:%f\n",marker_pitch);				
 				
 					if(fabs(alter_marker_y) < position_threshold)
 					{
@@ -238,8 +233,7 @@ class robot_control{
 							is_position_unsuitable = true;			
 							is_angle_unsuitable = true;
 						}
-					}
-						
+					}					
 #endif
 			}
 			else
@@ -274,7 +268,7 @@ void robot_control::robot_move_base()
 					ros::Duration(1.0).sleep();
 					rotate_n_angle(PI/2,-rotation_direction);
 					ros::Duration(1.0).sleep();
-				}//if(alter_marker_y > 0)
+				}
 				else if(alter_marker_y < -position_threshold)
 				{
 					rotate_n_angle(PI/2-marker_pitch,rotation_direction);
@@ -283,8 +277,8 @@ void robot_control::robot_move_base()
 					ros::Duration(1.0).sleep();
 					rotate_n_angle(PI/2,-rotation_direction);
 					ros::Duration(1.0).sleep();
-				}//else if((alter_marker_y < -0.02))
-			}//if(is_position_unsuitable)
+				}
+			}
 			else if(!is_position_unsuitable && is_angle_unsuitable)
 			{
 				if(marker_pitch < 0)
@@ -297,9 +291,8 @@ void robot_control::robot_move_base()
 					rotate_n_angle(fabs(marker_pitch),-1);
 					ros::Duration(1.0).sleep();
 				}		
-		}//else if(!is_position_unsuitable && is_angle_unsuitable)
-#endif
-			
+		}
+#endif		
 	}
 
 int main(int argc, char** argv)
@@ -361,7 +354,7 @@ int main(int argc, char** argv)
 			{
 				ROS_INFO("Is_Forward_Marker and Start Straight Line Move");
 				ros::Duration(1.0).sleep();
-				//rc.cmd_vel_pub.publish(straight_move_cmd);
+				rc.cmd_vel_pub.publish(straight_move_cmd);
 			}
 			else
 			{
