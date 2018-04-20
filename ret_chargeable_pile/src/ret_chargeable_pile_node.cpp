@@ -194,8 +194,6 @@ void robot_control::robot_move_base()
 				rotation_direction = -1;//顺时针
 			else
 				rotation_direction = 1;//逆时针
-
-			rotation_angle = fabs(rotation_angle);
 	
 			double wz = 0.8;
 			double vx = 0.2;
