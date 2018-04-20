@@ -196,7 +196,7 @@ void robot_control::robot_move_base()
 				rotation_direction = 1;//逆时针
 	
 			double wz = 0.8;
-			double vx = 0.2;
+			double vx = 0.1;
 					
 			if(is_position_unsuitable)
 			{
@@ -207,12 +207,12 @@ void robot_control::robot_move_base()
 					int rotation_time;
 					if(rotation_direction < 0)
 					{					
-						ROS_INFO("rotate:%f",(PI/2+rotation_angle)*180/PI);
+						ROS_INFO("SHUN_rotate:%f",(PI/2+rotation_angle)*180/PI);
 						rotation_time = (int)((PI/2+rotation_angle)/wz+0.05)*10;
 					}								
 					else
 					{
-						ROS_INFO("rotate:%f",(PI/2+rotation_angle)*180/PI);
+						ROS_INFO("SHUN_rotate:%f",(PI/2+rotation_angle)*180/PI);
 						rotation_time = (int)((PI/2+rotation_angle)/wz+0.05)*10;
 					}
 					
@@ -239,7 +239,7 @@ void robot_control::robot_move_base()
 					common_move_cmd.angular.z = 0;
 		
 					int straight_time = (int)(fabs(distance_y)/vx+0.05)*10;
-				
+					ROS_INFO("straight_distance:%f",fabs(distance_y));
 					for(int i = 0;i < straight_time;i++)
 					{
 							cmd_vel_pub.publish(common_move_cmd);
@@ -248,6 +248,7 @@ void robot_control::robot_move_base()
 					
 					//rotate
 					ros::Duration(1.0).sleep();
+					ROS_INFO("NI_rotate:%f",PI/2*180/PI);
 					rotation_time = (int)(PI/2/wz+0.05)*10;
 					for(int i = 0;i < rotation_time;i++)
 					{
@@ -270,12 +271,12 @@ void robot_control::robot_move_base()
 					int rotation_time;
 					if(rotation_direction < 0)
 					{					
-						ROS_INFO("rotate:%f",(PI/2-rotation_angle)*180/PI);
+						ROS_INFO("NI_rotate:%f",(PI/2-rotation_angle)*180/PI);
 						rotation_time = (int)((PI/2-rotation_angle)/wz+0.05)*10;
 					}								
 					else
 					{
-						ROS_INFO("rotate:%f",(PI/2-rotation_angle)*180/PI);
+						ROS_INFO("NI_rotate:%f",(PI/2-rotation_angle)*180/PI);
 						rotation_time = (int)((PI/2-rotation_angle)/wz+0.05)*10;
 					}
 					
@@ -302,7 +303,7 @@ void robot_control::robot_move_base()
 					common_move_cmd.angular.z = 0;
 		
 					int straight_time = (int)(fabs(distance_y)/vx+0.05)*10;
-				
+					ROS_INFO("straight_distance:%f",fabs(distance_y));
 					for(int i = 0;i < straight_time;i++)
 					{
 							cmd_vel_pub.publish(common_move_cmd);
@@ -311,6 +312,7 @@ void robot_control::robot_move_base()
 					
 					//rotate
 					ros::Duration(1.0).sleep();
+					ROS_INFO("SHUN_rotate:%f",PI/2*180/PI);
 					rotation_time = (int)(PI/2/wz+0.05)*10;
 					for(int i = 0;i < rotation_time;i++)
 					{
@@ -400,7 +402,7 @@ int main(int argc, char** argv)
 	rotate_move_cmd.angular.z = -0.8;
 
 	//straight
-	straight_move_cmd.linear.x = 0.2;
+	straight_move_cmd.linear.x = 0.1;
 	straight_move_cmd.linear.y = 0;
 	straight_move_cmd.linear.z = 0;
 	straight_move_cmd.angular.x = 0;
@@ -434,16 +436,18 @@ int main(int argc, char** argv)
 		{
 			rc.cmd_vel_pub.publish(stop_move_cmd);
 			ROS_INFO("Marker_Is_Visible");
+			ros::Duration(1.0).sleep();
 			if(is_forward_marker)
 			{
-				ros::Duration(0.5).sleep();
 				ROS_INFO("Is_Forward_Marker and Start Straight Line Move");
+				ros::Duration(1.0).sleep();
 				//rc.cmd_vel_pub.publish(straight_move_cmd);
 			}
 			else
 			{
-				rc.robot_move_base();
-				ros::Duration(0.5).sleep();						
+				ROS_INFO("Not Is_Forward_Marker and Alter Robot Position and Direction");
+				ros::Duration(1.0).sleep();		
+				rc.robot_move_base();				
 			}		
 
 		}
