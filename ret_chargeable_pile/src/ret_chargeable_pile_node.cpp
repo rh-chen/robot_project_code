@@ -62,13 +62,14 @@ double marker_pitch;
 
 double position_threshold = 0.03;
 double angle_threshold = 0.04;
-
+double angular_tolerance = 2.5*PI/180; 
 double rate_frequency = 100;
-int int_rate_frequency = 100;
-double int_temp = 5*0.1/rate_frequency;
 
 double wz = 0.6;
-double vx = 0.1;
+double vx = 0.2;
+
+string odom_frame = "/odom";
+string base_frame = "/base_link";
 
 class robot_control{
 	public:
@@ -92,50 +93,67 @@ class robot_control{
 
 	void robot_control::rotate_n_angle(double n,int direction)
 	{
+		//rotation direction
 		if(direction  < 0)
-		{
-			ROS_INFO("SHUN_rotation_angle:%f",n*180/PI);
-			ros::Rate r(rate_frequency);
-			int rotation_time = (int)((n/wz+int_temp)*int_rate_frequency);	
-			for(int i = 0;i < rotation_time;i++)
-			{
-				common_move_cmd.linear.x = 0;
-				common_move_cmd.linear.y = 0;
-				common_move_cmd.linear.z = 0;
-				common_move_cmd.angular.x = 0;
-				common_move_cmd.angular.y = 0;
-				common_move_cmd.angular.z = -wz;
-			
-				cmd_vel_pub.publish(common_move_cmd);
-				r.sleep();
-			}
+		{	
+			common_move_cmd.linear.x = 0;
+			common_move_cmd.linear.y = 0;
+			common_move_cmd.linear.z = 0;
+			common_move_cmd.angular.x = 0;
+			common_move_cmd.angular.y = 0;
+			common_move_cmd.angular.z = -wz;
 		}
 		else
 		{
-			ROS_INFO("NI_rotation_angle:%f",n*180/PI);
-			ros::Rate r(rate_frequency);
-			int rotation_time = (int)((n/wz+int_temp)*int_rate_frequency);	
-			for(int i = 0;i < rotation_time;i++)
-			{
-				common_move_cmd.linear.x = 0;
-				common_move_cmd.linear.y = 0;
-				common_move_cmd.linear.z = 0;
-				common_move_cmd.angular.x = 0;
-				common_move_cmd.angular.y = 0;
-				common_move_cmd.angular.z = wz;
-			
-				cmd_vel_pub.publish(common_move_cmd);
-				r.sleep();
-			}
+			common_move_cmd.linear.x = 0;
+			common_move_cmd.linear.y = 0;
+			common_move_cmd.linear.z = 0;
+			common_move_cmd.angular.x = 0;
+			common_move_cmd.angular.y = 0;
+			common_move_cmd.angular.z = wz;
 		}
+		//get odom data
+		tf::StampedTransform OdomToBaselink;
+		try
+      {
+        tf_listener->waitForTransform(odom_frame, base_frame, ros::Time::now(), ros::Duration(2.0) );
+				tf_listener->lookupTransform(odom_frame, base_frame, ros::Time::now(), OdomToBaselink);
+      }
+    catch (tf::TransformException ex)
+      {
+          ROS_INFO("Cannot find transform between /odom and /base_link");
+          cmd_vel_pub.publish(geometry_msgs::Twist());
+          ros::shutdown();
+      }
+
+		double last_angle = fabs(tf::getYaw(OdomToBaselink.getRotation()));
+   	double turn_angle = 0;
+
+		ros::Rate loopRate(rate_frequency);
+    while( (fabs(turn_angle + angular_tolerance) < n) && (ros::ok()) )
+    {
+        //Publish the Twist message and sleep 1 cycle
+        cmd_vel_pub.publish(common_move_cmd);
+        loopRate.sleep();
+        // Get the current rotation
+        tf_listener->lookupTransform(odom_frame, base_frame, ros::Time::now(), OdomToBaselink);
+     
+        double rotation = fabs(tf::getYaw(OdomToBaselink.getRotation()));
+
+        //Compute the amount of rotation since the last loop
+        double delta_angle = fabs(rotation - last_angle);
+
+        //Add to the running total
+        turn_angle += delta_angle;
+
+        last_angle = rotation;
+    }
+		cmd_vel_pub.publish(geometry_msgs::Twist());
 	}
 
 	void robot_control::straight_n_distance(double n)
 	{
-		ros::Rate r(rate_frequency);
-		
-		int straight_time = (int)(n/vx*int_rate_frequency);
-
+		//set veloctiy
 		common_move_cmd.linear.x = vx;
 		common_move_cmd.linear.y = 0;
 		common_move_cmd.linear.z = 0;
@@ -143,12 +161,41 @@ class robot_control{
 		common_move_cmd.angular.y = 0;
 		common_move_cmd.angular.z = 0;
 
-		ROS_INFO("straight_distance:%f",n);
-		for(int i = 0;i < straight_time;i++)
-		{
-				cmd_vel_pub.publish(common_move_cmd);
-				r.sleep();
-		}
+		//get odom data
+		tf::StampedTransform OdomToBaselink;
+		try
+      {
+        tf_listener->waitForTransform(odom_frame, base_frame, ros::Time::now(), ros::Duration(2.0) );
+				tf_listener->lookupTransform(odom_frame, base_frame, ros::Time::now(), OdomToBaselink);
+      }
+    catch (tf::TransformException ex)
+      {
+          ROS_INFO("Cannot find transform between /odom and /base_link");
+          cmd_vel_pub.publish(geometry_msgs::Twist());
+          ros::shutdown();
+      }
+
+		ros::Rate loopRate(rate_frequency);
+
+		float x_start = OdomToBaselink.getOrigin().x();
+    float y_start = OdomToBaselink.getOrigin().y();
+
+    // Keep track of the distance traveled
+    float distance = 0;
+    while( (distance < n) && (ros::ok()) )
+    {
+         //Publish the Twist message and sleep 1 cycle
+         cmd_vel_pub.publish(common_move_cmd);
+         loopRate.sleep();
+         tf_listener->lookupTransform(odom_frame, base_frame, ros::Time::now(), OdomToBaselink);
+         //Get the current position
+         float x = OdomToBaselink.getOrigin().x();
+         float y = OdomToBaselink.getOrigin().y();
+         //Compute the Euclidean distance from the start
+         distance = sqrt(pow((x - x_start), 2) +  pow((y - y_start), 2));
+    }
+    //Stop the robot before the rotation
+    cmd_vel_pub.publish(geometry_msgs::Twist());
 	}
 
 	void robot_control::poseCallback(const ar_track_alvar_msgs::AlvarMarkers::ConstPtr &msg)
@@ -175,11 +222,13 @@ class robot_control{
 
 					tf::StampedTransform CameraToWorld;
     			try{
-						tf_listener->waitForTransform(world_frame+"_2", camera_frame, msg->header.stamp, ros::Duration(0.5));
+						tf_listener->waitForTransform(world_frame+"_2", camera_frame, msg->header.stamp, ros::Duration(2.0));
 						tf_listener->lookupTransform(world_frame+"_2", camera_frame, msg->header.stamp, CameraToWorld);
    				}
     			catch (tf::TransformException ex){
-      				ROS_ERROR("%s",ex.what());
+							ROS_ERROR("%s",ex.what());
+							cmd_vel_pub.publish(geometry_msgs::Twist());
+							ros::shutdown();
     			}
 
 					marker_x = CameraToWorld.getOrigin().x();
@@ -196,7 +245,7 @@ class robot_control{
 				
 					alter_marker_x = marker_x;
 					alter_marker_y = marker_y - 0.06*cos(marker_pitch);
-					alter_marker_z = marker_z + 0.06*sin(marker_pitch);
+					alter_marker_z = marker_z - 0.06*sin(marker_pitch);
 
 					ROS_INFO("alter_marker_x:%f\n",alter_marker_x);
 					ROS_INFO("alter_marker_y:%f\n",alter_marker_y);
@@ -315,7 +364,7 @@ int main(int argc, char** argv)
 	rotate_move_cmd.angular.z = -0.8;
 
 	//straight
-	straight_move_cmd.linear.x = 0.1;
+	straight_move_cmd.linear.x = 0.2;
 	straight_move_cmd.linear.y = 0;
 	straight_move_cmd.linear.z = 0;
 	straight_move_cmd.angular.x = 0;
@@ -353,7 +402,7 @@ int main(int argc, char** argv)
 			if(is_forward_marker)
 			{
 				ROS_INFO("Is_Forward_Marker and Start Straight Line Move");
-				ros::Duration(1.0).sleep();
+				ros::Duration(3.0).sleep();
 				rc.cmd_vel_pub.publish(straight_move_cmd);
 			}
 			else
