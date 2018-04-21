@@ -43,6 +43,7 @@ bool marker_is_visible = false;
 bool is_forward_marker = false;
 bool is_position_unsuitable = false;
 bool is_angle_unsuitable = false;
+bool forward_to_marker_nearby = false;
 
 geometry_msgs::Twist rotate_move_cmd;
 geometry_msgs::Twist straight_move_cmd;
@@ -62,11 +63,11 @@ double marker_pitch;
 
 double position_threshold = 0.03;
 double angle_threshold = 0.04;
-double angular_tolerance = 2.5*PI/180; 
+double angular_tolerance = 2.0*PI/180; 
 double rate_frequency = 100;
 
 double wz = 0.6;
-double vx = 0.2;
+double vx = 0.1;
 
 string odom_frame = "/odom";
 string base_frame = "/base_link";
@@ -116,8 +117,8 @@ class robot_control{
 		tf::StampedTransform OdomToBaselink;
 		try
       {
-        tf_listener->waitForTransform(odom_frame, base_frame, ros::Time::now(), ros::Duration(2.0) );
-				tf_listener->lookupTransform(odom_frame, base_frame, ros::Time::now(), OdomToBaselink);
+        tf_listener->waitForTransform(odom_frame, base_frame, ros::Time(0), ros::Duration(2.0) );
+				tf_listener->lookupTransform(odom_frame, base_frame, ros::Time(0), OdomToBaselink);
       }
     catch (tf::TransformException ex)
       {
@@ -136,15 +137,16 @@ class robot_control{
         cmd_vel_pub.publish(common_move_cmd);
         loopRate.sleep();
         // Get the current rotation
-        tf_listener->lookupTransform(odom_frame, base_frame, ros::Time::now(), OdomToBaselink);
+        tf_listener->lookupTransform(odom_frame, base_frame, ros::Time(0), OdomToBaselink);
      
         double rotation = fabs(tf::getYaw(OdomToBaselink.getRotation()));
-
+				ROS_INFO("rotation:%f",rotation);
         //Compute the amount of rotation since the last loop
         double delta_angle = fabs(rotation - last_angle);
 
         //Add to the running total
         turn_angle += delta_angle;
+				ROS_INFO("turn_angle:%f",turn_angle);
 
         last_angle = rotation;
     }
@@ -165,8 +167,8 @@ class robot_control{
 		tf::StampedTransform OdomToBaselink;
 		try
       {
-        tf_listener->waitForTransform(odom_frame, base_frame, ros::Time::now(), ros::Duration(2.0) );
-				tf_listener->lookupTransform(odom_frame, base_frame, ros::Time::now(), OdomToBaselink);
+        tf_listener->waitForTransform(odom_frame, base_frame, ros::Time(0), ros::Duration(2.0) );
+				tf_listener->lookupTransform(odom_frame, base_frame, ros::Time(0), OdomToBaselink);
       }
     catch (tf::TransformException ex)
       {
@@ -187,10 +189,13 @@ class robot_control{
          //Publish the Twist message and sleep 1 cycle
          cmd_vel_pub.publish(common_move_cmd);
          loopRate.sleep();
-         tf_listener->lookupTransform(odom_frame, base_frame, ros::Time::now(), OdomToBaselink);
+         tf_listener->lookupTransform(odom_frame, base_frame, ros::Time(0), OdomToBaselink);
          //Get the current position
          float x = OdomToBaselink.getOrigin().x();
          float y = OdomToBaselink.getOrigin().y();
+
+				 ROS_INFO("x:%f,y:%f",x,y);
+
          //Compute the Euclidean distance from the start
          distance = sqrt(pow((x - x_start), 2) +  pow((y - y_start), 2));
     }
@@ -215,6 +220,7 @@ class robot_control{
 				if(marker.pose.header.frame_id == world_frame+"_2")
 				{
 					is_forward_marker = false;
+					forward_to_marker_nearby = false;
 					
 					ROS_INFO("world_frame:%s\n",(world_frame+"_2").c_str());
 					marker_is_visible = true;
@@ -222,8 +228,8 @@ class robot_control{
 
 					tf::StampedTransform CameraToWorld;
     			try{
-						tf_listener->waitForTransform(world_frame+"_2", camera_frame, msg->header.stamp, ros::Duration(2.0));
-						tf_listener->lookupTransform(world_frame+"_2", camera_frame, msg->header.stamp, CameraToWorld);
+						tf_listener->waitForTransform(world_frame+"_2", camera_frame, ros::Time(0), ros::Duration(2.0));
+						tf_listener->lookupTransform(world_frame+"_2", camera_frame, ros::Time(0), CameraToWorld);
    				}
     			catch (tf::TransformException ex){
 							ROS_ERROR("%s",ex.what());
@@ -252,6 +258,9 @@ class robot_control{
 					ROS_INFO("alter_marker_z:%f\n",alter_marker_z);
 					ROS_INFO("marker_pitch:%f\n",marker_pitch);				
 				
+					if(alter_marker_z > 1.0)
+						forward_to_marker_nearby = true;
+		
 					if(fabs(alter_marker_y) < position_threshold)
 					{
 						if(fabs(marker_pitch) < angle_threshold)
@@ -309,36 +318,112 @@ void robot_control::robot_move_base()
 					
 			if(is_position_unsuitable)
 			{
-				if(alter_marker_y > position_threshold)
+				if(forward_to_marker_nearby == true)
 				{
-					rotate_n_angle(PI/2+marker_pitch,rotation_direction);
-					ros::Duration(1.0).sleep();
-					straight_n_distance(alter_marker_y);
-					ros::Duration(1.0).sleep();
-					rotate_n_angle(PI/2,-rotation_direction);
-					ros::Duration(1.0).sleep();
+					if(alter_marker_y > position_threshold)
+					{
+						double angle_to_nearby = atan2(alter_marker_z-1,alter_marker_y);
+						double rotation_to_nearby = PI/2+marker_pitch-angle_to_nearby;
+						double rotation_to_nearby_back = PI/2-angle_to_nearby;
+						
+						ROS_INFO("angle_to_nearby:%f",angle_to_nearby);
+						ROS_INFO("rotation_to_nearby:%f",rotation_to_nearby);
+						ROS_INFO("rotation_to_nearby_back:%f",rotation_to_nearby_back);
+
+						double distance_to_nearby = sqrt(pow((alter_marker_z - 1.0), 2) +  pow((alter_marker_y), 2));
+						rotate_n_angle(rotation_to_nearby,rotation_direction);
+						ros::Duration(1.0).sleep();
+						straight_n_distance(distance_to_nearby);
+						ros::Duration(1.0).sleep();
+						rotate_n_angle(rotation_to_nearby_back,-rotation_direction);
+						ros::Duration(1.0).sleep();
+					}
+					else if(alter_marker_y < -position_threshold)
+					{
+						double angle_to_nearby = atan2(alter_marker_z-1,alter_marker_y);
+						double rotation_to_nearby = PI/2-marker_pitch+angle_to_nearby;
+						double rotation_to_nearby_back = PI/2+angle_to_nearby;
+
+						ROS_INFO("angle_to_nearby:%f",angle_to_nearby);
+						ROS_INFO("rotation_to_nearby:%f",rotation_to_nearby);
+						ROS_INFO("rotation_to_nearby_back:%f",rotation_to_nearby_back);
+
+						double distance_to_nearby = sqrt(pow((alter_marker_z - 1.0), 2) +  pow((alter_marker_y), 2));
+						rotate_n_angle(rotation_to_nearby,rotation_direction);
+						ros::Duration(1.0).sleep();
+						straight_n_distance(distance_to_nearby);
+						ros::Duration(1.0).sleep();
+						rotate_n_angle(rotation_to_nearby_back,-rotation_direction);
+						ros::Duration(1.0).sleep();
+					}
 				}
-				else if(alter_marker_y < -position_threshold)
+				else
 				{
-					rotate_n_angle(PI/2-marker_pitch,rotation_direction);
-					ros::Duration(1.0).sleep();
-					straight_n_distance(alter_marker_y);
-					ros::Duration(1.0).sleep();
-					rotate_n_angle(PI/2,-rotation_direction);
-					ros::Duration(1.0).sleep();
+					if(alter_marker_y > position_threshold)
+					{
+						rotate_n_angle(PI/2+marker_pitch,rotation_direction);
+						ros::Duration(1.0).sleep();
+						straight_n_distance(fabs(alter_marker_y));
+						ros::Duration(1.0).sleep();
+						rotate_n_angle(PI/2,-rotation_direction);
+						ros::Duration(1.0).sleep();
+					}
+					else if(alter_marker_y < -position_threshold)
+					{
+						rotate_n_angle(PI/2-marker_pitch,rotation_direction);
+						ros::Duration(1.0).sleep();
+						straight_n_distance(fabs(alter_marker_y));
+						ros::Duration(1.0).sleep();
+						rotate_n_angle(PI/2,-rotation_direction);
+						ros::Duration(1.0).sleep();
+					}
 				}
 			}
 			else if(!is_position_unsuitable && is_angle_unsuitable)
 			{
-				if(marker_pitch < 0)
+				if(forward_to_marker_nearby == true)
 				{
-					rotate_n_angle(fabs(marker_pitch),1);
-					ros::Duration(1.0).sleep();
+					if(alter_marker_y > position_threshold)
+					{
+						double angle_to_nearby = atan2(alter_marker_z-1,alter_marker_y);
+						double rotation_to_nearby = PI/2+marker_pitch-angle_to_nearby;
+						double rotation_to_nearby_back = PI/2-angle_to_nearby;
+
+						double distance_to_nearby = sqrt(pow((alter_marker_z - 1.0), 2) +  pow((alter_marker_y), 2));
+						rotate_n_angle(rotation_to_nearby,rotation_direction);
+						ros::Duration(1.0).sleep();
+						straight_n_distance(distance_to_nearby);
+						ros::Duration(1.0).sleep();
+						rotate_n_angle(rotation_to_nearby_back,-rotation_direction);
+						ros::Duration(1.0).sleep();
+					}
+					else if(alter_marker_y < -position_threshold)
+					{
+						double angle_to_nearby = atan2(alter_marker_z-1,alter_marker_y);
+						double rotation_to_nearby = PI/2-marker_pitch+angle_to_nearby;
+						double rotation_to_nearby_back = PI/2+angle_to_nearby;
+
+						double distance_to_nearby = sqrt(pow((alter_marker_z - 1.0), 2) +  pow((alter_marker_y), 2));
+						rotate_n_angle(rotation_to_nearby,rotation_direction);
+						ros::Duration(1.0).sleep();
+						straight_n_distance(distance_to_nearby);
+						ros::Duration(1.0).sleep();
+						rotate_n_angle(rotation_to_nearby_back,-rotation_direction);
+						ros::Duration(1.0).sleep();
+					}
 				}
 				else
 				{
-					rotate_n_angle(fabs(marker_pitch),-1);
-					ros::Duration(1.0).sleep();
+					if(marker_pitch < 0)
+					{
+						rotate_n_angle(fabs(marker_pitch),1);
+						ros::Duration(1.0).sleep();
+					}
+					else
+					{
+						rotate_n_angle(fabs(marker_pitch),-1);
+						ros::Duration(1.0).sleep();
+					}
 				}		
 		}
 #endif		
@@ -403,7 +488,8 @@ int main(int argc, char** argv)
 			{
 				ROS_INFO("Is_Forward_Marker and Start Straight Line Move");
 				ros::Duration(3.0).sleep();
-				rc.cmd_vel_pub.publish(straight_move_cmd);
+				rc.straight_n_distance(fabs(alter_marker_z));
+				//rc.cmd_vel_pub.publish(straight_move_cmd);
 			}
 			else
 			{
