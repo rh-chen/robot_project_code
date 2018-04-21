@@ -322,7 +322,8 @@ void robot_control::robot_move_base()
 				{
 					if(alter_marker_y > position_threshold)
 					{
-						double angle_to_nearby = atan2(alter_marker_z-1,alter_marker_y);
+						//double angle_to_nearby = atan2(alter_marker_z-1,alter_marker_y);
+						double angle_to_nearby = atan((alter_marker_z-1)/alter_marker_y);
 						double rotation_to_nearby = PI/2+marker_pitch-angle_to_nearby;
 						double rotation_to_nearby_back = PI/2-angle_to_nearby;
 						
@@ -340,7 +341,8 @@ void robot_control::robot_move_base()
 					}
 					else if(alter_marker_y < -position_threshold)
 					{
-						double angle_to_nearby = atan2(alter_marker_z-1,alter_marker_y);
+						//double angle_to_nearby = atan2(alter_marker_z-1,alter_marker_y);
+						double angle_to_nearby = atan((alter_marker_z-1)/alter_marker_y);
 						double rotation_to_nearby = PI/2-marker_pitch+angle_to_nearby;
 						double rotation_to_nearby_back = PI/2+angle_to_nearby;
 
