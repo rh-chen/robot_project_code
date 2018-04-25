@@ -145,9 +145,9 @@ void getCapCallback (const sensor_msgs::ImageConstPtr & image_msg)
 				markerFrame += id_string;
 
 				//add code 4.19
-				markerPose = markerPose.inverse();
-				tf::StampedTransform camToMarker (markerPose, image_msg->header.stamp,markerFrame.c_str(),image_msg->header.frame_id);
-				//tf::StampedTransform camToMarker (t, image_msg->header.stamp, image_msg->header.frame_id, markerFrame.c_str());
+				//markerPose = markerPose.inverse();
+				//tf::StampedTransform camToMarker (markerPose, image_msg->header.stamp,markerFrame.c_str(),image_msg->header.frame_id);
+				tf::StampedTransform camToMarker (t, image_msg->header.stamp, image_msg->header.frame_id, markerFrame.c_str());
     		tf_broadcaster->sendTransform(camToMarker);
 
 				//Create the rviz visualization messages
@@ -208,7 +208,7 @@ void getCapCallback (const sensor_msgs::ImageConstPtr & image_msg)
 				tf::Transform tagPoseOutput = CamToOutput * markerPose;
 				/*add code 4.18*/
 				//Get the pose of the camera in the marker frame
-				tagPoseOutput = tagPoseOutput.inverse();
+				//tagPoseOutput = tagPoseOutput.inverse();
 
 				//Create the pose marker messages
 				ar_track_alvar_msgs::AlvarMarker ar_pose_marker;
