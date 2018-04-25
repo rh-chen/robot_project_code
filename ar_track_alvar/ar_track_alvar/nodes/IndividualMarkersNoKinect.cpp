@@ -145,7 +145,6 @@ void getCapCallback (const sensor_msgs::ImageConstPtr & image_msg)
 				markerFrame += id_string;
 
 				//add code 4.19
-				markerPose = markerPose.inverse();
 				//markerPose = markerPose.inverse();
 				//tf::StampedTransform camToMarker (markerPose, image_msg->header.stamp,markerFrame.c_str(),image_msg->header.frame_id);
 				tf::StampedTransform camToMarker (t, image_msg->header.stamp, image_msg->header.frame_id, markerFrame.c_str());
