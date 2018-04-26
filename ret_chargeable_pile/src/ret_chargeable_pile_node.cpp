@@ -41,7 +41,7 @@ std::string camera_frame;
 std::string world_frame;
 std::string string_frame_pose = "_2_pose";
 std::string string_frame = "_2";
-int half_base_line = 0.03;
+double half_base_line = 0.03;
 
 bool marker_is_visible = false;
 bool is_forward_marker = false;
