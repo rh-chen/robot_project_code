@@ -65,9 +65,9 @@ double marker_yaw;
 double marker_roll;
 double marker_pitch;
 
-double position_threshold = 0.01;
-double angle_threshold = 0.02;
-double angular_tolerance = 1.0*PI/180; 
+double position_threshold = 0.03;
+double angle_threshold = 0.03;
+double angular_tolerance = 2.0*PI/180; 
 double rate_frequency = 100;
 
 double wz = 0.6;
@@ -230,6 +230,12 @@ class robot_control{
 #if 1
 				if(marker.pose.header.frame_id == world_frame+string_frame)
 				{
+					
+					is_forward_marker = false;
+					is_position_unsuitable = false;
+					is_angle_unsuitable = false;
+					forward_to_marker_nearby = false;
+
 					ROS_INFO("world_frame:%s\n",(world_frame+string_frame).c_str());
 					marker_is_visible = true;
 #if 1
