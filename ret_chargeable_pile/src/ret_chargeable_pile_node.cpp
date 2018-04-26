@@ -2,7 +2,7 @@
 #include <ros/topic.h>
 #include <std_msgs/Float32.h>
 #include <actionlib/server/simple_action_server.h>
-#include <ret_chargeable_pile/FindMarkerPoseAction.h>
+//#include <ret_chargeable_pile/FindMarkerPoseAction.h>
 #include <tf/transform_broadcaster.h>
 #include <tf/transform_listener.h>
 #include <dynamic_reconfigure/server.h>
@@ -32,12 +32,16 @@
 using namespace tf;
 using namespace std;
 
+
 tf::TransformListener *tf_listener;
+double max_frequency;
+int rotation_direction = 0;
+
 std::string camera_frame;
 std::string world_frame;
-double max_frequency;
-
-int rotation_direction = 0;
+std::string string_frame_pose = "_2_pose";
+std::string string_frame = "_2";
+int half_base_line = 0.03;
 
 bool marker_is_visible = false;
 bool is_forward_marker = false;
@@ -61,13 +65,15 @@ double marker_yaw;
 double marker_roll;
 double marker_pitch;
 
-double position_threshold = 0.03;
-double angle_threshold = 0.04;
-double angular_tolerance = 2.0*PI/180; 
+double position_threshold = 0.01;
+double angle_threshold = 0.02;
+double angular_tolerance = 1.0*PI/180; 
 double rate_frequency = 100;
 
 double wz = 0.6;
 double vx = 0.1;
+
+double robot_to_marker_distance = 0.6;
 
 string odom_frame = "/odom";
 string base_frame = "/base_link";
@@ -205,6 +211,11 @@ class robot_control{
 
 	void robot_control::poseCallback(const ar_track_alvar_msgs::AlvarMarkers::ConstPtr &msg)
 	{
+		is_forward_marker = false;
+		is_position_unsuitable = false;
+		is_angle_unsuitable = false;
+		forward_to_marker_nearby = false;
+
 		ROS_INFO("world_frame:%s\n",world_frame.c_str());
 #if 1
 
@@ -213,23 +224,23 @@ class robot_control{
 			ROS_INFO("world_frame:%s\n",world_frame.c_str());
 #if 1
 			ar_track_alvar_msgs::AlvarMarker marker = msg->markers[0];
-			if(marker.header.frame_id == world_frame+"_2_pose")
+			if(marker.header.frame_id == world_frame+string_frame_pose)
 			{
-				ROS_INFO("world_frame:%s\n",(world_frame+"_2_pose").c_str());
+				ROS_INFO("world_frame:%s\n",(world_frame+string_frame_pose).c_str());
 #if 1
-				if(marker.pose.header.frame_id == world_frame+"_2")
+				if(marker.pose.header.frame_id == world_frame+string_frame)
 				{
-					is_forward_marker = false;
-					forward_to_marker_nearby = false;
-					
-					ROS_INFO("world_frame:%s\n",(world_frame+"_2").c_str());
+					ROS_INFO("world_frame:%s\n",(world_frame+string_frame).c_str());
 					marker_is_visible = true;
 #if 1
 
 					tf::StampedTransform CameraToWorld;
     			try{
-						tf_listener->waitForTransform(world_frame+"_2", camera_frame, ros::Time(0), ros::Duration(2.0));
-						tf_listener->lookupTransform(world_frame+"_2", camera_frame, ros::Time(0), CameraToWorld);
+						//tf_listener->waitForTransform(world_frame+"_2", camera_frame, ros::Time(0), ros::Duration(2.0));
+						//tf_listener->lookupTransform(world_frame+"_2", camera_frame, ros::Time(0), CameraToWorld);
+
+						tf_listener->waitForTransform(camera_frame,world_frame+string_frame, ros::Time(0), ros::Duration(2.0));
+						tf_listener->lookupTransform(camera_frame,world_frame+string_frame, ros::Time(0), CameraToWorld);	
    				}
     			catch (tf::TransformException ex){
 							ROS_ERROR("%s",ex.what());
@@ -237,11 +248,13 @@ class robot_control{
 							ros::shutdown();
     			}
 
-					marker_x = CameraToWorld.getOrigin().x();
-					marker_y = CameraToWorld.getOrigin().y();
-					marker_z = CameraToWorld.getOrigin().z();
+					tf::Transform CToW = CameraToWorld.inverse();
 
-					CameraToWorld.getBasis().getRPY(marker_roll,marker_pitch,marker_yaw);
+					marker_x = CToW.getOrigin().x();
+					marker_y = CToW.getOrigin().y();
+					marker_z = CToW.getOrigin().z();
+
+					CToW.getBasis().getRPY(marker_roll,marker_pitch,marker_yaw);
 
 					//is_forward_marker
 					ROS_INFO("marker_x:%f\n",marker_x);
@@ -250,15 +263,15 @@ class robot_control{
 					ROS_INFO("marker_pitch:%f\n",marker_pitch);
 				
 					alter_marker_x = marker_x;
-					alter_marker_y = marker_y - 0.06*cos(marker_pitch);
-					alter_marker_z = marker_z - 0.06*sin(marker_pitch);
+					alter_marker_y = marker_y - half_base_line*cos(marker_pitch);
+					alter_marker_z = marker_z - half_base_line*sin(marker_pitch);
 
 					ROS_INFO("alter_marker_x:%f\n",alter_marker_x);
 					ROS_INFO("alter_marker_y:%f\n",alter_marker_y);
 					ROS_INFO("alter_marker_z:%f\n",alter_marker_z);
 					ROS_INFO("marker_pitch:%f\n",marker_pitch);				
 				
-					if(alter_marker_z > 1.0)
+					if(alter_marker_z > robot_to_marker_distance)
 						forward_to_marker_nearby = true;
 		
 					if(fabs(alter_marker_y) < position_threshold)
@@ -323,7 +336,7 @@ void robot_control::robot_move_base()
 					if(alter_marker_y > position_threshold)
 					{
 						//double angle_to_nearby = atan2(alter_marker_z-1,alter_marker_y);
-						double angle_to_nearby = atan((alter_marker_z-1)/alter_marker_y);
+						double angle_to_nearby = atan((alter_marker_z-robot_to_marker_distance)/alter_marker_y);
 						double rotation_to_nearby = PI/2+marker_pitch-angle_to_nearby;
 						double rotation_to_nearby_back = PI/2-angle_to_nearby;
 						
@@ -331,7 +344,7 @@ void robot_control::robot_move_base()
 						ROS_INFO("rotation_to_nearby:%f",rotation_to_nearby);
 						ROS_INFO("rotation_to_nearby_back:%f",rotation_to_nearby_back);
 
-						double distance_to_nearby = sqrt(pow((alter_marker_z - 1.0), 2) +  pow((alter_marker_y), 2));
+						double distance_to_nearby = sqrt(pow((alter_marker_z - robot_to_marker_distance), 2) +  pow((alter_marker_y), 2));
 						rotate_n_angle(rotation_to_nearby,rotation_direction);
 						ros::Duration(1.0).sleep();
 						straight_n_distance(distance_to_nearby);
@@ -342,7 +355,7 @@ void robot_control::robot_move_base()
 					else if(alter_marker_y < -position_threshold)
 					{
 						//double angle_to_nearby = atan2(alter_marker_z-1,alter_marker_y);
-						double angle_to_nearby = atan((alter_marker_z-1)/alter_marker_y);
+						double angle_to_nearby = atan((alter_marker_z-robot_to_marker_distance)/alter_marker_y);
 						double rotation_to_nearby = PI/2-marker_pitch+angle_to_nearby;
 						double rotation_to_nearby_back = PI/2+angle_to_nearby;
 
@@ -350,7 +363,7 @@ void robot_control::robot_move_base()
 						ROS_INFO("rotation_to_nearby:%f",rotation_to_nearby);
 						ROS_INFO("rotation_to_nearby_back:%f",rotation_to_nearby_back);
 
-						double distance_to_nearby = sqrt(pow((alter_marker_z - 1.0), 2) +  pow((alter_marker_y), 2));
+						double distance_to_nearby = sqrt(pow((alter_marker_z - robot_to_marker_distance), 2) +  pow((alter_marker_y), 2));
 						rotate_n_angle(rotation_to_nearby,rotation_direction);
 						ros::Duration(1.0).sleep();
 						straight_n_distance(distance_to_nearby);
@@ -387,11 +400,11 @@ void robot_control::robot_move_base()
 				{
 					if(alter_marker_y > position_threshold)
 					{
-						double angle_to_nearby = atan2(alter_marker_z-1,alter_marker_y);
+						double angle_to_nearby = atan2(alter_marker_z-robot_to_marker_distance,alter_marker_y);
 						double rotation_to_nearby = PI/2+marker_pitch-angle_to_nearby;
 						double rotation_to_nearby_back = PI/2-angle_to_nearby;
 
-						double distance_to_nearby = sqrt(pow((alter_marker_z - 1.0), 2) +  pow((alter_marker_y), 2));
+						double distance_to_nearby = sqrt(pow((alter_marker_z - robot_to_marker_distance), 2) +  pow((alter_marker_y), 2));
 						rotate_n_angle(rotation_to_nearby,rotation_direction);
 						ros::Duration(1.0).sleep();
 						straight_n_distance(distance_to_nearby);
@@ -401,11 +414,11 @@ void robot_control::robot_move_base()
 					}
 					else if(alter_marker_y < -position_threshold)
 					{
-						double angle_to_nearby = atan2(alter_marker_z-1,alter_marker_y);
+						double angle_to_nearby = atan2(alter_marker_z-robot_to_marker_distance,alter_marker_y);
 						double rotation_to_nearby = PI/2-marker_pitch+angle_to_nearby;
 						double rotation_to_nearby_back = PI/2+angle_to_nearby;
 
-						double distance_to_nearby = sqrt(pow((alter_marker_z - 1.0), 2) +  pow((alter_marker_y), 2));
+						double distance_to_nearby = sqrt(pow((alter_marker_z - robot_to_marker_distance), 2) +  pow((alter_marker_y), 2));
 						rotate_n_angle(rotation_to_nearby,rotation_direction);
 						ros::Duration(1.0).sleep();
 						straight_n_distance(distance_to_nearby);
