@@ -16,6 +16,7 @@
 #include <image_transport/image_transport.h>
 #include <cv_bridge/cv_bridge.h>
 #include <sensor_msgs/image_encodings.h>
+#include <kobuki_msgs/BumperEvent.h>
 
 #include <opencv2/core/core.hpp>
 
@@ -48,6 +49,7 @@ bool is_forward_marker = false;
 bool is_position_unsuitable = false;
 bool is_angle_unsuitable = false;
 bool forward_to_marker_nearby = false;
+bool robot_reach_goal = false;
 
 geometry_msgs::Twist rotate_move_cmd;
 geometry_msgs::Twist straight_move_cmd;
@@ -82,6 +84,7 @@ class robot_control{
 	public:
 	ros::NodeHandle nh;
 	ros::Subscriber msg_sub;
+	ros::Subscriber bumper_sub;
 	ros::Publisher cmd_vel_pub;
 
 	geometry_msgs::Twist move_cmd;
@@ -90,14 +93,22 @@ class robot_control{
 	{
 		msg_sub = nh.subscribe("/ar_pose_marker", 1000,&robot_control::poseCallback,this);
 		cmd_vel_pub = nh.advertise<geometry_msgs::Twist>("/cmd_vel_mux/input/navi",1000);
+		bumper_sub = nh.subscribe("/mobile_base/events/bumper", 1000,&robot_control::bumperCallback,this);
 	}
 	void poseCallback(const ar_track_alvar_msgs::AlvarMarkers::ConstPtr &msg);
+	void bumperCallback(const kobuki_msgs::BumperEvent::ConstPtr &msg);
 	void robot_move_base();
 	void rotate_n_angle(double n,int direction);
 	void straight_n_distance(double n);
 };
 
-
+	void robot_control::bumperCallback(const kobuki_msgs::BumperEvent::ConstPtr &msg)
+	{
+		if(msg->state == msg->PRESSED)
+			robot_reach_goal = true;
+		else
+			robot_reach_goal = false;
+	}
 	void robot_control::rotate_n_angle(double n,int direction)
 	{
 		//rotation direction
@@ -211,11 +222,6 @@ class robot_control{
 
 	void robot_control::poseCallback(const ar_track_alvar_msgs::AlvarMarkers::ConstPtr &msg)
 	{
-		is_forward_marker = false;
-		is_position_unsuitable = false;
-		is_angle_unsuitable = false;
-		forward_to_marker_nearby = false;
-
 		ROS_INFO("world_frame:%s\n",world_frame.c_str());
 #if 1
 
@@ -493,7 +499,13 @@ int main(int argc, char** argv)
 		ROS_INFO("Start Return To Chargeable Pile");
 		ros::spinOnce();
 		rate.sleep();
-				
+	
+		if(robot_reach_goal)
+		{
+			ROS_INFO("Robot have reached Pile");
+			rc.cmd_vel_pub.publish(stop_move_cmd);
+			ros::shutdown();
+		}			
 		/*if (std::abs((rate.expectedCycleTime() - ros::Duration(1.0 / max_frequency)).toSec()) > 0.001)
     {
       ROS_INFO("Changing frequency from %.2f to %.2f", 1.0 / rate.expectedCycleTime().toSec(), max_frequency);
