@@ -1,11 +1,12 @@
 <launch>
-	<arg name="map_file" default="$(find coverage_path_planning)/maps/planner1.yaml"/>
+	<arg name="map_file" default="$(find coverage_path_planning)/maps/a.yaml"/>
 
     <node name="map_server_for_test" pkg="map_server" type="map_server" args="$(arg map_file)">
     </node>
-
+		<!--
     <node name="coverage_path_planning_client" pkg="coverage_path_planning" type="coverage_path_planning_client" output="screen">
     </node>
+		-->
 
 	<node pkg="rviz" type="rviz" name="rviz" args="-d $(find coverage_path_planning)/launch/coverage_path_planning.rviz" />
 

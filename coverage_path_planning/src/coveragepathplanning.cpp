@@ -246,3 +246,123 @@ int cpp::CoveragePathPlanning(
 
   return 0;
 }
+
+/* ---------------------------------------------------------- */
+
+struct Candidate
+{
+    Point m_pos;
+    bool m_checkUp;
+    bool m_checkDown;
+};
+
+static int IsValid(const Mat &_dt, Point _tar, int _radius) {
+    //init
+    int dist = 2 * _radius + 1;
+    int anchorX = _tar.x - _radius;
+    int anchorY = _tar.y + _radius;
+    int x, y;
+    
+    //traverse neighbours
+    for (int i = 0; i <= dist; ++i) {
+        x = anchorX + i;
+        for (int j = 0; j >= -dist; --j) {
+            y = anchorY + j;
+            if (y < 0 || x < 0 || y >= _dt.rows || x >= _dt.cols || 
+              0 == _dt.at<unsigned char>(y, x)) {
+                return 0;
+            }
+        }
+    }
+    
+    return 1;
+}
+
+int UpdatePath(cv::Mat &_binary, const cv::Point &_tar, 
+  std::deque<cv::Point> &_path, stack<Candidate> &_trace, int _radius) {
+    // search left
+    Point left = _tar;
+    int left_dist = -1;
+    while (IsValid(_binary, left, _radius)) {
+        --left.x;
+        ++left_dist;
+    }
+    ++left.x;
+
+    // search right
+    Point right = _tar;
+    int right_dist = -1;
+    while (IsValid(_binary, right, _radius)) {
+        ++right.x;
+        ++right_dist;
+    }
+    --right.x;
+
+    // update
+    Candidate tmp;
+    if (left_dist < right_dist) { // from left to right
+        _path.push_back(left);
+        _path.push_back(right);
+        for (int i = left.x; i <= right.x; ++i) {
+            _binary.at<unsigned char>(_tar.y, i) = 0;
+            tmp.m_pos.x = i;
+            tmp.m_pos.y = _tar.y;
+            tmp.m_checkUp = false;
+            tmp.m_checkDown = false;
+            _trace.push(tmp);
+        }
+    } else { // from right to left
+        _path.push_back(right);
+        _path.push_back(left);
+        for (int i = right.x; i >= left.x; --i) {
+            _binary.at<unsigned char>(_tar.y, i) = 0;
+            tmp.m_pos.x = i;
+            tmp.m_pos.y = _tar.y;
+            tmp.m_checkUp = false;
+            tmp.m_checkDown = false;
+            _trace.push(tmp);
+        }
+    }
+
+    return 0;
+}
+
+int cpp::ZigZagPathPlanning(const cv::Mat &_binary, 
+  const cv::Point &_tar, std::deque<cv::Point> &_path, int _radius) {
+    Mat binary = _binary.clone();
+    stack<Candidate> trace;
+
+    if (IsValid(binary, _tar, _radius) != 1) {
+        return -1;
+    }
+
+    if (0 != UpdatePath(binary, _tar, _path, trace, _radius)) {
+        return -1;
+    }
+
+    while (trace.empty() != true) {
+        //  search up
+        if (trace.top().m_checkUp != true) {
+            trace.top().m_checkUp = true;
+            Point tmp(trace.top().m_pos.x, trace.top().m_pos.y - 2 * _radius - 1);
+            if (IsValid(binary, tmp, _radius) == 1) {
+                UpdatePath(binary, tmp, _path, trace, _radius);
+                continue;
+            }
+        }
+
+        //  search down
+        if (trace.top().m_checkDown != true) {
+            trace.top().m_checkDown = true;
+            Point tmp(trace.top().m_pos.x, trace.top().m_pos.y + 2 * _radius + 1);
+            if (IsValid(binary, tmp, _radius)) {
+                UpdatePath(binary, tmp, _path, trace, _radius);
+                continue;
+            }
+        }
+
+        trace.pop();
+    }
+
+    return 0;
+}

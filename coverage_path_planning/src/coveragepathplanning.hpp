@@ -24,6 +24,8 @@ namespace cpp {
 int CoveragePathPlanning(
     const cv::Mat &_binary, const cv::Point &_start, const cv::Point &_goal,
     std::deque<cv::Point> &_path, int _radius);
+int ZigZagPathPlanning(const cv::Mat &_binary, const cv::Point &_tar, 
+	std::deque<cv::Point> &_path, int _radius);
 }
 
 #endif /* coveragepathplanning_hpp */

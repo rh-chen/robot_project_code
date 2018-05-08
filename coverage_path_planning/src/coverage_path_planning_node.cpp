@@ -104,11 +104,16 @@ bool CoveragePlanService(
       binarization, erosion, element, cv::Point(-1, -1),
       (req.erosion_radius + req.map.info.resolution - 0.01) /
           req.map.info.resolution);
+
   //  coverage path plan
   int rst = -1;
   std::deque<cv::Point> path;
-  if (0 != (rst = cpp::CoveragePathPlanning(
-                erosion, start, goal, path,
+  // if (0 != (rst = cpp::CoveragePathPlanning(
+  //               erosion, start, goal, path,
+  //               (req.robot_radius + req.map.info.resolution - 0.01) /
+  //                   req.map.info.resolution))) {
+  if (0 != (rst = cpp::ZigZagPathPlanning(
+                erosion, start, path,
                 (req.robot_radius + req.map.info.resolution - 0.01) /
                     req.map.info.resolution))) {
     ROS_ERROR("The planner failed to find a coverage path.");

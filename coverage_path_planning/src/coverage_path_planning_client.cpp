@@ -184,10 +184,13 @@ int main(int argc, char **argv) {
         arrowEndPoint.y = 0;
         arrowEndPoint.z = 0;
 
-        markerArrow.points.push_back(arrowHeadPoint);
-        markerArrow.points.push_back(arrowEndPoint);
+        //markerArrow.points.push_back(arrowHeadPoint);
+        //markerArrow.points.push_back(arrowEndPoint);
         /////////
         ////////////////////////////
+
+        markerArrow.points.push_back(arrowEndPoint);
+        markerArrow.points.push_back(arrowHeadPoint);
 
         markerArray.markers.push_back(markerArrow);
 
