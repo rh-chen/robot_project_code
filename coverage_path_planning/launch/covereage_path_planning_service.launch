@@ -1,0 +1,6 @@
+<launch>
+
+    <node name="coverage_path_planning_node" pkg="coverage_path_planning" type="coverage_path_planning_node" output="screen">
+    </node>
+
+</launch>
