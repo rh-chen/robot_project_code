@@ -470,7 +470,9 @@ std::vector<PointVector> decomposePolygon(const PointVector& polygon)
   // note that this function has O(n^4) time complexity and O(n^3) space complexity
   // use approx_convex_partition_2 instead if the number of vertices are big because its time complexity is O(n)
   // but apptox_convex_partition_2 generates more polygons
-  CGAL::optimal_convex_partition_2(cgalPolygon.vertices_begin(), cgalPolygon.vertices_end(),
+  //CGAL::optimal_convex_partition_2(cgalPolygon.vertices_begin(), cgalPolygon.vertices_end(),
+  //                                 std::back_inserter(partialCGALPolygons), partitionTraits);
+	CGAL::approx_convex_partition_2(cgalPolygon.vertices_begin(), cgalPolygon.vertices_end(),
                                    std::back_inserter(partialCGALPolygons), partitionTraits);
 
   // generate std::vector<PointVector> from polygon of CGAL

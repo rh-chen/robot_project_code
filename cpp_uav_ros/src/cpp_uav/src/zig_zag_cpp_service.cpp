@@ -20,6 +20,55 @@
 using namespace cv;
 using namespace std;
 
+
+float getDistance(cv::Point& pa,cv::Point& pb)
+{
+	return sqrt((pa.x-pb.x)*(pa.x-pb.x)+(pa.y-pb.y)*(pa.y-pb.y));
+}
+void cornerDetection(cv::Mat& binary,vector<cv::Point>& corner)
+{
+	vector <vector<Point>> map_contours;  
+  findContours(binary,map_contours,CV_RETR_EXTERNAL,CV_CHAIN_APPROX_NONE);
+
+	int c_i = 0;
+	int point_internal = 10;
+	int contour_point_size = map_contours[c_i].size();
+	std::cout << "contour_point_size:" << contour_point_size << std::endl;
+
+  //std::cout << __FILE__ << __LINE__ << std::endl;
+  float fMax = -1;
+  int   iMax = -1;
+  bool  bStart = false;
+
+  for (int i = 0;i < contour_point_size;i++){
+      cv::Point pa = map_contours[c_i].at((i+contour_point_size-point_internal)%contour_point_size);
+      cv::Point pb = map_contours[c_i].at((i+contour_point_size+point_internal)%contour_point_size);
+      cv::Point pc = map_contours[c_i].at(i);
+      
+  		//std::cout << __FILE__ << __LINE__ << std::endl;
+      float fA = getDistance(pa,pb);
+      float fB = getDistance(pa,pc)+getDistance(pb,pc);
+      float fAng = fA/fB;
+      float fSharp = 1-fAng;
+      if (fSharp > 0.2){
+          bStart = true;
+          if (fSharp > fMax){
+              fMax = fSharp;
+              iMax = i;
+          }
+      }else{
+          if (bStart){
+  						//std::cout << __FILE__ << __LINE__ << std::endl;
+							corner.push_back(map_contours[c_i].at(iMax));
+              iMax  = -1;
+              fMax  = -1;
+              bStart = false;
+          }
+      }
+  }  
+
+}
+
 /*
 *@brief map coordinate to world coordinate
 *@param resolution origin_x origin_y mx my 
@@ -159,7 +208,7 @@ bool plan(cpp_uav::Torres16::Request& req, cpp_uav::Torres16::Response& res)
       req.map.info.height, req.map.info.width, CV_8UC1, req.map.data.data());
 
 	/*save image*/
-	imwrite("map.jpg",map);
+	//imwrite("map.jpg",map);
 
   std::cout << __FILE__ << __LINE__ << std::endl;
   //  binarization
@@ -168,7 +217,7 @@ bool plan(cpp_uav::Torres16::Request& req, cpp_uav::Torres16::Response& res)
       map, binarization, req.occupancy_threshold, 255, cv::THRESH_BINARY_INV);
 
 	/*save image*/
-	imwrite("map_binary.jpg",binarization);
+	//imwrite("map_binary.jpg",binarization);
 
   //  erosion
   cv::Mat erosion, element;
@@ -180,21 +229,20 @@ bool plan(cpp_uav::Torres16::Request& req, cpp_uav::Torres16::Response& res)
 
 	std::cout << "image_width:" << erosion.cols << "image_height:" << erosion.rows << std::endl;
   std::cout << __FILE__ << __LINE__ << std::endl;
-	/*save image*/
-	imwrite("erosion.jpg",erosion);
-
-	//find contours
-	vector <vector<Point>> map_contours;  
-  findContours( erosion,map_contours,CV_RETR_EXTERNAL,CV_CHAIN_APPROX_NONE);
+	
+	//find corners
 	PointVector map_contour_point;
 	std::vector<cv::Point> roi_point_approx;
-
+	//Gaussian 
+	cv::Mat erosion_filter;
+	GaussianBlur(erosion,erosion_filter,cv::Size(3,3),0,0);
+	cornerDetection(erosion_filter,roi_point_approx);
+		
+	std::cout << "roi_point_appros_size:" << roi_point_approx.size() << std::endl;
   std::cout << __FILE__ << __LINE__ << std::endl;
-	if(map_contours.size() != 1)
-		ROS_ERROR("Map unsuitable.Remap environment.");
-	else{
+	if(roi_point_approx.size() > 3){
 			//fitting polygon
-			approxPolyDP(map_contours[0],roi_point_approx,15,true);
+			//approxPolyDP(map_contours[0],roi_point_approx,2,true);
 			geometry_msgs::Point local_point;
 			for(int i = 0;i < roi_point_approx.size();i++){
 				MapToWorld(req.map.info.resolution,
@@ -207,8 +255,6 @@ bool plan(cpp_uav::Torres16::Request& req, cpp_uav::Torres16::Response& res)
 				map_contour_point.push_back(local_point);
 			}
 	}
-	std::cout << "map_contours_size:" << map_contours[0].size() << std::endl;
-	std::cout << "roi_point_approx_size:" << roi_point_approx.size() << std::endl;
   std::cout << __FILE__ << __LINE__ << std::endl;
   // polygon from request and path for response
   PointVector polygon, candidatePath;
@@ -248,6 +294,7 @@ bool plan(cpp_uav::Torres16::Request& req, cpp_uav::Torres16::Response& res)
   {
     std::vector<PointVector> subPolygons = decomposePolygon(polygon);
 
+		std::cout << "subPolygons_size:" << subPolygons.size() << std::endl;
     // sum of length of all coverage path
     double pathLengthSum = 0;
 
