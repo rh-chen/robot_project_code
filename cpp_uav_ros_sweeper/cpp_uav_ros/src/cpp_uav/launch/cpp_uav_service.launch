@@ -1,0 +1,5 @@
+<launch>
+
+    <node name="torres_etal_2016" pkg="cpp_uav" type="zig_zag_cpp_service" output="screen"/>
+
+</launch>

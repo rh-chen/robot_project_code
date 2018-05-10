@@ -1,0 +1,16 @@
+geometry_msgs/Point[] polygon
+geometry_msgs/Point start
+std_msgs/Float64 footprint_length
+std_msgs/Float64 footprint_width
+std_msgs/Float64 horizontal_overwrap
+std_msgs/Float64 vertical_overwrap
+
+nav_msgs/OccupancyGrid map
+float64 erosion_radius
+float64 robot_radius
+int64 map_id
+int8 occupancy_threshold
+---
+geometry_msgs/Point[] path
+nav_msgs/Path plan
+geometry_msgs/Polygon[] subpolygons
