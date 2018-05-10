@@ -1,16 +1,4 @@
-/**
- * @file torres_etal_2016.cpp
- * @brief Coverage path planner based on M. Torres et al, 2016
- * @author Takaki Ueno
- */
-
-/*
- * Copyright (c) 2017 Takaki Ueno
- * Released under the MIT license
- */
-
-// header
-#include <torres_etal_2016.hpp>
+#include <cpp_uav.hpp>
 
 // cpp standard libraries
 #include <array>
@@ -122,7 +110,6 @@ std::vector<geometry_msgs::Polygon> generatePolygonVector(const std::vector<Poin
  */
 bool plan(cpp_uav::Torres16::Request& req, cpp_uav::Torres16::Response& res)
 {
-  // see torres et al. 2016 for the flow of this algorithm
 	if (req.erosion_radius < 0) {
     ROS_ERROR("erosion_radius < 0");
     return false;
@@ -148,6 +135,7 @@ bool plan(cpp_uav::Torres16::Request& req, cpp_uav::Torres16::Response& res)
     return false;
   }
 
+  std::cout << __FILE__ << __LINE__ << std::endl;
   //  build start and goal
   cv::Point cv_start_point;
   if (false == WorldToMap(
@@ -159,21 +147,21 @@ bool plan(cpp_uav::Torres16::Request& req, cpp_uav::Torres16::Response& res)
     return false;
   }
 
-  //std::cout << __FILE__ << __LINE__ << std::endl;
+  std::cout << __FILE__ << __LINE__ << std::endl;
   //  build map
   for (int i = 0; i < req.map.data.size(); ++i) {
     if (-1 == req.map.data[i]) {  //  replace unknown with 100
       req.map.data[i] = 100;
     }
   }
-  //std::cout << __FILE__ << __LINE__ << std::endl;
+  std::cout << __FILE__ << __LINE__ << std::endl;
   cv::Mat map(
       req.map.info.height, req.map.info.width, CV_8UC1, req.map.data.data());
 
 	/*save image*/
 	imwrite("map.jpg",map);
 
-  //std::cout << __FILE__ << __LINE__ << std::endl;
+  std::cout << __FILE__ << __LINE__ << std::endl;
   //  binarization
   cv::Mat binarization;
   cv::threshold(
@@ -190,7 +178,8 @@ bool plan(cpp_uav::Torres16::Request& req, cpp_uav::Torres16::Response& res)
       (req.erosion_radius + req.map.info.resolution - 0.01) /
           req.map.info.resolution);
 
-  //std::cout << __FILE__ << __LINE__ << std::endl;
+	std::cout << "image_width:" << erosion.cols << "image_height:" << erosion.rows << std::endl;
+  std::cout << __FILE__ << __LINE__ << std::endl;
 	/*save image*/
 	imwrite("erosion.jpg",erosion);
 
@@ -198,22 +187,29 @@ bool plan(cpp_uav::Torres16::Request& req, cpp_uav::Torres16::Response& res)
 	vector <vector<Point>> map_contours;  
   findContours( erosion,map_contours,CV_RETR_EXTERNAL,CV_CHAIN_APPROX_NONE);
 	PointVector map_contour_point;
+	std::vector<cv::Point> roi_point_approx;
 
-	if(map_contours.size() > 1)
+  std::cout << __FILE__ << __LINE__ << std::endl;
+	if(map_contours.size() != 1)
 		ROS_ERROR("Map unsuitable.Remap environment.");
 	else{
+			//fitting polygon
+			approxPolyDP(map_contours[0],roi_point_approx,15,true);
 			geometry_msgs::Point local_point;
-			for(int i = 0;i < map_contours[0].size();i++){
+			for(int i = 0;i < roi_point_approx.size();i++){
 				MapToWorld(req.map.info.resolution,
 									 req.map.info.origin.position.x,
 									 req.map.info.origin.position.y,
-									 map_contours[0].at(i).x,
-									 map_contours[0].at(i).y,
+									 roi_point_approx.at(i).x,
+									 roi_point_approx.at(i).y,
 									 &local_point.x,
 									 &local_point.y);
 				map_contour_point.push_back(local_point);
 			}
 	}
+	std::cout << "map_contours_size:" << map_contours[0].size() << std::endl;
+	std::cout << "roi_point_approx_size:" << roi_point_approx.size() << std::endl;
+  std::cout << __FILE__ << __LINE__ << std::endl;
   // polygon from request and path for response
   PointVector polygon, candidatePath;
   // start point of coverage path
@@ -232,14 +228,21 @@ bool plan(cpp_uav::Torres16::Request& req, cpp_uav::Torres16::Response& res)
   // isOptimal is true if computed path is optimal
   bool isOptimal = computeConvexCoverage(polygon, footprintWidth.data, horizontalOverwrap.data, candidatePath);
 
+	std::cout << "candidatePath_size:" << candidatePath.size() << std::endl;
+  std::cout << __FILE__ << __LINE__ << std::endl;
+	std::cout << "isOptimal:" << isOptimal << std::endl;
+#if 1
   if (isOptimal == true)
   {
     // fill "subpolygon" field of response so that polygon is visualized
     res.subpolygons = generatePolygonVector(polygon);
 
+  	std::cout << __FILE__ << __LINE__ << std::endl;
     // set optimal alternative as optimal path
-    // see torres et al. 2016 for Optimal Alternative
-    res.path = identifyOptimalAlternative(polygon, candidatePath, start);
+		PointVector optimal_path = identifyOptimalAlternative(polygon, candidatePath, start);
+		optimal_path.insert(optimal_path.begin(),req.start);
+    res.path = optimal_path;
+  	std::cout << __FILE__ << __LINE__ << std::endl;
   }
   else
   {
@@ -264,7 +267,8 @@ bool plan(cpp_uav::Torres16::Request& req, cpp_uav::Torres16::Response& res)
 
     if (existsSecondOptimalPath == true)
     {
-      // compute optimal alternative for second optimal path
+			
+		   // compute optimal alternative for second optimal path
       secondOptimalPath = identifyOptimalAlternative(polygon, candidatePath, start);
 
       // if the length of second optimal path is shorter than the sum of coverage path of subpolygons,
@@ -273,6 +277,7 @@ bool plan(cpp_uav::Torres16::Request& req, cpp_uav::Torres16::Response& res)
       {
         // fill "subpolygon" field of response so that polygon is visualized
         res.subpolygons = generatePolygonVector(polygon);
+				secondOptimalPath.insert(secondOptimalPath.begin(),req.start);
 
         res.path = secondOptimalPath;
         return true;
@@ -293,15 +298,17 @@ bool plan(cpp_uav::Torres16::Request& req, cpp_uav::Torres16::Response& res)
     PointVector multipleCoveragePath =
         computeMultiplePolygonCoverage(subPolygons, footprintWidth.data, horizontalOverwrap.data);
 
+		multipleCoveragePath.insert(multipleCoveragePath.begin(),req.start);
+
     res.path = multipleCoveragePath;
   }
-
+#endif
   return true;
 }
 
 int main(int argc, char** argv)
 {
-  ros::init(argc, argv, "zig_zag_cpp_service");
+  ros::init(argc, argv, "zig_zag_cpp_service_node");
   ros::NodeHandle nh;
 
   ros::ServiceServer planner = nh.advertiseService("cpp_service", plan);

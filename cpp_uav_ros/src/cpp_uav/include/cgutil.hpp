@@ -1,14 +1,3 @@
-/**
- * @file torres_etal_2016.hpp
- * @brief Utility for computational geometry
- * @author Takaki Ueno
- */
-
-/*
- * Copyright (c) 2017 Takaki Ueno
- * Released under the MIT license
- */
-
 #ifndef INCLUDED_cgutil_hpp_
 #define INCLUDED_cgutil_hpp_
 

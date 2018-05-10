@@ -1,16 +1,4 @@
-/**
- * @file torres_etal_2016.cpp
- * @brief Coverage path planner based on M. Torres et al, 2016
- * @author Takaki Ueno
- */
-
-/*
- * Copyright (c) 2017 Takaki Ueno
- * Released under the MIT license
- */
-
-// header
-#include <torres_etal_2016.hpp>
+#include <cpp_uav.hpp>
 
 // cpp standard libraries
 #include <array>
@@ -64,19 +52,22 @@ int main(int argc,char **argv){
 	ros::init(argc,argv,"cpp_uav_client");
 
 	ros::NodeHandle n;
-	ros::ServiceClient client = n.serviceClient<cpp_uav::Torres16>("cpp_torres16");
+	ros::ServiceClient client = n.serviceClient<cpp_uav::Torres16>("cpp_service");
 
 	cpp_uav::Torres16 srv;
+	srv.request.start.x = 1.45;
+	srv.request.start.y = 2.5;
 
-	srv.request.polygon = ;//geometry_msgs/Point[]
-	srv.request.start = ;//geometry_msgs/Point
-	srv.request.footprint_length = ;//float64
-	srv.request.footprint_width = ;//float64
-	srv.request.horizontal_overwrap = ;//float64
-	srv.request.vertical_overwrap = ;//float64
+	srv.request.erosion_radius = 0.1;     //  unit: meter
+  srv.request.robot_radius = 0.4;        //  unit: meter
+  srv.request.occupancy_threshold = 95;  //  range:0~100
 
-	ros::ServiceClient mapClient =
-      n.serviceClient<nav_msgs::GetMap>("/static_map");
+	srv.request.footprint_length.data = 0.4;
+	srv.request.footprint_width.data = 0.4;
+	srv.request.horizontal_overwrap.data = 0.1;
+	srv.request.vertical_overwrap.data = 0.1;
+
+	ros::ServiceClient mapClient = n.serviceClient<nav_msgs::GetMap>("/static_map");
   nav_msgs::GetMap getMapSrv;
   if (mapClient.call(getMapSrv)) {
     srv.request.map = getMapSrv.response.map;
@@ -195,7 +186,7 @@ int main(int argc,char **argv){
 		loop_rate.sleep();
 	}
 	}else{
-		ROS_ERROR("Failed to call service /cpp_torres16");
+		ROS_ERROR("Failed to call service /cpp_service");
 	}
 	
 	return 0;
