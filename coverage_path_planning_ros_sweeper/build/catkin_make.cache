@@ -1,0 +1,2 @@
+coverage_path_planning
+-DCATKIN_DEVEL_PREFIX=/home/wzm/coverage_path_planning_ros_sweeper/devel -DCMAKE_INSTALL_PREFIX=/home/wzm/coverage_path_planning_ros_sweeper/install -G Unix Makefiles

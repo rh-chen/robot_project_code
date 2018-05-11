@@ -17,10 +17,85 @@
 
 #include "opencv2/opencv.hpp"
 
+#define PI 3.1415926
+
 using namespace cv;
 using namespace std;
 
+/*float fittingLine(vector<cv::Point>& point)
+{
+	float x_sum =0;
+	float y_sum = 0;
+	float xy_sum = 0;
+	float xx_sum = 0;
+	std::cout << "fitting_line_corner_size:" << point.size() << std::endl;
+	for(int i = 0;i < point.size();i++)
+	{
+		x_sum += point.at(i).x;
+		y_sum += point.at(i).y;
+		xy_sum += (point.at(i).x*point.at(i).y);
+		xx_sum += (point.at(i).x*point.at(i).x);
+	}
+	
+	if(fabs(xx_sum-x_sum*x_sum/(point.size()*1.0)) < 0.01)
+	{
+		if((xy_sum-x_sum*y_sum/(point.size()*1.0))/(xx_sum-x_sum*x_sum/(point.size()*1.0)) < 0)
+			return tan(-89.9/180.0*PI);
+		else
+			return tan(89.9/180.0*PI);
+	}
+	else
+		return (xy_sum-x_sum*y_sum/(point.size()*1.0))/(xx_sum-x_sum*x_sum/(point.size()*1.0));
+}
+void cornerDetectionByAngle(cv::Mat& binary,vector<cv::Point>& corner)
+{
+	vector <vector<Point>> map_contours;  
+  findContours(binary,map_contours,CV_RETR_EXTERNAL,CV_CHAIN_APPROX_NONE);
 
+	int c_i = 0;
+	int contour_point_size = map_contours[c_i].size();
+	std::cout << "contour_point_size:" << contour_point_size << std::endl;
+	
+	int num_point_fitting_back;
+	int num_point_fitting_front;
+	int front_i,back_i;
+	int start_index = 5;
+	float k_back,k_front;
+  //std::cout << __FILE__ << __LINE__ << std::endl;
+  for (int i = start_index;i < contour_point_size-start_index;i++){
+		vector<cv::Point> point_front;
+		vector<cv::Point> point_back;
+		num_point_fitting_back = 5;
+		num_point_fitting_front = 5;
+
+		front_i = i;
+		back_i = i;
+		while(num_point_fitting_back > 0)
+		{
+			point_back.push_back(map_contours[c_i].at(back_i));
+			back_i--;
+			num_point_fitting_back--;
+		}
+		
+		k_back = fittingLine(point_back);
+		std::cout << "k_back:" << k_back << std::endl;
+		while(num_point_fitting_front > 0)
+		{
+			point_front.push_back(map_contours[c_i].at(front_i));
+			front_i++;
+			num_point_fitting_front--;
+		}
+
+		k_front = fittingLine(point_front);
+		std::cout << "k_front:" << k_front << std::endl;
+		float angle = atan2((k_front-k_back),(1.0+k_back*k_front));
+		
+		std::cout << "by_angle:" << angle << std::endl;
+		if(fabs(angle) > PI/3 && fabs(angle) < PI*2/3)
+			corner.push_back(map_contours[c_i].at(i));
+	}
+	std::cout << "by_angle_corner_size:" << corner.size() << std::endl;
+}*/
 float getDistance(cv::Point& pa,cv::Point& pb)
 {
 	return sqrt((pa.x-pb.x)*(pa.x-pb.x)+(pa.y-pb.y)*(pa.y-pb.y));
@@ -50,7 +125,7 @@ void cornerDetection(cv::Mat& binary,vector<cv::Point>& corner)
       float fB = getDistance(pa,pc)+getDistance(pb,pc);
       float fAng = fA/fB;
       float fSharp = 1-fAng;
-      if (fSharp > 0.2){
+      if (fSharp > 0.15){
           bStart = true;
           if (fSharp > fMax){
               fMax = fSharp;

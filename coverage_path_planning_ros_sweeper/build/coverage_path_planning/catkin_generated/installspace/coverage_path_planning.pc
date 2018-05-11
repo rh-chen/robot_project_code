@@ -1,0 +1,8 @@
+prefix=/home/wzm/coverage_path_planning_ros_sweeper/install
+
+Name: coverage_path_planning
+Description: Description of coverage_path_planning
+Version: 0.0.0
+Cflags: -I/home/wzm/coverage_path_planning_ros_sweeper/install/include
+Libs: -L/home/wzm/coverage_path_planning_ros_sweeper/install/lib 
+Requires: 

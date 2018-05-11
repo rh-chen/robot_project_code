@@ -267,7 +267,7 @@ bool computeConvexCoverage(const PointVector& polygon, double footprintWidth, do
   PointVector rotatedPolygon = rotatePoints(polygon, -rotationAngle);
 
 	std::cout << "rotatedPolygon_size:" << rotatedPolygon.size() << std::endl;
-	std::cout << "rotationAngle:" << rotationAngle << std::endl;
+	//std::cout << "rotationAngle:" << rotationAngle << std::endl;
   // find x coordinate of most left and most right point
   double minX(0), maxX(0);
   for (const auto& vertex : rotatedPolygon)
@@ -313,11 +313,11 @@ bool computeConvexCoverage(const PointVector& polygon, double footprintWidth, do
     sweepLines.push_back(ar);
   }
 	
-	std::cout << "sweepLines_size:" << sweepLines.size() << std::endl;
+	//std::cout << "sweepLines_size:" << sweepLines.size() << std::endl;
   // Localize intersections of sweeplines and edges of rotated polygon
   LineSegmentVector rotatedEdges = generateEdgeVector(rotatedPolygon, true);
 	
-	std::cout << "rotatedEdges_size:" << rotatedEdges.size() << std::endl;
+	//std::cout << "rotatedEdges_size:" << rotatedEdges.size() << std::endl;
   PointVector intersections;
 
   for (const auto& sweepLine : sweepLines)
@@ -339,14 +339,14 @@ bool computeConvexCoverage(const PointVector& polygon, double footprintWidth, do
     }
   }
 	
-	std::cout << "intersections_size_sort:" << intersections.size() << std::endl;
+	//std::cout << "intersections_size_sort:" << intersections.size() << std::endl;
   // sort points by y coordinate in ascending order
   std::stable_sort(intersections.begin(), intersections.end(),
                    [](const geometry_msgs::Point& p1, const geometry_msgs::Point& p2) { return p1.y < p2.y; });
-	std::cout << "intersections_size:" << intersections.size() << std::endl;
+	//std::cout << "intersections_size:" << intersections.size() << std::endl;
   PointVector rotatedPath = reshapePath(intersections, padding);
 	
-	std::cout << "rotatedPath.size:" << rotatedPath.size() << std::endl;
+	//std::cout << "rotatedPath.size:" << rotatedPath.size() << std::endl;
   path = rotatePoints(rotatedPath, rotationAngle);
 
   if (hasIntersection(generateEdgeVector(polygon, true), generateEdgeVector(path, false)) == true)
@@ -369,7 +369,7 @@ bool computeConvexCoverage(const PointVector& polygon, double footprintWidth, do
                            PointVector& path)
 {
   Direction sweepDirection = identifyOptimalSweepDir(polygon);
-	std::cout << "sweepDirection:" << sweepDirection.opposedVertex.x << "---" << sweepDirection.opposedVertex.y << std::endl; 
+	//std::cout << "sweepDirection:" << sweepDirection.opposedVertex.x << "---" << sweepDirection.opposedVertex.y << std::endl; 
   return computeConvexCoverage(polygon, footprintWidth, horizontalOverwrap, sweepDirection, path);
 }
 
