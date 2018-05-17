@@ -145,27 +145,29 @@ void publishIMU(const InuDev::CImuFrame  &imu_frame, ros::Publisher &pub_imu,con
 
     msg.header.stamp = stamp;
     msg.header.frame_id = imu_frame_id;
+		int local_imu_count = 0; 
 
 		for(it = _SensorsData.begin();it != _SensorsData.end();it++)
 		{
-
+			local_imu_count ++;
+			
 			if(it->first == EAuxType::eAccelerometer)
 			{
 				msg.linear_acceleration.x = it->second[0];
 				msg.linear_acceleration.y = it->second[1];
 				msg.linear_acceleration.z = it->second[2];
 
-				msg.linear_acceleration_covariance[0] = 0.04;
+				msg.linear_acceleration_covariance[0] = 0;
 				msg.linear_acceleration_covariance[1] = 0;
 				msg.linear_acceleration_covariance[2] = 0;
 
 				msg.linear_acceleration_covariance[3] = 0;
-				msg.linear_acceleration_covariance[4] = 0.04;
+				msg.linear_acceleration_covariance[4] = 0;
 				msg.linear_acceleration_covariance[5] = 0;
 
 				msg.linear_acceleration_covariance[6] = 0;
 				msg.linear_acceleration_covariance[7] = 0;
-				msg.linear_acceleration_covariance[8] = 0.04;
+				msg.linear_acceleration_covariance[8] = 0;
 
 			}
 			else if(it->first == EAuxType::eGyroscope)
@@ -174,20 +176,21 @@ void publishIMU(const InuDev::CImuFrame  &imu_frame, ros::Publisher &pub_imu,con
 				msg.angular_velocity.y = it->second[1];
 				msg.angular_velocity.z = it->second[2];
 
-				msg.angular_velocity_covariance[0] = 0.02;
+				msg.angular_velocity_covariance[0] = 0;
 				msg.angular_velocity_covariance[1] = 0;
 				msg.angular_velocity_covariance[2] = 0;
 
 				msg.angular_velocity_covariance[3] = 0;
-				msg.angular_velocity_covariance[4] = 0.02;
+				msg.angular_velocity_covariance[4] = 0;
 				msg.angular_velocity_covariance[5] = 0;
 
 				msg.angular_velocity_covariance[6] = 0;
 				msg.angular_velocity_covariance[7] = 0;
-				msg.angular_velocity_covariance[8] = 0.02;
+				msg.angular_velocity_covariance[8] = 0;
 			
 			}
 		}
+		std::cout << "local_imu_count:" << local_imu_count << std::endl;
 		pub_imu.publish(msg);
 }
 
@@ -311,7 +314,7 @@ void fillWebCamInfo(const sensor_msgs::CameraInfoPtr &web_cam_info_msg,
 		//D
 		for(int i = 0;i < 5;i++)
 		{
-		  web_cam_info_msg->D[i] = optical_data.LensDistortionsRealLeft[i];
+		  web_cam_info_msg->D[i] = optical_data.LensDistortionsRealWebcam[i];
 		}
 		//K
 		{
@@ -418,31 +421,29 @@ bool device_poll() {
 		// Creation of CInuSensor object (Inuitive's sensor representation)
     inuSensor = InuDev::CInuSensor::Create();
 		inuSensor->Reset();
-		
+
     // Initiate the sensor - it must be call before any access to the sensor. Sensor will start working in low power.
 		InuDev::CSensorParams sensor_params;
-		sensor_params.SensorRes =  InuDev::ESensorResolution::eBinning;
+		sensor_params.SensorRes =  InuDev::ESensorResolution::eFull;
 		sensor_params.FPS = 30;
 
-    InuDev::CInuError retCode = inuSensor->Init();
+    InuDev::CInuError retCode = inuSensor->Init(sensor_params);
     if (retCode != InuDev::eOK)
     {
         std::cout << "Failed to connect to Inuitive Sensor. Error: " << std::hex  << int(retCode) << " - " << std::string(retCode) << std::endl;
         return false;
     }
     std::cout << "Connected to Sensor" << std::endl;
-
-		retCode = inuSensor->SetSensorParams(sensor_params, InuDev::ECameraName::eVideo);
-		if (retCode != InuDev::eOK)
-    {
-        std::cout << "Failed to set video sensor params to Inuitive Sensor." << std::endl;
-        return false;
-    }
 		
 		//get optical data about video cam and web cam
 		std::cout << __FILE__ << __LINE__ << std::endl;
 		COpticalData optical_data;
-		inuSensor->GetOpticalData(optical_data);
+		retCode = inuSensor->GetOpticalData(optical_data);
+		if (retCode != InuDev::eOK)
+    {
+        std::cout << "Failed to get video sensor optical params to Inuitive Sensor." << std::endl;
+        return false;
+    }
 		std::cout << __FILE__ << __LINE__ << std::endl;
 
     // Start acquiring frames - it must be call before starting acquiring any type of frames (depth, video, head, etc.)
@@ -475,14 +476,6 @@ bool device_poll() {
 				return false;
 		}
 		std::cout << "web Stream is initialized" << std::endl;
-
-		retCode = webCamStream->Start();
-		if (retCode != InuDev::eOK)
-		{
-				std::cout << "Start error: " << std::hex << int(retCode) << " - "  << std::string(retCode) << std::endl;
-				return false;
-		}
-		std::cout << "Web Stream is started" << std::endl;
 		
 		//construct videoStream
 		videoStream = inuSensor->CreateVideoStream();
@@ -498,16 +491,7 @@ bool device_poll() {
 				std::cout << "video initiation error: " << std::hex << int(retCode) << " - "  << std::string(retCode) << std::endl;
 				return false;
 		}
-		std::cout << "Vedio Stream is initialized" << std::endl;	
-
-		retCode = videoStream->Start();
-
-		if (retCode != InuDev::eOK)
-		{
-				std::cout << "Start error: " << std::hex << int(retCode) << " - "  << std::string(retCode) << std::endl;
-				return false;
-		}
-		std::cout << "Vedio Stream is started" << std::endl;	
+		std::cout << "Vedio Stream is initialized" << std::endl;		
 
 		//construct depthStream
 		depthStream = inuSensor->CreateDepthStream();
@@ -524,14 +508,6 @@ bool device_poll() {
 				return false;
 		}
 		std::cout << "Depth Stream is initialized" << std::endl;
-		retCode = depthStream->Start();
-
-		if (retCode != InuDev::eOK)
-		{
-				std::cout << "Start error: " << std::hex << int(retCode) << " - "  << std::string(retCode) << std::endl;
-				return false;
-		}
-		std::cout << "Depth Stream is started" << std::endl;
 
 		//construct imuStream
 		auxStream = inuSensor->CreateAuxStream();
@@ -548,14 +524,41 @@ bool device_poll() {
 				return false;
 		}
 		std::cout << "aux Stream is initialized" << std::endl;
-		retCode = auxStream->Start();
-			if (retCode != InuDev::eOK)
-			{
-					std::cout << "Start error: " << std::hex << int(retCode) << " - "  << std::string(retCode) << std::endl;
-					return false;
-			}
-			std::cout << "aux Stream is started" << std::endl;
 
+		//start aux stream
+		retCode = auxStream->Start();
+		if (retCode != InuDev::eOK)
+		{
+				std::cout << "Start error: " << std::hex << int(retCode) << " - "  << std::string(retCode) << std::endl;
+				return false;
+		}
+		std::cout << "aux Stream is started" << std::endl;
+		//start web cam stream
+		retCode = webCamStream->Start();
+		if (retCode != InuDev::eOK)
+		{
+				std::cout << "Start error: " << std::hex << int(retCode) << " - "  << std::string(retCode) << std::endl;
+				return false;
+		}
+		std::cout << "Web Stream is started" << std::endl;
+
+		//start video stream
+		retCode = videoStream->Start();
+		if (retCode != InuDev::eOK)
+		{
+				std::cout << "Start error: " << std::hex << int(retCode) << " - "  << std::string(retCode) << std::endl;
+				return false;
+		}
+		std::cout << "Vedio Stream is started" << std::endl;
+		
+		//start depth stream
+		retCode = depthStream->Start();
+		if (retCode != InuDev::eOK)
+		{
+				std::cout << "Start error: " << std::hex << int(retCode) << " - "  << std::string(retCode) << std::endl;
+				return false;
+		}
+		std::cout << "Depth Stream is started" << std::endl;
 		//loop
     while (nh_ns.ok()) {
 
@@ -597,12 +600,12 @@ bool device_poll() {
 									
 									fillVideoCamInfo(left_cam_info_msg,right_cam_info_msg,left_frame_id,right_frame_id,optical_data,right_frame->Height(),right_frame->Width());
 									//right_frame
-									memcpy(rightImRGB.data,right_data_ptr,right_frame->Height()*right_frame->Width()*right_frame->BytesPerPixel());
+									//memcpy(rightImRGB.data,right_data_ptr,right_frame->Height()*right_frame->Width()*right_frame->BytesPerPixel());
 									publishCamInfo(right_cam_info_msg, pub_right_cam_info, getColorImgStamp());
 									publishImage(rightImRGB, pub_right, right_frame_id, getColorImgStamp());
 		
 									//left_frame
-									memcpy(leftImRGB.data,left_data_ptr,left_frame->Height()*left_frame->Width()*left_frame->BytesPerPixel());
+									//memcpy(leftImRGB.data,left_data_ptr,left_frame->Height()*left_frame->Width()*left_frame->BytesPerPixel());
 									publishCamInfo(left_cam_info_msg, pub_left_cam_info, getColorImgStamp());
 									publishImage(leftImRGB, pub_left, left_frame_id, getColorImgStamp());
 
@@ -686,7 +689,7 @@ bool device_poll() {
 							const byte* web_data_ptr = web_frame.GetData();
 
 							fillWebCamInfo(web_cam_info_msg,web_frame_id,optical_data,web_frame.Height(),web_frame.Width());
-							memcpy(webImRGB.data,web_data_ptr,web_frame.Height()*web_frame.Width()*web_frame.BytesPerPixel());
+							//memcpy(webImRGB.data,web_data_ptr,web_frame.Height()*web_frame.Width()*web_frame.BytesPerPixel());
               publishCamInfo(web_cam_info_msg, pub_web_cam_info, getWebImgStamp());
               publishImage(webImRGB, pub_web, web_frame_id, getWebImgStamp());
               img_get = true;
@@ -698,22 +701,12 @@ bool device_poll() {
                 getColorImgStamp(true);
             }
 
-            if (imu_SubNumber > 0) {
+            if (imu_SubNumber > 0  && auxStream->GetFrame(imu_frame) == InuDev::eOK) {
 
 								static int imu_count = 0;
 								imu_count ++;
 								std::cout << "imu_count:" << imu_count << std::endl;
-
-								retCode = auxStream->GetFrame(imu_frame);
-
-								if (retCode != InuDev::eOK)
-								{
-								    std::cout << "Failed to get imu_frame with error: " << std::hex << int(retCode) << " - " << std::string(retCode) << std::endl;
-								}
-								else
-								{
-		              publishIMU(imu_frame, pub_imu, getIMUStamp());
-								}
+								publishIMU(imu_frame, pub_imu, getIMUStamp());
             } else {
                 getIMUStamp(nullptr, true);  
             }
@@ -757,25 +750,25 @@ void onInit() {
 
     image_transport::ImageTransport it_inuitive(nh);
 
-    pub_left = it_inuitive.advertise(left_topic, 1);
+    pub_left = it_inuitive.advertise(left_topic, 100);
     NODELET_INFO_STREAM("Advertized on topic " << left_topic);
     pub_left_cam_info = nh.advertise<sensor_msgs::CameraInfo>(left_cam_info_topic, 1);
     NODELET_INFO_STREAM("Advertized on topic " << left_cam_info_topic);
 
-    pub_right = it_inuitive.advertise(right_topic, 1);
+    pub_right = it_inuitive.advertise(right_topic, 100);
     NODELET_INFO_STREAM("Advertized on topic " << right_topic);
     pub_right_cam_info = nh.advertise<sensor_msgs::CameraInfo>(right_cam_info_topic, 1);
     NODELET_INFO_STREAM("Advertized on topic " << right_cam_info_topic);
 
-    pub_web = it_inuitive.advertise(web_topic, 1);
+    pub_web = it_inuitive.advertise(web_topic, 100);
     NODELET_INFO_STREAM("Advertized on topic " << web_topic);
     pub_web_cam_info = nh.advertise<sensor_msgs::CameraInfo>(web_cam_info_topic, 1);
     NODELET_INFO_STREAM("Advertized on topic " << web_cam_info_topic);
 
-    pub_depth = it_inuitive.advertise(depth_topic, 1);
+    pub_depth = it_inuitive.advertise(depth_topic, 100);
     NODELET_INFO_STREAM("Advertized on topic " << depth_topic);
 
-    pub_imu = nh.advertise<sensor_msgs::Imu>(imu_topic, 1);
+    pub_imu = nh.advertise<sensor_msgs::Imu>(imu_topic, 1000);
     NODELET_INFO_STREAM("Advertized on topic " << imu_topic);
 		
 		pub_point_cloud = nh.advertise<sensor_msgs::PointCloud>(point_cloud_topic, 1);
@@ -851,7 +844,7 @@ void onInit() {
 		  }
 		  std::cout << "pointCloudStream Stream was finalized" << std::endl;
 		}
-		
+
 		if(inuSensor != NULL){
 		 	InuDev::CInuError retCode = inuSensor->Stop();
 		  if (retCode != InuDev::eOK)
