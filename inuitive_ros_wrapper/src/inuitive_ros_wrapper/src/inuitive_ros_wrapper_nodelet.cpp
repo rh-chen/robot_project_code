@@ -40,20 +40,17 @@ namespace inuitive_ros_wrapper {
 
 using namespace InuDev;
 
-InuDev::CImageFrame  depth_frame;
-InuDev::CImageFrame  point_cloud_frame;
-InuDev::CVideoFrame  video_frame;
-const InuDev::CImageFrame*  left_frame;
-const InuDev::CImageFrame*  right_frame;
-InuDev::CImuFrame  imu_frame;
-InuDev::CImageFrame  web_frame;
-
 std::shared_ptr<InuDev::CWebCamStream>  webCamStream;
 std::shared_ptr<InuDev::CVideoStream>  videoStream;
 std::shared_ptr<InuDev::CDepthStream>  depthStream;
 std::shared_ptr<InuDev::CDepthStream>  pointCloudStream;
 std::shared_ptr<InuDev::CAuxStream>  auxStream;
 
+COpticalData optical_data;
+
+sensor_msgs::CameraInfoPtr left_cam_info_msg(new sensor_msgs::CameraInfo());
+sensor_msgs::CameraInfoPtr right_cam_info_msg(new sensor_msgs::CameraInfo());
+sensor_msgs::CameraInfoPtr web_cam_info_msg(new sensor_msgs::CameraInfo());
 
 std::shared_ptr<InuDev::CInuSensor>  inuSensor;
 
@@ -345,7 +342,7 @@ void fillWebCamInfo(const sensor_msgs::CameraInfoPtr &web_cam_info_msg,
     web_cam_info_msg->header.frame_id = web_frame_id;
 }
 
-ros::Time getDepthImgStamp(bool reset = false) {
+ros::Time getDepthImgStamp(const InuDev::CImageFrame &  depth_frame,bool reset = false) {
     static std::uint64_t img_time_beg = -1;
     static double img_ros_time_beg;
     if (reset) {
@@ -356,10 +353,10 @@ ros::Time getDepthImgStamp(bool reset = false) {
         img_time_beg = depth_frame.Timestamp;
         img_ros_time_beg = ros::Time::now().toSec();
     }
-    return ros::Time(img_ros_time_beg + (depth_frame.Timestamp - img_time_beg) * 0.0001f);
+    return ros::Time(img_ros_time_beg + (depth_frame.Timestamp - img_time_beg) * 0.000000001f);
 }
 
-ros::Time getColorImgStamp(bool reset = false) {
+ros::Time getColorImgStamp(const InuDev::CImageFrame*  video_frame,bool reset = false) {
     static std::uint64_t img_time_beg = -1;
     static double img_ros_time_beg;
     if (reset) {
@@ -368,14 +365,14 @@ ros::Time getColorImgStamp(bool reset = false) {
     }
     if (img_time_beg == -1) {
 std::cout << __FILE__ << __LINE__ << std::endl;
-        img_time_beg = video_frame.Timestamp;
+        img_time_beg = video_frame->Timestamp;
 std::cout << __FILE__ << __LINE__ << std::endl;
         img_ros_time_beg = ros::Time::now().toSec();
 std::cout << __FILE__ << __LINE__ << std::endl;
     }
-    return ros::Time(img_ros_time_beg + (video_frame.Timestamp - img_time_beg) * 0.0001f);
+    return ros::Time(img_ros_time_beg + (video_frame->Timestamp - img_time_beg) * 0.000000001f);
 }
-ros::Time getWebImgStamp(bool reset = false) {
+ros::Time getWebImgStamp( const InuDev::CImageFrame&  web_frame, bool reset = false) {
     static std::uint64_t img_time_beg = -1;
     static double img_ros_time_beg;
     if (reset) {
@@ -386,10 +383,10 @@ ros::Time getWebImgStamp(bool reset = false) {
         img_time_beg = web_frame.Timestamp;
         img_ros_time_beg = ros::Time::now().toSec();
     }
-    return ros::Time(img_ros_time_beg + (web_frame.Timestamp - img_time_beg) * 0.0001f);
+    return ros::Time(img_ros_time_beg + (web_frame.Timestamp - img_time_beg) * 0.000000001f);
 }
 
-ros::Time getIMUStamp(bool reset = false) {
+ros::Time getIMUStamp(const InuDev::CImuFrame&  imu_frame,bool reset = false) {
     static std::uint64_t imu_time_beg = -1;
     static double imu_ros_time_beg;
     if (reset) {
@@ -400,32 +397,151 @@ ros::Time getIMUStamp(bool reset = false) {
         imu_time_beg = imu_frame.Timestamp;
         imu_ros_time_beg = ros::Time::now().toSec();
     }
-    return ros::Time(imu_ros_time_beg + (imu_frame.Timestamp - imu_time_beg) * 0.0001f);
+    return ros::Time(imu_ros_time_beg + (imu_frame.Timestamp - imu_time_beg) * 0.000000001f);
 }
 
-ros::Time getIMUStamp(const InuDev::CImuFrame *imu_frame, bool reset = false) {
-    static std::uint64_t imu_time_beg = -1;
-    static double imu_ros_time_beg;
-    if (reset) {
-        imu_time_beg = -1;
-        return ros::Time::now();
+void  publishImuMessageReg(std::shared_ptr<InuDev::CAuxStream> iStream,   // Parent Stream
+                               const InuDev::CImuFrame&  iFrame,              // Acquired frame
+                               InuDev::CInuError retCode)                       // Error code (eOK if frame was successfully acquired)
+{
+    if (retCode != InuDev::eOK)
+    {
+        std::cout << "Error in receiving frame: " << std::hex << int(retCode) << " " << std::string(retCode) << std::endl;
+        return;
     }
-    if (imu_time_beg == -1) {
-        imu_time_beg = imu_frame->Timestamp;
-        imu_ros_time_beg = ros::Time::now().toSec();
+
+    if (iFrame.Valid == false)
+    {
+        std::cout << "Frame  " << iFrame.FrameIndex << " is invalid" << std::endl;
+        return;
     }
-    return ros::Time(imu_ros_time_beg + (imu_frame->Timestamp - imu_time_beg) * 0.0001f);
+
+		static int imu_count = 0;
+		imu_count ++;
+		std::cout << "imu_count:" << imu_count << std::endl;
+		publishIMU(iFrame, pub_imu, getIMUStamp(iFrame));
+}
+void  publishWebMessageReg(std::shared_ptr<InuDev::CWebCamStream> iStream,   // Parent Stream
+                               const InuDev::CImageFrame&  iFrame,              // Acquired frame
+                               InuDev::CInuError retCode)                       // Error code (eOK if frame was successfully acquired)
+{
+    if (retCode != InuDev::eOK)
+    {
+        std::cout << "Error in receiving frame: " << std::hex << int(retCode) << " " << std::string(retCode) << std::endl;
+        return;
+    }
+
+    if (iFrame.Valid == false)
+    {
+        std::cout << "Frame  " << iFrame.FrameIndex << " is invalid" << std::endl;
+        return;
+    }
+
+		static int web_count = 0;
+		web_count ++;
+
+		std::cout << "web_count:" << web_count << std::endl;
+		std::cout << "web Image Height:" << iFrame.Height() << "Image Width:" << iFrame.Width() << std::endl;
+		std::cout << "web Bytes Per Pixel:" << iFrame.BytesPerPixel() << std::endl;
+		std::cout << "web Image Buffer Size:" << iFrame.BufferSize() << std::endl;
+
+		cv::Mat webImRGB(iFrame.Height(),iFrame.Width(),CV_8UC4);
+		const byte* web_data_ptr = iFrame.GetData();
+
+		fillWebCamInfo(web_cam_info_msg,web_frame_id,optical_data,iFrame.Height(),iFrame.Width());
+		memcpy(webImRGB.data,web_data_ptr,iFrame.Height()*iFrame.Width()*iFrame.BytesPerPixel());
+    publishCamInfo(web_cam_info_msg, pub_web_cam_info, getWebImgStamp(iFrame));
+    publishImage(webImRGB, pub_web, web_frame_id, getWebImgStamp(iFrame));
+}
+
+void  publishVideoMessageReg(std::shared_ptr<InuDev::CVideoStream> iStream,   // Parent Stream
+                               const InuDev::CVideoFrame&  iFrame,              // Acquired frame
+                               InuDev::CInuError retCode)                       // Error code (eOK if frame was successfully acquired)
+{
+    if (retCode != InuDev::eOK)
+    {
+        std::cout << "Error in receiving frame: " << std::hex << int(retCode) << " " << std::string(retCode) << std::endl;
+        return;
+    }
+
+    if (iFrame.Valid == false)
+    {
+        std::cout << "Frame  " << iFrame.FrameIndex << " is invalid" << std::endl;
+        return;
+    }
+
+		static int video_count = 0;
+		video_count ++;
+
+		const InuDev::CImageFrame*  left_frame = iFrame.GetLeftFrame();
+		const InuDev::CImageFrame*  right_frame = iFrame.GetRightFrame();
+		
+		std::cout << "Color left Image Height:" << left_frame->Height() << "Image Width:" << left_frame->Width() << std::endl;
+		std::cout << "Color left Bytes Per Pixel:" << left_frame->BytesPerPixel() << std::endl;
+		std::cout << "Color left Image Buffer Size:" << left_frame->BufferSize() << std::endl;
+
+		std::cout << "Color right Image Height:" << right_frame->Height() << "Image Width:" << right_frame->Width() << std::endl;
+		std::cout << "Color right Bytes Per Pixel:" << right_frame->BytesPerPixel() << std::endl;
+		std::cout << "Color right Image Buffer Size:" << right_frame->BufferSize() << std::endl;
+
+		cv::Mat rightImRGB(right_frame->Height(),right_frame->Width(),CV_8UC4);
+		cv::Mat leftImRGB(left_frame->Height(),left_frame->Width(),CV_8UC4);
+		const byte* right_data_ptr = right_frame->GetData();
+		const byte* left_data_ptr = left_frame->GetData();
+
+	
+		fillVideoCamInfo(left_cam_info_msg,right_cam_info_msg,left_frame_id,right_frame_id,optical_data,left_frame->Height(),left_frame->Width());
+		//right_frame
+		memcpy(rightImRGB.data,right_data_ptr,right_frame->Height()*right_frame->Width()*right_frame->BytesPerPixel());
+		publishCamInfo(right_cam_info_msg, pub_right_cam_info, getColorImgStamp(right_frame));
+		publishImage(rightImRGB, pub_right, right_frame_id, getColorImgStamp(right_frame));
+
+		//left_frame
+		memcpy(leftImRGB.data,left_data_ptr,left_frame->Height()*left_frame->Width()*left_frame->BytesPerPixel());
+		publishCamInfo(left_cam_info_msg, pub_left_cam_info, getColorImgStamp(left_frame));
+		publishImage(leftImRGB, pub_left, left_frame_id, getColorImgStamp(left_frame));
+}
+
+void  publishDepthMessageReg(std::shared_ptr<InuDev::CDepthStream> iStream,   // Parent Stream
+                               const InuDev::CImageFrame &  iFrame,              // Acquired frame
+                               InuDev::CInuError retCode)                       // Error code (eOK if frame was successfully acquired)
+{
+    if (retCode != InuDev::eOK)
+    {
+        std::cout << "Error in receiving frame: " << std::hex << int(retCode) << " " << std::string(retCode) << std::endl;
+        return;
+    }
+
+    if (iFrame.Valid == false)
+    {
+        std::cout << "Frame  " << iFrame.FrameIndex << " is invalid" << std::endl;
+        return;
+    }
+
+		static int depth_count = 0;
+		depth_count ++;
+
+		std::cout << "depth_count:" << depth_count << std::endl;
+		std::cout << "depth Height:" << iFrame.Height() << "Image Width:" << iFrame.Width() << std::endl;
+		std::cout << "depth Bytes Per Pixel:" << iFrame.BytesPerPixel() << std::endl;
+		std::cout << "depth Buffer Size:" << iFrame.BufferSize() << std::endl;
+
+		const byte* depth_data_ptr = iFrame.GetData();
+		cv::Mat depthImage(iFrame.Height(),iFrame.Width(),CV_16UC1);
+		memcpy(depthImage.data,depth_data_ptr,iFrame.Height()*iFrame.Width()*iFrame.BytesPerPixel());
+		
+		publishDepth(depthImage,getDepthImgStamp(iFrame));
 }
 
 bool device_poll() {
 		// Creation of CInuSensor object (Inuitive's sensor representation)
     inuSensor = InuDev::CInuSensor::Create();
-		inuSensor->Reset();
+		//inuSensor->Reset();
 
     // Initiate the sensor - it must be call before any access to the sensor. Sensor will start working in low power.
 		InuDev::CSensorParams sensor_params;
 		sensor_params.SensorRes =  InuDev::ESensorResolution::eFull;
-		sensor_params.FPS = 30;
+		sensor_params.FPS = 50;
 
     InuDev::CInuError retCode = inuSensor->Init(sensor_params);
     if (retCode != InuDev::eOK)
@@ -437,7 +553,6 @@ bool device_poll() {
 		
 		//get optical data about video cam and web cam
 		std::cout << __FILE__ << __LINE__ << std::endl;
-		COpticalData optical_data;
 		retCode = inuSensor->GetOpticalData(optical_data);
 		if (retCode != InuDev::eOK)
     {
@@ -456,9 +571,9 @@ bool device_poll() {
     std::cout << "Sensor is started" << std::endl;
    
 		//camera information
-		sensor_msgs::CameraInfoPtr left_cam_info_msg(new sensor_msgs::CameraInfo());
-    sensor_msgs::CameraInfoPtr right_cam_info_msg(new sensor_msgs::CameraInfo());
-		sensor_msgs::CameraInfoPtr web_cam_info_msg(new sensor_msgs::CameraInfo());
+		//sensor_msgs::CameraInfoPtr left_cam_info_msg(new sensor_msgs::CameraInfo());
+    //sensor_msgs::CameraInfoPtr right_cam_info_msg(new sensor_msgs::CameraInfo());
+		//sensor_msgs::CameraInfoPtr web_cam_info_msg(new sensor_msgs::CameraInfo());
     //sensor_msgs::CameraInfoPtr depth_cam_info_msg(new sensor_msgs::CameraInfo());
 	
 		//construct webCamStream
@@ -559,159 +674,84 @@ bool device_poll() {
 				return false;
 		}
 		std::cout << "Depth Stream is started" << std::endl;
-		//loop
-    while (nh_ns.ok()) {
 
-        int left_SubNumber = pub_left.getNumSubscribers();
-        int right_SubNumber = pub_right.getNumSubscribers();
-        int depth_SubNumber = pub_depth.getNumSubscribers();
-        int imu_SubNumber = pub_imu.getNumSubscribers();
-				int web_SubNumber = pub_web.getNumSubscribers();
-        int pointcloud_SubNumber = pub_point_cloud.getNumSubscribers();
 
-        bool runLoop = (left_SubNumber + right_SubNumber + depth_SubNumber + imu_SubNumber + web_SubNumber + pointcloud_SubNumber) > 0;
-        if (runLoop) {
-            bool img_get = false;
-            if ((left_SubNumber > 0 ||  right_SubNumber > 0) && videoStream->GetFrame(video_frame) == InuDev::eOK) {
-      							//std::cout << __FILE__ << __LINE__ << std::endl;
-										std::cout << "video_frame_stamp:" << video_frame.Timestamp << std::endl;
-										std::cout << "video_frame_index:" << video_frame.FrameIndex << std::endl;
 
-										left_frame = video_frame.GetLeftFrame();
-										right_frame = video_frame.GetRightFrame();
-										
-										static int image_count = 0;
-										image_count ++;
-
-										std::cout << "image_count:" << image_count << std::endl;
-										std::cout << "Color left Image Height:" << left_frame->Height() << "Image Width:" << left_frame->Width() << std::endl;
-										std::cout << "Color left Bytes Per Pixel:" << left_frame->BytesPerPixel() << std::endl;
-										std::cout << "Color left Image Buffer Size:" << left_frame->BufferSize() << std::endl;
-
-										std::cout << "Color right Image Height:" << right_frame->Height() << "Image Width:" << right_frame->Width() << std::endl;
-										std::cout << "Color right Bytes Per Pixel:" << right_frame->BytesPerPixel() << std::endl;
-										std::cout << "Color right Image Buffer Size:" << right_frame->BufferSize() << std::endl;
-
-										cv::Mat rightImRGB(right_frame->Height(),right_frame->Width(),CV_8UC4);
-										cv::Mat leftImRGB(left_frame->Height(),left_frame->Width(),CV_8UC4);
-										const byte* right_data_ptr = right_frame->GetData();
-										const byte* left_data_ptr = left_frame->GetData();
-
-									
-									fillVideoCamInfo(left_cam_info_msg,right_cam_info_msg,left_frame_id,right_frame_id,optical_data,right_frame->Height(),right_frame->Width());
-									//right_frame
-									//memcpy(rightImRGB.data,right_data_ptr,right_frame->Height()*right_frame->Width()*right_frame->BytesPerPixel());
-									publishCamInfo(right_cam_info_msg, pub_right_cam_info, getColorImgStamp());
-									publishImage(rightImRGB, pub_right, right_frame_id, getColorImgStamp());
-		
-									//left_frame
-									//memcpy(leftImRGB.data,left_data_ptr,left_frame->Height()*left_frame->Width()*left_frame->BytesPerPixel());
-									publishCamInfo(left_cam_info_msg, pub_left_cam_info, getColorImgStamp());
-									publishImage(leftImRGB, pub_left, left_frame_id, getColorImgStamp());
-
-								
-		              img_get = true;
-
-            }
-            if (depth_SubNumber > 0 && depthStream->GetFrame(depth_frame) == InuDev::eOK) {
-								static int depth_count = 0;
-								depth_count ++;
-
-								std::cout << "depth_count:" << depth_count << std::endl;
-								std::cout << "depth Height:" << depth_frame.Height() << "Image Width:" << depth_frame.Width() << std::endl;
-								std::cout << "depth Bytes Per Pixel:" << depth_frame.BytesPerPixel() << std::endl;
-								std::cout << "depth Buffer Size:" << depth_frame.BufferSize() << std::endl;
-
-								const byte* depth_data_ptr = depth_frame.GetData();
-								cv::Mat depthImage(depth_frame.Height(),depth_frame.Width(),CV_16UC1);
-								memcpy(depthImage.data,depth_data_ptr,depth_frame.Height()*depth_frame.Width()*depth_frame.BytesPerPixel());
-								
-								publishDepth(depthImage,getDepthImgStamp());
-								img_get = true;
-            }
-#if 0
-						if(pointcloud_SubNumber > 0 && pointCloudStream->GetFrame(point_cloud_frame) == InuDev::eOK)
-						{
-								static int point_cloud_count = 0;
-								point_cloud_count ++;
-
-								std::cout << "point_cloud_count:" << point_cloud_count << std::endl;
-								std::cout << "point cloud Height:" << point_cloud_frame.Height() << "point cloud Width:" << point_cloud_frame.Width() << std::endl;
-								std::cout << "point cloud Bytes Per Pixel:" << point_cloud_frame.BytesPerPixel() << std::endl;
-								std::cout << "point cloud Buffer Size:" << point_cloud_frame.BufferSize() << std::endl;
-
-								const byte* point_cloud_data_ptr = point_cloud_frame.GetData();
-
-								cv::Mat point_cloud(point_cloud_frame.Height(),point_cloud_frame.Width(),CV_32FC1);
-								memcpy(point_cloud.data,point_cloud_data_ptr,point_cloud_frame.Height()*point_cloud_frame.Width()*point_cloud_frame.BytesPerPixel());
-
-								int point_cloud_num = point_cloud_frame.Width();
-								sensor_msgs::PointCloud ros_point_cloud;
-								ros_point_cloud.header.frame_id = point_cloud_frame_id;
-								ros_point_cloud.header.stamp = getDepthImgStamp();
-
-								ros_point_cloud.channels.resize(3);
-								ros_point_cloud.channels[0].name = "r";
-								ros_point_cloud.channels[0].values.resize(point_cloud_num);
-								ros_point_cloud.channels[1].name = "g";
-								ros_point_cloud.channels[1].values.resize(point_cloud_num);
-								ros_point_cloud.channels[2].name = "b";
-								ros_point_cloud.channels[2].values.resize(point_cloud_num);
-		
-								ros_point_cloud.points.resize(point_cloud_num);
-
-								for(int i = 0;i < point_cloud_num;i++)
-								{
-									ros_point_cloud.points[i].x = point_cloud.at<float>(0,i)/1000;
-									ros_point_cloud.points[i].y = point_cloud.at<float>(1,i)/1000;
-									ros_point_cloud.points[i].z = point_cloud.at<float>(2,i)/1000;
-
-									ros_point_cloud.channels[0].values[i] = 255;
-									ros_point_cloud.channels[1].values[i] = 255;
-									ros_point_cloud.channels[2].values[i] = 255;
-								}
-
-								pub_point_cloud.publish(ros_point_cloud);
-
-						}
-#endif
-						if(web_SubNumber > 0 && webCamStream->GetFrame(web_frame) == InuDev::eOK)
-						{
-							static int web_count = 0;
-							web_count ++;
-
-							std::cout << "web_count:" << web_count << std::endl;
-							std::cout << "web Image Height:" << web_frame.Height() << "Image Width:" << web_frame.Width() << std::endl;
-							std::cout << "web Bytes Per Pixel:" << web_frame.BytesPerPixel() << std::endl;
-							std::cout << "web Image Buffer Size:" << web_frame.BufferSize() << std::endl;
-
-							cv::Mat webImRGB(web_frame.Height(),web_frame.Width(),CV_8UC4);
-							const byte* web_data_ptr = web_frame.GetData();
-
-							fillWebCamInfo(web_cam_info_msg,web_frame_id,optical_data,web_frame.Height(),web_frame.Width());
-							//memcpy(webImRGB.data,web_data_ptr,web_frame.Height()*web_frame.Width()*web_frame.BytesPerPixel());
-              publishCamInfo(web_cam_info_msg, pub_web_cam_info, getWebImgStamp());
-              publishImage(webImRGB, pub_web, web_frame_id, getWebImgStamp());
-              img_get = true;
-
-						}
-					
-						//reset
-            if (!img_get) {
-                getColorImgStamp(true);
-            }
-
-            if (imu_SubNumber > 0  && auxStream->GetFrame(imu_frame) == InuDev::eOK) {
-
-								static int imu_count = 0;
-								imu_count ++;
-								std::cout << "imu_count:" << imu_count << std::endl;
-								publishIMU(imu_frame, pub_imu, getIMUStamp());
-            } else {
-                getIMUStamp(nullptr, true);  
-            }
-        }
+    retCode = auxStream->Register(std::bind(&InuitiveRosWrapperNodelet::publishImuMessageReg, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
+    if (retCode != InuDev::eOK)
+    {
+        std::cout << "IMU register error: " << std::hex << int(retCode) << " - "  << std::string(retCode) << std::endl;
+        return false;
     }
+
+    retCode = webCamStream->Register(std::bind(&InuitiveRosWrapperNodelet::publishWebMessageReg, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
+    if (retCode != InuDev::eOK)
+    {
+        std::cout << "WEB register error: " << std::hex << int(retCode) << " - "  << std::string(retCode) << std::endl;
+        return false;
+    }
+
+    retCode = videoStream->Register(std::bind(&InuitiveRosWrapperNodelet::publishVideoMessageReg, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
+    if (retCode != InuDev::eOK)
+    {
+        std::cout << "VIDEO register error: " << std::hex << int(retCode) << " - "  << std::string(retCode) << std::endl;
+        return false;
+    }
+
+    retCode = depthStream->Register(std::bind(&InuitiveRosWrapperNodelet::publishDepthMessageReg, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
+    if (retCode != InuDev::eOK)
+    {
+        std::cout << "DEPTH register error: " << std::hex << int(retCode) << " - "  << std::string(retCode) << std::endl;
+        return false;
+    }
+
+#if 0
+		if(pointcloud_SubNumber > 0 && pointCloudStream->GetFrame(point_cloud_frame) == InuDev::eOK)
+		{
+				static int point_cloud_count = 0;
+				point_cloud_count ++;
+
+				std::cout << "point_cloud_count:" << point_cloud_count << std::endl;
+				std::cout << "point cloud Height:" << point_cloud_frame.Height() << "point cloud Width:" << point_cloud_frame.Width() << std::endl;
+				std::cout << "point cloud Bytes Per Pixel:" << point_cloud_frame.BytesPerPixel() << std::endl;
+				std::cout << "point cloud Buffer Size:" << point_cloud_frame.BufferSize() << std::endl;
+
+				const byte* point_cloud_data_ptr = point_cloud_frame.GetData();
+
+				cv::Mat point_cloud(point_cloud_frame.Height(),point_cloud_frame.Width(),CV_32FC1);
+				memcpy(point_cloud.data,point_cloud_data_ptr,point_cloud_frame.Height()*point_cloud_frame.Width()*point_cloud_frame.BytesPerPixel());
+
+				int point_cloud_num = point_cloud_frame.Width();
+				sensor_msgs::PointCloud ros_point_cloud;
+				ros_point_cloud.header.frame_id = point_cloud_frame_id;
+				ros_point_cloud.header.stamp = getDepthImgStamp();
+
+				ros_point_cloud.channels.resize(3);
+				ros_point_cloud.channels[0].name = "r";
+				ros_point_cloud.channels[0].values.resize(point_cloud_num);
+				ros_point_cloud.channels[1].name = "g";
+				ros_point_cloud.channels[1].values.resize(point_cloud_num);
+				ros_point_cloud.channels[2].name = "b";
+				ros_point_cloud.channels[2].values.resize(point_cloud_num);
+
+				ros_point_cloud.points.resize(point_cloud_num);
+
+				for(int i = 0;i < point_cloud_num;i++)
+				{
+					ros_point_cloud.points[i].x = point_cloud.at<float>(0,i)/1000;
+					ros_point_cloud.points[i].y = point_cloud.at<float>(1,i)/1000;
+					ros_point_cloud.points[i].z = point_cloud.at<float>(2,i)/1000;
+
+					ros_point_cloud.channels[0].values[i] = 255;
+					ros_point_cloud.channels[1].values[i] = 255;
+					ros_point_cloud.channels[2].values[i] = 255;
+				}
+
+				pub_point_cloud.publish(ros_point_cloud);
+
+		}
+#endif
+
 }
 
 void onInit() {
