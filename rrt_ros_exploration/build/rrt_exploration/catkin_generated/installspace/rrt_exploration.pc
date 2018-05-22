@@ -1,0 +1,8 @@
+prefix=/home/wzm/rrt_ros_exploration/install
+
+Name: rrt_exploration
+Description: Description of rrt_exploration
+Version: 1.0.0
+Cflags: -I/home/wzm/rrt_ros_exploration/install/include
+Libs: -L/home/wzm/rrt_ros_exploration/install/lib 
+Requires: message_runtime

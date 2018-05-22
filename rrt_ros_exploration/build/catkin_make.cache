@@ -1,0 +1,2 @@
+rrt_exploration:rrt_exploration_tutorials
+-DCATKIN_DEVEL_PREFIX=/home/wzm/rrt_ros_exploration/devel -DCMAKE_INSTALL_PREFIX=/home/wzm/rrt_ros_exploration/install -G Unix Makefiles
