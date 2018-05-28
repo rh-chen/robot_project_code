@@ -1,0 +1,7 @@
+<library path="lib/libLineDetectionAndRotationNodelet">
+  <class name="line_detection_and_rotation/LineDetectionAndRotationNodelet"
+         type="line_detection_and_rotation::LineDetectionAndRotationNodelet"
+         base_class_type="nodelet::Nodelet">
+    <description>This is the nodelet of ROS interface for mynteye.</description>
+  </class>
+</library>
