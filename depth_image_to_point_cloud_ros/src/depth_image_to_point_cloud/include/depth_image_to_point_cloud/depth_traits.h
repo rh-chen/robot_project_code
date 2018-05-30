@@ -37,7 +37,7 @@
 #include <algorithm>
 #include <limits>
 
-namespace depth_image_proc {
+namespace depth_image_to_point_cloud{
 
 // Encapsulate differences between processing float and uint16_t depths
 template<typename T> struct DepthTraits {};

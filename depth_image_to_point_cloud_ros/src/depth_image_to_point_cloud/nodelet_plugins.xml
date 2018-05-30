@@ -1,5 +1,5 @@
 <library path="lib/libdepth_image_to_point_cloud">
-
+<!--
   <class name="depth_image_proc/convert_metric"
 	 type="depth_image_proc::ConvertMetricNodelet"
 	 base_class_type="nodelet::Nodelet">
@@ -23,15 +23,15 @@
       Nodelet to convert depth image to XYZ point cloud.
     </description>
   </class>
-
-  <class name="depth_image_proc/point_cloud_xyzrgb"
-	 type="depth_image_proc::PointCloudXyzrgbNodelet"
+-->
+  <class name="depth_image_to_point_cloud/PointCloudXyzrgbNodelet"
+	 type="depth_image_to_point_cloud::PointCloudXyzrgbNodelet"
 	 base_class_type="nodelet::Nodelet">
     <description>
       Nodelet to combine registered depth image and RGB image into XYZRGB point cloud.
     </description>
   </class>
-
+<!--
   <class name="depth_image_proc/point_cloud_xyzi"
          type="depth_image_proc::PointCloudXyziNodelet"
          base_class_type="nodelet::Nodelet">
@@ -69,5 +69,5 @@
       Nodelet to crop a depth image from foremost depth to a specific range.
     </description>
   </class>
-
+-->
 </library>

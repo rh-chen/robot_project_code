@@ -48,29 +48,26 @@
 #include <sensor_msgs/point_cloud2_iterator.h>
 #include <sensor_msgs/PointCloud2.h>
 #include <image_geometry/pinhole_camera_model.h>
-#include <depth_image_proc/depth_traits.h>
+#include <depth_image_to_point_cloud/depth_traits.h>
 #include <cv_bridge/cv_bridge.h>
 #include <opencv2/imgproc/imgproc.hpp>
 
-namespace depth_image_proc {
+namespace depth_image_to_point_cloud{
 
 using namespace message_filters::sync_policies;
 namespace enc = sensor_msgs::image_encodings;
 
+typedef message_filters::sync_policies::ApproximateTime<sensor_msgs::Image,sensor_msgs::Image,sensor_msgs::CameraInfo> sync_pol;
+
 class PointCloudXyzrgbNodelet : public nodelet::Nodelet
 {
-  ros::NodeHandlePtr rgb_nh_;
-  boost::shared_ptr<image_transport::ImageTransport> rgb_it_, depth_it_;
-  
-  // Subscriptions
-  image_transport::SubscriberFilter sub_depth_, sub_rgb_;
-  message_filters::Subscriber<sensor_msgs::CameraInfo> sub_info_;
-  typedef ApproximateTime<sensor_msgs::Image, sensor_msgs::Image, sensor_msgs::CameraInfo> SyncPolicy;
-  typedef ExactTime<sensor_msgs::Image, sensor_msgs::Image, sensor_msgs::CameraInfo> ExactSyncPolicy;
-  typedef message_filters::Synchronizer<SyncPolicy> Synchronizer;
-  typedef message_filters::Synchronizer<ExactSyncPolicy> ExactSynchronizer;
-  boost::shared_ptr<Synchronizer> sync_;
-  boost::shared_ptr<ExactSynchronizer> exact_sync_;
+  ros::NodeHandle nh;
+
+  message_filters::Subscriber<sensor_msgs::Image>* sub_depth_;
+  message_filters::Subscriber<sensor_msgs::Image>* sub_rgb_;
+  message_filters::Subscriber<sensor_msgs::CameraInfo>* sub_info_;
+
+  message_filters::Synchronizer<sync_pol>* sync;
 
   // Publications
   boost::mutex connect_mutex_;
@@ -80,8 +77,6 @@ class PointCloudXyzrgbNodelet : public nodelet::Nodelet
   image_geometry::PinholeCameraModel model_;
 
   virtual void onInit();
-
-  void connectCb();
 
   void imageCb(const sensor_msgs::ImageConstPtr& depth_msg,
                const sensor_msgs::ImageConstPtr& rgb_msg,
@@ -96,77 +91,40 @@ class PointCloudXyzrgbNodelet : public nodelet::Nodelet
 
 void PointCloudXyzrgbNodelet::onInit()
 {
-  ros::NodeHandle& nh         = getNodeHandle();
-  ros::NodeHandle& private_nh = getPrivateNodeHandle();
-  rgb_nh_.reset( new ros::NodeHandle(nh, "left") );
-  ros::NodeHandle depth_nh(nh, "depth");
-  rgb_it_  .reset( new image_transport::ImageTransport(*rgb_nh_) );
-  depth_it_.reset( new image_transport::ImageTransport(depth_nh) );
+  nh = getMTNodeHandle();
 
   // Read parameters
+  ros::NodeHandle& private_nh = getMTPrivateNodeHandle();
   int queue_size;
   private_nh.param("queue_size", queue_size, 5);
   bool use_exact_sync;
   private_nh.param("exact_sync", use_exact_sync, false);
 
-  // Synchronize inputs. Topic subscriptions happen on demand in the connection callback.
-  if (use_exact_sync)
-  {
-    exact_sync_.reset( new ExactSynchronizer(ExactSyncPolicy(queue_size), sub_depth_, sub_rgb_, sub_info_) );
-    exact_sync_->registerCallback(boost::bind(&PointCloudXyzrgbNodelet::imageCb, this, _1, _2, _3));
-  }
-  else
-  {
-    sync_.reset( new Synchronizer(SyncPolicy(queue_size), sub_depth_, sub_rgb_, sub_info_) );
-    sync_->registerCallback(boost::bind(&PointCloudXyzrgbNodelet::imageCb, this, _1, _2, _3));
-  }
+
+  std::string depth_topic = "/depth/depth_registered";
+  std::string rgb_topic = "/left/image_rect_color";
+  std::string camera_info_topic = "/left/camera_info";
+
+  boost::lock_guard<boost::mutex> lock(connect_mutex_);
+ 
+  sub_depth_ = new message_filters::Subscriber<sensor_msgs::Image>(nh,depth_topic,1);  
+  sub_rgb_ = new message_filters::Subscriber<sensor_msgs::Image>(nh,rgb_topic,1);
+  sub_info_ = new message_filters::Subscriber<sensor_msgs::CameraInfo>(nh,camera_info_topic,1);
   
-  // Monitor whether anyone is subscribed to the output
-  ros::SubscriberStatusCallback connect_cb = boost::bind(&PointCloudXyzrgbNodelet::connectCb, this);
-  // Make sure we don't enter connectCb() between advertising and assigning to pub_point_cloud_
-  boost::lock_guard<boost::mutex> lock(connect_mutex_);
-  pub_point_cloud_ = depth_nh.advertise<PointCloud>("points", 1, connect_cb, connect_cb);
-}
+  NODELET_INFO_STREAM("Subscribe on topic:" << depth_topic);
+  NODELET_INFO_STREAM("Subscribe on topic:" << rgb_topic);
+  NODELET_INFO_STREAM("Subscribe on topic:" << camera_info_topic);
 
-// Handles (un)subscribing when clients (un)subscribe
-void PointCloudXyzrgbNodelet::connectCb()
-{
-  boost::lock_guard<boost::mutex> lock(connect_mutex_);
-  if (pub_point_cloud_.getNumSubscribers() == 0)
-  {
-    sub_depth_.unsubscribe();
-    sub_rgb_  .unsubscribe();
-    sub_info_ .unsubscribe();
-  }
-  else if (!sub_depth_.getSubscriber())
-  {
-    ros::NodeHandle& private_nh = getPrivateNodeHandle();
-    // parameter for depth_image_transport hint
-    std::string depth_image_transport_param = "depth_image_transport";
+  pub_point_cloud_ = nh.advertise<PointCloud>("point_cloud", 1);
 
-    // depth image can use different transport.(e.g. compressedDepth)
-    image_transport::TransportHints depth_hints("raw",ros::TransportHints(), private_nh, depth_image_transport_param);
-    sub_depth_.subscribe(*depth_it_, "depth_registered",       1, depth_hints);
-
-    // rgb uses normal ros transport hints.
-    image_transport::TransportHints hints("raw", ros::TransportHints(), private_nh);
-    sub_rgb_  .subscribe(*rgb_it_,   "image_rect_color", 1, hints);
-    sub_info_ .subscribe(*rgb_nh_,   "camera_info",      1);
-  }
+  sync = new message_filters::Synchronizer<sync_pol>(sync_pol(queue_size),*sub_depth_,*sub_rgb_,*sub_info_);
+  sync->registerCallback(boost::bind(&PointCloudXyzrgbNodelet::imageCb,this,_1,_2,_3)); 
 }
 
 void PointCloudXyzrgbNodelet::imageCb(const sensor_msgs::ImageConstPtr& depth_msg,
                                       const sensor_msgs::ImageConstPtr& rgb_msg_in,
                                       const sensor_msgs::CameraInfoConstPtr& info_msg)
 {
-  // Check for bad inputs
-  /*if (depth_msg->header.frame_id != rgb_msg_in->header.frame_id)
-  {
-    NODELET_ERROR_THROTTLE(5, "Depth image frame id [%s] doesn't match RGB image frame id [%s]",
-                           depth_msg->header.frame_id.c_str(), rgb_msg_in->header.frame_id.c_str());
-    return;
-  }*/
-
   // Update camera model
   model_.fromCameraInfo(info_msg);
 
@@ -342,4 +300,4 @@ void PointCloudXyzrgbNodelet::convert(const sensor_msgs::ImageConstPtr& depth_ms
 
 // Register as nodelet
 #include <pluginlib/class_list_macros.h>
-PLUGINLIB_EXPORT_CLASS(depth_image_proc::PointCloudXyzrgbNodelet,nodelet::Nodelet);
+PLUGINLIB_EXPORT_CLASS(depth_image_to_point_cloud::PointCloudXyzrgbNodelet,nodelet::Nodelet);

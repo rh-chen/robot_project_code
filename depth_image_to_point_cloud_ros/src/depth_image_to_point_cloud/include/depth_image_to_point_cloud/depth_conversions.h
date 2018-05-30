@@ -37,11 +37,11 @@
 #include <sensor_msgs/Image.h>
 #include <sensor_msgs/point_cloud2_iterator.h>
 #include <image_geometry/pinhole_camera_model.h>
-#include <depth_image_proc/depth_traits.h>
+#include <depth_image_to_point_cloud/depth_traits.h>
 
 #include <limits>
 
-namespace depth_image_proc {
+namespace depth_image_to_point_cloud{
 
 typedef sensor_msgs::PointCloud2 PointCloud;
 
