@@ -41,7 +41,6 @@ class DARP
 	int nr;
 	int obs;
 
-	vector<bool> ConnectedRobotRegions;
 	cv::Mat robotBinary;
 	cv::Mat A;
 	cv::Mat GridEnv;
@@ -50,6 +49,8 @@ class DARP
 	{
 		rows = rows_;
 		cols = cols_;
+		nr = 0;
+		obs = 0;
 		
 		deepCopyMatrix(src_,GridEnv);
 		
@@ -63,12 +64,55 @@ class DARP
 				if(j == GridEnv.cols-1)
 					printf("\n");
 			}
-		nr = 0;
-		obs = 0;
+
+		robotBinary.create(rows,cols,CV_32SC1);
+		memset(robotBinary.data,0,rows*cols*4);
+		A.create(rows,cols,CV_32SC1);
+		memset(A.data,0,rows*cols*4);
+
+		defineRobotsObstacles();
 	}
 
 	void deepCopyMatrix(cv::Mat& data_,cv::Mat& dst_)
 	{data_.copyTo(dst_);}
+
+	void defineRobotsObstacles(){
+    for(int i = 0;i < rows;i++){
+      for (int j = 0;j < cols;j++){
+        if (GridEnv.at<int>(i,j) == 2) {
+          robotBinary.at<int>(i,j) = 1;//true
+          GridEnv.at<int>(i,j) = nr;
+          A.at<int>(i,j) = nr;
+          nr++;
+        }
+        else if (GridEnv.at<int>(i,j) == 1) {
+          obs++;
+          GridEnv.at<int>(i,j) = -2;
+        } else {GridEnv.at<int>(i,j) = -1;}
+    }
+		}
+
+		printf("robotBinary\n");
+		for(int i = 0;i < rows;i++){
+      for (int j = 0;j < cols;j++){
+        std::cout << robotBinary.at<int>(i,j) << " ";
+				if(j == cols-1)
+					printf("\n");
+			}
+		}
+		printf("GridEnv_new\n");
+		for(int i = 0;i < rows;i++){
+      for (int j = 0;j < cols;j++){
+        std::cout << GridEnv.at<int>(i,j) << " ";
+				if(j == cols-1)
+					printf("\n");
+			}
+		}
+	}
+	
+	int getNr(){return nr;}
+	int getNumOB(){return obs;}
+
 };
 
 
@@ -296,6 +340,11 @@ class DarpRosNodelet : public nodelet::Nodelet {
 		{NODELET_INFO_STREAM("The environment grid MUST not have unreachable and/or closed shape regions\n\n");}
 
 		DARP p(environment_grid_.rows,environment_grid_.cols,environment_grid_);
+
+		NODELET_INFO_STREAM("nr:" << p.getNr());
+		NODELET_INFO_STREAM("obs:" << p.getNumOB());
+		if(p.getNr() < 1)
+		{NODELET_INFO_STREAM("Please define at least one robot \n\n");}
 		
 	}
 
