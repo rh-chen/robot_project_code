@@ -1,0 +1,7 @@
+<library path="lib/libDarpRosNodelet">
+  <class name="darp_ros/DarpRosNodelet"
+         type="darp_ros::DarpRosNodelet"
+         base_class_type="nodelet::Nodelet">
+    <description>This is the nodelet of ROS interface for mynteye.</description>
+  </class>
+</library>
