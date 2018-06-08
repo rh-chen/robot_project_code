@@ -22,8 +22,14 @@
 #include <stdio.h>
 #include <math.h>
 
+#include <hash_set>
+#include <set>
+#include <map>
+
+
 namespace darp_ros {
 
+using namespace __gnu_cxx; 
 using namespace std;
 using namespace cv;
 
@@ -44,6 +50,7 @@ class DARP
 	cv::Mat robotBinary;
 	cv::Mat A;
 	cv::Mat GridEnv;
+	cv::Mat BinrayRobotRegions;
 	
 	DARP(int rows_,int cols_,cv::Mat& src_)
 	{
@@ -56,7 +63,7 @@ class DARP
 		
 		printf("GridEnv.rows:%d\n",GridEnv.rows);
 		printf("GridEnv.cols:%d\n",GridEnv.cols);
-
+		printf("GridEnv_old");
 		for(int i = 0;i < GridEnv.rows;i++)
 			for(int j = 0;j < GridEnv.cols;j++)
 			{
@@ -69,10 +76,27 @@ class DARP
 		memset(robotBinary.data,0,rows*cols*4);
 		A.create(rows,cols,CV_32SC1);
 		memset(A.data,0,rows*cols*4);
+		BinrayRobotRegions.create(rows,cols,CV_32SC1);
+		memset(BinrayRobotRegions.data,0,rows*cols*4);
 
 		defineRobotsObstacles();
+
+		assign();
+
+		calculateRobotBinaryArrays();
 	}
 
+	void assign()
+	{
+		int indMin = 0;
+		for (int i = 0; i < rows; i++) {
+      for (int j = 0; j < cols; j++){
+        if (GridEnv.at<int>(i,j)==-1) {
+          A.at<int>(i,j) = indMin;
+        } else if (GridEnv.at<int>(i,j)==-2) {A.at<int>(i,j) = nr;}
+      }
+  	}
+	}
 	void deepCopyMatrix(cv::Mat& data_,cv::Mat& dst_)
 	{data_.copyTo(dst_);}
 
@@ -112,6 +136,26 @@ class DARP
 	
 	int getNr(){return nr;}
 	int getNumOB(){return obs;}
+	
+	void calculateRobotBinaryArrays()
+	{
+    for (int i = 0;i < rows;i++){
+    	for (int j = 0;j < cols;j++) {
+        if (A.at<int>(i,j) < nr){
+						BinrayRobotRegions.at<int>(i,j) = 1;//true
+        }
+    	}
+		}
+
+		printf("BinrayRobotRegions\n");
+		for (int i = 0;i < rows;i++){
+    	for (int j = 0;j < cols;j++) {
+				std::cout << BinrayRobotRegions.at<int>(i,j) << " ";
+				if(j == cols-1)
+					printf("\n");
+    	}
+		}
+	}
 
 };
 
@@ -146,10 +190,10 @@ class ConnectComponent
 			std::cout << image[i] << " ";
 		std::cout << std::endl;
 		
-std::cout << __FILE__ << __LINE__ << std::endl;
+//std::cout << __FILE__ << __LINE__ << std::endl;
 		vector<int> label(MAX_LABELS,0);
 		labeling(image,label,rows,cols,zeroAsBg);
-std::cout << __FILE__ << __LINE__ << std::endl;		
+//std::cout << __FILE__ << __LINE__ << std::endl;		
 		printf("labeling......\n");
 		for(int i = 0;i < label.size();i++)
 			std::cout << label[i] << " ";
@@ -290,7 +334,193 @@ std::cout << __FILE__ << __LINE__ << std::endl;
 
 };
 
+class Edge{
+	public:
+
+	int from,to,cost;
+	Edge(){};
+	Edge(int f,int t,int c){from = f;to = t;cost = c;}
+};
+
+class Kruskal{
+	public:
+
+	int MAX_NODES;
+	vector<hash_set<int> > nodes;
+	map<int,Edge> allEdges;
+	vector<Edge> allNewEdges;
+	int node_count;
+	
+	Kruskal(int rows,int cols){
+		MAX_NODES = rows*cols;
+		std::cout << "MAX_NODES:" << MAX_NODES << std::endl;
+		nodes.resize(MAX_NODES);
+		std::cout << "nodes_size:" << nodes.size() << std::endl;
+		node_count = 0;
+	}
+
+	void initializeGraph(cv::Mat& data,bool connect)
+	{
+		int rows = data.rows;
+		int cols = data.cols;
+
+		for(int i = 0;i < rows;i++){
+			for(int j = 0;j < cols;j++){
+				if(data.at<int>(i,j)){
+					if(i > 0 && data.at<int>(i-1,j)){
+						AddToAllEdges(i*cols+j,(i-1)*cols+j,1);
+					}
+					if(i < rows-1 && data.at<int>(i+1,j))
+					{
+						AddToAllEdges(i*cols+j,(i+1)*cols+j,1);
+					}
+					if(j > 0 && data.at<int>(i,j-1))
+					{
+						AddToAllEdges(i*cols+j,i*cols+j-1,1);
+					}
+					if(j < cols-1 && data.at<int>(i,j+1))
+					{
+						AddToAllEdges(i*cols+j,i*cols+j+1,1);
+					}
+
+					if(!connect){
+						if(i > 0 && j > 0 && data.at<int>(i-1,j-1))
+						{
+							AddToAllEdges(i*cols+j,(i-1)*cols+j-1,1);
+						}
+						if(i < rows-1 && j < cols-1 && data.at<int>(i+1,j+1))
+						{
+							AddToAllEdges(i*cols+j,(i+1)*cols+j+1,1);
+						}
+						if(i > rows-1 && j > 0 && data.at<int>(i+1,j-1))
+						{
+							AddToAllEdges(i*cols+j,(i+1)*cols+j-1,1);
+						}
+						if(i > 0 && j < cols-1 && data.at<int>(i-1,j+1))
+						{
+							AddToAllEdges(i*cols+j,(i-1)*cols+j+1,1);
+						}
+					}
+
+				}
+			}
+		}
+
+		for(int i = 0;i < MAX_NODES;i++){
+			if(nodes[i].size() > 0 ){
+				std::cout << "every_nodes_size:" << nodes[i].size() << std::endl;
+				node_count++;
+			}
+		}
+		std::cout << "node_count:" << node_count << std::endl;
+		std::cout << "allEdges_size:" << allEdges.size() << std::endl;
+	}
+
+	void AddToAllEdges(int from,int to,int cost)
+	{
+		static uint64 key = 0;
+		key++;
+
+		Edge e(from,to,cost);
+		allEdges.insert(pair<int,Edge>(key,e));
+		
+		if(nodes[from].size() == 0){
+			nodes[from].resize(2*MAX_NODES);
+			nodes[from].insert(from);
+		}
+		if(nodes[to].size() == 0){
+			nodes[to].resize(2*MAX_NODES);
+			nodes[to].insert(to);
+		}
+	}
+
+	void performKruskal()
+	{
+		int min_span_tree_edge_count = 0;
+		int edge_size = allEdges.size();
+		int vex_size = node_count;
+
+		vector<int> parent;
+		for(int i = 0;i < vex_size;i++)
+			parent.push_back(0);
+	
+		for(int i = 0;i < edge_size;i++){			
+			Edge curEdge(allEdges[i].from,allEdges[i].to,allEdges[i].cost);
+
+				if(nodesAreInDifferentSets(parent,curEdge.from,curEdge.to)){
+					min_span_tree_edge_count++;
+					allNewEdges.push_back(curEdge);
+				}else{
+					std::cout << "nodes are in the same set......" << std::endl;
+				}
+			}
+		std::cout << "min_span_tree_edge_count:" << min_span_tree_edge_count <<std::endl; 
+	}
+
+	int find_root(vector<int>& parent,int node)
+	{
+		while(parent[node])
+			node = parent[node];
+		
+		return node;
+	}
+	bool nodesAreInDifferentSets(vector<int>& parent,int a ,int b){
+
+		int n = find_root(parent,a);
+		int m = find_root(parent,b);
+
+		if(n!=m){
+			parent[n] = m;
+			return true;
+		}
+		else
+			return false;
+	}
+
+};
 class DarpRosNodelet : public nodelet::Nodelet {
+
+
+	int compare_edge(Edge& e1,Edge& e2)
+	{
+		int cost1 = e1.cost;
+		int cost2 = e2.cost;
+
+		int from1 = e1.from;
+		int from2 = e2.from;
+
+		int to1 = e1.to;
+		int to2 = e2.to;
+
+		if(cost1 < cost2)
+			return -1;
+		else if(cost1 == cost2 && from1 == from2 && to1 == to2)
+			return 0;
+		else if(cost1 == cost2)
+			return -1;
+		else if(cost1 > cost2)
+			return 1;
+		else
+			return 0;
+	}
+
+	bool equal_edge(Edge& e1,Edge& e2)
+	{
+		return (e1.cost == e2.cost && e1.from == e2.from && e1.to == e2.to);
+	}
+
+	void calculateMSTs(cv::Mat& region_,vector<Edge>& vec_,int nr_)
+	{
+		int rows = region_.rows;
+		int cols = region_.cols;
+
+    for (int r = 0;r < nr_;r++){
+		  Kruskal k(rows,cols);
+		  k.initializeGraph(region_,true);
+		  k.performKruskal();
+		  /*MSTs.add(k.getAllNewEdges());*/
+		}
+	}
 
 	void getGraphics(cv::Mat& map_,cv::Mat& data_)
 	{
@@ -344,7 +574,10 @@ class DarpRosNodelet : public nodelet::Nodelet {
 		NODELET_INFO_STREAM("nr:" << p.getNr());
 		NODELET_INFO_STREAM("obs:" << p.getNumOB());
 		if(p.getNr() < 1)
-		{NODELET_INFO_STREAM("Please define at least one robot \n\n");}
+		{NODELET_INFO_STREAM("Please define at least one robot \n\n");};
+
+		vector<Edge> vec_edge;
+		calculateMSTs(p.BinrayRobotRegions,vec_edge,p.nr);
 		
 	}
 
