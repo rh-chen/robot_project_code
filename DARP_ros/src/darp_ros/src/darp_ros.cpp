@@ -25,6 +25,7 @@
 #include <hash_set>
 #include <set>
 #include <map>
+#include <algorithm>  
 
 
 namespace darp_ros {
@@ -350,13 +351,15 @@ class Kruskal{
 	map<int,Edge> allEdges;
 	vector<Edge> allNewEdges;
 	int node_count;
+	int min_span_tree_edge_count;
 	
 	Kruskal(int rows,int cols){
 		MAX_NODES = rows*cols;
-		std::cout << "MAX_NODES:" << MAX_NODES << std::endl;
+		std::cout << "Kruskal_MAX_NODES:" << MAX_NODES << std::endl;
 		nodes.resize(MAX_NODES);
-		std::cout << "nodes_size:" << nodes.size() << std::endl;
+		std::cout << "Kruskal_nodes_size:" << nodes.size() << std::endl;
 		node_count = 0;
+		min_span_tree_edge_count = 0;
 	}
 
 	void initializeGraph(cv::Mat& data,bool connect)
@@ -364,11 +367,13 @@ class Kruskal{
 		int rows = data.rows;
 		int cols = data.cols;
 
-		for(int i = 0;i < rows;i++){
-			for(int j = 0;j < cols;j++){
+		for(int i = rows-1;i >= 0;i--){
+			for(int j = cols-1;j >=0;j--){
 				if(data.at<int>(i,j)){
-					if(i > 0 && data.at<int>(i-1,j)){
-						AddToAllEdges(i*cols+j,(i-1)*cols+j,1);
+
+					if(j < cols-1 && data.at<int>(i,j+1))
+					{
+						AddToAllEdges(i*cols+j,i*cols+j+1,1);
 					}
 					if(i < rows-1 && data.at<int>(i+1,j))
 					{
@@ -378,9 +383,8 @@ class Kruskal{
 					{
 						AddToAllEdges(i*cols+j,i*cols+j-1,1);
 					}
-					if(j < cols-1 && data.at<int>(i,j+1))
-					{
-						AddToAllEdges(i*cols+j,i*cols+j+1,1);
+					if(i > 0 && data.at<int>(i-1,j)){
+						AddToAllEdges(i*cols+j,(i-1)*cols+j,1);
 					}
 
 					if(!connect){
@@ -408,12 +412,12 @@ class Kruskal{
 
 		for(int i = 0;i < MAX_NODES;i++){
 			if(nodes[i].size() > 0 ){
-				std::cout << "every_nodes_size:" << nodes[i].size() << std::endl;
+				std::cout << "Kruskal_every_nodes_size:" << nodes[i].size() << std::endl;
 				node_count++;
 			}
 		}
-		std::cout << "node_count:" << node_count << std::endl;
-		std::cout << "allEdges_size:" << allEdges.size() << std::endl;
+		std::cout << "Kruskal_node_count:" << node_count << std::endl;
+		std::cout << "Kruskal_allEdges_size:" << allEdges.size() << std::endl;
 	}
 
 	void AddToAllEdges(int from,int to,int cost)
@@ -436,13 +440,12 @@ class Kruskal{
 
 	void performKruskal()
 	{
-		int min_span_tree_edge_count = 0;
 		int edge_size = allEdges.size();
-		int vex_size = node_count;
+		int vex_size = MAX_NODES;
 
 		vector<int> parent;
 		for(int i = 0;i < vex_size;i++)
-			parent.push_back(0);
+			parent.push_back(-1);
 	
 		for(int i = 0;i < edge_size;i++){			
 			Edge curEdge(allEdges[i].from,allEdges[i].to,allEdges[i].cost);
@@ -459,10 +462,21 @@ class Kruskal{
 
 	int find_root(vector<int>& parent,int node)
 	{
-		while(parent[node])
+		int s;
+		for(s = node;parent[s] >= 0;s = parent[s]);
+		
+		while(s != node)
+		{
+			int tmp = parent[node];
+			parent[node] = s;
+			node = tmp;
+		}
+		
+		return s;
+		/*while(parent[node])
 			node = parent[node];
 		
-		return node;
+		return node;*/	
 	}
 	bool nodesAreInDifferentSets(vector<int>& parent,int a ,int b){
 
@@ -476,8 +490,235 @@ class Kruskal{
 		else
 			return false;
 	}
-
+	void printFinalEdges()
+	{
+		for(int i = 0;i < min_span_tree_edge_count;i++)
+		{
+			std::cout << "Node:(" << allNewEdges[i].from << "," <<allNewEdges[i].to << ") with cost:" << allNewEdges[i].cost << std::endl; 
+		}
+	}
 };
+
+typedef struct path_node
+{
+	int pre_i;
+	int pre_j;
+	int i;
+	int j;
+}PathNode;
+class CalculateTrajectories
+{
+	public:
+	int MAX_NODES;
+	int rows,cols;
+	int MSTedges;
+	int node_count;
+	vector<Edge> MSTvector;
+	map<int,Edge> allEdges;
+	vector<hash_set<int> > nodes;
+	vector<PathNode> PathSequence;
+
+	CalculateTrajectories(int r,int c,vector<Edge>& MST)
+	{
+		MAX_NODES = 4*r*c;
+		rows = r;
+		cols = c;
+		node_count = 0;
+		MSTedges = MST.size();
+		nodes.resize(MAX_NODES);
+		
+		for(int i = 0;i < MST.size();i++)
+			MSTvector.push_back(MST[i]);
+	}
+
+	void initializeGraph(cv::Mat& data,bool connect)
+	{
+		//std::cout << __FILE__ << __LINE__ << std::endl;
+		for(int i = 0;i < 2*rows;i++){
+			for(int j = 0;j < 2*cols;j++){
+				if(data.at<int>(i,j)){
+					if(i > 0 && data.at<int>(i-1,j)){
+						AddToAllEdges(i*2*cols+j,(i-1)*2*cols+j,1);
+					}
+					if(i < 2*rows-1 && data.at<int>(i+1,j))
+					{
+						AddToAllEdges(i*2*cols+j,(i+1)*2*cols+j,1);
+					}
+					if(j > 0 && data.at<int>(i,j-1))
+					{
+						AddToAllEdges(i*2*cols+j,i*2*cols+j-1,1);
+					}
+					if(j < 2*cols-1 && data.at<int>(i,j+1))
+					{
+						AddToAllEdges(i*2*cols+j,i*2*cols+j+1,1);
+					}
+
+					if(!connect){
+						if(i > 0 && j > 0 && data.at<int>(i-1,j-1))
+						{
+							AddToAllEdges(i*2*cols+j,(i-1)*2*cols+j-1,1);
+						}
+						if(i < 2*rows-1 && j < 2*cols-1 && data.at<int>(i+1,j+1))
+						{
+							AddToAllEdges(i*2*cols+j,(i+1)*2*cols+j+1,1);
+						}
+						if(i > 2*rows-1 && j > 0 && data.at<int>(i+1,j-1))
+						{
+							AddToAllEdges(i*2*cols+j,(i+1)*2*cols+j-1,1);
+						}
+						if(i > 0 && j < 2*cols-1 && data.at<int>(i-1,j+1))
+						{
+							AddToAllEdges(i*2*cols+j,(i-1)*2*cols+j+1,1);
+						}
+					}
+
+				}
+			}
+		}
+		//std::cout << __FILE__ << __LINE__ << std::endl;
+		for(int i = 0;i < MAX_NODES;i++){
+			if(nodes[i].size() > 0 ){
+				std::cout << "CalculateTrajectories_every_nodes_size:" << nodes[i].size() << std::endl;
+				node_count++;
+			}
+		}
+		std::cout << "CalculateTrajectories_node_count:" << node_count << std::endl;
+		std::cout << "CalculateTrajectories_allEdges_size:" << allEdges.size() << std::endl;
+	}
+	
+	void AddToAllEdges(int from,int to,int cost)
+	{
+		static uint64 key = 0;
+		key++;
+//std::cout << __FILE__ << __LINE__ << std::endl;
+		Edge e(from,to,cost);
+		allEdges.insert(pair<int,Edge>(key,e));
+//std::cout << __FILE__ << __LINE__ << std::endl;		
+		//if(nodes[from].size() == 0)
+			//nodes[from].resize(8*MAX_NODES);
+//std::cout << __FILE__ << __LINE__ << std::endl;		
+		nodes[from].insert(to);
+//std::cout << __FILE__ << __LINE__ << std::endl;
+		//if(nodes[to].size() == 0)
+			//nodes[to].resize(8*MAX_NODES);
+//std::cout << __FILE__ << __LINE__ << std::endl;		
+		nodes[to].insert(from);
+//std::cout << __FILE__ << __LINE__ << std::endl;		
+	}
+	void RemoveTheAppropriateEdges()
+	{
+		int alpha,maxN,minN;
+		Edge eToRemove,eToRemoveMirr,eToRemove2,eToRemove2Mirr;
+		
+		for(int i = 0;i < MSTedges;i++){
+			Edge e = MSTvector[i];
+			maxN = std::max(e.from,e.to);
+			minN = std::min(e.from,e.to);
+
+			if(std::abs(e.from-e.to) == 1){
+				alpha = (4*minN+3) - 2*(maxN%cols);
+				Edge eToRemoveTemp(alpha,alpha+2*cols,1);
+				eToRemove.from = eToRemoveTemp.from;
+				eToRemove.to = eToRemoveTemp.to;
+				eToRemove.cost = eToRemoveTemp.cost;
+				Edge eToRemoveMirrTemp(alpha+2*cols,alpha,1);
+
+				eToRemoveMirr.from = eToRemoveMirrTemp.from;
+				eToRemoveMirr.to = eToRemoveMirrTemp.to;
+				eToRemoveMirr.cost = eToRemoveMirrTemp.cost;
+				
+				Edge eToRemove2Temp(alpha+1,alpha+1+2*cols,1);
+				
+				eToRemove2.from = eToRemove2Temp.from;
+				eToRemove2.to = eToRemove2Temp.to;
+				eToRemove2.cost = eToRemove2Temp.cost;
+
+				Edge eToRemove2MirrTemp(alpha+1+2*cols,alpha+1,1);
+				eToRemove2Mirr.from = eToRemove2MirrTemp.from;
+				eToRemove2Mirr.to = eToRemove2MirrTemp.to;
+				eToRemove2Mirr.cost = eToRemove2MirrTemp.cost;
+				
+			}else{
+				alpha = (4*minN+2*cols) - 2*(maxN%cols);
+				Edge eToRemoveTemp(alpha,alpha+1,1);
+				eToRemove.from = eToRemoveTemp.from;
+				eToRemove.to = eToRemoveTemp.to;
+				eToRemove.cost = eToRemoveTemp.cost;
+				Edge eToRemoveMirrTemp(alpha+1,alpha,1);
+
+				eToRemoveMirr.from = eToRemoveMirrTemp.from;
+				eToRemoveMirr.to = eToRemoveMirrTemp.to;
+				eToRemoveMirr.cost = eToRemoveMirrTemp.cost;
+				
+				Edge eToRemove2Temp(alpha+2*cols,alpha+1+2*cols,1);
+				
+				eToRemove2.from = eToRemove2Temp.from;
+				eToRemove2.to = eToRemove2Temp.to;
+				eToRemove2.cost = eToRemove2Temp.cost;
+
+				Edge eToRemove2MirrTemp(alpha+1+2*cols,alpha+2*cols,1);
+				eToRemove2Mirr.from = eToRemove2MirrTemp.from;
+				eToRemove2Mirr.to = eToRemove2MirrTemp.to;
+				eToRemove2Mirr.cost = eToRemove2MirrTemp.cost;
+			}
+
+			if(allEdges_map_count(eToRemove))
+				SafeRemoveEdge(eToRemove);
+			if(allEdges_map_count(eToRemoveMirr))
+				SafeRemoveEdge(eToRemoveMirr);
+			if(allEdges_map_count(eToRemove2))
+				SafeRemoveEdge(eToRemove2);
+			if(allEdges_map_count(eToRemove2Mirr))
+				SafeRemoveEdge(eToRemove2Mirr);
+		}
+	}
+	
+	bool allEdges_map_count(Edge& e)
+	{
+		auto iter = allEdges.begin();
+		bool flag = false;
+
+		while(iter != allEdges.end()){
+			if(((iter->second.from == e.from) && (iter->second.to == e.to) && (iter->second.cost == e.cost)) || ((iter->second.from == e.to) && (iter->second.to == e.from) && (iter->second.cost == e.cost))){
+				allEdges.erase(iter++);
+				flag = true;
+				break;
+			}
+		}
+		
+		if(!flag)
+			return false;
+		else
+			return true;
+	}
+	void SafeRemoveEdge(Edge& curEdge)
+	{
+		static unsigned int delete_count = 0;
+
+		delete_count++;
+
+		auto iter = allEdges.begin();
+		bool flag = false;
+
+		while(iter != allEdges.end()){
+			if((iter->second.from == curEdge.from) && (iter->second.to == curEdge.to) && (iter->second.cost == curEdge.cost)){
+				allEdges.erase(iter++);
+				flag = true;
+			}
+			else
+				++iter;
+		}
+		
+		if(!flag)
+			printf("map<int,Edge> should have contained this element!!!\n");		
+
+		nodes[curEdge.from].erase(curEdge.to);
+		nodes[curEdge.to].erase(curEdge.from);
+
+		printf("delete_count:%d\n",delete_count);
+	}
+	
+	};
 class DarpRosNodelet : public nodelet::Nodelet {
 
 
@@ -514,12 +755,17 @@ class DarpRosNodelet : public nodelet::Nodelet {
 		int rows = region_.rows;
 		int cols = region_.cols;
 
+		Kruskal k(rows,cols);
     for (int r = 0;r < nr_;r++){
-		  Kruskal k(rows,cols);
+		 // Kruskal k(rows,cols);
 		  k.initializeGraph(region_,true);
 		  k.performKruskal();
+			k.printFinalEdges();
 		  /*MSTs.add(k.getAllNewEdges());*/
 		}
+
+		for(int i =0;i < k.allNewEdges.size();i++)
+			vec_.push_back(k.allNewEdges[i]);
 	}
 
 	void getGraphics(cv::Mat& map_,cv::Mat& data_)
@@ -546,6 +792,18 @@ class DarpRosNodelet : public nodelet::Nodelet {
 				else
 					binary_.at<int>(i,j) = 0;
 			}
+	}
+
+	void CalcRealBinaryReg(cv::Mat& BinaryRobotRegion,cv::Mat& RealBinaryRobotRegion)
+	{
+		int rows = BinaryRobotRegion.rows;
+		int cols = BinaryRobotRegion.cols;
+
+		for(int i = 0;i < 2*rows;i++){
+			for(int j = 0;j < 2*cols;j++){
+				RealBinaryRobotRegion.at<int>(i,j) = BinaryRobotRegion.at<int>(i/2,j/2);
+			}
+		}
 	}
 
 	void call_back() {
@@ -578,6 +836,15 @@ class DarpRosNodelet : public nodelet::Nodelet {
 
 		vector<Edge> vec_edge;
 		calculateMSTs(p.BinrayRobotRegions,vec_edge,p.nr);
+		
+		CalculateTrajectories ct(p.BinrayRobotRegions.rows,p.BinrayRobotRegions.cols,vec_edge);
+
+		cv::Mat RealBinaryRobotRegions(2*p.BinrayRobotRegions.rows,2*p.BinrayRobotRegions.cols,CV_32SC1);
+		CalcRealBinaryReg(p.BinrayRobotRegions,RealBinaryRobotRegions);
+		
+		ct.initializeGraph(RealBinaryRobotRegions,true);
+
+		ct.RemoveTheAppropriateEdges();
 		
 	}
 
