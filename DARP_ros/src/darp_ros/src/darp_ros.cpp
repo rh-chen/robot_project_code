@@ -607,13 +607,17 @@ class CalculateTrajectories
 	}
 	void RemoveTheAppropriateEdges()
 	{
+		printf("start RemoveTheAppropriateEdges!!!\n");
 		int alpha,maxN,minN;
 		Edge eToRemove,eToRemoveMirr,eToRemove2,eToRemove2Mirr;
 		
+		printf("MSTedges:%d\n",MSTedges);
 		for(int i = 0;i < MSTedges;i++){
 			Edge e = MSTvector[i];
 			maxN = std::max(e.from,e.to);
 			minN = std::min(e.from,e.to);
+
+			printf("e(from:%d-to:%d)\n",e.from,e.to);
 
 			if(std::abs(e.from-e.to) == 1){
 				alpha = (4*minN+3) - 2*(maxN%cols);
@@ -679,11 +683,11 @@ class CalculateTrajectories
 		bool flag = false;
 
 		while(iter != allEdges.end()){
-			if(((iter->second.from == e.from) && (iter->second.to == e.to) && (iter->second.cost == e.cost)) || ((iter->second.from == e.to) && (iter->second.to == e.from) && (iter->second.cost == e.cost))){
-				allEdges.erase(iter++);
+			if((iter->second.from == e.from) && (iter->second.to == e.to) && (iter->second.cost == e.cost)){
 				flag = true;
 				break;
 			}
+			iter++;
 		}
 		
 		if(!flag)
@@ -693,6 +697,7 @@ class CalculateTrajectories
 	}
 	void SafeRemoveEdge(Edge& curEdge)
 	{
+		printf("delete e(from:%d-to:%d)\n",curEdge.from,curEdge.to);
 		static unsigned int delete_count = 0;
 
 		delete_count++;
@@ -704,6 +709,7 @@ class CalculateTrajectories
 			if((iter->second.from == curEdge.from) && (iter->second.to == curEdge.to) && (iter->second.cost == curEdge.cost)){
 				allEdges.erase(iter++);
 				flag = true;
+				break;
 			}
 			else
 				++iter;
