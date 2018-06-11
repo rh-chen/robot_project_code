@@ -40,6 +40,8 @@ cv::Mat environment_grid_;
 cv::Mat binary_grid_;
 cv::Mat label_2d_;
 
+cv::Mat src;
+
 class DARP
 {
 	public:
@@ -52,6 +54,7 @@ class DARP
 	cv::Mat A;
 	cv::Mat GridEnv;
 	cv::Mat BinrayRobotRegions;
+	vector<cv::Point> RobotsInit;
 	
 	DARP(int rows_,int cols_,cv::Mat& src_)
 	{
@@ -106,6 +109,7 @@ class DARP
       for (int j = 0;j < cols;j++){
         if (GridEnv.at<int>(i,j) == 2) {
           robotBinary.at<int>(i,j) = 1;//true
+					RobotsInit.push_back(cv::Point(j,i));
           GridEnv.at<int>(i,j) = nr;
           A.at<int>(i,j) = nr;
           nr++;
@@ -506,6 +510,7 @@ typedef struct path_node
 	int i;
 	int j;
 }PathNode;
+
 class CalculateTrajectories
 {
 	public:
@@ -724,6 +729,88 @@ class CalculateTrajectories
 		printf("delete_count:%d\n",delete_count);
 	}
 	
+	void CalculatePathsSequence(int start_node)
+	{
+		std::cout << "start CalculatePathsSequence" << std::endl;
+		int currentNode = start_node;
+		hash_set<int> RemovedNodes;
+
+		int prevNode,i,j,previ,prevj,offset;
+
+		vector<int> movement;
+		movement.push_back(2*cols);
+		movement.push_back(-1);
+		movement.push_back(-2*cols);
+		movement.push_back(1);
+
+		bool found = false;
+
+		prevNode = 0;
+		for(int idx = 0;idx < 4;idx++){
+			if(nodes[currentNode].count(currentNode + movement[idx])){
+				prevNode = currentNode + movement[idx];
+				found = true;
+				break;
+			}
+		}
+	
+		if(!found){
+			printf("CalculatePathsSequence not found_1\n");
+			return;
+		}
+		
+		do{
+			RemovedNodes.insert(currentNode);
+			offset = indexOf(movement,prevNode-currentNode);
+			
+			prevNode = currentNode;
+
+			found = false;
+			for(int idx = 0;idx < 4;idx++){
+				if(nodes[prevNode].count(prevNode+movement[(idx+offset)%4]) && !RemovedNodes.count(prevNode+movement[(idx+offset)%4])){
+					currentNode = prevNode + movement[(idx+offset)%4];
+					found = true;
+					break;
+				}
+			}
+			
+		if(!found){
+			printf("CalculatePathsSequence not found_2\n");
+			break;
+		}
+
+		if(nodes[currentNode].count(prevNode)){nodes[currentNode].erase(prevNode);}
+		if(nodes[prevNode].count(currentNode)){nodes[prevNode].erase(currentNode);}
+
+		i = currentNode/(2*cols);
+		j = currentNode%(2*cols);
+
+		previ = prevNode/(2*cols);
+		prevj = prevNode%(2*cols);
+
+		PathNode pn;
+
+		pn.pre_i = previ;
+		pn.pre_j = prevj;
+		pn.i = i;
+		pn.j = j;
+
+		std::cout << "path_node(from:" << pn.pre_i << ","  << pn.pre_j << "to:" << pn.i << "," << pn.j << ")" << std::endl;
+		PathSequence.push_back(pn);
+		}while(true);
+
+		std::cout << "PathSequence.size:" << PathSequence.size() << std::endl;
+
+	}
+
+	int indexOf(vector<int>& mm,int delta)
+	{
+		int res;
+		for(int res = 0;res < mm.size();res++)
+			if(delta == mm[res])
+				return res;
+	}
+
 	};
 class DarpRosNodelet : public nodelet::Nodelet {
 
@@ -811,6 +898,23 @@ class DarpRosNodelet : public nodelet::Nodelet {
 			}
 		}
 	}
+ void drawArrow(cv::Mat& img, cv::Point pStart, cv::Point pEnd, int len, int alpha,             
+     cv::Scalar& color, int thickness, int lineType)
+	{    
+		const double PI = 3.1415926;    
+		cv::Point arrow;     
+		double angle = atan2((double)(pStart.y - pEnd.y), (double)(pStart.x - pEnd.x));  
+
+		cv::line(img, pStart, pEnd, color, thickness, lineType);   
+
+		arrow.x = pEnd.x + len * cos(angle + PI * alpha / 180);     
+		arrow.y = pEnd.y + len * sin(angle + PI * alpha / 180);  
+		cv::line(img, pEnd, arrow, color, thickness, lineType);   
+
+		arrow.x = pEnd.x + len * cos(angle - PI * alpha / 180);     
+		arrow.y = pEnd.y + len * sin(angle - PI * alpha / 180);    
+		cv::line(img, pEnd, arrow, color, thickness, lineType);
+	}
 
 	void call_back() {
 		NODELET_INFO_STREAM("start Darp algorithm......\n");
@@ -851,7 +955,28 @@ class DarpRosNodelet : public nodelet::Nodelet {
 		ct.initializeGraph(RealBinaryRobotRegions,true);
 
 		ct.RemoveTheAppropriateEdges();
+
+		ct.CalculatePathsSequence(4*p.RobotsInit[0].y*ct.cols+2*p.RobotsInit[0].x);
+
+		//display path 
+		cv::Scalar lineColor = Scalar(0, 0, 255);    
+
+		int relarge_scale = 64;
+		int half_relarge_scale = relarge_scale/2;
+
+		cv::Mat dst(relarge_scale*p.BinrayRobotRegions.rows,relarge_scale*p.BinrayRobotRegions.cols,CV_8UC3);
+
 		
+		for(int i = 0;i < ct.PathSequence.size();i++){
+			cv::Point pStart(half_relarge_scale*ct.PathSequence[i].pre_j,half_relarge_scale*ct.PathSequence[i].pre_i);
+			cv::Point pEnd(half_relarge_scale*ct.PathSequence[i].j,half_relarge_scale*ct.PathSequence[i].i);
+
+			drawArrow(dst, pStart, pEnd, 7, 30, lineColor, 2, CV_AA); 
+		}
+		
+		imshow("dst",dst);
+		imshow("src",src);
+		waitKey(0);
 	}
 
 	void onInit() {
@@ -875,6 +1000,41 @@ class DarpRosNodelet : public nodelet::Nodelet {
 		0,0,0,0,0,0,0};
 
 		cv::Mat map_(rows,cols,CV_8UC1,map_data);
+
+
+		int relarge_scale = 64;
+		int rect_scale = 3;
+		cv::Mat map_display(relarge_scale*rows,relarge_scale*cols,CV_8UC3);
+
+		for(int i = 0;i < map_.rows;i++){
+			for(int j = 0;j < map_.cols;j++){
+				if(map_.at<unsigned char>(i,j) == 128){
+					for(int m = relarge_scale*i-rect_scale;m <= relarge_scale*i+rect_scale;m++){
+						for(int n = relarge_scale*j-rect_scale;n <= relarge_scale*j+rect_scale;n++){
+							map_display.at<Vec3b>(m,n)[0] = 255;
+							map_display.at<Vec3b>(m,n)[1] = 0;
+							map_display.at<Vec3b>(m,n)[2] = 0;
+						}
+					}
+				}
+				else if(map_.at<unsigned char>(i,j) == 255){
+					for(int m = relarge_scale*i-rect_scale;m <= relarge_scale*i+rect_scale;m++){
+						for(int n = relarge_scale*j-rect_scale;n <= relarge_scale*j+rect_scale;n++){
+							map_display.at<Vec3b>(m,n)[0] = 0;
+							map_display.at<Vec3b>(m,n)[1] = 255;
+							map_display.at<Vec3b>(m,n)[2] = 0;
+						}
+					}
+				}
+				else{
+							map_display.at<Vec3b>(relarge_scale*i,relarge_scale*j)[0] = 0;
+							map_display.at<Vec3b>(relarge_scale*i,relarge_scale*j)[1] = 0;
+							map_display.at<Vec3b>(relarge_scale*i,relarge_scale*j)[2] = 0;
+				}
+			}
+		}
+
+		src = map_display.clone();
 
 		if(map_.empty())
 		{
