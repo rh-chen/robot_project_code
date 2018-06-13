@@ -596,7 +596,7 @@ class CalculateTrajectories
 	void AddToAllEdges(int from,int to,int cost)
 	{
 		static uint64 key = 0;
-		key++;
+		//key++;
 //std::cout << __FILE__ << __LINE__ << std::endl;
 		Edge e(from,to,cost);
 		allEdges.insert(pair<int,Edge>(key,e));
@@ -610,7 +610,8 @@ class CalculateTrajectories
 			//nodes[to].resize(8*MAX_NODES);
 //std::cout << __FILE__ << __LINE__ << std::endl;		
 		nodes[to].insert(from);
-//std::cout << __FILE__ << __LINE__ << std::endl;		
+//std::cout << __FILE__ << __LINE__ << std::endl;	
+		key++;
 	}
 	void RemoveTheAppropriateEdges()
 	{
