@@ -427,7 +427,7 @@ class Kruskal{
 	void AddToAllEdges(int from,int to,int cost)
 	{
 		static uint64 key = 0;
-		key++;
+		//key++;
 
 		Edge e(from,to,cost);
 		allEdges.insert(pair<int,Edge>(key,e));
@@ -440,6 +440,7 @@ class Kruskal{
 			nodes[to].resize(2*MAX_NODES);
 			nodes[to].insert(to);
 		}
+		key++;
 	}
 
 	void performKruskal()
@@ -522,6 +523,7 @@ class CalculateTrajectories
 	map<int,Edge> allEdges;
 	vector<hash_set<int> > nodes;
 	vector<PathNode> PathSequence;
+	//vector<PathNode> FinalPathSequence;
 
 	CalculateTrajectories(int r,int c,vector<Edge>& MST)
 	{
@@ -958,6 +960,24 @@ class DarpRosNodelet : public nodelet::Nodelet {
 
 		ct.CalculatePathsSequence(4*p.RobotsInit[0].y*ct.cols+2*p.RobotsInit[0].x);
 
+		//get the final path sequence
+	/*	for(int i = 0;i < ct.PathSequence.size();i++)
+		{
+			if((ct.PathSequence[i].pre_i/2 != ct.PathSequence[i].i/2) || (ct.PathSequence[i].pre_j/2 != ct.PathSequence[i].j/2)){
+				PathNode fpn;
+				fpn.pre_i = ct.PathSequence[i].pre_i/2;
+				fpn.pre_j = ct.PathSequence[i].pre_j/2;
+				fpn.i = ct.PathSequence[i].i/2;
+				fpn.j = ct.PathSequence[i].j/2;
+
+				ct.FinalPathSequence.push_back(fpn);
+			}
+		}
+
+		std::cout << "FinalPathSequence_size:" << ct.FinalPathSequence.size() << std::endl;
+		for(int i = 0;i < ct.FinalPathSequence.size();i++)
+				std::cout << "final_path_node(from:" << ct.FinalPathSequence[i].pre_i << ","  << ct.FinalPathSequence[i].pre_j << "to:" << ct.FinalPathSequence[i].i << "," << ct.FinalPathSequence[i].j << ")" << std::endl;
+	*/
 		//display path 
 		cv::Scalar lineColor = Scalar(0, 0, 255);    
 
@@ -975,7 +995,7 @@ class DarpRosNodelet : public nodelet::Nodelet {
 		}
 		
 		imshow("dst",dst);
-		imshow("src",src);
+		//imshow("src",src);
 		waitKey(0);
 	}
 
@@ -986,23 +1006,25 @@ class DarpRosNodelet : public nodelet::Nodelet {
 		//NODELET_INFO_STREAM("map_path_:" << map_path_);
 
 		std::cout << __FILE__ << __LINE__ << std::endl;
-		
+
+		//map width,height
 		int rows = 7;
 		int cols = 7;
-
+		
+		//map data 128:obstacle;255:roboto;0:free;
 		unsigned char map_data[] = {
-		0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,
-		0,0,0,128,0,0,0,
-		0,0,0,128,0,255,0,
-		0,0,0,128,0,0,0,
-		0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0};
+		128,128,128,128,128,128,128,
+		128,0,0,0,0,0,128,
+		128,0,0,0,0,0,128,
+		128,0,0,0,255,0,128,
+		128,0,0,0,0,0,128,
+		128,0,0,0,0,0,128,
+		128,128,128,128,128,128,128};
 
 		cv::Mat map_(rows,cols,CV_8UC1,map_data);
 
 
-		int relarge_scale = 64;
+	/*	int relarge_scale = 64;
 		int rect_scale = 3;
 		cv::Mat map_display(relarge_scale*rows,relarge_scale*cols,CV_8UC3);
 
@@ -1034,7 +1056,7 @@ class DarpRosNodelet : public nodelet::Nodelet {
 			}
 		}
 
-		src = map_display.clone();
+		src = map_display.clone();*/
 
 		if(map_.empty())
 		{
