@@ -1,0 +1,6 @@
+<launch>
+
+    <node name="darp_path_plan_node" pkg="darp_path_plan" type="darp_path_plan_node" output="screen">
+    </node>
+
+</launch>
