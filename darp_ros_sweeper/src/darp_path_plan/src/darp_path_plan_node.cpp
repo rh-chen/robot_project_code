@@ -973,6 +973,39 @@ bool WorldToMap(
 		cv::line(img, pEnd, arrow, color, thickness, lineType);
 	}
 
+bool isFlectionPoint(geometry_msgs::PoseStamped& pre_pose,geometry_msgs::PoseStamped& cur_pose,geometry_msgs::PoseStamped& nex_pose)
+{
+	float pre_x = pre_pose.pose.position.x;
+	float pre_y = pre_pose.pose.position.y;
+
+	float cur_x = cur_pose.pose.position.x;
+	float cur_y = cur_pose.pose.position.y;
+
+	float nex_x = nex_pose.pose.position.x;
+	float nex_y = nex_pose.pose.position.y;
+
+	//std::cout << "pre_x:" << pre_x << std::endl;
+	//std::cout << "pre_y:" << pre_y << std::endl;
+
+	//std::cout << "cur_x:" << cur_x << std::endl;
+	//std::cout << "cur_y:" << cur_y << std::endl;
+
+	//std::cout << "nex_x:" << nex_x << std::endl;
+	//std::cout << "nex_y:" << nex_y << std::endl;
+
+	//std::cout << "isFlectionPoint:" << fabs((nex_y-pre_y)*(cur_x-pre_x)-(nex_x-pre_x)*(cur_y-pre_y)) << std::endl;
+	static int count_flection_point = 0;
+	if(fabs((nex_y-pre_y)*(cur_x-pre_x)-(nex_x-pre_x)*(cur_y-pre_y)) < 0.001){
+		//std::cout << "isFlectionPoint:" << fabs((nex_y-pre_y)*(cur_x-pre_x)-(nex_x-pre_x)*(cur_y-pre_y)) << std::endl;
+		return false;
+	}
+	else{
+		count_flection_point++;
+		std::cout << "count_flection_point:" << count_flection_point << std::endl;
+		std::cout << "isFlectionPoint:" << fabs((nex_y-pre_y)*(cur_x-pre_x)-(nex_x-pre_x)*(cur_y-pre_y)) << std::endl;
+		return true;
+	}
+}
 bool CoveragePlanService(
     darp_path_plan::GetCoveragePath::Request &req,     
     darp_path_plan::GetCoveragePath::Response &resp) { 
@@ -1150,29 +1183,63 @@ bool CoveragePlanService(
 	geometry_msgs::PoseStamped next_pose = req.start;
   cv::Point current,next;
 	int index = 0;
+
+	std::vector<geometry_msgs::PoseStamped> temp_path_node;
+
+	//start_node
+	current.x = ct.PathSequence[0].pre_j;
+	current.y = ct.PathSequence[0].pre_i;
+
+  MapToWorld(
+      req.map.info.resolution/2.0, req.map.info.origin.position.x,
+      req.map.info.origin.position.y, current.x, current.y, &current_pose.pose.position.x,
+      &current_pose.pose.position.y);
+
+	temp_path_node.push_back(current_pose);
+
   while (index < ct.PathSequence.size() ) {
-    current.x = ct.PathSequence[index].pre_j;
-		current.y = ct.PathSequence[index].pre_i;
+    //current.x = ct.PathSequence[index].pre_j;
+		//current.y = ct.PathSequence[index].pre_i;
 
     next.x = ct.PathSequence[index].j;
 		next.y = ct.PathSequence[index].i;
 		
     //  fill position
-    MapToWorld(
+    /*MapToWorld(
         req.map.info.resolution/2.0, req.map.info.origin.position.x,
         req.map.info.origin.position.y, current.x, current.y, &current_pose.pose.position.x,
-        &current_pose.pose.position.y);
+        &current_pose.pose.position.y);*/
 
     MapToWorld(
         req.map.info.resolution/2.0, req.map.info.origin.position.x,
         req.map.info.origin.position.y, next.x, next.y, &next_pose.pose.position.x,
         &next_pose.pose.position.y);
 
-    resp.plan.poses.push_back(current_pose);
-    resp.plan.poses.push_back(next_pose);
+    //resp.plan.poses.push_back(current_pose);
+    //resp.plan.poses.push_back(next_pose);
+
+		//temp_path_node.push_back(current_pose);
+		temp_path_node.push_back(next_pose);
 		index++;
   }
 
+	resp.plan.poses.push_back(temp_path_node[0]);
+
+	geometry_msgs::PoseStamped pre_pose;
+	geometry_msgs::PoseStamped cur_pose;
+	geometry_msgs::PoseStamped nex_pose;
+
+	for(int i = 1;i < temp_path_node.size()-1;i++){
+		pre_pose = temp_path_node[i-1];
+		cur_pose = temp_path_node[i];
+		nex_pose = temp_path_node[i+1];
+
+		if(isFlectionPoint(pre_pose,cur_pose,nex_pose)){
+			resp.plan.poses.push_back(cur_pose);
+		}
+	}
+
+	resp.plan.poses.push_back(temp_path_node[temp_path_node.size()-1]);
   return true;
 }
 
