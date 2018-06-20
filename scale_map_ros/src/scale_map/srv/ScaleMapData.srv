@@ -1,0 +1,11 @@
+# unit: cell
+int64 erosion_radius
+
+# Robot radius
+# unit: meter
+float64 robot_radius
+
+# map
+nav_msgs/OccupancyGrid map
+---
+nav_msgs/OccupancyGrid map
