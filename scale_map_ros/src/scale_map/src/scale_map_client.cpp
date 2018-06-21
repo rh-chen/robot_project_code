@@ -36,6 +36,8 @@ int main(int argc, char **argv) {
   ros::init(argc, argv, "scale_map_client");
 
   ros::NodeHandle n;
+
+	ros::Publisher pub_map = n.advertise<nav_msgs::OccupancyGrid>("/scale_static_map",1);
   ros::ServiceClient client = n.serviceClient<scale_map::ScaleMapData>("/sweeper/scale_map_srv");
 
   scale_map::ScaleMapData srv;
@@ -59,6 +61,12 @@ int main(int argc, char **argv) {
 
 	//call scale map service
   if (client.call(srv)) {
+		ros::Rate loop_rate(10);
+		while(ros::ok()){
+			pub_map.publish(srv.response.map);
+			ros::spinOnce();
+			loop_rate.sleep();
+		}
 		ROS_INFO("call darp service");
   } else {
     ROS_ERROR("Failed to call service /sweeper/scale_map_srv");
