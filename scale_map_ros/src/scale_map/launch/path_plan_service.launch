@@ -1,0 +1,8 @@
+<launch>
+
+    <node name="darp_path_plan_node" pkg="scale_map" type="darp_path_plan_node" output="screen">
+    </node>
+    <node name="scale_map_node" pkg="scale_map" type="scale_map_node" output="screen">
+    </node>
+
+</launch>

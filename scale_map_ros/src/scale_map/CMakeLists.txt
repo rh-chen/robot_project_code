@@ -66,6 +66,7 @@ find_package(OpenCV REQUIRED)
  add_service_files(
    FILES
    ScaleMapData.srv
+	 GetCoveragePath.srv
  )
 
 ## Generate actions in the 'action' folder
@@ -79,6 +80,7 @@ find_package(OpenCV REQUIRED)
 generate_messages(
    DEPENDENCIES
 	 nav_msgs
+	 geometry_msgs
  )
 
 ################################################
@@ -124,7 +126,7 @@ catkin_package(
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
 include_directories(
-# include
+	#include/scale_map
   ${catkin_INCLUDE_DIRS}
 	${OpenCV_INCLUDE_DIRS}
 )
@@ -142,9 +144,9 @@ include_directories(
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
-add_executable(${PROJECT_NAME}_node src/scale_map_node.cpp)
+add_executable(scale_map_node src/scale_map_node.cpp)
 add_executable(scale_map_client src/scale_map_client.cpp)
-
+add_executable(darp_path_plan_node src/darp_path_plan_node.cpp)
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
 ## target back to the shorter version for ease of user use
@@ -156,17 +158,22 @@ add_executable(scale_map_client src/scale_map_client.cpp)
 # add_dependencies(${PROJECT_NAME}_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
- target_link_libraries(${PROJECT_NAME}_node
+ target_link_libraries(scale_map_node
    ${catkin_LIBRARIES}
 	 ${OpenCV_LIBS}
  )
-
  target_link_libraries(scale_map_client
    ${catkin_LIBRARIES}
 	 ${OpenCV_LIBS}
  )
-add_dependencies(${PROJECT_NAME}_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+ target_link_libraries(darp_path_plan_node
+   ${catkin_LIBRARIES}
+	 ${OpenCV_LIBS}
+ )
+
+add_dependencies(scale_map_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 add_dependencies(scale_map_client ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(darp_path_plan_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 #############
 ## Install ##
 #############
