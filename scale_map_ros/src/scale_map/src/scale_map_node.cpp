@@ -206,8 +206,8 @@ std::cout << "ng_data[i].size:" << ng_data[0].size() << std::endl;
 	res.map.data = ng_data_1d;
 	res.map.header.frame_id = req.map.header.frame_id;
 
-	res.map.info.origin.position.x = req.map.info.origin.position.x + ng_resolution/2;
-	res.map.info.origin.position.y = req.map.info.origin.position.y + ng_resolution/2;
+	res.map.info.origin.position.x = req.map.info.origin.position.x;
+	res.map.info.origin.position.y = req.map.info.origin.position.y;
 
   return true;
 }
