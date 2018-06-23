@@ -23,6 +23,8 @@
 #include <math.h>
 
 #include <hash_set>
+#include <hash_map>
+
 #include <set>
 #include <map>
 #include <algorithm>  
@@ -68,14 +70,14 @@ class DARP
 		printf("GridEnv.rows:%d\n",GridEnv.rows);
 		printf("GridEnv.cols:%d\n",GridEnv.cols);
 		printf("GridEnv_old");
-		for(int i = 0;i < GridEnv.rows;i++)
+		/*for(int i = 0;i < GridEnv.rows;i++)
 			for(int j = 0;j < GridEnv.cols;j++)
 			{
 				std::cout << GridEnv.at<int>(i,j) << " ";
 				if(j == GridEnv.cols-1)
 					printf("\n");
 			}
-
+		*/
 		robotBinary.create(rows,cols,CV_32SC1);
 		memset(robotBinary.data,0,rows*cols*4);
 		A.create(rows,cols,CV_32SC1);
@@ -122,21 +124,21 @@ class DARP
 		}
 
 		printf("robotBinary\n");
-		for(int i = 0;i < rows;i++){
+		/*for(int i = 0;i < rows;i++){
       for (int j = 0;j < cols;j++){
         std::cout << robotBinary.at<int>(i,j) << " ";
 				if(j == cols-1)
 					printf("\n");
 			}
-		}
+		}*/
 		printf("GridEnv_new\n");
-		for(int i = 0;i < rows;i++){
+		/*for(int i = 0;i < rows;i++){
       for (int j = 0;j < cols;j++){
         std::cout << GridEnv.at<int>(i,j) << " ";
 				if(j == cols-1)
 					printf("\n");
 			}
-		}
+		}*/
 	}
 	
 	int getNr(){return nr;}
@@ -153,13 +155,13 @@ class DARP
 		}
 
 		printf("BinrayRobotRegions\n");
-		for (int i = 0;i < rows;i++){
+		/*for (int i = 0;i < rows;i++){
     	for (int j = 0;j < cols;j++) {
 				std::cout << BinrayRobotRegions.at<int>(i,j) << " ";
 				if(j == cols-1)
 					printf("\n");
     	}
-		}
+		}*/
 	}
 
 };
@@ -191,19 +193,19 @@ class ConnectComponent
 		transform2Dto1D(data_,image,rows,cols);
 
 		printf("transform 2 Dimension to 1 Dimension......\n");
-		for(int i = 0;i < image.size();i++)
+		/*for(int i = 0;i < image.size();i++)
 			std::cout << image[i] << " ";
 		std::cout << std::endl;
-		
+		*/
 //std::cout << __FILE__ << __LINE__ << std::endl;
 		vector<int> label(MAX_LABELS,0);
 		labeling(image,label,rows,cols,zeroAsBg);
 //std::cout << __FILE__ << __LINE__ << std::endl;		
 		printf("labeling......\n");
-		for(int i = 0;i < label.size();i++)
+		/*for(int i = 0;i < label.size();i++)
 			std::cout << label[i] << " ";
 		std::cout << std::endl;
-
+		*/
 		printf("next_label:%d\n",next_label);
 		vector<int> stat_(next_label+1,0);
 
@@ -307,17 +309,17 @@ class ConnectComponent
 
  	void uf_union( int x, int y, vector<int>& parent)
   {
-			printf("start_x:%d\n",x);
-			printf("start_y:%d\n",y);
+			//printf("start_x:%d\n",x);
+			//printf("start_y:%d\n",y);
 //std::cout << __FILE__ << __LINE__ << std::endl;
       while ( parent[x]>0 ){
           x = parent[x];
-					printf("x:%d\n",x);
+					//printf("x:%d\n",x);
 			}
 //std::cout << __FILE__ << __LINE__ << std::endl;
       while ( parent[y]>0 ){
           y = parent[y];
-					printf("y:%d\n",y);
+					//printf("y:%d\n",y);
 			}
 //std::cout << __FILE__ << __LINE__ << std::endl;
       if ( x != y ) {
@@ -339,13 +341,13 @@ class ConnectComponent
 
 };
 
-class Edge{
-	public:
+typedef struct EdgeStr{
+	//public:
 
 	int from,to,cost;
-	Edge(){};
-	Edge(int f,int t,int c){from = f;to = t;cost = c;}
-};
+	EdgeStr(){};
+	EdgeStr(int f,int t,int c){from = f;to = t;cost = c;}
+}Edge;
 
 class Kruskal{
 	public:
@@ -414,13 +416,14 @@ class Kruskal{
 			}
 		}
 
-		for(int i = 0;i < MAX_NODES;i++){
+		/*for(int i = 0;i < MAX_NODES;i++){
 			if(nodes[i].size() > 0 ){
 				std::cout << "Kruskal_every_nodes_size:" << nodes[i].size() << std::endl;
 				node_count++;
 			}
 		}
 		std::cout << "Kruskal_node_count:" << node_count << std::endl;
+		*/
 		std::cout << "Kruskal_allEdges_size:" << allEdges.size() << std::endl;
 	}
 
@@ -458,9 +461,10 @@ class Kruskal{
 				if(nodesAreInDifferentSets(parent,curEdge.from,curEdge.to)){
 					min_span_tree_edge_count++;
 					allNewEdges.push_back(curEdge);
-				}else{
-					std::cout << "nodes are in the same set......" << std::endl;
 				}
+				/*else{
+					std::cout << "nodes are in the same set......" << std::endl;
+				}*/
 			}
 		std::cout << "min_span_tree_edge_count:" << min_span_tree_edge_count <<std::endl; 
 	}
@@ -512,6 +516,19 @@ typedef struct path_node
 	int j;
 }PathNode;
 
+class edgeCmp{
+	public:
+	bool operator()(Edge const &e_a,Edge const &e_b)const
+	{
+		if((e_a.from*e_a.to) == (e_b.from*e_b.to)){
+			return (e_a.from < e_b.from?true:false);
+		}
+		else{
+			return ((e_a.from*e_a.to) < (e_b.from*e_b.to)?true:false);
+		}
+	}
+};
+
 class CalculateTrajectories
 {
 	public:
@@ -520,7 +537,8 @@ class CalculateTrajectories
 	int MSTedges;
 	int node_count;
 	vector<Edge> MSTvector;
-	map<int,Edge> allEdges;
+	//map<int,Edge> allEdges;
+	map<Edge,int,edgeCmp> allEdges;
 	vector<hash_set<int> > nodes;
 	vector<PathNode> PathSequence;
 	//vector<PathNode> FinalPathSequence;
@@ -583,13 +601,14 @@ class CalculateTrajectories
 			}
 		}
 		//std::cout << __FILE__ << __LINE__ << std::endl;
-		for(int i = 0;i < MAX_NODES;i++){
+		/*for(int i = 0;i < MAX_NODES;i++){
 			if(nodes[i].size() > 0 ){
 				std::cout << "CalculateTrajectories_every_nodes_size:" << nodes[i].size() << std::endl;
 				node_count++;
 			}
 		}
 		std::cout << "CalculateTrajectories_node_count:" << node_count << std::endl;
+		*/
 		std::cout << "CalculateTrajectories_allEdges_size:" << allEdges.size() << std::endl;
 	}
 	
@@ -599,7 +618,7 @@ class CalculateTrajectories
 		//key++;
 //std::cout << __FILE__ << __LINE__ << std::endl;
 		Edge e(from,to,cost);
-		allEdges.insert(pair<int,Edge>(key,e));
+		allEdges.insert(pair<Edge,int>(e,key));
 //std::cout << __FILE__ << __LINE__ << std::endl;		
 		//if(nodes[from].size() == 0)
 			//nodes[from].resize(8*MAX_NODES);
@@ -625,7 +644,7 @@ class CalculateTrajectories
 			maxN = std::max(e.from,e.to);
 			minN = std::min(e.from,e.to);
 
-			printf("e(from:%d-to:%d)\n",e.from,e.to);
+			//printf("e(from:%d-to:%d)\n",e.from,e.to);
 
 			if(std::abs(e.from-e.to) == 1){
 				alpha = (4*minN+3) - 2*(maxN%cols);
@@ -687,7 +706,7 @@ class CalculateTrajectories
 	
 	bool allEdges_map_count(Edge& e)
 	{
-		auto iter = allEdges.begin();
+		/*auto iter = allEdges.begin();
 		bool flag = false;
 
 		while(iter != allEdges.end()){
@@ -697,16 +716,16 @@ class CalculateTrajectories
 			}
 			iter++;
 		}
-		
-		if(!flag)
-			return false;
-		else
+		*/
+		if(allEdges.count(e))
 			return true;
+		else
+			return false;
 	}
 	void SafeRemoveEdge(Edge& curEdge)
 	{
-		printf("delete e(from:%d-to:%d)\n",curEdge.from,curEdge.to);
-		static unsigned int delete_count = 0;
+		//printf("delete e(from:%d-to:%d)\n",curEdge.from,curEdge.to);
+		/*static unsigned int delete_count = 0;
 
 		delete_count++;
 
@@ -725,11 +744,16 @@ class CalculateTrajectories
 		
 		if(!flag)
 			printf("map<int,Edge> should have contained this element!!!\n");		
+		*/
+		map<Edge,int>::iterator iter;	
+		iter = allEdges.find(curEdge);
+
+		allEdges.erase(iter);
 
 		nodes[curEdge.from].erase(curEdge.to);
 		nodes[curEdge.to].erase(curEdge.from);
 
-		printf("delete_count:%d\n",delete_count);
+		//printf("delete_count:%d\n",delete_count);
 	}
 	
 	void CalculatePathsSequence(int start_node)
@@ -758,7 +782,7 @@ class CalculateTrajectories
 		}
 	
 		if(!found){
-			printf("CalculatePathsSequence not found_1\n");
+			//printf("CalculatePathsSequence not found_1\n");
 			return;
 		}
 		
@@ -778,7 +802,7 @@ class CalculateTrajectories
 			}
 			
 		if(!found){
-			printf("CalculatePathsSequence not found_2\n");
+			//printf("CalculatePathsSequence not found_2\n");
 			break;
 		}
 
@@ -798,7 +822,7 @@ class CalculateTrajectories
 		pn.i = i;
 		pn.j = j;
 
-		std::cout << "path_node(from:" << pn.pre_i << ","  << pn.pre_j << "to:" << pn.i << "," << pn.j << ")" << std::endl;
+		//std::cout << "path_node(from:" << pn.pre_i << ","  << pn.pre_j << "to:" << pn.i << "," << pn.j << ")" << std::endl;
 		PathSequence.push_back(pn);
 		}while(true);
 
@@ -848,20 +872,40 @@ class DarpRosNodelet : public nodelet::Nodelet {
 
 	void calculateMSTs(cv::Mat& region_,vector<Edge>& vec_,int nr_)
 	{
+		ros::Time begin9 = ros::Time::now();
+		std::cout << "==== begin9" << begin9 << std::endl;
 		int rows = region_.rows;
 		int cols = region_.cols;
 
+		ros::Time begin8 = ros::Time::now();
 		Kruskal k(rows,cols);
-    for (int r = 0;r < nr_;r++){
+		ros::Time end8 = ros::Time::now();
+		std::cout << "calculate path sequence time8:" << (end8-begin8).toSec() << std::endl;
+    //for (int r = 0;r < nr_;r++)
+		{
 		 // Kruskal k(rows,cols);
+			ros::Time begin6 = ros::Time::now();
 		  k.initializeGraph(region_,true);
+			ros::Time end6 = ros::Time::now();
+			std::cout << "calculate path sequence time6:" << (end6-begin6).toSec() << std::endl;
+
+			ros::Time begin5 = ros::Time::now();
 		  k.performKruskal();
-			k.printFinalEdges();
+			ros::Time end5 = ros::Time::now();
+			std::cout << "calculate path sequence time5:" << (end5-begin5).toSec() << std::endl;
+			//k.printFinalEdges();
 		  /*MSTs.add(k.getAllNewEdges());*/
 		}
 
+		ros::Time begin7 = ros::Time::now();
 		for(int i =0;i < k.allNewEdges.size();i++)
 			vec_.push_back(k.allNewEdges[i]);
+		ros::Time end7 = ros::Time::now();
+		std::cout << "calculate path sequence time7:" << (end7-begin7).toSec() << std::endl;
+		ros::Time end9 = ros::Time::now();
+		std::cout << "calculate path sequence time9:" << (end9-begin9).toSec() << std::endl;
+		std::cout << "==== end9" << end9 << std::endl;
+
 	}
 
 	void getGraphics(cv::Mat& map_,cv::Mat& data_)
@@ -930,12 +974,12 @@ class DarpRosNodelet : public nodelet::Nodelet {
 		binary_grid_.create(cc.rows,cc.cols,CV_32SC1);
 		makeGridBinary(environment_grid_,binary_grid_);
 
-		NODELET_INFO_STREAM("binary_grid_:\n" << binary_grid_);
+		//NODELET_INFO_STREAM("binary_grid_:\n" << binary_grid_);
 
 		label_2d_.create(cc.rows,cc.cols,CV_32SC1);
 		cc.compactLabeling(binary_grid_,label_2d_,binary_grid_.rows,binary_grid_.cols,true);
 
-		NODELET_INFO_STREAM("label_2d_:\n" << label_2d_);
+		//NODELET_INFO_STREAM("label_2d_:\n" << label_2d_);
 
 		if(cc.getMaxLabel() > 1)
 		{NODELET_INFO_STREAM("The environment grid MUST not have unreachable and/or closed shape regions\n\n");}
@@ -948,19 +992,39 @@ class DarpRosNodelet : public nodelet::Nodelet {
 		{NODELET_INFO_STREAM("Please define at least one robot \n\n");};
 
 		vector<Edge> vec_edge;
+		ros::Time begin3 = ros::Time::now();
+		std::cout << "==== begin3" << begin3 << std::endl;
 		calculateMSTs(p.BinrayRobotRegions,vec_edge,p.nr);
-		
+		ros::Time end3 = ros::Time::now();
+		std::cout << "==== end3" << end3 << std::endl;
+		std::cout << "calculate path sequence time3:" << (end3-begin3).toSec() << std::endl;
+
+
+
+		ros::Time begin10 = ros::Time::now();
 		CalculateTrajectories ct(p.BinrayRobotRegions.rows,p.BinrayRobotRegions.cols,vec_edge);
 
 		cv::Mat RealBinaryRobotRegions(2*p.BinrayRobotRegions.rows,2*p.BinrayRobotRegions.cols,CV_32SC1);
-		CalcRealBinaryReg(p.BinrayRobotRegions,RealBinaryRobotRegions);
-		
+		CalcRealBinaryReg(p.BinrayRobotRegions,RealBinaryRobotRegions);	
+		ros::Time end10 = ros::Time::now();
+		std::cout << "calculate path sequence time10:" << (end10-begin10).toSec() << std::endl;
+
+
+		ros::Time begin4 = ros::Time::now();
 		ct.initializeGraph(RealBinaryRobotRegions,true);
+		ros::Time end4 = ros::Time::now();
+		std::cout << "calculate path sequence time4:" << (end4-begin4).toSec() << std::endl;
 
+
+		ros::Time begin = ros::Time::now();
 		ct.RemoveTheAppropriateEdges();
+		ros::Time end = ros::Time::now();
+		std::cout << "calculate path sequence time:" << (end-begin).toSec() << std::endl;
 
+		ros::Time begin1 = ros::Time::now();
 		ct.CalculatePathsSequence(4*p.RobotsInit[0].y*ct.cols+2*p.RobotsInit[0].x);
-
+		ros::Time end1 = ros::Time::now();
+		std::cout << "calculate path sequence time1:" << (end1-begin1).toSec() << std::endl;
 		//get the final path sequence
 	/*	for(int i = 0;i < ct.PathSequence.size();i++)
 		{
@@ -982,7 +1046,7 @@ class DarpRosNodelet : public nodelet::Nodelet {
 		//display path 
 		cv::Scalar lineColor = Scalar(0, 0, 255);    
 
-		int relarge_scale = 64;
+		int relarge_scale = 8;
 		int half_relarge_scale = relarge_scale/2;
 
 		cv::Mat dst(relarge_scale*p.BinrayRobotRegions.rows,relarge_scale*p.BinrayRobotRegions.cols,CV_8UC3);
@@ -1002,18 +1066,27 @@ class DarpRosNodelet : public nodelet::Nodelet {
 
 	void onInit() {
 		ros::NodeHandle pn("~");
+		std::string map_path_;
 
-		//pn.param<string>("map_path_string", map_path_, "/home/wzm/ine_detection_and_rotation_ros/src/line_detection_and_rotation/maps/test.bmp");	
-		//NODELET_INFO_STREAM("map_path_:" << map_path_);
+		pn.param<string>("map_path_string", map_path_, "/home/wzm/DARP_ros/src/darp_ros/maps/1.jpg");	
+		NODELET_INFO_STREAM("map_path_:" << map_path_);
+		NODELET_INFO_STREAM("map_path_str:" << map_path_.c_str());
 
 		std::cout << __FILE__ << __LINE__ << std::endl;
 
+		//load image
+		cv::Mat test = imread(map_path_.c_str(),0);
+
+		if(test.empty()){
+			NODELET_INFO_STREAM("load image fail");
+			return;
+		}
 		//map width,height
-		int rows = 7;
-		int cols = 7;
+		int rows = test.rows;
+		int cols = test.cols;
 		
 		//map data 128:obstacle;255:roboto;0:free;
-		unsigned char map_data[] = {
+		/*unsigned char map_data[] = {
 		128,128,128,128,128,128,128,
 		128,0,0,0,0,0,128,
 		128,0,0,0,0,0,128,
@@ -1021,8 +1094,32 @@ class DarpRosNodelet : public nodelet::Nodelet {
 		128,0,0,0,0,0,128,
 		128,0,0,0,0,0,128,
 		128,128,128,128,128,128,128};
-
-		cv::Mat map_(rows,cols,CV_8UC1,map_data);
+*/
+		
+  	cv::Mat binarization;
+  	cv::threshold(test, binarization, 128, 255, cv::THRESH_BINARY_INV);
+		cv::Mat map_(rows,cols,CV_8UC1);
+		//set obstacle
+		for(int i = 0;i < test.rows;i++){
+			for(int j = 0;j < test.cols;j++)
+				if(binarization.at<unsigned char>(i,j) == 0)
+					map_.at<unsigned char>(i,j) = 0;
+				else if(binarization.at<unsigned char>(i,j) == 255)
+					map_.at<unsigned char>(i,j) = 128;
+		}
+		//set robot positon
+		bool set_success = false;
+		for(int i = 0;i < test.rows;i++){
+			for(int j = 0;j < test.cols;j++){
+				if(binarization.at<unsigned char>(i,j) == 0){
+					map_.at<unsigned char>(i,j) = 255;
+					set_success = true;
+					break;
+				}		
+			}
+			if(set_success)
+				break;
+		}
 
 
 	/*	int relarge_scale = 64;
@@ -1071,7 +1168,7 @@ class DarpRosNodelet : public nodelet::Nodelet {
 			environment_grid_.create(map_.rows,map_.cols,CV_32SC1);
 			getGraphics(map_,environment_grid_);
 
-			NODELET_INFO_STREAM("environment_grid_:\n" << environment_grid_);
+			//NODELET_INFO_STREAM("environment_grid_:\n" << environment_grid_);
 
 			darp_thread = boost::shared_ptr<boost::thread>(new boost::thread(boost::bind(&DarpRosNodelet::call_back, this)));
 		}

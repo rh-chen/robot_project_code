@@ -1,0 +1,8 @@
+<launch>
+	<arg name="map_path" default="/home/wzm/DARP_ros/src/darp_ros/maps/9.png" />
+
+	<node name="darp_ros_node" pkg="darp_ros" type="darp_ros_node" respawn="false" output="screen">
+		<param name="map_path_string"  type="string" value="$(arg map_path)" />
+	</node>
+
+</launch>
