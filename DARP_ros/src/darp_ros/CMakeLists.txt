@@ -2,7 +2,9 @@ cmake_minimum_required(VERSION 2.8.3)
 project(darp_ros)
 
 
-set(CMAKE_CXX_FLAGS "-std=c++0x -Wno-deprecated")
+set(CMAKE_BUILD_TYPE "Debug")
+set(CMAKE_CXX_FLAGS_DEBUG "$ENV{CXXFLAGS} -o0 -Wall -g -ggdb")
+set(CMAKE_CXX_FLAGS "-std=c++0x -Wno-deprecated -g")
 ## Compile as C++11, supported in ROS Kinetic and newer
 add_compile_options(-std=c++11)
 

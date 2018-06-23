@@ -232,6 +232,9 @@ class ConnectComponent
 				
 				locIDX++;
 			} 
+
+		printf("==== labeling......\n");
+
 	}
 
 	void transform2Dto1D(cv::Mat& data_,vector<int>& vec_,int rows,int cols)
@@ -349,11 +352,13 @@ typedef struct EdgeStr{
 	EdgeStr(int f,int t,int c){from = f;to = t;cost = c;}
 }Edge;
 
+vector<hash_set<int> > kruscal_nodes;
+
 class Kruskal{
 	public:
 
 	int MAX_NODES;
-	vector<hash_set<int> > nodes;
+	//vector<hash_set<int> > nodes;
 	map<int,Edge> allEdges;
 	vector<Edge> allNewEdges;
 	int node_count;
@@ -362,8 +367,8 @@ class Kruskal{
 	Kruskal(int rows,int cols){
 		MAX_NODES = rows*cols;
 		std::cout << "Kruskal_MAX_NODES:" << MAX_NODES << std::endl;
-		nodes.resize(MAX_NODES);
-		std::cout << "Kruskal_nodes_size:" << nodes.size() << std::endl;
+		kruscal_nodes.resize(MAX_NODES);
+		std::cout << "Kruskal_nodes_size:" << kruscal_nodes.size() << std::endl;
 		node_count = 0;
 		min_span_tree_edge_count = 0;
 	}
@@ -417,8 +422,8 @@ class Kruskal{
 		}
 
 		/*for(int i = 0;i < MAX_NODES;i++){
-			if(nodes[i].size() > 0 ){
-				std::cout << "Kruskal_every_nodes_size:" << nodes[i].size() << std::endl;
+			if(kruscal_nodes[i].size() > 0 ){
+				std::cout << "Kruskal_every_nodes_size:" << kruscal_nodes[i].size() << std::endl;
 				node_count++;
 			}
 		}
@@ -435,13 +440,13 @@ class Kruskal{
 		Edge e(from,to,cost);
 		allEdges.insert(pair<int,Edge>(key,e));
 		
-		if(nodes[from].size() == 0){
-			nodes[from].resize(2*MAX_NODES);
-			nodes[from].insert(from);
+		if(kruscal_nodes[from].size() == 0){
+			//kruscal_nodes[from].resize(2*MAX_NODES);
+			kruscal_nodes[from].insert(from);
 		}
-		if(nodes[to].size() == 0){
-			nodes[to].resize(2*MAX_NODES);
-			nodes[to].insert(to);
+		if(kruscal_nodes[to].size() == 0){
+			//kruscal_nodes[to].resize(2*MAX_NODES);
+			kruscal_nodes[to].insert(to);
 		}
 		key++;
 	}
@@ -840,7 +845,6 @@ class CalculateTrajectories
 
 	};
 class DarpRosNodelet : public nodelet::Nodelet {
-
 
 	int compare_edge(Edge& e1,Edge& e2)
 	{
