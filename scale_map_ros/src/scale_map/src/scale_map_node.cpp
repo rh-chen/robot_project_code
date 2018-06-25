@@ -47,7 +47,7 @@ enum CellType{
 
 void delete_element(vector<cv::Point>& vec,cv::Point& p)
 {
-	std::cout << "before erase vec size:" << vec.size() << std::endl;
+	//std::cout << "before erase vec size:" << vec.size() << std::endl;
 	for(vector<cv::Point>::iterator iter = vec.begin();iter != vec.end();)
 	{
 		if(((*iter).x == p.x) && ((*iter).y == p.y))
@@ -56,7 +56,7 @@ void delete_element(vector<cv::Point>& vec,cv::Point& p)
 			iter++;
 	}
 
-	std::cout << "after erase vec size:" << vec.size() << std::endl;
+	//std::cout << "after erase vec size:" << vec.size() << std::endl;
 }
 
 bool ScaleMapService(

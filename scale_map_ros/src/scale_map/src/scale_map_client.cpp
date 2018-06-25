@@ -110,12 +110,17 @@ int main(int argc, char **argv) {
 
 		geometry_msgs::PoseStamped start;
 		start.header.frame_id = srv.response.map.header.frame_id;
-		start.pose.position.x = 1.63;
-		start.pose.position.y = 1.88;
+		start.pose.position.x = 11.2;
+		start.pose.position.y = 15.8;
 		
 		srv_darp.request.start = start;
-		
-		if(client_darp.call(srv_darp)){
+
+		ros::Time begin = ros::Time::now();
+		bool res_srv_darp = client_darp.call(srv_darp);
+		ros::Time end = ros::Time::now();
+
+		std::cout << "call srv_darp time cost:" << (end-begin).toSec() << std::endl;
+		if(res_srv_darp){
 			ROS_INFO("call darp service");
 
     	ros::Publisher marker_pub = n.advertise<visualization_msgs::MarkerArray>("/cleanner_planner", 1);

@@ -344,12 +344,12 @@ class ConnectComponent
 
 };
 
-class Edge{
-	public:
+typedef struct EdgeStr{
+	//public:
 	int from,to,cost;
-	Edge(){};
-	Edge(int f,int t,int c){from = f;to = t;cost = c;}
-};
+	EdgeStr(){};
+	EdgeStr(int f,int t,int c){from = f;to = t;cost = c;}
+}Edge;
 
 class Kruskal{
 	public:
@@ -440,11 +440,11 @@ class Kruskal{
 		allEdges.insert(pair<int,Edge>(key,e));
 		
 		if(nodes[from].size() == 0){
-			nodes[from].resize(2*MAX_NODES);
+			//nodes[from].resize(2*MAX_NODES);
 			nodes[from].insert(from);
 		}
 		if(nodes[to].size() == 0){
-			nodes[to].resize(2*MAX_NODES);
+			//nodes[to].resize(2*MAX_NODES);
 			nodes[to].insert(to);
 		}
 		key++;
@@ -540,6 +540,19 @@ typedef struct path_node
 	int j;
 }PathNode;
 
+class edgeCmp{
+	public:
+	bool operator()(Edge const &e_a,Edge const &e_b)const
+	{
+		if((e_a.from*e_a.to) == (e_b.from*e_b.to)){
+			return (e_a.from < e_b.from?true:false);
+		}
+		else{
+			return ((e_a.from*e_a.to) < (e_b.from*e_b.to)?true:false);
+		}
+	}
+};
+
 class CalculateTrajectories
 {
 	public:
@@ -548,7 +561,8 @@ class CalculateTrajectories
 	int MSTedges;
 	int node_count;
 	vector<Edge> MSTvector;
-	map<int,Edge> allEdges;
+	//map<int,Edge> allEdges;
+	map<Edge,int,edgeCmp> allEdges;
 	vector<hash_set<int> > nodes;
 	vector<PathNode> PathSequence;
 	//vector<PathNode> FinalPathSequence;
@@ -627,7 +641,7 @@ class CalculateTrajectories
 		//key++;
 //std::cout << __FILE__ << __LINE__ << std::endl;
 		Edge e(from,to,cost);
-		allEdges.insert(pair<int,Edge>(key,e));
+		allEdges.insert(pair<Edge,int>(e,key));
 //std::cout << __FILE__ << __LINE__ << std::endl;		
 		//if(nodes[from].size() == 0)
 			//nodes[from].resize(8*MAX_NODES);
@@ -715,7 +729,7 @@ class CalculateTrajectories
 	
 	bool allEdges_map_count(Edge& e)
 	{
-		auto iter = allEdges.begin();
+		/*auto iter = allEdges.begin();
 		bool flag = false;
 
 		while(iter != allEdges.end()){
@@ -725,18 +739,18 @@ class CalculateTrajectories
 			}
 			iter++;
 		}
-		
-		if(!flag)
-			return false;
-		else
+		*/
+		if(allEdges.count(e))
 			return true;
+		else
+			return false;
 	}
 	void SafeRemoveEdge(Edge& curEdge)
 	{
 		//printf("delete e(from:%d-to:%d)\n",curEdge.from,curEdge.to);
-		//static unsigned int delete_count = 0;
+		/*static unsigned int delete_count = 0;
 
-		//delete_count++;
+		delete_count++;
 
 		auto iter = allEdges.begin();
 		bool flag = false;
@@ -753,6 +767,11 @@ class CalculateTrajectories
 		
 		if(!flag)
 			printf("map<int,Edge> should have contained this element!!!\n");		
+		*/
+		map<Edge,int>::iterator iter;	
+		iter = allEdges.find(curEdge);
+
+		allEdges.erase(iter);
 
 		nodes[curEdge.from].erase(curEdge.to);
 		nodes[curEdge.to].erase(curEdge.from);
@@ -786,7 +805,7 @@ class CalculateTrajectories
 		}
 	
 		if(!found){
-			printf("CalculatePathsSequence not found_1\n");
+			//printf("CalculatePathsSequence not found_1\n");
 			return;
 		}
 		
@@ -806,7 +825,7 @@ class CalculateTrajectories
 			}
 			
 		if(!found){
-			printf("CalculatePathsSequence not found_2\n");
+			//printf("CalculatePathsSequence not found_2\n");
 			break;
 		}
 
@@ -1000,9 +1019,9 @@ bool isFlectionPoint(geometry_msgs::PoseStamped& pre_pose,geometry_msgs::PoseSta
 		return false;
 	}
 	else{
-		count_flection_point++;
-		std::cout << "count_flection_point:" << count_flection_point << std::endl;
-		std::cout << "isFlectionPoint:" << fabs((nex_y-pre_y)*(cur_x-pre_x)-(nex_x-pre_x)*(cur_y-pre_y)) << std::endl;
+		//count_flection_point++;
+		//std::cout << "count_flection_point:" << count_flection_point << std::endl;
+		//std::cout << "isFlectionPoint:" << fabs((nex_y-pre_y)*(cur_x-pre_x)-(nex_x-pre_x)*(cur_y-pre_y)) << std::endl;
 		return true;
 	}
 }
@@ -1076,21 +1095,22 @@ bool CoveragePlanService(
 		}
 	}*/
 
-	std::cout << "map:" << map << std::endl;
+	//std::cout << "map:" << map << std::endl;
   //  binarization
   cv::Mat binarization;
   cv::threshold(
       map, binarization, req.occupancy_threshold, 255, cv::THRESH_BINARY_INV);
 
-	std::cout << "binarization:" << binarization << std::endl;
+	//std::cout << "binarization:" << binarization << std::endl;
   //  erosion
   cv::Mat erosion, element;
   element = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(1, 1));
-  cv::erode(
+  /*cv::erode(
       binarization, erosion, element, cv::Point(-1, -1),
       (req.erosion_radius + req.map.info.resolution - 0.01) /
           req.map.info.resolution);
-	
+	*/
+  cv::erode(binarization, erosion, element);
 	//reconstruct map data
 	for(int i = 0;i < erosion.rows;i++){
 		for(int j = 0;j < erosion.cols;j++){
@@ -1101,7 +1121,7 @@ bool CoveragePlanService(
 		}
 	}
 	erosion.at<unsigned char>(start.y,start.x) = 255;
-	std::cout << "erosion:" << erosion << std::endl;
+	//std::cout << "erosion:" << erosion << std::endl;
 
   //coverage path plan
   std::deque<cv::Point> path;
@@ -1118,7 +1138,7 @@ bool CoveragePlanService(
 		environment_grid_.create(erosion.rows,erosion.cols,CV_32SC1);
 		getGraphics(erosion,environment_grid_);
 
-		std::cout << "environment_grid_:" << environment_grid_ << std::endl;
+		//std::cout << "environment_grid_:" << environment_grid_ << std::endl;
 	}
 
 	std::cout << "start Darp algorithm......\n" << std::endl;
@@ -1131,7 +1151,7 @@ bool CoveragePlanService(
 	makeGridBinary(environment_grid_,binary_grid_);
 
 	//print binary_grid
-	printf("binary_grid_\n");
+	/*printf("binary_grid_\n");
 	for(int i = 0;i < binary_grid_.rows;i++){
 		for(int j = 0;j < binary_grid_.cols;j++){
 			printf("%d--",binary_grid_.at<int>(i,j));
@@ -1140,12 +1160,12 @@ bool CoveragePlanService(
 				printf("\n");
 		}
 	}
-	
+	*/
 	label_2d_.create(cc.rows,cc.cols,CV_32SC1);
 	cc.compactLabeling(binary_grid_,label_2d_,binary_grid_.rows,binary_grid_.cols,true);
 
 	//print label_2d
-	printf("label_2d_\n");
+	/*printf("label_2d_\n");
 	for(int i = 0;i < label_2d_.rows;i++){
 		for(int j = 0;j < label_2d_.cols;j++){
 			printf("%d--",label_2d_.at<int>(i,j));
@@ -1154,7 +1174,7 @@ bool CoveragePlanService(
 				printf("\n");
 		}
 	}
-
+	*/
 	if(cc.getMaxLabel() > 1)
 	{printf("The environment grid MUST not have unreachable and/or closed shape regions\n\n");}
 
@@ -1165,7 +1185,7 @@ bool CoveragePlanService(
 	if(p.getNr() < 1)
 	{printf("Please define at least one robot \n\n");};
 
-	std::cout << "BinaryRobotRegions:" << p.BinrayRobotRegions << std::endl;
+	//std::cout << "BinaryRobotRegions:" << p.BinrayRobotRegions << std::endl;
 
 	vector<Edge> vec_edge;
 	calculateMSTs(p.BinrayRobotRegions,vec_edge,p.nr);
