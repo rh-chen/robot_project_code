@@ -96,8 +96,13 @@ int main(int argc, char **argv) {
     return 1;
   }
 
+	ros::Time begin1 = ros::Time::now();
+	bool res_srv_scale_map = client.call(srv);
+	ros::Time end1 = ros::Time::now();
+
+	std::cout << "call srv_scale_map time cost:" << (end1-begin1).toSec() << std::endl;
 	//call scale map service
-  if (client.call(srv)) {
+  if (res_srv_scale_map) {
 
 		ros::ServiceClient client_darp = n.serviceClient<scale_map::GetCoveragePath>("/sweeper/make_coverage_plan");
 
@@ -166,7 +171,7 @@ int main(int argc, char **argv) {
       	for(int i = 1; i < path_size; ++i) {
 
         	geometry_msgs::PoseStamped pose = srv_darp.response.plan.poses[i];
-        	ROS_INFO_STREAM("poses:%s" << pose);
+        	//ROS_INFO_STREAM("poses:%s" << pose);
 
         	//marker planner pose
         	geometry_msgs::Pose  markerArrowPose;

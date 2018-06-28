@@ -45,19 +45,44 @@ enum CellType{
 		Obstacle = 100
 };
 
-void delete_element(vector<cv::Point>& vec,cv::Point& p)
-{
-	//std::cout << "before erase vec size:" << vec.size() << std::endl;
-	for(vector<cv::Point>::iterator iter = vec.begin();iter != vec.end();)
+typedef struct point_str{
+	int x;
+	int y;
+	
+	point_str(){};
+	point_str(int x_,int y_){x = x_;y = y_; }
+}PointStr;
+
+/*class pointCmp{
+	public:
+	bool operator()(PointStr const &p_a,PointStr const &p_b)const
 	{
-		if(((*iter).x == p.x) && ((*iter).y == p.y))
-			iter = vec.erase(iter);
-		else
-			iter++;
+			if((p_a.x*p_a.y) == (p_b.x*p_b.y))
+				return (p_a.x < p_b.x?true:false);
+			else
+				return ((p_a.x*p_a.y) < (p_b.x*p_b.y)?true:false);
 	}
+};*/
+
+bool operator<(PointStr const &p_a,PointStr const &p_b)
+{
+		if((p_a.x*p_a.y) == (p_b.x*p_b.y))
+			return (p_a.x < p_b.x?true:false);
+		else
+			return ((p_a.x*p_a.y) < (p_b.x*p_b.y)?true:false);
+}
+
+void delete_element(map<PointStr,int>& map_data,PointStr& p)
+{
+	map<PointStr,int>::iterator iter;
+	iter = map_data.find(p);
+
+	map_data.erase(iter);
 
 	//std::cout << "after erase vec size:" << vec.size() << std::endl;
 }
+map<PointStr,int> obstacles;
+map<PointStr,int> empty;
 
 bool ScaleMapService(
     scale_map::ScaleMapData::Request &req,     
@@ -89,8 +114,8 @@ bool ScaleMapService(
 
 	int ng_width = req.map.info.width/SCALE_FACTOR;
 	int ng_height = req.map.info.height/SCALE_FACTOR;
-std::cout << "ng_height:" << ng_height << std::endl;
-std::cout << "ng_width:" << ng_width << std::endl;
+	std::cout << "ng_height:" << ng_height << std::endl;
+	std::cout << "ng_width:" << ng_width << std::endl;
 	int ng_row;
 	int ng_col;
 	int temp_ng_row;
@@ -98,8 +123,10 @@ std::cout << "ng_width:" << ng_width << std::endl;
 
 	bool skip;
 
-	vector<cv::Point> obstacles;
-	vector<cv::Point> empty;
+	//map<PointStr,int> obstacles;
+	uint64 obstacle_count = 0;
+	//map<PointStr,int> empty;
+	uint64 empty_count = 0;
 
 	vector<vector<int8_t> > ng_data;
 	vector<int8_t> ng_data_1d;
@@ -137,9 +164,10 @@ std::cout << "ng_width:" << ng_width << std::endl;
 			}
 			
 //std::cout << __FILE__ << __LINE__ << std::endl;
-			int num_count = count(obstacles.begin(),obstacles.end(),cv::Point(ng_col,ng_row));
+			//int num_count = count(obstacles.begin(),obstacles.end(),cv::Point(ng_col,ng_row));
 			//ROS_INFO("num_count:%d",num_count);
-			if(num_count > 0)
+			PointStr point_data(ng_col,ng_row);
+			if(obstacles.count(point_data))
 				skip = true;
 
 			if(skip)
@@ -151,14 +179,16 @@ std::cout << "ng_width:" << ng_width << std::endl;
 
 			if(currentCellValue == CellType::Obstacle){
 				ng_data[ng_row][ng_col] = CellType::Obstacle;
-				if(cacheObstacleCells)
-					obstacles.push_back(cv::Point(ng_col,ng_row));
+				if(cacheObstacleCells){
+					PointStr point_temp(ng_col,ng_row);
+					obstacles.insert(pair<PointStr,int>(point_temp,obstacle_count++));
+				}
 				if(cacheEmptyCells && (ng_oldCellValue == CellType::Empty))
 				{
-					cv::Point temp_point(ng_col,ng_row);
+					PointStr point_temp(ng_col,ng_row);
 					
 //std::cout << __FILE__ << __LINE__ << std::endl;
-					delete_element(empty,temp_point);
+					delete_element(empty,point_temp);
 					//empty.remove(cv::Point(ng_col,ng_row));
 //std::cout << __FILE__ << __LINE__ << std::endl;
 				}
@@ -168,9 +198,9 @@ std::cout << "ng_width:" << ng_width << std::endl;
 					ng_data[ng_row][ng_col] = CellType::Unexplored;
 					if(cacheEmptyCells && (ng_oldCellValue == CellType::Empty))
 					{
-						cv::Point temp_point(ng_col,ng_row);
+						PointStr point_temp(ng_col,ng_row);
 //std::cout << __FILE__ << __LINE__ << std::endl;
-						delete_element(empty,temp_point);
+						delete_element(empty,point_temp);
 						//empty.remove(cv::Point(ng_col,ng_row));
 //std::cout << __FILE__ << __LINE__ << std::endl;
 					}
@@ -179,8 +209,10 @@ std::cout << "ng_width:" << ng_width << std::endl;
 			else{
 				if((ng_oldCellValue != CellType::Obstacle) && (ng_oldCellValue != CellType::Unexplored)){
 					ng_data[ng_row][ng_col] = CellType::Empty;
-					if(cacheEmptyCells)
-						empty.push_back(cv::Point(ng_col,ng_row));
+					if(cacheEmptyCells){
+						PointStr point_temp(ng_col,ng_row);
+						empty.insert(pair<PointStr,int>(point_temp,empty_count++));
+					}
 				}
 			}
 		}

@@ -870,7 +870,7 @@ class CalculateTrajectories
 
 	};
 
-int compare_edge(Edge& e1,Edge& e2)
+/*int compare_edge(Edge& e1,Edge& e2)
 	{
 		int cost1 = e1.cost;
 		int cost2 = e2.cost;
@@ -897,7 +897,7 @@ int compare_edge(Edge& e1,Edge& e2)
 	{
 		return (e1.cost == e2.cost && e1.from == e2.from && e1.to == e2.to);
 	}
-
+*/
 	void calculateMSTs(cv::Mat& region_,vector<Edge>& vec_,int nr_)
 	{
 		int rows = region_.rows;
