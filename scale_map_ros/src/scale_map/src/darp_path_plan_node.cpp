@@ -374,43 +374,47 @@ class Kruskal{
 	{
 		int rows = data.rows;
 		int cols = data.cols;
-
+		int key = -1;
 		for(int i = rows-1;i >= 0;i--){
 			for(int j = cols-1;j >=0;j--){
 				if(data.at<int>(i,j)){
 
 					if(j < cols-1 && data.at<int>(i,j+1))
 					{
-						AddToAllEdges(i*cols+j,i*cols+j+1,1);
+						key++;
+						AddToAllEdges(i*cols+j,i*cols+j+1,1,key);
 					}
 					if(i < rows-1 && data.at<int>(i+1,j))
 					{
-						AddToAllEdges(i*cols+j,(i+1)*cols+j,1);
+						key++;
+						AddToAllEdges(i*cols+j,(i+1)*cols+j,1,key);
 					}
 					if(j > 0 && data.at<int>(i,j-1))
 					{
-						AddToAllEdges(i*cols+j,i*cols+j-1,1);
+						key++;
+						AddToAllEdges(i*cols+j,i*cols+j-1,1,key);
 					}
 					if(i > 0 && data.at<int>(i-1,j)){
-						AddToAllEdges(i*cols+j,(i-1)*cols+j,1);
+						key++;
+						AddToAllEdges(i*cols+j,(i-1)*cols+j,1,key);
 					}
 
 					if(!connect){
 						if(i > 0 && j > 0 && data.at<int>(i-1,j-1))
 						{
-							AddToAllEdges(i*cols+j,(i-1)*cols+j-1,1);
+							AddToAllEdges(i*cols+j,(i-1)*cols+j-1,1,key);
 						}
 						if(i < rows-1 && j < cols-1 && data.at<int>(i+1,j+1))
 						{
-							AddToAllEdges(i*cols+j,(i+1)*cols+j+1,1);
+							AddToAllEdges(i*cols+j,(i+1)*cols+j+1,1,key);
 						}
 						if(i > rows-1 && j > 0 && data.at<int>(i+1,j-1))
 						{
-							AddToAllEdges(i*cols+j,(i+1)*cols+j-1,1);
+							AddToAllEdges(i*cols+j,(i+1)*cols+j-1,1,key);
 						}
 						if(i > 0 && j < cols-1 && data.at<int>(i-1,j+1))
 						{
-							AddToAllEdges(i*cols+j,(i-1)*cols+j+1,1);
+							AddToAllEdges(i*cols+j,(i-1)*cols+j+1,1,key);
 						}
 					}
 
@@ -429,9 +433,9 @@ class Kruskal{
 		std::cout << "Kruskal_allEdges_size:" << allEdges.size() << std::endl;
 	}
 
-	void AddToAllEdges(int from,int to,int cost)
+	void AddToAllEdges(int from,int to,int cost,int key)
 	{
-		static uint64 key = 0;
+		//static uint64 key = 0;
 		//key++;
 
 		Edge e(from,to,cost);
@@ -447,14 +451,14 @@ class Kruskal{
 			//nodes[to].resize(2*MAX_NODES);
 			nodes[to].insert(to);
 		}
-		key++;
+		//key++;
 	}
 
 	void performKruskal()
 	{
 		int edge_size = allEdges.size();
 		int vex_size = MAX_NODES;
-		//std::cout << "edge_size:" << edge_size << std::endl;
+		std::cout << "edge_size:" << edge_size << std::endl;
 		//std::cout << __FILE__ << __LINE__ << std::endl;
 		vector<int> parent;
 		for(int i = 0;i < vex_size;i++)
@@ -467,7 +471,10 @@ class Kruskal{
 		//std::cout << __FILE__ << __LINE__ << std::endl;
 				if(nodesAreInDifferentSets(parent,curEdge.from,curEdge.to)){
 					min_span_tree_edge_count++;
+
+		//std::cout << __FILE__ << __LINE__ << std::endl;
 					allNewEdges.push_back(curEdge);
+		//std::cout << __FILE__ << __LINE__ << std::endl;
 				}else{
 					;//std::cout << "nodes are in the same set......" << std::endl;
 				}
@@ -896,21 +903,27 @@ int compare_edge(Edge& e1,Edge& e2)
 		int rows = region_.rows;
 		int cols = region_.cols;
 
-		Kruskal k(rows,cols);
+		//Kruskal k(rows,cols);
     for (int r = 0;r < nr_;r++){
-		 // Kruskal k(rows,cols);
+		  Kruskal k(rows,cols);
+		std::cout << __FILE__ << __LINE__ << std::endl;
 		  k.initializeGraph(region_,true);
 
-		//std::cout << __FILE__ << __LINE__ << std::endl;
+		std::cout << __FILE__ << __LINE__ << std::endl;
 		  k.performKruskal();
+
+		std::cout << __FILE__ << __LINE__ << std::endl;
 
 		//std::cout << __FILE__ << __LINE__ << std::endl;
 			//k.printFinalEdges();
 		  /*MSTs.add(k.getAllNewEdges());*/
-		}
 
 		for(int i =0;i < k.allNewEdges.size();i++)
 			vec_.push_back(k.allNewEdges[i]);
+		}
+
+		/*for(int i =0;i < k.allNewEdges.size();i++)
+			vec_.push_back(k.allNewEdges[i]);*/
 	}
 
 	void getGraphics(cv::Mat& map_,cv::Mat& data_)
@@ -1101,6 +1114,7 @@ bool CoveragePlanService(
   cv::threshold(
       map, binarization, req.occupancy_threshold, 255, cv::THRESH_BINARY_INV);
 
+	//std::cout << __FILE__ << __LINE__ << std::endl;
 	//std::cout << "binarization:" << binarization << std::endl;
   //  erosion
   cv::Mat erosion, element;
@@ -1150,6 +1164,7 @@ bool CoveragePlanService(
 	binary_grid_.create(cc.rows,cc.cols,CV_32SC1);
 	makeGridBinary(environment_grid_,binary_grid_);
 
+	//std::cout << __FILE__ << __LINE__ << std::endl;
 	//print binary_grid
 	/*printf("binary_grid_\n");
 	for(int i = 0;i < binary_grid_.rows;i++){
@@ -1187,20 +1202,25 @@ bool CoveragePlanService(
 
 	//std::cout << "BinaryRobotRegions:" << p.BinrayRobotRegions << std::endl;
 
+	//std::cout << __FILE__ << __LINE__ << std::endl;
 	vector<Edge> vec_edge;
 	calculateMSTs(p.BinrayRobotRegions,vec_edge,p.nr);
 	
+	//std::cout << __FILE__ << __LINE__ << std::endl;
 	CalculateTrajectories ct(p.BinrayRobotRegions.rows,p.BinrayRobotRegions.cols,vec_edge);
 
+	//std::cout << __FILE__ << __LINE__ << std::endl;
 	cv::Mat RealBinaryRobotRegions(2*p.BinrayRobotRegions.rows,2*p.BinrayRobotRegions.cols,CV_32SC1);
 	CalcRealBinaryReg(p.BinrayRobotRegions,RealBinaryRobotRegions);
 	
+	//std::cout << __FILE__ << __LINE__ << std::endl;
 	ct.initializeGraph(RealBinaryRobotRegions,true);
 
+	//std::cout << __FILE__ << __LINE__ << std::endl;
 	ct.RemoveTheAppropriateEdges();
 
 	ct.CalculatePathsSequence(4*p.RobotsInit[0].y*ct.cols+2*p.RobotsInit[0].x);
-
+	//std::cout << __FILE__ << __LINE__ << std::endl;
   // coordinate mapping
   geometry_msgs::PoseStamped current_pose = req.start;
 	geometry_msgs::PoseStamped next_pose = req.start;
