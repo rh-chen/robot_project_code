@@ -31,7 +31,7 @@
 #include <tf/tf.h>
 #include "scale_map/ScaleMapData.h"
 
-#define SCALE_FACTOR 5
+#define SCALE_FACTOR 6
 
 namespace scale_map{
 
@@ -241,6 +241,8 @@ std::cout << "ng_data[i].size:" << ng_data[0].size() << std::endl;
 	res.map.info.origin.position.x = req.map.info.origin.position.x;
 	res.map.info.origin.position.y = req.map.info.origin.position.y;
 
+	obstacles.clear();
+	empty.clear();
   return true;
 }
 
