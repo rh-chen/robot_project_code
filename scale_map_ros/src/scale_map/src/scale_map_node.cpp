@@ -31,7 +31,7 @@
 #include <tf/tf.h>
 #include "scale_map/ScaleMapData.h"
 
-#define SCALE_FACTOR 4
+#define SCALE_FACTOR 5
 
 namespace scale_map{
 

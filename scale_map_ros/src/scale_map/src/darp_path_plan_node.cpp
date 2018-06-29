@@ -583,8 +583,9 @@ class CalculateTrajectories
 		MSTedges = MST.size();
 		nodes.resize(MAX_NODES);
 		
-		for(int i = 0;i < MST.size();i++)
-			MSTvector.push_back(MST[i]);
+		/*for(int i = 0;i < MST.size();i++)
+			MSTvector.push_back(MST[i]);*/
+		MSTvector.assign(MST.begin(),MST.end());
 	}
 
 	void initializeGraph(cv::Mat& data,bool connect)
@@ -1117,6 +1118,7 @@ bool CoveragePlanService(
 	//std::cout << __FILE__ << __LINE__ << std::endl;
 	//std::cout << "binarization:" << binarization << std::endl;
   //  erosion
+		ros::Time begin10 = ros::Time ::now();
   cv::Mat erosion, element;
   element = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(1, 1));
   /*cv::erode(
@@ -1125,7 +1127,10 @@ bool CoveragePlanService(
           req.map.info.resolution);
 	*/
   cv::erode(binarization, erosion, element);
+		ros::Time end10 = ros::Time::now();
+		std::cout << "time10 cost:" << (end10-begin10).toSec() << std::endl;
 	//reconstruct map data
+		ros::Time begin8 = ros::Time ::now();
 	for(int i = 0;i < erosion.rows;i++){
 		for(int j = 0;j < erosion.cols;j++){
 			if(erosion.at<unsigned char>(i,j) == 0)
@@ -1136,7 +1141,8 @@ bool CoveragePlanService(
 	}
 	erosion.at<unsigned char>(start.y,start.x) = 255;
 	//std::cout << "erosion:" << erosion << std::endl;
-
+		ros::Time end8 = ros::Time::now();
+		std::cout << "time8 cost:" << (end8-begin8).toSec() << std::endl;
   //coverage path plan
   std::deque<cv::Point> path;
 
@@ -1149,9 +1155,11 @@ bool CoveragePlanService(
 		std::cout << "map_width:" << erosion.cols << std::endl;
 		std::cout << "map_height:" << erosion.rows << std::endl;
 		
+		ros::Time begin7 = ros::Time ::now();
 		environment_grid_.create(erosion.rows,erosion.cols,CV_32SC1);
 		getGraphics(erosion,environment_grid_);
-
+		ros::Time end7 = ros::Time::now();
+		std::cout << "time7 cost:" << (end7-begin7).toSec() << std::endl;
 		//std::cout << "environment_grid_:" << environment_grid_ << std::endl;
 	}
 
@@ -1161,8 +1169,11 @@ bool CoveragePlanService(
 	std::cout << "cc.cols:" << cc.cols << std::endl;
 	std::cout << "cc.MAX_LABELS:" << cc.MAX_LABELS << std::endl;
 
+	ros::Time begin6 = ros::Time ::now();
 	binary_grid_.create(cc.rows,cc.cols,CV_32SC1);
 	makeGridBinary(environment_grid_,binary_grid_);
+	ros::Time end6 = ros::Time::now();
+	std::cout << "time6 cost:" << (end6-begin6).toSec() << std::endl;
 
 	//std::cout << __FILE__ << __LINE__ << std::endl;
 	//print binary_grid
@@ -1176,8 +1187,11 @@ bool CoveragePlanService(
 		}
 	}
 	*/
+	ros::Time begin5 = ros::Time ::now();
 	label_2d_.create(cc.rows,cc.cols,CV_32SC1);
 	cc.compactLabeling(binary_grid_,label_2d_,binary_grid_.rows,binary_grid_.cols,true);
+	ros::Time end5 = ros::Time::now();
+	std::cout << "time5 cost:" << (end5-begin5).toSec() << std::endl;
 
 	//print label_2d
 	/*printf("label_2d_\n");
@@ -1203,23 +1217,42 @@ bool CoveragePlanService(
 	//std::cout << "BinaryRobotRegions:" << p.BinrayRobotRegions << std::endl;
 
 	//std::cout << __FILE__ << __LINE__ << std::endl;
+	ros::Time begin4 = ros::Time ::now();
 	vector<Edge> vec_edge;
 	calculateMSTs(p.BinrayRobotRegions,vec_edge,p.nr);
+	ros::Time end4 = ros::Time::now();
+	std::cout << "time4 cost:" << (end4-begin4).toSec() << std::endl;
 	
 	//std::cout << __FILE__ << __LINE__ << std::endl;
+	ros::Time begin9 = ros::Time ::now();
 	CalculateTrajectories ct(p.BinrayRobotRegions.rows,p.BinrayRobotRegions.cols,vec_edge);
+	ros::Time end9 = ros::Time::now();
+	std::cout << "time9 cost:" << (end9-begin9).toSec() << std::endl;
 
 	//std::cout << __FILE__ << __LINE__ << std::endl;
+	ros::Time begin3 = ros::Time ::now();
 	cv::Mat RealBinaryRobotRegions(2*p.BinrayRobotRegions.rows,2*p.BinrayRobotRegions.cols,CV_32SC1);
 	CalcRealBinaryReg(p.BinrayRobotRegions,RealBinaryRobotRegions);
+	ros::Time end3 = ros::Time::now();
+	std::cout << "time3 cost:" << (end3-begin3).toSec() << std::endl;
 	
 	//std::cout << __FILE__ << __LINE__ << std::endl;
+	ros::Time begin2 = ros::Time ::now();
 	ct.initializeGraph(RealBinaryRobotRegions,true);
+	ros::Time end2 = ros::Time::now();
+	std::cout << "time2 cost:" << (end2-begin2).toSec() << std::endl;
 
 	//std::cout << __FILE__ << __LINE__ << std::endl;
+	ros::Time begin1 = ros::Time ::now();
 	ct.RemoveTheAppropriateEdges();
+	ros::Time end1 = ros::Time::now();
+	std::cout << "time1 cost:" << (end1-begin1).toSec() << std::endl;
 
+	ros::Time begin = ros::Time ::now();
 	ct.CalculatePathsSequence(4*p.RobotsInit[0].y*ct.cols+2*p.RobotsInit[0].x);
+	ros::Time end = ros::Time::now();
+
+	std::cout << "time cost:" << (end-begin).toSec() << std::endl;
 	//std::cout << __FILE__ << __LINE__ << std::endl;
   // coordinate mapping
   geometry_msgs::PoseStamped current_pose = req.start;
