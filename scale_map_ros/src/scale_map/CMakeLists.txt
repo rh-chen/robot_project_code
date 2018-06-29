@@ -146,6 +146,7 @@ include_directories(
 ## The recommended prefix ensures that target names across packages don't collide
 add_executable(scale_map_node src/scale_map_node.cpp)
 add_executable(scale_map_client src/scale_map_client.cpp)
+add_executable(scale_map_click src/scale_map_click.cpp)
 add_executable(darp_path_plan_node src/darp_path_plan_node.cpp)
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -166,6 +167,11 @@ add_executable(darp_path_plan_node src/darp_path_plan_node.cpp)
    ${catkin_LIBRARIES}
 	 ${OpenCV_LIBS}
  )
+
+ target_link_libraries(scale_map_click
+   ${catkin_LIBRARIES}
+	 ${OpenCV_LIBS}
+ )
  target_link_libraries(darp_path_plan_node
    ${catkin_LIBRARIES}
 	 ${OpenCV_LIBS}
@@ -173,6 +179,7 @@ add_executable(darp_path_plan_node src/darp_path_plan_node.cpp)
 
 add_dependencies(scale_map_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 add_dependencies(scale_map_client ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(scale_map_click ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 add_dependencies(darp_path_plan_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 #############
 ## Install ##
