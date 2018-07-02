@@ -1,7 +1,0 @@
-image: move.pgm
-resolution: 0.050000
-origin: [-8.486052, -7.341247, 0.000000]
-negate: 0
-occupied_thresh: 0.65
-free_thresh: 0.196
-

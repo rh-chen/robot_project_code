@@ -1316,6 +1316,11 @@ bool CoveragePlanService(
 	}
 
 	resp.plan.poses.push_back(temp_path_node[temp_path_node.size()-1]);
+
+	environment_grid_.release();
+	binary_grid_.release();
+	label_2d_.release();
+
   return true;
 }
 

@@ -163,6 +163,7 @@ add_executable(darp_path_plan_node src/darp_path_plan_node.cpp)
    ${catkin_LIBRARIES}
 	 ${OpenCV_LIBS}
  )
+
  target_link_libraries(scale_map_client
    ${catkin_LIBRARIES}
 	 ${OpenCV_LIBS}

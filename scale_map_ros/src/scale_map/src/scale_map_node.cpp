@@ -31,7 +31,7 @@
 #include <tf/tf.h>
 #include "scale_map/ScaleMapData.h"
 
-#define SCALE_FACTOR 6
+#define SCALE_FACTOR 4
 
 namespace scale_map{
 
@@ -83,7 +83,8 @@ void delete_element(map<PointStr,int>& map_data,PointStr& p)
 }
 map<PointStr,int> obstacles;
 map<PointStr,int> empty;
-
+map<PointStr,int>::iterator iter_ob;
+map<PointStr,int>::iterator iter_em;
 bool ScaleMapService(
     scale_map::ScaleMapData::Request &req,     
     scale_map::ScaleMapData::Response &res) { 
@@ -95,13 +96,6 @@ bool ScaleMapService(
     ROS_ERROR("robot_radius < 0");
     return false;
   }
-
-	
-  /*for (int i = 0; i < req.map.data.size(); ++i) {
-    if (-1 == req.map.data[i]) {  
-      req.map.data[i] = 100;
-    }
-  }*/
 
 	std::cout << "map_height:" << req.map.info.height << std::endl;
 	std::cout << "map_width:" << req.map.info.width << std::endl;
@@ -218,6 +212,31 @@ bool ScaleMapService(
 		}
 	}
 
+
+
+
+//expand obstacles
+int erosion_radius = req.erosion_radius;
+for(iter_ob = obstacles.begin();iter_ob != obstacles.end();iter_ob++){
+	PointStr temp = iter_ob->first;
+
+	int x = temp.x;
+	int y = temp.y;
+
+	int x_min = (x-erosion_radius) >= 0?(x-erosion_radius):0;
+	int y_min = (y-erosion_radius) >= 0?(y-erosion_radius):0;
+
+	int x_max = (x+erosion_radius) <= (ng_width-1)?(x+erosion_radius):(ng_width-1);
+	int y_max = (y+erosion_radius) <= (ng_height-1)?(y+erosion_radius):(ng_height-1);
+
+	for(int i = y_min;i <= y_max;i++){
+		for(int j = x_min;j <= x_max;j++)
+		{
+			if(ng_data[i][j] == CellType::Empty)
+				ng_data[i][j] = CellType::Obstacle;
+		}
+	}
+}
 //std::cout << __FILE__ << __LINE__ << std::endl;
 std::cout << "ng_data.size:" << ng_data.size() << std::endl;
 std::cout << "ng_data[i].size:" << ng_data[0].size() << std::endl;
