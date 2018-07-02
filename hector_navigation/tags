@@ -1,0 +1,408 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.9~svn20110310	//
+AngleLocalParameterization	hector_gps_calibration/include/hector_gps_calibration/angle_local_parameterization.h	/^class AngleLocalParameterization {$/;"	c	namespace:ceres::examples
+CERES_EXAMPLES_POSE_GRAPH_2D_ANGLE_LOCAL_PARAMETERIZATION_H_	hector_gps_calibration/include/hector_gps_calibration/angle_local_parameterization.h	31;"	d
+CERES_EXAMPLES_POSE_GRAPH_2D_NORMALIZE_ANGLE_H_	hector_gps_calibration/include/hector_gps_calibration/normalize_angle.h	32;"	d
+CLOUD_MAP	hector_costmap/src/hector_costmap.cpp	11;"	d	file:
+COST_FUNCTOR_H	hector_gps_calibration/include/hector_gps_calibration/transform_delta_cost_functor.h	18;"	d
+CostMapCalculation	hector_costmap/include/hector_costmap/hector_costmap.h	/^class CostMapCalculation{$/;"	c
+CostMapCalculation	hector_costmap/src/hector_costmap.cpp	/^CostMapCalculation::CostMapCalculation() : nHandle(), pnHandle("~")$/;"	f	class:CostMapCalculation
+Create	hector_gps_calibration/include/hector_gps_calibration/angle_local_parameterization.h	/^  static ceres::LocalParameterization* Create() {$/;"	f	class:ceres::examples::AngleLocalParameterization
+DIAGONAL_COST	hector_exploration_planner/src/hector_exploration_planner.cpp	39;"	d	file:
+DebugString	hector_gps_calibration/include/hector_gps_calibration/transform_delta_cost_functor.h	/^    std::string DebugString() const {$/;"	f	class:Rigid3
+DrivingAidMarker	hector_driving_aid_markers/src/driving_aid_marker_node.cpp	/^  DrivingAidMarker()$/;"	f	class:DrivingAidMarker
+DrivingAidMarker	hector_driving_aid_markers/src/driving_aid_marker_node.cpp	/^class DrivingAidMarker$/;"	c	file:
+ELEVATION_MAP	hector_costmap/src/hector_costmap.cpp	12;"	d	file:
+EXPLORATION_TRANSFORM_VIS_H___	hector_exploration_planner/include/hector_exploration_planner/exploration_transform_vis.h	30;"	d
+ElevationMapping	hector_elevation_mapping/include/hector_elevation_mapping/hector_elevation_mapping.h	/^class ElevationMapping : public nodelet::Nodelet{$/;"	c	namespace:hector_elevation_mapping
+ElevationVisualization	hector_elevation_visualization/include/hector_elevation_visualization/hector_elevation_visualization.h	/^class ElevationVisualization{$/;"	c
+ElevationVisualization	hector_elevation_visualization/src/hector_elevation_visualization.cpp	/^ElevationVisualization::ElevationVisualization(): nHandle("~")$/;"	f	class:ElevationVisualization
+Evaluate	hector_gps_calibration/include/hector_gps_calibration/transform_delta_cost_functor.h	/^    bool Evaluate(const Rigid3<T>& transform,$/;"	f	class:TransformDeltaCostFunctor
+ExplorationTransformVis	hector_exploration_planner/include/hector_exploration_planner/exploration_transform_vis.h	/^    ExplorationTransformVis(const std::string& topic_name)$/;"	f	class:hector_exploration_planner::ExplorationTransformVis
+ExplorationTransformVis	hector_exploration_planner/include/hector_exploration_planner/exploration_transform_vis.h	/^  class ExplorationTransformVis$/;"	c	namespace:hector_exploration_planner
+FREE_CELL	hector_costmap/src/hector_costmap.cpp	7;"	d	file:
+FRONTIER_EXPLORE	hector_exploration_planner/include/hector_exploration_planner/hector_exploration_planner.h	/^    FRONTIER_EXPLORE,$/;"	e	enum:hector_exploration_planner::HectorExplorationPlanner::LastMode
+GPSCalibration	hector_gps_calibration/include/hector_gps_calibration/hector_gps_calibration.h	/^class GPSCalibration$/;"	c
+GPSCalibration	hector_gps_calibration/src/hector_gps_calibration.cpp	/^GPSCalibration::GPSCalibration(ros::NodeHandle &nh)$/;"	f	class:GPSCalibration
+GRID_MAP	hector_costmap/src/hector_costmap.cpp	10;"	d	file:
+HECTOR_EXPLORATION_BASE_GLOBAL_PLANNER_PLUGIN_H___	hector_exploration_planner/include/hector_exploration_planner/hector_exploration_base_global_planner_plugin.h	30;"	d
+HECTOR_EXPLORATION_PLANNER_H___	hector_exploration_planner/include/hector_exploration_planner/hector_exploration_planner.h	30;"	d
+HECTOR_GPS_CALIBRATION_H_	hector_gps_calibration/include/hector_gps_calibration/hector_gps_calibration.h	30;"	d
+HECTOR_PATH_FOLLOWER_H_	hector_path_follower/include/hector_path_follower/hector_path_follower.h	33;"	d
+HectorExplorationBaseGlobalPlannerPlugin	hector_exploration_planner/include/hector_exploration_planner/hector_exploration_base_global_planner_plugin.h	/^class HectorExplorationBaseGlobalPlannerPlugin : public nav_core::BaseGlobalPlanner$/;"	c	namespace:hector_exploration_planner
+HectorExplorationBaseGlobalPlannerPlugin	hector_exploration_planner/src/hector_exploration_base_global_planner_plugin.cpp	/^HectorExplorationBaseGlobalPlannerPlugin::HectorExplorationBaseGlobalPlannerPlugin()$/;"	f	class:HectorExplorationBaseGlobalPlannerPlugin
+HectorExplorationPlanner	hector_exploration_planner/include/hector_exploration_planner/hector_exploration_planner.h	/^class HectorExplorationPlanner {$/;"	c	namespace:hector_exploration_planner
+HectorExplorationPlanner	hector_exploration_planner/src/hector_exploration_planner.cpp	/^HectorExplorationPlanner::HectorExplorationPlanner()$/;"	f	class:HectorExplorationPlanner
+HectorExplorationPlanner	hector_exploration_planner/src/hector_exploration_planner.cpp	/^HectorExplorationPlanner::HectorExplorationPlanner(std::string name, costmap_2d::Costmap2DROS *costmap_ros_in) :$/;"	f	class:HectorExplorationPlanner
+HectorPathFollower	hector_path_follower/include/hector_path_follower/hector_path_follower.h	/^  class HectorPathFollower$/;"	c	namespace:pose_follower
+HectorPathFollower	hector_path_follower/src/hector_path_follower.cpp	/^  HectorPathFollower::HectorPathFollower(): tf_(NULL) {}$/;"	f	class:pose_follower::HectorPathFollower
+INNER_EXPLORE	hector_exploration_planner/include/hector_exploration_planner/hector_exploration_planner.h	/^    INNER_EXPLORE$/;"	e	enum:hector_exploration_planner::HectorExplorationPlanner::LastMode
+Identity	hector_gps_calibration/include/hector_gps_calibration/transform_delta_cost_functor.h	/^    static Rigid3<FloatType> Identity() {$/;"	f	class:Rigid3
+K_rot_	hector_path_follower/include/hector_path_follower/hector_path_follower.h	/^      double K_trans_, K_rot_, tolerance_trans_, tolerance_rot_;$/;"	m	class:pose_follower::HectorPathFollower
+K_trans_	hector_path_follower/include/hector_path_follower/hector_path_follower.h	/^      double K_trans_, K_rot_, tolerance_trans_, tolerance_rot_;$/;"	m	class:pose_follower::HectorPathFollower
+LastMode	hector_exploration_planner/include/hector_exploration_planner/hector_exploration_planner.h	/^  enum LastMode{$/;"	g	class:hector_exploration_planner::HectorExplorationPlanner
+MAP_IDX	hector_costmap/src/hector_costmap.cpp	4;"	d	file:
+MAP_IDX	hector_elevation_mapping/src/hector_elevation_mapping.cpp	6;"	d	file:
+MAP_IDX	hector_elevation_visualization/src/hector_elevation_visualization.cpp	5;"	d	file:
+NormalizeAngle	hector_gps_calibration/include/hector_gps_calibration/normalize_angle.h	/^inline T NormalizeAngle(const T& angle_radians) {$/;"	f	namespace:ceres::examples
+OCCUPIED_CELL	hector_costmap/src/hector_costmap.cpp	6;"	d	file:
+PACKAGE	hector_costmap/cfg/CostMapCalculation.cfg	/^PACKAGE = "hector_costmap"$/;"	v
+PACKAGE	hector_costmap/cfg/CostMapCalculation.cfg~	/^PACKAGE = "hector_costmap"$/;"	v
+PACKAGE	hector_elevation_visualization/cfg/ElevationVisualization.cfg	/^PACKAGE = "hector_elevation_visualization"$/;"	v
+PACKAGE	hector_exploration_planner/cfg/ExplorationPlanner.cfg	/^PACKAGE='hector_exploration_planner'$/;"	v
+PACKAGE	hector_timestamp_alignment/config/timestamp_alignment_config.cfg	/^PACKAGE = "hector_timestamp_alignment"$/;"	v
+Rigid3	hector_gps_calibration/include/hector_gps_calibration/transform_delta_cost_functor.h	/^    Rigid3()$/;"	f	class:Rigid3
+Rigid3	hector_gps_calibration/include/hector_gps_calibration/transform_delta_cost_functor.h	/^    Rigid3(const Vector& translation, const AngleAxis& rotation)$/;"	f	class:Rigid3
+Rigid3	hector_gps_calibration/include/hector_gps_calibration/transform_delta_cost_functor.h	/^    Rigid3(const Vector& translation, const Quaternion& rotation)$/;"	f	class:Rigid3
+Rigid3	hector_gps_calibration/include/hector_gps_calibration/transform_delta_cost_functor.h	/^    explicit Rigid3(const Affine& affine)$/;"	f	class:Rigid3
+Rigid3	hector_gps_calibration/include/hector_gps_calibration/transform_delta_cost_functor.h	/^class Rigid3 {$/;"	c
+Rotation	hector_gps_calibration/include/hector_gps_calibration/transform_delta_cost_functor.h	/^    static Rigid3 Rotation(const AngleAxis& angle_axis) {$/;"	f	class:Rigid3
+Rotation	hector_gps_calibration/include/hector_gps_calibration/transform_delta_cost_functor.h	/^    static Rigid3 Rotation(const Quaternion& rotation) {$/;"	f	class:Rigid3
+STRAIGHT_COST	hector_exploration_planner/src/hector_exploration_planner.cpp	38;"	d	file:
+SimpleExplorationController	hector_exploration_controller/src/simple_exploration_controller.cpp	/^  SimpleExplorationController()$/;"	f	class:SimpleExplorationController
+SimpleExplorationController	hector_exploration_controller/src/simple_exploration_controller.cpp	/^class SimpleExplorationController$/;"	c	file:
+SimpleExplorationPlanner	hector_exploration_node/src/exploration_node.cpp	/^  SimpleExplorationPlanner()$/;"	f	class:SimpleExplorationPlanner
+SimpleExplorationPlanner	hector_exploration_node/src/exploration_node.cpp	/^class SimpleExplorationPlanner$/;"	c	file:
+TimestampAlignment	hector_timestamp_alignment/src/hector_timestamp_alignment/timestamp_alignment.py	/^class TimestampAlignment:$/;"	c
+TransformDeltaCostFunctor	hector_gps_calibration/include/hector_gps_calibration/transform_delta_cost_functor.h	/^    TransformDeltaCostFunctor(Eigen::Matrix<double, 2, 1> pos_world,$/;"	f	class:TransformDeltaCostFunctor
+TransformDeltaCostFunctor	hector_gps_calibration/include/hector_gps_calibration/transform_delta_cost_functor.h	/^class TransformDeltaCostFunctor {$/;"	c
+Translation	hector_gps_calibration/include/hector_gps_calibration/transform_delta_cost_functor.h	/^    static Rigid3 Translation(const Vector& vector) {$/;"	f	class:Rigid3
+UNKNOWN_CELL	hector_costmap/src/hector_costmap.cpp	8;"	d	file:
+USE_ELEVATION_MAP_ONLY	hector_costmap/src/hector_costmap.cpp	15;"	d	file:
+USE_GRID_AND_CLOUD_MAP	hector_costmap/src/hector_costmap.cpp	17;"	d	file:
+USE_GRID_AND_ELEVATION_MAP	hector_costmap/src/hector_costmap.cpp	16;"	d	file:
+USE_GRID_AND_ELEVATION_MAP_AND_CLOUD_MAP	hector_costmap/src/hector_costmap.cpp	18;"	d	file:
+USE_GRID_MAP_ONLY	hector_costmap/src/hector_costmap.cpp	14;"	d	file:
+__init__	hector_timestamp_alignment/src/hector_timestamp_alignment/timestamp_alignment.py	/^    def __init__(self, verbose):$/;"	m	class:TimestampAlignment
+allow_elevation_map_to_clear_occupied_cells	hector_costmap/include/hector_costmap/hector_costmap.h	/^    bool use_elevation_map, use_grid_map, use_cloud_map, received_grid_map, received_elevation_map, received_point_cloud, allow_elevation_map_to_clear_occupied_cells;$/;"	m	class:CostMapCalculation
+angleDanger	hector_exploration_planner/src/hector_exploration_planner.cpp	/^unsigned int HectorExplorationPlanner::angleDanger(float angle){$/;"	f	class:HectorExplorationPlanner
+angleDifference	hector_exploration_planner/src/hector_exploration_planner.cpp	/^float HectorExplorationPlanner::angleDifference(const geometry_msgs::PoseStamped &start, const geometry_msgs::PoseStamped &goal){$/;"	f	class:HectorExplorationPlanner
+angleDifferenceWall	hector_exploration_planner/src/hector_exploration_planner.cpp	/^float HectorExplorationPlanner::angleDifferenceWall(const geometry_msgs::PoseStamped &start, const geometry_msgs::PoseStamped &goal){$/;"	f	class:HectorExplorationPlanner
+buildexploration_trans_array_	hector_exploration_planner/src/hector_exploration_planner.cpp	/^bool HectorExplorationPlanner::buildexploration_trans_array_(const geometry_msgs::PoseStamped &start, std::vector<geometry_msgs::PoseStamped> goals, bool useAnglePenalty, bool use_cell_danger){$/;"	f	class:HectorExplorationPlanner
+buildobstacle_trans_array_	hector_exploration_planner/src/hector_exploration_planner.cpp	/^bool HectorExplorationPlanner::buildobstacle_trans_array_(bool use_inflated_obstacles){$/;"	f	class:HectorExplorationPlanner
+calculateCostMap	hector_costmap/src/hector_costmap.cpp	/^bool CostMapCalculation::calculateCostMap(char map_level)$/;"	f	class:CostMapCalculation
+calculateCostMap_old	hector_costmap/src/hector_costmap.cpp	/^bool CostMapCalculation::calculateCostMap_old(char map_level)$/;"	f	class:CostMapCalculation
+callbackElevationMap	hector_costmap/src/hector_costmap.cpp	/^void CostMapCalculation::callbackElevationMap(const hector_elevation_msgs::ElevationGridConstPtr& elevation_map_msg)$/;"	f	class:CostMapCalculation
+callbackGridMap	hector_costmap/src/hector_costmap.cpp	/^void CostMapCalculation::callbackGridMap(const nav_msgs::OccupancyGridConstPtr& grid_map_msg)$/;"	f	class:CostMapCalculation
+callbackPointCloud	hector_costmap/src/hector_costmap.cpp	/^void CostMapCalculation::callbackPointCloud(const sensor_msgs::PointCloud2ConstPtr& cloud_msg)$/;"	f	class:CostMapCalculation
+cast	hector_gps_calibration/include/hector_gps_calibration/transform_delta_cost_functor.h	/^    Rigid3<OtherType> cast() const {$/;"	f	class:Rigid3
+cellDanger	hector_exploration_planner/src/hector_exploration_planner.cpp	/^inline unsigned int HectorExplorationPlanner::cellDanger(int point){$/;"	f	class:HectorExplorationPlanner
+cell_variance	hector_elevation_mapping/include/hector_elevation_mapping/hector_elevation_mapping.h	/^    std::vector<double> cell_variance;$/;"	m	class:hector_elevation_mapping::ElevationMapping
+ceres	hector_gps_calibration/include/hector_gps_calibration/angle_local_parameterization.h	/^namespace ceres {$/;"	n
+ceres	hector_gps_calibration/include/hector_gps_calibration/normalize_angle.h	/^namespace ceres {$/;"	n
+clearFrontiers	hector_exploration_planner/src/hector_exploration_planner.cpp	/^void HectorExplorationPlanner::clearFrontiers(){$/;"	f	class:HectorExplorationPlanner
+close_path_vis_	hector_exploration_planner/include/hector_exploration_planner/hector_exploration_planner.h	/^  boost::shared_ptr<ExplorationTransformVis> close_path_vis_;$/;"	m	class:hector_exploration_planner::HectorExplorationPlanner
+cloudCallback	hector_elevation_mapping/src/hector_elevation_mapping.cpp	/^void ElevationMapping::cloudCallback(const sensor_msgs::PointCloud2ConstPtr& pointcloud2_sensor_msg)$/;"	f	class:hector_elevation_mapping::ElevationMapping
+cloud_cost_map	hector_costmap/include/hector_costmap/hector_costmap.h	/^    nav_msgs::OccupancyGrid cost_map, elevation_cost_map, cloud_cost_map;$/;"	m	class:CostMapCalculation
+cmd_vel_generator_timer_	hector_exploration_controller/src/simple_exploration_controller.cpp	/^  ros::Timer cmd_vel_generator_timer_;$/;"	m	class:SimpleExplorationController	file:
+color_factor	hector_elevation_visualization/include/hector_elevation_visualization/hector_elevation_visualization.h	/^    double min_height,max_height,color_factor;$/;"	m	class:ElevationVisualization
+colors	hector_gps_calibration/src/plot_solution.py	/^colors = plt.cm.Set1(np.linspace(0, 1, 9))$/;"	v
+computeVelocityCommands	hector_path_follower/src/hector_path_follower.cpp	/^  bool HectorPathFollower::computeVelocityCommands(geometry_msgs::Twist& cmd_vel){$/;"	f	class:pose_follower::HectorPathFollower
+computeWindowIndices	hector_costmap/src/hector_costmap.cpp	/^bool CostMapCalculation::computeWindowIndices(ros::Time time,double update_radius)$/;"	f	class:CostMapCalculation
+cost_map	hector_costmap/include/hector_costmap/hector_costmap.h	/^    nav_msgs::OccupancyGrid cost_map, elevation_cost_map, cloud_cost_map;$/;"	m	class:CostMapCalculation
+cost_map_topic	hector_costmap/include/hector_costmap/hector_costmap.h	/^    std::string cost_map_topic, elevation_map_topic, grid_map_topic, point_cloud_topic, sys_msg_topic;$/;"	m	class:CostMapCalculation
+costmap_	hector_exploration_planner/include/hector_exploration_planner/hector_exploration_planner.h	/^  costmap_2d::Costmap2D* costmap_;$/;"	m	class:hector_exploration_planner::HectorExplorationPlanner
+costmap_2d_ros_	hector_exploration_node/src/exploration_node.cpp	/^  costmap_2d::Costmap2DROS* costmap_2d_ros_;$/;"	m	class:SimpleExplorationPlanner	file:
+costmap_pub_freq	hector_costmap/include/hector_costmap/hector_costmap.h	/^    double costmap_pub_freq;$/;"	m	class:CostMapCalculation
+costmap_ros_	hector_exploration_planner/include/hector_exploration_planner/hector_exploration_planner.h	/^  costmap_2d::Costmap2DROS* costmap_ros_;$/;"	m	class:hector_exploration_planner::HectorExplorationPlanner
+covariances_	hector_gps_calibration/include/hector_gps_calibration/hector_gps_calibration.h	/^  std::vector< double > covariances_;$/;"	m	class:GPSCalibration
+current_waypoint_	hector_path_follower/include/hector_path_follower/hector_path_follower.h	/^      unsigned int current_waypoint_; $/;"	m	class:pose_follower::HectorPathFollower
+deleteMapData	hector_exploration_planner/src/hector_exploration_planner.cpp	/^void HectorExplorationPlanner::deleteMapData()$/;"	f	class:HectorExplorationPlanner
+df	hector_gps_calibration/src/plot_solution.py	/^df = pd.read_csv(os.path.expanduser('~') + "\/.ros\/" + name + ".csv")$/;"	v
+diff2D	hector_path_follower/src/hector_path_follower.cpp	/^  geometry_msgs::Twist HectorPathFollower::diff2D(const tf::Pose& pose1, const tf::Pose& pose2)$/;"	f	class:pose_follower::HectorPathFollower
+doAlternativeExploration	hector_exploration_planner/src/hector_exploration_planner.cpp	/^bool HectorExplorationPlanner::doAlternativeExploration(const geometry_msgs::PoseStamped &start, std::vector<geometry_msgs::PoseStamped> &plan, std::vector<geometry_msgs::PoseStamped> &oldplan){$/;"	f	class:HectorExplorationPlanner
+doExploration	hector_exploration_planner/src/hector_exploration_planner.cpp	/^bool HectorExplorationPlanner::doExploration(const geometry_msgs::PoseStamped &start, std::vector<geometry_msgs::PoseStamped> &plan){$/;"	f	class:HectorExplorationPlanner
+doInnerExploration	hector_exploration_planner/src/hector_exploration_planner.cpp	/^bool HectorExplorationPlanner::doInnerExploration(const geometry_msgs::PoseStamped &start, std::vector<geometry_msgs::PoseStamped> &plan){$/;"	f	class:HectorExplorationPlanner
+down	hector_exploration_planner/src/hector_exploration_planner.cpp	/^inline int HectorExplorationPlanner::down(int point){$/;"	f	class:HectorExplorationPlanner
+downleft	hector_exploration_planner/src/hector_exploration_planner.cpp	/^inline int HectorExplorationPlanner::downleft(int point){$/;"	f	class:HectorExplorationPlanner
+downright	hector_exploration_planner/src/hector_exploration_planner.cpp	/^inline int HectorExplorationPlanner::downright(int point){$/;"	f	class:HectorExplorationPlanner
+dynRecParamCallback	hector_costmap/src/hector_costmap.cpp	/^void CostMapCalculation::dynRecParamCallback(hector_costmap::CostMapCalculationConfig &config, uint32_t level)$/;"	f	class:CostMapCalculation
+dynRecParamCallback	hector_elevation_visualization/src/hector_elevation_visualization.cpp	/^void ElevationVisualization::dynRecParamCallback(hector_elevation_visualization::ElevationVisualizationConfig &config, uint32_t level)$/;"	f	class:ElevationVisualization
+dynRecParamCallback	hector_exploration_planner/src/hector_exploration_planner.cpp	/^void HectorExplorationPlanner::dynRecParamCallback(hector_exploration_planner::ExplorationPlannerConfig &config, uint32_t level)$/;"	f	class:HectorExplorationPlanner
+dyn_rec_server_	hector_costmap/include/hector_costmap/hector_costmap.h	/^    dynamic_reconfigure::Server<hector_costmap::CostMapCalculationConfig> dyn_rec_server_;$/;"	m	class:CostMapCalculation
+dyn_rec_server_	hector_elevation_visualization/include/hector_elevation_visualization/hector_elevation_visualization.h	/^    dynamic_reconfigure::Server<hector_elevation_visualization::ElevationVisualizationConfig> dyn_rec_server_;$/;"	m	class:ElevationVisualization
+dyn_rec_server_	hector_exploration_planner/include/hector_exploration_planner/hector_exploration_planner.h	/^  boost::shared_ptr<dynamic_reconfigure::Server<hector_exploration_planner::ExplorationPlannerConfig> > dyn_rec_server_;$/;"	m	class:hector_exploration_planner::HectorExplorationPlanner
+dynamic_reconfigure_cb	hector_timestamp_alignment/src/hector_timestamp_alignment/timestamp_alignment.py	/^    def dynamic_reconfigure_cb(self, config, level):$/;"	m	class:TimestampAlignment
+elevation_cost_map	hector_costmap/include/hector_costmap/hector_costmap.h	/^    nav_msgs::OccupancyGrid cost_map, elevation_cost_map, cloud_cost_map;$/;"	m	class:CostMapCalculation
+elevation_cost_map_	hector_costmap/include/hector_costmap/hector_costmap.h	/^    cv::Mat grid_map_, elevation_map_, elevation_map_filtered,elevation_cost_map_;$/;"	m	class:CostMapCalculation
+elevation_map_	hector_costmap/include/hector_costmap/hector_costmap.h	/^    cv::Mat grid_map_, elevation_map_, elevation_map_filtered,elevation_cost_map_;$/;"	m	class:CostMapCalculation
+elevation_map_filtered	hector_costmap/include/hector_costmap/hector_costmap.h	/^    cv::Mat grid_map_, elevation_map_, elevation_map_filtered,elevation_cost_map_;$/;"	m	class:CostMapCalculation
+elevation_map_frame_id	hector_elevation_visualization/include/hector_elevation_visualization/hector_elevation_visualization.h	/^    std::string elevation_map_frame_id,sys_msg_topic;$/;"	m	class:ElevationVisualization
+elevation_map_meta	hector_elevation_mapping/include/hector_elevation_mapping/hector_elevation_mapping.h	/^    hector_elevation_msgs::ElevationMapMetaData elevation_map_meta;$/;"	m	class:hector_elevation_mapping::ElevationMapping
+elevation_map_topic	hector_costmap/include/hector_costmap/hector_costmap.h	/^    std::string cost_map_topic, elevation_map_topic, grid_map_topic, point_cloud_topic, sys_msg_topic;$/;"	m	class:CostMapCalculation
+elevation_zero_level	hector_costmap/include/hector_costmap/hector_costmap.h	/^    int elevation_zero_level;$/;"	m	class:CostMapCalculation
+examples	hector_gps_calibration/include/hector_gps_calibration/angle_local_parameterization.h	/^namespace examples {$/;"	n	namespace:ceres
+examples	hector_gps_calibration/include/hector_gps_calibration/normalize_angle.h	/^namespace examples {$/;"	n	namespace:ceres
+explorationServiceCallback	hector_exploration_node/src/exploration_node.cpp	/^  bool explorationServiceCallback(hector_nav_msgs::GetRobotTrajectory::Request  &req,$/;"	f	class:SimpleExplorationPlanner
+exploration_plan_generation_timer_	hector_exploration_controller/src/simple_exploration_controller.cpp	/^  ros::Timer exploration_plan_generation_timer_;$/;"	m	class:SimpleExplorationController	file:
+exploration_plan_pub_	hector_exploration_node/src/exploration_node.cpp	/^  ros::Publisher exploration_plan_pub_;$/;"	m	class:SimpleExplorationPlanner	file:
+exploration_plan_service_client_	hector_exploration_controller/src/simple_exploration_controller.cpp	/^  ros::ServiceClient exploration_plan_service_client_;$/;"	m	class:SimpleExplorationController	file:
+exploration_plan_service_server_	hector_exploration_node/src/exploration_node.cpp	/^  ros::ServiceServer exploration_plan_service_server_;$/;"	m	class:SimpleExplorationPlanner	file:
+exploration_planner	hector_exploration_planner/include/hector_exploration_planner/hector_exploration_base_global_planner_plugin.h	/^  HectorExplorationPlanner* exploration_planner;$/;"	m	class:hector_exploration_planner::HectorExplorationBaseGlobalPlannerPlugin
+exploration_trans_array_	hector_exploration_planner/include/hector_exploration_planner/hector_exploration_planner.h	/^  boost::shared_array<unsigned int> exploration_trans_array_;$/;"	m	class:hector_exploration_planner::HectorExplorationPlanner
+exploration_transform_pointcloud_pub_	hector_exploration_planner/include/hector_exploration_planner/exploration_transform_vis.h	/^    ros::Publisher exploration_transform_pointcloud_pub_;$/;"	m	class:hector_exploration_planner::ExplorationTransformVis
+exploreWalls	hector_exploration_planner/src/hector_exploration_planner.cpp	/^bool HectorExplorationPlanner::exploreWalls(const geometry_msgs::PoseStamped &start, std::vector<geometry_msgs::PoseStamped> &plan){$/;"	f	class:HectorExplorationPlanner
+findFrontiers	hector_exploration_planner/src/hector_exploration_planner.cpp	/^bool HectorExplorationPlanner::findFrontiers(std::vector<geometry_msgs::PoseStamped> &frontiers){$/;"	f	class:HectorExplorationPlanner
+findFrontiers	hector_exploration_planner/src/hector_exploration_planner.cpp	/^bool HectorExplorationPlanner::findFrontiers(std::vector<geometry_msgs::PoseStamped> &frontiers, std::vector<geometry_msgs::PoseStamped> &noFrontiers){$/;"	f	class:HectorExplorationPlanner
+findFrontiersCloseToPath	hector_exploration_planner/src/hector_exploration_planner.cpp	/^bool HectorExplorationPlanner::findFrontiersCloseToPath(std::vector<geometry_msgs::PoseStamped> &frontiers){$/;"	f	class:HectorExplorationPlanner
+findInnerFrontier	hector_exploration_planner/src/hector_exploration_planner.cpp	/^bool HectorExplorationPlanner::findInnerFrontier(std::vector<geometry_msgs::PoseStamped> &innerFrontier){$/;"	f	class:HectorExplorationPlanner
+frontier_map_array_	hector_exploration_planner/include/hector_exploration_planner/hector_exploration_planner.h	/^  boost::shared_array<int> frontier_map_array_;$/;"	m	class:hector_exploration_planner::HectorExplorationPlanner
+gen	hector_costmap/cfg/CostMapCalculation.cfg	/^gen = ParameterGenerator()$/;"	v
+gen	hector_costmap/cfg/CostMapCalculation.cfg~	/^gen = ParameterGenerator()$/;"	v
+gen	hector_elevation_visualization/cfg/ElevationVisualization.cfg	/^gen = ParameterGenerator()$/;"	v
+gen	hector_exploration_planner/cfg/ExplorationPlanner.cfg	/^gen = ParameterGenerator()$/;"	v
+gen	hector_timestamp_alignment/config/timestamp_alignment_config.cfg	/^gen = ParameterGenerator()$/;"	v
+getAdjacentPoints	hector_exploration_planner/src/hector_exploration_planner.cpp	/^inline void HectorExplorationPlanner::getAdjacentPoints(int point, int points[]){$/;"	f	class:HectorExplorationPlanner
+getDiagonalPoints	hector_exploration_planner/src/hector_exploration_planner.cpp	/^inline void HectorExplorationPlanner::getDiagonalPoints(int point, int points[]){$/;"	f	class:HectorExplorationPlanner
+getDistanceWeight	hector_exploration_planner/src/hector_exploration_planner.cpp	/^float HectorExplorationPlanner::getDistanceWeight(const geometry_msgs::PoseStamped &point1, const geometry_msgs::PoseStamped &point2){$/;"	f	class:HectorExplorationPlanner
+getObservationPose	hector_exploration_planner/src/hector_exploration_planner.cpp	/^bool HectorExplorationPlanner::getObservationPose(const geometry_msgs::PoseStamped& observation_pose, const double desired_distance, geometry_msgs::PoseStamped& new_observation_pose)$/;"	f	class:HectorExplorationPlanner
+getRobotPose	hector_path_follower/src/hector_path_follower.cpp	/^  bool HectorPathFollower::getRobotPose(tf::Stamped<tf::Pose>& global_pose) const {$/;"	f	class:pose_follower::HectorPathFollower
+getStraightPoints	hector_exploration_planner/src/hector_exploration_planner.cpp	/^inline void HectorExplorationPlanner::getStraightPoints(int point, int points[]){$/;"	f	class:HectorExplorationPlanner
+getTrajectory	hector_exploration_planner/src/hector_exploration_planner.cpp	/^bool HectorExplorationPlanner::getTrajectory(const geometry_msgs::PoseStamped &start, std::vector<geometry_msgs::PoseStamped> goals, std::vector<geometry_msgs::PoseStamped> &plan){$/;"	f	class:HectorExplorationPlanner
+getYawToUnknown	hector_exploration_planner/src/hector_exploration_planner.cpp	/^double HectorExplorationPlanner::getYawToUnknown(int point){$/;"	f	class:HectorExplorationPlanner
+global_elevation_map	hector_elevation_mapping/include/hector_elevation_mapping/hector_elevation_mapping.h	/^    hector_elevation_msgs::ElevationGrid global_elevation_map;$/;"	m	class:hector_elevation_mapping::ElevationMapping
+global_elevation_map_topic	hector_elevation_mapping/include/hector_elevation_mapping/hector_elevation_mapping.h	/^    std::string grid_map_topic, local_elevation_map_topic, global_elevation_map_topic, point_cloud_topic, sys_msg_topic, pose_update_topic;$/;"	m	class:hector_elevation_mapping::ElevationMapping
+global_plan_	hector_path_follower/include/hector_path_follower/hector_path_follower.h	/^      std::vector<geometry_msgs::PoseStamped> global_plan_;$/;"	m	class:pose_follower::HectorPathFollower
+goal_pose_pub_	hector_exploration_planner/include/hector_exploration_planner/hector_exploration_planner.h	/^  ros::Publisher goal_pose_pub_;$/;"	m	class:hector_exploration_planner::HectorExplorationPlanner
+goal_reached_time_	hector_path_follower/include/hector_path_follower/hector_path_follower.h	/^      ros::Time goal_reached_time_;$/;"	m	class:pose_follower::HectorPathFollower
+gps_poses_	hector_gps_calibration/include/hector_gps_calibration/hector_gps_calibration.h	/^  std::vector< Eigen::Matrix<double, 2, 1> > gps_poses_;$/;"	m	class:GPSCalibration
+grid_map_	hector_costmap/include/hector_costmap/hector_costmap.h	/^    cv::Mat grid_map_, elevation_map_, elevation_map_filtered,elevation_cost_map_;$/;"	m	class:CostMapCalculation
+grid_map_msg_	hector_costmap/include/hector_costmap/hector_costmap.h	/^    nav_msgs::OccupancyGridConstPtr grid_map_msg_;$/;"	m	class:CostMapCalculation
+grid_map_topic	hector_costmap/include/hector_costmap/hector_costmap.h	/^    std::string cost_map_topic, elevation_map_topic, grid_map_topic, point_cloud_topic, sys_msg_topic;$/;"	m	class:CostMapCalculation
+grid_map_topic	hector_elevation_mapping/include/hector_elevation_mapping/hector_elevation_mapping.h	/^    std::string grid_map_topic, local_elevation_map_topic, global_elevation_map_topic, point_cloud_topic, sys_msg_topic, pose_update_topic;$/;"	m	class:hector_elevation_mapping::ElevationMapping
+grid_res_z	hector_costmap/include/hector_costmap/hector_costmap.h	/^    double grid_res_z;$/;"	m	class:CostMapCalculation
+hazmat_detection	hector_timestamp_alignment/src/hector_timestamp_alignment/timestamp_alignment.py	/^    hazmat_detection = TimestampAlignment(verbose=False)$/;"	v
+headingDiff	hector_path_follower/src/hector_path_follower.cpp	/^  double HectorPathFollower::headingDiff(double x, double y, double pt_x, double pt_y, double heading)$/;"	f	class:pose_follower::HectorPathFollower
+hector_elevation_mapping	hector_elevation_mapping/include/hector_elevation_mapping/hector_elevation_mapping.h	/^namespace hector_elevation_mapping$/;"	n
+hector_elevation_mapping	hector_elevation_mapping/src/hector_elevation_mapping.cpp	/^namespace hector_elevation_mapping$/;"	n	file:
+hector_exploration_planner	hector_exploration_planner/include/hector_exploration_planner/exploration_transform_vis.h	/^namespace hector_exploration_planner{$/;"	n
+hector_exploration_planner	hector_exploration_planner/include/hector_exploration_planner/hector_exploration_base_global_planner_plugin.h	/^namespace hector_exploration_planner{$/;"	n
+hector_exploration_planner	hector_exploration_planner/include/hector_exploration_planner/hector_exploration_planner.h	/^namespace hector_exploration_planner{$/;"	n
+heightMapColor	hector_elevation_visualization/src/hector_elevation_visualization.cpp	/^std_msgs::ColorRGBA ElevationVisualization::heightMapColor(double h)$/;"	f	class:ElevationVisualization
+holonomic_	hector_path_follower/include/hector_path_follower/hector_path_follower.h	/^      bool holonomic_;$/;"	m	class:pose_follower::HectorPathFollower
+imu_cb	hector_timestamp_alignment/src/hector_timestamp_alignment/timestamp_alignment.py	/^    def imu_cb(self, imu_msg):$/;"	m	class:TimestampAlignment
+in_place_trans_vel_	hector_path_follower/include/hector_path_follower/hector_path_follower.h	/^      double min_in_place_vel_th_, in_place_trans_vel_;$/;"	m	class:pose_follower::HectorPathFollower
+initial_free_cells_radius	hector_costmap/include/hector_costmap/hector_costmap.h	/^    double update_radius_world, initial_free_cells_radius;$/;"	m	class:CostMapCalculation
+initialize	hector_exploration_planner/src/hector_exploration_base_global_planner_plugin.cpp	/^void HectorExplorationBaseGlobalPlannerPlugin::initialize(std::string name, costmap_2d::Costmap2DROS* costmap_ros)$/;"	f	class:HectorExplorationBaseGlobalPlannerPlugin
+initialize	hector_exploration_planner/src/hector_exploration_planner.cpp	/^void HectorExplorationPlanner::initialize(std::string name, costmap_2d::Costmap2DROS *costmap_ros_in){$/;"	f	class:HectorExplorationPlanner
+initialize	hector_path_follower/src/hector_path_follower.cpp	/^  void HectorPathFollower::initialize(tf::TransformListener* tf){$/;"	f	class:pose_follower::HectorPathFollower
+initialized_	hector_exploration_planner/include/hector_exploration_planner/hector_exploration_planner.h	/^  bool initialized_;$/;"	m	class:hector_exploration_planner::HectorExplorationPlanner
+inner_vis_	hector_exploration_planner/include/hector_exploration_planner/hector_exploration_planner.h	/^  boost::shared_ptr<ExplorationTransformVis> inner_vis_;$/;"	m	class:hector_exploration_planner::HectorExplorationPlanner
+inv_covariance_	hector_gps_calibration/include/hector_gps_calibration/transform_delta_cost_functor.h	/^    double inv_covariance_;$/;"	m	class:TransformDeltaCostFunctor
+inverse	hector_gps_calibration/include/hector_gps_calibration/transform_delta_cost_functor.h	/^    Rigid3 inverse() const {$/;"	f	class:Rigid3
+isFree	hector_exploration_planner/src/hector_exploration_planner.cpp	/^bool HectorExplorationPlanner::isFree(int point){$/;"	f	class:HectorExplorationPlanner
+isFreeFrontiers	hector_exploration_planner/src/hector_exploration_planner.cpp	/^bool HectorExplorationPlanner::isFreeFrontiers(int point){$/;"	f	class:HectorExplorationPlanner
+isFrontier	hector_exploration_planner/src/hector_exploration_planner.cpp	/^bool HectorExplorationPlanner::isFrontier(int point){$/;"	f	class:HectorExplorationPlanner
+isFrontierReached	hector_exploration_planner/src/hector_exploration_planner.cpp	/^bool HectorExplorationPlanner::isFrontierReached(int point){$/;"	f	class:HectorExplorationPlanner
+isGoalReached	hector_path_follower/src/hector_path_follower.cpp	/^  bool HectorPathFollower::isGoalReached(){$/;"	f	class:pose_follower::HectorPathFollower
+isSameFrontier	hector_exploration_planner/src/hector_exploration_planner.cpp	/^bool HectorExplorationPlanner::isSameFrontier(int frontier_point1, int frontier_point2){$/;"	f	class:HectorExplorationPlanner
+isValid	hector_exploration_planner/src/hector_exploration_planner.cpp	/^inline bool HectorExplorationPlanner::isValid(int point){$/;"	f	class:HectorExplorationPlanner
+is_goal_array_	hector_exploration_planner/include/hector_exploration_planner/hector_exploration_planner.h	/^  boost::shared_array<bool> is_goal_array_;$/;"	m	class:hector_exploration_planner::HectorExplorationPlanner
+last_mode_	hector_exploration_planner/include/hector_exploration_planner/hector_exploration_planner.h	/^  } last_mode_;$/;"	m	class:hector_exploration_planner::HectorExplorationPlanner	typeref:enum:hector_exploration_planner::HectorExplorationPlanner::LastMode
+left	hector_exploration_planner/src/hector_exploration_planner.cpp	/^inline int HectorExplorationPlanner::left(int point){$/;"	f	class:HectorExplorationPlanner
+limitTwist	hector_path_follower/src/hector_path_follower.cpp	/^  geometry_msgs::Twist HectorPathFollower::limitTwist(const geometry_msgs::Twist& twist)$/;"	f	class:pose_follower::HectorPathFollower
+listener	hector_costmap/include/hector_costmap/hector_costmap.h	/^    tf::TransformListener listener;$/;"	m	class:CostMapCalculation
+listener	hector_elevation_mapping/include/hector_elevation_mapping/hector_elevation_mapping.h	/^    tf::TransformListener listener;$/;"	m	class:hector_elevation_mapping::ElevationMapping
+local_elevation_map	hector_elevation_mapping/include/hector_elevation_mapping/hector_elevation_mapping.h	/^    hector_elevation_msgs::ElevationGrid local_elevation_map;$/;"	m	class:hector_elevation_mapping::ElevationMapping
+local_elevation_map_topic	hector_elevation_mapping/include/hector_elevation_mapping/hector_elevation_mapping.h	/^    std::string grid_map_topic, local_elevation_map_topic, global_elevation_map_topic, point_cloud_topic, sys_msg_topic, pose_update_topic;$/;"	m	class:hector_elevation_mapping::ElevationMapping
+local_map_frame_id	hector_elevation_mapping/include/hector_elevation_mapping/hector_elevation_mapping.h	/^    std::string sensor_frame_id, map_frame_id, local_map_frame_id;$/;"	m	class:hector_elevation_mapping::ElevationMapping
+local_transform_frame_id	hector_costmap/include/hector_costmap/hector_costmap.h	/^    std::string map_frame_id,local_transform_frame_id;$/;"	m	class:CostMapCalculation
+main	hector_costmap/src/hector_costmap_node.cpp	/^int main (int argc, char** argv)$/;"	f
+main	hector_driving_aid_markers/src/driving_aid_marker_node.cpp	/^int main (int argc, char** argv)$/;"	f
+main	hector_elevation_mapping/src/hector_elevation_mapping_node.cpp	/^int main(int argc, char **argv)$/;"	f
+main	hector_elevation_visualization/src/hector_elevation_visualization_node.cpp	/^int main (int argc, char** argv)$/;"	f
+main	hector_exploration_controller/src/simple_exploration_controller.cpp	/^int main(int argc, char **argv) {$/;"	f
+main	hector_exploration_node/src/exploration_node.cpp	/^int main(int argc, char **argv) {$/;"	f
+main	hector_gps_calibration/src/hector_gps_calibration_node.cpp	/^int main(int argc, char **argv) {$/;"	f
+main	hector_path_follower/src/hector_path_follower_node.cpp	/^int main(int argc, char **argv) {$/;"	f
+makePlan	hector_exploration_planner/src/hector_exploration_base_global_planner_plugin.cpp	/^bool HectorExplorationBaseGlobalPlannerPlugin::makePlan(const geometry_msgs::PoseStamped& start,$/;"	f	class:HectorExplorationBaseGlobalPlannerPlugin
+makePlan	hector_exploration_planner/src/hector_exploration_planner.cpp	/^bool HectorExplorationPlanner::makePlan(const geometry_msgs::PoseStamped &start, const geometry_msgs::PoseStamped &original_goal, std::vector<geometry_msgs::PoseStamped> &plan){$/;"	f	class:HectorExplorationPlanner
+map_callback	hector_elevation_visualization/src/hector_elevation_visualization.cpp	/^void ElevationVisualization::map_callback(const hector_elevation_msgs::ElevationGrid& elevation_map)$/;"	f	class:ElevationVisualization
+map_frame_id	hector_costmap/include/hector_costmap/hector_costmap.h	/^    std::string map_frame_id,local_transform_frame_id;$/;"	m	class:CostMapCalculation
+map_frame_id	hector_elevation_mapping/include/hector_elevation_mapping/hector_elevation_mapping.h	/^    std::string sensor_frame_id, map_frame_id, local_map_frame_id;$/;"	m	class:hector_elevation_mapping::ElevationMapping
+map_height_	hector_exploration_planner/include/hector_exploration_planner/hector_exploration_planner.h	/^  unsigned int map_height_;$/;"	m	class:hector_exploration_planner::HectorExplorationPlanner
+map_marker_array_msg	hector_elevation_visualization/include/hector_elevation_visualization/hector_elevation_visualization.h	/^    visualization_msgs::MarkerArray map_marker_array_msg;$/;"	m	class:ElevationVisualization
+map_marker_array_publisher	hector_elevation_visualization/include/hector_elevation_visualization/hector_elevation_visualization.h	/^    ros::Publisher map_marker_array_publisher;$/;"	m	class:ElevationVisualization
+map_meta	hector_elevation_mapping/include/hector_elevation_mapping/hector_elevation_mapping.h	/^    nav_msgs::MapMetaData map_meta;$/;"	m	class:hector_elevation_mapping::ElevationMapping
+map_width_	hector_exploration_planner/include/hector_exploration_planner/hector_exploration_planner.h	/^  unsigned int map_width_;$/;"	m	class:hector_exploration_planner::HectorExplorationPlanner
+marker_array_	hector_driving_aid_markers/src/driving_aid_marker_node.cpp	/^  visualization_msgs::MarkerArray marker_array_;$/;"	m	class:DrivingAidMarker	file:
+marker_color	hector_elevation_visualization/include/hector_elevation_visualization/hector_elevation_visualization.h	/^    std_msgs::ColorRGBA marker_color;$/;"	m	class:ElevationVisualization
+marker_pub_	hector_driving_aid_markers/src/driving_aid_marker_node.cpp	/^  ros::Publisher marker_pub_;$/;"	m	class:DrivingAidMarker	file:
+max_clear_size	hector_costmap/include/hector_costmap/hector_costmap.h	/^    int max_clear_size;$/;"	m	class:CostMapCalculation
+max_covariance_	hector_gps_calibration/include/hector_gps_calibration/hector_gps_calibration.h	/^  double max_covariance_;$/;"	m	class:GPSCalibration
+max_delta_elevation	hector_costmap/include/hector_costmap/hector_costmap.h	/^    double max_delta_elevation;$/;"	m	class:CostMapCalculation
+max_height	hector_elevation_mapping/include/hector_elevation_mapping/hector_elevation_mapping.h	/^    int max_height_levels, max_height;$/;"	m	class:hector_elevation_mapping::ElevationMapping
+max_height	hector_elevation_visualization/include/hector_elevation_visualization/hector_elevation_visualization.h	/^    double min_height,max_height,color_factor;$/;"	m	class:ElevationVisualization
+max_height_levels	hector_elevation_mapping/include/hector_elevation_mapping/hector_elevation_mapping.h	/^    int max_height_levels, max_height;$/;"	m	class:hector_elevation_mapping::ElevationMapping
+max_height_levels	hector_elevation_visualization/include/hector_elevation_visualization/hector_elevation_visualization.h	/^    int max_height_levels;$/;"	m	class:ElevationVisualization
+max_index	hector_costmap/include/hector_costmap/hector_costmap.h	/^    Eigen::Vector2i min_index, max_index;$/;"	m	class:CostMapCalculation
+max_observable_distance	hector_elevation_mapping/include/hector_elevation_mapping/hector_elevation_mapping.h	/^    double max_observable_distance;$/;"	m	class:hector_elevation_mapping::ElevationMapping
+max_vel_lin_	hector_path_follower/include/hector_path_follower/hector_path_follower.h	/^      double max_vel_lin_, max_vel_th_;$/;"	m	class:pose_follower::HectorPathFollower
+max_vel_th_	hector_path_follower/include/hector_path_follower/hector_path_follower.h	/^      double max_vel_lin_, max_vel_th_;$/;"	m	class:pose_follower::HectorPathFollower
+min_height	hector_elevation_visualization/include/hector_elevation_visualization/hector_elevation_visualization.h	/^    double min_height,max_height,color_factor;$/;"	m	class:ElevationVisualization
+min_in_place_vel_th_	hector_path_follower/include/hector_path_follower/hector_path_follower.h	/^      double min_in_place_vel_th_, in_place_trans_vel_;$/;"	m	class:pose_follower::HectorPathFollower
+min_index	hector_costmap/include/hector_costmap/hector_costmap.h	/^    Eigen::Vector2i min_index, max_index;$/;"	m	class:CostMapCalculation
+min_pose_distance_	hector_gps_calibration/include/hector_gps_calibration/hector_gps_calibration.h	/^  double min_pose_distance_;$/;"	m	class:GPSCalibration
+min_vel_lin_	hector_path_follower/include/hector_path_follower/hector_path_follower.h	/^      double min_vel_lin_, min_vel_th_;$/;"	m	class:pose_follower::HectorPathFollower
+min_vel_th_	hector_path_follower/include/hector_path_follower/hector_path_follower.h	/^      double min_vel_lin_, min_vel_th_;$/;"	m	class:pose_follower::HectorPathFollower
+nHandle	hector_costmap/include/hector_costmap/hector_costmap.h	/^    ros::NodeHandle nHandle;$/;"	m	class:CostMapCalculation
+nHandle	hector_elevation_mapping/include/hector_elevation_mapping/hector_elevation_mapping.h	/^    ros::NodeHandle nHandle;$/;"	m	class:hector_elevation_mapping::ElevationMapping
+nHandle	hector_elevation_visualization/include/hector_elevation_visualization/hector_elevation_visualization.h	/^    ros::NodeHandle nHandle;$/;"	m	class:ElevationVisualization
+nPrivateHandle	hector_elevation_mapping/include/hector_elevation_mapping/hector_elevation_mapping.h	/^    ros::NodeHandle nPrivateHandle;$/;"	m	class:hector_elevation_mapping::ElevationMapping
+name	hector_exploration_planner/include/hector_exploration_planner/hector_exploration_planner.h	/^  std::string name;$/;"	m	class:hector_exploration_planner::HectorExplorationPlanner
+name	hector_gps_calibration/src/plot_solution.py	/^name = "gps_alignment_solution_final"$/;"	v
+navSatCallback	hector_gps_calibration/src/hector_gps_calibration.cpp	/^void GPSCalibration::navSatCallback(nav_msgs::Odometry msg)$/;"	f	class:GPSCalibration
+nav_sat_fix_pub_	hector_gps_calibration/include/hector_gps_calibration/hector_gps_calibration.h	/^  ros::Publisher nav_sat_fix_pub_;$/;"	m	class:GPSCalibration
+nav_sat_sub_	hector_gps_calibration/include/hector_gps_calibration/hector_gps_calibration.h	/^  ros::Subscriber nav_sat_sub_;$/;"	m	class:GPSCalibration
+newline	hector_gps_calibration/src/plot_solution.py	/^def newline(p1, p2):$/;"	f
+num_map_cells_	hector_exploration_planner/include/hector_exploration_planner/hector_exploration_planner.h	/^  unsigned int num_map_cells_;$/;"	m	class:hector_exploration_planner::HectorExplorationPlanner
+observation_pose_pub_	hector_exploration_planner/include/hector_exploration_planner/hector_exploration_planner.h	/^  ros::Publisher observation_pose_pub_;$/;"	m	class:hector_exploration_planner::HectorExplorationPlanner
+obstacle_trans_array_	hector_exploration_planner/include/hector_exploration_planner/hector_exploration_planner.h	/^  boost::shared_array<unsigned int> obstacle_trans_array_;$/;"	m	class:hector_exploration_planner::HectorExplorationPlanner
+obstacle_vis_	hector_exploration_planner/include/hector_exploration_planner/hector_exploration_planner.h	/^  boost::shared_ptr<ExplorationTransformVis> obstacle_vis_;$/;"	m	class:hector_exploration_planner::HectorExplorationPlanner
+occupancy_grid_array_	hector_exploration_planner/include/hector_exploration_planner/hector_exploration_planner.h	/^  const unsigned char* occupancy_grid_array_;$/;"	m	class:hector_exploration_planner::HectorExplorationPlanner
+odom_lock_	hector_path_follower/include/hector_path_follower/hector_path_follower.h	/^      boost::mutex odom_lock_;$/;"	m	class:pose_follower::HectorPathFollower
+odom_sub_	hector_path_follower/include/hector_path_follower/hector_path_follower.h	/^      ros::Subscriber odom_sub_;$/;"	m	class:pose_follower::HectorPathFollower
+onInit	hector_elevation_mapping/src/hector_elevation_mapping.cpp	/^void ElevationMapping::onInit()$/;"	f	class:hector_elevation_mapping::ElevationMapping
+operator ()	hector_gps_calibration/include/hector_gps_calibration/angle_local_parameterization.h	/^  bool operator()(const T* theta_radians, const T* delta_theta_radians,$/;"	f	class:ceres::examples::AngleLocalParameterization
+operator ()	hector_gps_calibration/include/hector_gps_calibration/transform_delta_cost_functor.h	/^    bool operator()(const T* const translation, const T* const rotation,$/;"	f	class:TransformDeltaCostFunctor
+operator *	hector_gps_calibration/include/hector_gps_calibration/transform_delta_cost_functor.h	/^Rigid3<FloatType> operator*(const Rigid3<FloatType>& lhs,$/;"	f
+operator *	hector_gps_calibration/include/hector_gps_calibration/transform_delta_cost_functor.h	/^typename Rigid3<FloatType>::Vector operator*($/;"	f
+operator <<	hector_gps_calibration/include/hector_gps_calibration/transform_delta_cost_functor.h	/^std::ostream& operator<<(std::ostream& os,$/;"	f
+optimize	hector_gps_calibration/src/hector_gps_calibration.cpp	/^void GPSCalibration::optimize()$/;"	f	class:GPSCalibration
+optimizeCallback	hector_gps_calibration/src/hector_gps_calibration.cpp	/^void GPSCalibration::optimizeCallback(std_msgs::Empty msg)$/;"	f	class:GPSCalibration
+optimize_sub_	hector_gps_calibration/include/hector_gps_calibration/hector_gps_calibration.h	/^  ros::Subscriber optimize_sub_;$/;"	m	class:GPSCalibration
+p1	hector_gps_calibration/src/plot_solution.py	/^    p1 = [df["gps_x"][i],df["gps_y"][i]]$/;"	v
+p2	hector_gps_calibration/src/plot_solution.py	/^    p2 = [df["world_x"][i], df["world_y"][i]]$/;"	v
+p_alpha_	hector_exploration_planner/include/hector_exploration_planner/hector_exploration_planner.h	/^  double p_alpha_;$/;"	m	class:hector_exploration_planner::HectorExplorationPlanner
+p_close_to_path_target_distance_	hector_exploration_planner/include/hector_exploration_planner/hector_exploration_planner.h	/^  double p_close_to_path_target_distance_;$/;"	m	class:hector_exploration_planner::HectorExplorationPlanner
+p_cos_of_allowed_observation_pose_angle_	hector_exploration_planner/include/hector_exploration_planner/hector_exploration_planner.h	/^  double p_cos_of_allowed_observation_pose_angle_;$/;"	m	class:hector_exploration_planner::HectorExplorationPlanner
+p_dist_for_goal_reached_	hector_exploration_planner/include/hector_exploration_planner/hector_exploration_planner.h	/^  double p_dist_for_goal_reached_;$/;"	m	class:hector_exploration_planner::HectorExplorationPlanner
+p_explore_close_to_path_	hector_exploration_planner/include/hector_exploration_planner/hector_exploration_planner.h	/^  bool p_explore_close_to_path_;$/;"	m	class:hector_exploration_planner::HectorExplorationPlanner
+p_global_frame_	hector_path_follower/include/hector_path_follower/hector_path_follower.h	/^      std::string p_global_frame_;$/;"	m	class:pose_follower::HectorPathFollower
+p_goal_angle_penalty_	hector_exploration_planner/include/hector_exploration_planner/hector_exploration_planner.h	/^  int p_goal_angle_penalty_;$/;"	m	class:hector_exploration_planner::HectorExplorationPlanner
+p_left_side_y_inner_	hector_driving_aid_markers/src/driving_aid_marker_node.cpp	/^  double p_left_side_y_inner_;$/;"	m	class:DrivingAidMarker	file:
+p_left_side_y_outer_	hector_driving_aid_markers/src/driving_aid_marker_node.cpp	/^  double p_left_side_y_outer_;$/;"	m	class:DrivingAidMarker	file:
+p_min_frontier_size_	hector_exploration_planner/include/hector_exploration_planner/hector_exploration_planner.h	/^  int p_min_frontier_size_;$/;"	m	class:hector_exploration_planner::HectorExplorationPlanner
+p_min_obstacle_dist_	hector_exploration_planner/include/hector_exploration_planner/hector_exploration_planner.h	/^  int p_min_obstacle_dist_;$/;"	m	class:hector_exploration_planner::HectorExplorationPlanner
+p_observation_pose_desired_dist_	hector_exploration_planner/include/hector_exploration_planner/hector_exploration_planner.h	/^  double p_observation_pose_desired_dist_;$/;"	m	class:hector_exploration_planner::HectorExplorationPlanner
+p_obstacle_cutoff_dist_	hector_exploration_planner/include/hector_exploration_planner/hector_exploration_planner.h	/^  double p_obstacle_cutoff_dist_;$/;"	m	class:hector_exploration_planner::HectorExplorationPlanner
+p_offset_z_	hector_driving_aid_markers/src/driving_aid_marker_node.cpp	/^  double p_offset_z_;$/;"	m	class:DrivingAidMarker	file:
+p_plan_in_unknown_	hector_exploration_planner/include/hector_exploration_planner/hector_exploration_planner.h	/^  bool p_plan_in_unknown_;$/;"	m	class:hector_exploration_planner::HectorExplorationPlanner
+p_right_side_y_inner_	hector_driving_aid_markers/src/driving_aid_marker_node.cpp	/^  double p_right_side_y_inner_;$/;"	m	class:DrivingAidMarker	file:
+p_right_side_y_outer_	hector_driving_aid_markers/src/driving_aid_marker_node.cpp	/^  double p_right_side_y_outer_;$/;"	m	class:DrivingAidMarker	file:
+p_robot_base_frame_	hector_path_follower/include/hector_path_follower/hector_path_follower.h	/^      std::string p_robot_base_frame_;$/;"	m	class:pose_follower::HectorPathFollower
+p_same_frontier_dist_	hector_exploration_planner/include/hector_exploration_planner/hector_exploration_planner.h	/^  double p_same_frontier_dist_;$/;"	m	class:hector_exploration_planner::HectorExplorationPlanner
+p_use_inflated_obs_	hector_exploration_planner/include/hector_exploration_planner/hector_exploration_planner.h	/^  bool p_use_inflated_obs_;$/;"	m	class:hector_exploration_planner::HectorExplorationPlanner
+p_use_observation_pose_calculation_	hector_exploration_planner/include/hector_exploration_planner/hector_exploration_planner.h	/^  bool p_use_observation_pose_calculation_;$/;"	m	class:hector_exploration_planner::HectorExplorationPlanner
+path_follower_	hector_exploration_controller/src/simple_exploration_controller.cpp	/^  pose_follower::HectorPathFollower path_follower_;$/;"	m	class:SimpleExplorationController	file:
+path_service_client_	hector_exploration_planner/include/hector_exploration_planner/hector_exploration_planner.h	/^  ros::ServiceClient path_service_client_;$/;"	m	class:hector_exploration_planner::HectorExplorationPlanner
+planner_	hector_exploration_node/src/exploration_node.cpp	/^  hector_exploration_planner::HectorExplorationPlanner* planner_;$/;"	m	class:SimpleExplorationPlanner	file:
+pnHandle	hector_costmap/include/hector_costmap/hector_costmap.h	/^    ros::NodeHandle pnHandle;$/;"	m	class:CostMapCalculation
+point_cloud_topic	hector_costmap/include/hector_costmap/hector_costmap.h	/^    std::string cost_map_topic, elevation_map_topic, grid_map_topic, point_cloud_topic, sys_msg_topic;$/;"	m	class:CostMapCalculation
+point_cloud_topic	hector_elevation_mapping/include/hector_elevation_mapping/hector_elevation_mapping.h	/^    std::string grid_map_topic, local_elevation_map_topic, global_elevation_map_topic, point_cloud_topic, sys_msg_topic, pose_update_topic;$/;"	m	class:hector_elevation_mapping::ElevationMapping
+pos_gps_	hector_gps_calibration/include/hector_gps_calibration/transform_delta_cost_functor.h	/^    Eigen::Matrix<double, 2, 1> pos_gps_;$/;"	m	class:TransformDeltaCostFunctor
+pos_world_	hector_gps_calibration/include/hector_gps_calibration/transform_delta_cost_functor.h	/^    Eigen::Matrix<double, 2, 1> pos_world_;$/;"	m	class:TransformDeltaCostFunctor
+pose_follower	hector_path_follower/include/hector_path_follower/hector_path_follower.h	/^namespace pose_follower {$/;"	n
+pose_follower	hector_path_follower/src/hector_path_follower.cpp	/^namespace pose_follower {$/;"	n	file:
+pose_update_topic	hector_elevation_mapping/include/hector_elevation_mapping/hector_elevation_mapping.h	/^    std::string grid_map_topic, local_elevation_map_topic, global_elevation_map_topic, point_cloud_topic, sys_msg_topic, pose_update_topic;$/;"	m	class:hector_elevation_mapping::ElevationMapping
+poseupdate_height_covariance	hector_elevation_mapping/include/hector_elevation_mapping/hector_elevation_mapping.h	/^    double poseupdate_height_covariance;$/;"	m	class:hector_elevation_mapping::ElevationMapping
+poseupdate_pub_period	hector_elevation_mapping/include/hector_elevation_mapping/hector_elevation_mapping.h	/^    double poseupdate_pub_period;$/;"	m	class:hector_elevation_mapping::ElevationMapping
+poseupdate_used_pattern_size	hector_elevation_mapping/include/hector_elevation_mapping/hector_elevation_mapping.h	/^    int poseupdate_used_pattern_size;$/;"	m	class:hector_elevation_mapping::ElevationMapping
+previous_goal_	hector_exploration_planner/include/hector_exploration_planner/hector_exploration_planner.h	/^  int previous_goal_;$/;"	m	class:hector_exploration_planner::HectorExplorationPlanner
+pubTimerCallback	hector_driving_aid_markers/src/driving_aid_marker_node.cpp	/^  void pubTimerCallback(const ros::TimerEvent& event)$/;"	f	class:DrivingAidMarker
+pub_cloud_slice	hector_costmap/include/hector_costmap/hector_costmap.h	/^    ros::Publisher pub_cloud_slice;$/;"	m	class:CostMapCalculation
+pub_cost_map	hector_costmap/include/hector_costmap/hector_costmap.h	/^    ros::Publisher pub_cost_map;$/;"	m	class:CostMapCalculation
+pub_global_map	hector_elevation_mapping/include/hector_elevation_mapping/hector_elevation_mapping.h	/^    ros::Publisher pub_global_map;$/;"	m	class:hector_elevation_mapping::ElevationMapping
+pub_global_map_meta	hector_elevation_mapping/include/hector_elevation_mapping/hector_elevation_mapping.h	/^    ros::Publisher pub_global_map_meta;$/;"	m	class:hector_elevation_mapping::ElevationMapping
+pub_height_update	hector_elevation_mapping/include/hector_elevation_mapping/hector_elevation_mapping.h	/^    ros::Publisher pub_height_update;$/;"	m	class:hector_elevation_mapping::ElevationMapping
+pub_local_map	hector_elevation_mapping/include/hector_elevation_mapping/hector_elevation_mapping.h	/^    ros::Publisher pub_local_map;$/;"	m	class:hector_elevation_mapping::ElevationMapping
+pub_local_map_meta	hector_elevation_mapping/include/hector_elevation_mapping/hector_elevation_mapping.h	/^    ros::Publisher pub_local_map_meta;$/;"	m	class:hector_elevation_mapping::ElevationMapping
+pub_timer_	hector_driving_aid_markers/src/driving_aid_marker_node.cpp	/^  ros::Timer pub_timer_;$/;"	m	class:DrivingAidMarker	file:
+publishTF	hector_gps_calibration/src/hector_gps_calibration.cpp	/^void GPSCalibration::publishTF(const ::ros::WallTimerEvent& unused_timer_event)$/;"	f	class:GPSCalibration
+publishVisOnDemand	hector_exploration_planner/include/hector_exploration_planner/exploration_transform_vis.h	/^    void publishVisOnDemand(const costmap_2d::Costmap2D& costmap, const unsigned int* exploration_array)$/;"	f	class:hector_exploration_planner::ExplorationTransformVis
+publish_poseupdate	hector_elevation_mapping/include/hector_elevation_mapping/hector_elevation_mapping.h	/^    bool publish_poseupdate;$/;"	m	class:hector_elevation_mapping::ElevationMapping
+received_elevation_map	hector_costmap/include/hector_costmap/hector_costmap.h	/^    bool use_elevation_map, use_grid_map, use_cloud_map, received_grid_map, received_elevation_map, received_point_cloud, allow_elevation_map_to_clear_occupied_cells;$/;"	m	class:CostMapCalculation
+received_grid_map	hector_costmap/include/hector_costmap/hector_costmap.h	/^    bool use_elevation_map, use_grid_map, use_cloud_map, received_grid_map, received_elevation_map, received_point_cloud, allow_elevation_map_to_clear_occupied_cells;$/;"	m	class:CostMapCalculation
+received_point_cloud	hector_costmap/include/hector_costmap/hector_costmap.h	/^    bool use_elevation_map, use_grid_map, use_cloud_map, received_grid_map, received_elevation_map, received_point_cloud, allow_elevation_map_to_clear_occupied_cells;$/;"	m	class:CostMapCalculation
+resetMaps	hector_exploration_planner/src/hector_exploration_planner.cpp	/^void HectorExplorationPlanner::resetMaps(){$/;"	f	class:HectorExplorationPlanner
+right	hector_exploration_planner/src/hector_exploration_planner.cpp	/^inline int HectorExplorationPlanner::right(int point){$/;"	f	class:HectorExplorationPlanner
+rot_stopped_velocity_	hector_path_follower/include/hector_path_follower/hector_path_follower.h	/^      double trans_stopped_velocity_, rot_stopped_velocity_;$/;"	m	class:pose_follower::HectorPathFollower
+rotation	hector_gps_calibration/include/hector_gps_calibration/transform_delta_cost_functor.h	/^    const Quaternion& rotation() const { return rotation_; }$/;"	f	class:Rigid3
+rotation_	hector_gps_calibration/include/hector_gps_calibration/hector_gps_calibration.h	/^  double rotation_;$/;"	m	class:GPSCalibration
+rotation_	hector_gps_calibration/include/hector_gps_calibration/transform_delta_cost_functor.h	/^    Quaternion rotation_;$/;"	m	class:Rigid3
+samples_	hector_path_follower/include/hector_path_follower/hector_path_follower.h	/^      int samples_;$/;"	m	class:pose_follower::HectorPathFollower
+sensor_frame_id	hector_elevation_mapping/include/hector_elevation_mapping/hector_elevation_mapping.h	/^    std::string sensor_frame_id, map_frame_id, local_map_frame_id;$/;"	m	class:hector_elevation_mapping::ElevationMapping
+sensor_variance	hector_elevation_mapping/include/hector_elevation_mapping/hector_elevation_mapping.h	/^    double sensor_variance;$/;"	m	class:hector_elevation_mapping::ElevationMapping
+setPlan	hector_path_follower/src/hector_path_follower.cpp	/^  bool HectorPathFollower::setPlan(const std::vector<geometry_msgs::PoseStamped>& global_plan){$/;"	f	class:pose_follower::HectorPathFollower
+setupMapData	hector_exploration_planner/src/hector_exploration_planner.cpp	/^void HectorExplorationPlanner::setupMapData()$/;"	f	class:HectorExplorationPlanner
+sign	hector_path_follower/include/hector_path_follower/hector_path_follower.h	/^      inline double sign(double n){$/;"	f	class:pose_follower::HectorPathFollower
+sliced_cloud	hector_costmap/include/hector_costmap/hector_costmap.h	/^    pcl::PointCloud<pcl::PointXYZ>::Ptr sliced_cloud;$/;"	m	class:CostMapCalculation
+slize_max_height	hector_costmap/include/hector_costmap/hector_costmap.h	/^    double slize_min_height, slize_max_height;$/;"	m	class:CostMapCalculation
+slize_min_height	hector_costmap/include/hector_costmap/hector_costmap.h	/^    double slize_min_height, slize_max_height;$/;"	m	class:CostMapCalculation
+sub_elevation_map	hector_costmap/include/hector_costmap/hector_costmap.h	/^    ros::Subscriber sub_elevation_map;$/;"	m	class:CostMapCalculation
+sub_elevation_map	hector_elevation_visualization/include/hector_elevation_visualization/hector_elevation_visualization.h	/^    ros::Subscriber sub_elevation_map;$/;"	m	class:ElevationVisualization
+sub_grid_map	hector_costmap/include/hector_costmap/hector_costmap.h	/^    ros::Subscriber sub_grid_map;$/;"	m	class:CostMapCalculation
+sub_grid_map_info	hector_elevation_mapping/include/hector_elevation_mapping/hector_elevation_mapping.h	/^    ros::Subscriber sub_grid_map_info;$/;"	m	class:hector_elevation_mapping::ElevationMapping
+sub_map_info	hector_costmap/include/hector_costmap/hector_costmap.h	/^    ros::Subscriber sub_map_info;$/;"	m	class:CostMapCalculation
+sub_pointCloud	hector_elevation_mapping/include/hector_elevation_mapping/hector_elevation_mapping.h	/^    ros::Subscriber sub_pointCloud;$/;"	m	class:hector_elevation_mapping::ElevationMapping
+sub_point_cloud	hector_costmap/include/hector_costmap/hector_costmap.h	/^    ros::Subscriber sub_point_cloud;$/;"	m	class:CostMapCalculation
+sub_sysMessage	hector_costmap/include/hector_costmap/hector_costmap.h	/^    ros::Subscriber sub_sysMessage;$/;"	m	class:CostMapCalculation
+sub_sysMessage	hector_elevation_mapping/include/hector_elevation_mapping/hector_elevation_mapping.h	/^    ros::Subscriber sub_sysMessage;$/;"	m	class:hector_elevation_mapping::ElevationMapping
+sub_sys_message_callback	hector_elevation_visualization/include/hector_elevation_visualization/hector_elevation_visualization.h	/^    ros::Subscriber sub_sys_message_callback;$/;"	m	class:ElevationVisualization
+sysMessageCallback	hector_costmap/src/hector_costmap.cpp	/^void CostMapCalculation::sysMessageCallback(const std_msgs::String& string)$/;"	f	class:CostMapCalculation
+sysMessageCallback	hector_elevation_mapping/src/hector_elevation_mapping.cpp	/^void ElevationMapping::sysMessageCallback(const std_msgs::String& string)$/;"	f	class:hector_elevation_mapping::ElevationMapping
+sys_message_callback	hector_elevation_visualization/src/hector_elevation_visualization.cpp	/^void ElevationVisualization::sys_message_callback(const std_msgs::String& string)$/;"	f	class:ElevationVisualization
+sys_msg_topic	hector_costmap/include/hector_costmap/hector_costmap.h	/^    std::string cost_map_topic, elevation_map_topic, grid_map_topic, point_cloud_topic, sys_msg_topic;$/;"	m	class:CostMapCalculation
+sys_msg_topic	hector_elevation_mapping/include/hector_elevation_mapping/hector_elevation_mapping.h	/^    std::string grid_map_topic, local_elevation_map_topic, global_elevation_map_topic, point_cloud_topic, sys_msg_topic, pose_update_topic;$/;"	m	class:hector_elevation_mapping::ElevationMapping
+sys_msg_topic	hector_elevation_visualization/include/hector_elevation_visualization/hector_elevation_visualization.h	/^    std::string elevation_map_frame_id,sys_msg_topic;$/;"	m	class:ElevationVisualization
+tf_	hector_path_follower/include/hector_path_follower/hector_path_follower.h	/^      tf::TransformListener* tf_;$/;"	m	class:pose_follower::HectorPathFollower
+tf_broadcaster	hector_gps_calibration/include/hector_gps_calibration/hector_gps_calibration.h	/^  tf2_ros::TransformBroadcaster tf_broadcaster;$/;"	m	class:GPSCalibration
+tf_buffer	hector_gps_calibration/include/hector_gps_calibration/hector_gps_calibration.h	/^  tf2_ros::Buffer tf_buffer;$/;"	m	class:GPSCalibration
+tf_listener	hector_gps_calibration/include/hector_gps_calibration/hector_gps_calibration.h	/^  tf2_ros::TransformListener tf_listener;$/;"	m	class:GPSCalibration
+tfl_	hector_exploration_controller/src/simple_exploration_controller.cpp	/^  tf::TransformListener tfl_;$/;"	m	class:SimpleExplorationController	file:
+tfl_	hector_exploration_node/src/exploration_node.cpp	/^  tf::TransformListener tfl_;$/;"	m	class:SimpleExplorationPlanner	file:
+timer	hector_costmap/include/hector_costmap/hector_costmap.h	/^    ros::Timer timer;$/;"	m	class:CostMapCalculation
+timer	hector_elevation_mapping/include/hector_elevation_mapping/hector_elevation_mapping.h	/^    ros::Timer timer;$/;"	m	class:hector_elevation_mapping::ElevationMapping
+timerCallback	hector_costmap/src/hector_costmap.cpp	/^void CostMapCalculation::timerCallback(const ros::TimerEvent& event)$/;"	f	class:CostMapCalculation
+timerCallback	hector_elevation_mapping/src/hector_elevation_mapping.cpp	/^void ElevationMapping::timerCallback(const ros::TimerEvent& event)$/;"	f	class:hector_elevation_mapping::ElevationMapping
+timerCmdVelGeneration	hector_exploration_controller/src/simple_exploration_controller.cpp	/^  void timerCmdVelGeneration(const ros::TimerEvent& e)$/;"	f	class:SimpleExplorationController
+timerPlanExploration	hector_exploration_controller/src/simple_exploration_controller.cpp	/^  void timerPlanExploration(const ros::TimerEvent& e)$/;"	f	class:SimpleExplorationController
+tolerance_rot_	hector_path_follower/include/hector_path_follower/hector_path_follower.h	/^      double K_trans_, K_rot_, tolerance_trans_, tolerance_rot_;$/;"	m	class:pose_follower::HectorPathFollower
+tolerance_timeout_	hector_path_follower/include/hector_path_follower/hector_path_follower.h	/^      double tolerance_timeout_;$/;"	m	class:pose_follower::HectorPathFollower
+tolerance_trans_	hector_path_follower/include/hector_path_follower/hector_path_follower.h	/^      double K_trans_, K_rot_, tolerance_trans_, tolerance_rot_;$/;"	m	class:pose_follower::HectorPathFollower
+trans_stopped_velocity_	hector_path_follower/include/hector_path_follower/hector_path_follower.h	/^      double trans_stopped_velocity_, rot_stopped_velocity_;$/;"	m	class:pose_follower::HectorPathFollower
+transformGlobalPlan	hector_path_follower/src/hector_path_follower.cpp	/^  bool HectorPathFollower::transformGlobalPlan(const tf::TransformListener& tf, const std::vector<geometry_msgs::PoseStamped>& global_plan,$/;"	f	class:pose_follower::HectorPathFollower
+translation	hector_gps_calibration/include/hector_gps_calibration/transform_delta_cost_functor.h	/^    const Vector& translation() const { return translation_; }$/;"	f	class:Rigid3
+translation_	hector_gps_calibration/include/hector_gps_calibration/hector_gps_calibration.h	/^  std::array<double, 2> translation_;$/;"	m	class:GPSCalibration
+translation_	hector_gps_calibration/include/hector_gps_calibration/transform_delta_cost_functor.h	/^    Vector translation_;$/;"	m	class:Rigid3
+up	hector_exploration_planner/src/hector_exploration_planner.cpp	/^inline int HectorExplorationPlanner::up(int point){$/;"	f	class:HectorExplorationPlanner
+updateMapParamsCallback	hector_costmap/src/hector_costmap.cpp	/^void CostMapCalculation::updateMapParamsCallback(const nav_msgs::MapMetaData& map_meta_data)$/;"	f	class:CostMapCalculation
+updateParamsCallback	hector_elevation_mapping/src/hector_elevation_mapping.cpp	/^void ElevationMapping::updateParamsCallback(const nav_msgs::MapMetaData& map_meta_data)$/;"	f	class:hector_elevation_mapping::ElevationMapping
+update_radius_world	hector_costmap/include/hector_costmap/hector_costmap.h	/^    double update_radius_world, initial_free_cells_radius;$/;"	m	class:CostMapCalculation
+upleft	hector_exploration_planner/src/hector_exploration_planner.cpp	/^inline int HectorExplorationPlanner::upleft(int point){$/;"	f	class:HectorExplorationPlanner
+upright	hector_exploration_planner/src/hector_exploration_planner.cpp	/^inline int HectorExplorationPlanner::upright(int point){$/;"	f	class:HectorExplorationPlanner
+use_cloud_map	hector_costmap/include/hector_costmap/hector_costmap.h	/^    bool use_elevation_map, use_grid_map, use_cloud_map, received_grid_map, received_elevation_map, received_point_cloud, allow_elevation_map_to_clear_occupied_cells;$/;"	m	class:CostMapCalculation
+use_color_map	hector_elevation_visualization/include/hector_elevation_visualization/hector_elevation_visualization.h	/^    bool use_color_map;$/;"	m	class:ElevationVisualization
+use_elevation_map	hector_costmap/include/hector_costmap/hector_costmap.h	/^    bool use_elevation_map, use_grid_map, use_cloud_map, received_grid_map, received_elevation_map, received_point_cloud, allow_elevation_map_to_clear_occupied_cells;$/;"	m	class:CostMapCalculation
+use_grid_map	hector_costmap/include/hector_costmap/hector_costmap.h	/^    bool use_elevation_map, use_grid_map, use_cloud_map, received_grid_map, received_elevation_map, received_point_cloud, allow_elevation_map_to_clear_occupied_cells;$/;"	m	class:CostMapCalculation
+vel_pub_	hector_exploration_controller/src/simple_exploration_controller.cpp	/^  ros::Publisher vel_pub_;$/;"	m	class:SimpleExplorationController	file:
+vis_	hector_exploration_planner/include/hector_exploration_planner/hector_exploration_planner.h	/^  boost::shared_ptr<ExplorationTransformVis> vis_;$/;"	m	class:hector_exploration_planner::HectorExplorationPlanner
+visualization_pub_	hector_exploration_planner/include/hector_exploration_planner/hector_exploration_planner.h	/^  ros::Publisher visualization_pub_;$/;"	m	class:hector_exploration_planner::HectorExplorationPlanner
+visualize_map	hector_elevation_visualization/src/hector_elevation_visualization.cpp	/^void ElevationVisualization::visualize_map(const hector_elevation_msgs::ElevationGrid& elevation_map, tf::StampedTransform local_map_transform)$/;"	f	class:ElevationVisualization
+wall_timers_	hector_gps_calibration/include/hector_gps_calibration/hector_gps_calibration.h	/^  std::vector<ros::WallTimer> wall_timers_;$/;"	m	class:GPSCalibration
+world_map_transform	hector_costmap/include/hector_costmap/hector_costmap.h	/^    HectorMapTools::CoordinateTransformer<float> world_map_transform;$/;"	m	class:CostMapCalculation
+world_map_transform	hector_elevation_mapping/include/hector_elevation_mapping/hector_elevation_mapping.h	/^    HectorMapTools::CoordinateTransformer<float> world_map_transform;$/;"	m	class:hector_elevation_mapping::ElevationMapping
+world_map_transform	hector_elevation_visualization/include/hector_elevation_visualization/hector_elevation_visualization.h	/^    HectorMapTools::CoordinateTransformer<float> world_map_transform;$/;"	m	class:ElevationVisualization
+world_poses_	hector_gps_calibration/include/hector_gps_calibration/hector_gps_calibration.h	/^  std::vector< Eigen::Matrix<double, 2, 1> > world_poses_;$/;"	m	class:GPSCalibration
+write_debug_file_	hector_gps_calibration/include/hector_gps_calibration/hector_gps_calibration.h	/^  bool write_debug_file_;$/;"	m	class:GPSCalibration
+~CostMapCalculation	hector_costmap/src/hector_costmap.cpp	/^CostMapCalculation::~CostMapCalculation()$/;"	f	class:CostMapCalculation
+~DrivingAidMarker	hector_driving_aid_markers/src/driving_aid_marker_node.cpp	/^  ~DrivingAidMarker()$/;"	f	class:DrivingAidMarker
+~ElevationMapping	hector_elevation_mapping/src/hector_elevation_mapping.cpp	/^ElevationMapping::~ElevationMapping()$/;"	f	class:hector_elevation_mapping::ElevationMapping
+~ElevationVisualization	hector_elevation_visualization/src/hector_elevation_visualization.cpp	/^ElevationVisualization::~ElevationVisualization()$/;"	f	class:ElevationVisualization
+~ExplorationTransformVis	hector_exploration_planner/include/hector_exploration_planner/exploration_transform_vis.h	/^    virtual ~ExplorationTransformVis()$/;"	f	class:hector_exploration_planner::ExplorationTransformVis
+~HectorExplorationBaseGlobalPlannerPlugin	hector_exploration_planner/src/hector_exploration_base_global_planner_plugin.cpp	/^HectorExplorationBaseGlobalPlannerPlugin::~HectorExplorationBaseGlobalPlannerPlugin()$/;"	f	class:HectorExplorationBaseGlobalPlannerPlugin
+~HectorExplorationPlanner	hector_exploration_planner/src/hector_exploration_planner.cpp	/^HectorExplorationPlanner::~HectorExplorationPlanner(){$/;"	f	class:HectorExplorationPlanner

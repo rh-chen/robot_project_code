@@ -1169,7 +1169,7 @@ bool HectorExplorationPlanner::findFrontiersCloseToPath(std::vector<geometry_msg
 
           if(current_val < UINT_MAX){
 
-            if (current_val >= explore_threshold){ //&& current_val <= explore_threshold+ DIAGONAL_COST){
+            if (current_val >= explore_threshold){
               geometry_msgs::PoseStamped finalFrontier;
               double wx,wy;
               unsigned int mx,my;
@@ -1183,7 +1183,6 @@ bool HectorExplorationPlanner::findFrontiersCloseToPath(std::vector<geometry_msg
 
               double yaw = getYawToUnknown(costmap_->getIndex(mx,my));
 
-              //if(frontier_is_valid){
 
               finalFrontier.pose.orientation = tf::createQuaternionMsgFromYaw(yaw);
 
@@ -1233,13 +1232,11 @@ bool HectorExplorationPlanner::findFrontiersCloseToPath(std::vector<geometry_msg
 
       double yaw = getYawToUnknown(costmap_->getIndex(mx,my));
 
-      //if(frontier_is_valid){
 
       finalFrontier.pose.orientation = tf::createQuaternionMsgFromYaw(yaw);
 
       frontiers.push_back(finalFrontier);
     }
-    //}
   }
 
   return (frontiers.size() > 0);
