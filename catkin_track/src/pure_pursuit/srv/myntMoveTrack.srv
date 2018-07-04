@@ -1,0 +1,5 @@
+geometry_msgs/PoseStamped goal
+---
+int64 err_no
+
+string err_msg

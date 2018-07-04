@@ -1,0 +1,16 @@
+<launch>
+
+  <!-- Launch the map server -->
+  <node pkg="map_server" type="map_server" name="map_server"
+        args="$(find lattice_navigation_demos)/maps/empty.yaml"/>
+
+  <!-- Launch the dummy robot -->
+  <node pkg="tf" type="static_transform_publisher" name="link0_broadcaster" args="0 0 0 0 0 0 map odom 100" />
+
+  <include file="$(find turtlebot_bringup)/launch/minimal.launch">
+  </include>
+
+  <node name="path_pub" pkg="multi_sensor" type="path_pub" />
+  <node name="pure_pursuit" pkg="pure_pursuit" type="pure_pursuit" output="screen"/>
+
+</launch>
