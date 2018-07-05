@@ -1,0 +1,270 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.9~svn20110310	//
+AGVS_DEFAULT_KR	robotnik_pp_planner/src/purepursuit_planner.cpp	57;"	d	file:
+AGVS_FIRST_DECELERATION_DISTANCE	robotnik_pp_planner/src/purepursuit_planner.cpp	53;"	d	file:
+AGVS_FIRST_DECELERATION_MAXSPEED	robotnik_pp_planner/src/purepursuit_planner.cpp	54;"	d	file:
+AGVS_SECOND_DECELERATION_DISTANCE	robotnik_pp_planner/src/purepursuit_planner.cpp	55;"	d	file:
+AGVS_SECOND_DECELERATION_MAXSPEED	robotnik_pp_planner/src/purepursuit_planner.cpp	56;"	d	file:
+AGVS_TURN_RADIUS	robotnik_pp_planner/src/purepursuit_planner.cpp	39;"	d	file:
+AddMagnet	robotnik_pp_planner/src/purepursuit_planner.cpp	/^	ReturnValue AddMagnet(MagnetStruct magnet){$/;"	f	class:Path
+AddMagnet	robotnik_pp_planner/src/purepursuit_planner.cpp	/^	ReturnValue AddMagnet(vector <MagnetStruct> po){$/;"	f	class:Path
+AddWaypoint	robotnik_pp_planner/src/purepursuit_planner.cpp	/^	ReturnValue AddWaypoint(Waypoint point){$/;"	f	class:Path
+AddWaypoint	robotnik_pp_planner/src/purepursuit_planner.cpp	/^	ReturnValue AddWaypoint(vector <Waypoint> po){$/;"	f	class:Path
+AllState	robotnik_pp_planner/src/Component.cc	/^void Component::AllState(){$/;"	f	class:Component
+AllState	robotnik_pp_planner/src/purepursuit_planner.cpp	/^	void AllState(){$/;"	f	class:purepursuit_planner_node
+Allocate	robotnik_pp_planner/src/Component.cc	/^ReturnValue Component::Allocate(){$/;"	f	class:Component
+AnalyseCB	robotnik_pp_planner/src/purepursuit_planner.cpp	/^	void AnalyseCB(){$/;"	f	class:purepursuit_planner_node
+AuxControlThread	robotnik_pp_planner/src/Component.cc	/^void *AuxControlThread(void *threadParam){$/;"	f
+BEZIER_CONTROL_POINTS	robotnik_pp_planner/src/purepursuit_planner.cpp	41;"	d	file:
+BackMagnet	robotnik_pp_planner/src/purepursuit_planner.cpp	/^	ReturnValue BackMagnet(MagnetStruct * mg){$/;"	f	class:Path
+BackWaypoint	robotnik_pp_planner/src/purepursuit_planner.cpp	/^	ReturnValue BackWaypoint(Waypoint *wp){$/;"	f	class:Path
+COMMAND_ACKERMANN	robotnik_pp_planner/src/purepursuit_planner.cpp	60;"	d	file:
+COMMAND_ACKERMANN_STRING	robotnik_pp_planner/src/purepursuit_planner.cpp	62;"	d	file:
+COMMAND_TWIST	robotnik_pp_planner/src/purepursuit_planner.cpp	61;"	d	file:
+COMMAND_TWIST_STRING	robotnik_pp_planner/src/purepursuit_planner.cpp	63;"	d	file:
+COM_ERROR	robotnik_pp_planner/include/robotnik_pp_planner/Component.h	/^        COM_ERROR = -4,$/;"	e	enum:ReturnValue
+CalculateDirectionSpeed	robotnik_pp_planner/src/purepursuit_planner.cpp	/^	int CalculateDirectionSpeed(Waypoint target_position){$/;"	f	class:purepursuit_planner_node
+CalculateDirectionSpeed	robotnik_pp_planner/src/purepursuit_planner.cpp	/^	int CalculateDirectionSpeed(geometry_msgs::Pose2D target_position){$/;"	f	class:purepursuit_planner_node
+CancelPath	robotnik_pp_planner/src/purepursuit_planner.cpp	/^	void CancelPath(){$/;"	f	class:purepursuit_planner_node
+CheckOdomReceive	robotnik_pp_planner/src/purepursuit_planner.cpp	/^	int CheckOdomReceive()$/;"	f	class:purepursuit_planner_node
+Clear	robotnik_pp_planner/src/purepursuit_planner.cpp	/^	void Clear(){$/;"	f	class:Path
+Close	robotnik_pp_planner/src/Component.cc	/^ReturnValue Component::Close(){$/;"	f	class:Component
+Component	robotnik_pp_planner/include/robotnik_pp_planner/Component.h	/^class Component{$/;"	c
+Component	robotnik_pp_planner/src/Component.cc	/^Component::Component(double desired_hz){$/;"	f	class:Component
+Configure	robotnik_pp_planner/src/Component.cc	/^ReturnValue Component::Configure(){$/;"	f	class:Component
+ControlThread	robotnik_pp_planner/src/Component.cc	/^void Component::ControlThread(){$/;"	f	class:Component
+ControlThread	robotnik_pp_planner/src/purepursuit_planner.cpp	/^	void ControlThread()$/;"	f	class:purepursuit_planner_node
+CreateInterpolatedWaypoint	robotnik_pp_planner/src/purepursuit_planner.cpp	/^	ReturnValue CreateInterpolatedWaypoint(geometry_msgs::Pose2D pose){$/;"	f	class:Path
+CreateTask	robotnik_pp_planner/src/Component.cc	/^ReturnValue Component::CreateTask(int prio, double frec, void *(*start_routine)(void*)){$/;"	f	class:Component
+DEFAULT_THREAD_DESIRED_HZ	robotnik_pp_planner/include/robotnik_pp_planner/Component.h	25;"	d
+DEFAULT_THREAD_PRIORITY	robotnik_pp_planner/include/robotnik_pp_planner/Component.h	26;"	d
+D_LOOKAHEAD_MAX	robotnik_pp_planner/src/purepursuit_planner.cpp	44;"	d	file:
+D_LOOKAHEAD_MIN	robotnik_pp_planner/src/purepursuit_planner.cpp	43;"	d	file:
+D_WHEEL_ROBOT_CENTER	robotnik_pp_planner/src/purepursuit_planner.cpp	45;"	d	file:
+Dist	robotnik_pp_planner/src/purepursuit_planner.cpp	/^	double Dist(double x1, double y1, double x2, double y2) {$/;"	f	class:purepursuit_planner_node
+DistForSpeed	robotnik_pp_planner/src/purepursuit_planner.cpp	/^	double DistForSpeed(double target_speed){$/;"	f	class:Path
+DistP2S	robotnik_pp_planner/src/purepursuit_planner.cpp	/^	double DistP2S( geometry_msgs::Pose2D current_position, Waypoint s0, Waypoint s1, Waypoint *Pb){$/;"	f	class:purepursuit_planner_node
+Dot2	robotnik_pp_planner/src/purepursuit_planner.cpp	/^	double Dot2( double x1, double y1, double x2, double y2) {$/;"	f	class:purepursuit_planner_node
+EMERGENCY_STATE	robotnik_pp_planner/include/robotnik_pp_planner/Component.h	/^        EMERGENCY_STATE,$/;"	e	enum:States
+ERROR	robotnik_pp_planner/include/robotnik_pp_planner/Component.h	/^        ERROR = -1,$/;"	e	enum:ReturnValue
+EmergencyState	robotnik_pp_planner/src/Component.cc	/^void Component::EmergencyState(){$/;"	f	class:Component
+EmergencyState	robotnik_pp_planner/src/purepursuit_planner.cpp	/^	void EmergencyState(){$/;"	f	class:purepursuit_planner_node
+FAILURE_STATE	robotnik_pp_planner/include/robotnik_pp_planner/Component.h	/^        FAILURE_STATE,$/;"	e	enum:States
+FailureState	robotnik_pp_planner/src/Component.cc	/^void Component::FailureState(){$/;"	f	class:Component
+FailureState	robotnik_pp_planner/src/purepursuit_planner.cpp	/^	void FailureState(){$/;"	f	class:purepursuit_planner_node
+Free	robotnik_pp_planner/src/Component.cc	/^ReturnValue Component::Free(){$/;"	f	class:Component
+GetCurrentMagnet	robotnik_pp_planner/src/purepursuit_planner.cpp	/^	ReturnValue GetCurrentMagnet( MagnetStruct * mg ){$/;"	f	class:Path
+GetCurrentMagnetIndex	robotnik_pp_planner/src/purepursuit_planner.cpp	/^	int GetCurrentMagnetIndex(){$/;"	f	class:Path
+GetCurrentWaypoint	robotnik_pp_planner/src/purepursuit_planner.cpp	/^	ReturnValue GetCurrentWaypoint(Waypoint *wp){$/;"	f	class:Path
+GetCurrentWaypointIndex	robotnik_pp_planner/src/purepursuit_planner.cpp	/^	int GetCurrentWaypointIndex(){$/;"	f	class:Path
+GetLastMagnet	robotnik_pp_planner/src/purepursuit_planner.cpp	/^	ReturnValue GetLastMagnet( MagnetStruct * mg ){$/;"	f	class:Path
+GetNextMagnet	robotnik_pp_planner/src/purepursuit_planner.cpp	/^	ReturnValue GetNextMagnet(MagnetStruct *mg){$/;"	f	class:Path
+GetNextWaypoint	robotnik_pp_planner/src/purepursuit_planner.cpp	/^	ReturnValue GetNextWaypoint(Waypoint *wp){$/;"	f	class:Path
+GetPreviousMagnet	robotnik_pp_planner/src/purepursuit_planner.cpp	/^	ReturnValue GetPreviousMagnet( MagnetStruct * mg ){$/;"	f	class:Path
+GetState	robotnik_pp_planner/src/Component.cc	/^States Component::GetState(){$/;"	f	class:Component
+GetStateString	robotnik_pp_planner/src/Component.cc	/^char *Component::GetStateString(){$/;"	f	class:Component
+GetStateString	robotnik_pp_planner/src/Component.cc	/^char *Component::GetStateString(States state){$/;"	f	class:Component
+GetThreadData	robotnik_pp_planner/src/Component.cc	/^ReturnValue Component::GetThreadData(thread_data *data){$/;"	f	class:Component
+GetUpdateRate	robotnik_pp_planner/src/Component.cc	/^double Component::GetUpdateRate(){$/;"	f	class:Component
+GetWaypoint	robotnik_pp_planner/src/purepursuit_planner.cpp	/^	ReturnValue GetWaypoint(int index, Waypoint *wp){$/;"	f	class:Path
+GoalCB	robotnik_pp_planner/src/purepursuit_planner.cpp	/^	void GoalCB()$/;"	f	class:purepursuit_planner_node
+INITIALIZED	robotnik_pp_planner/include/robotnik_pp_planner/Component.h	/^        INITIALIZED,$/;"	e	enum:ReturnValue
+INIT_STATE	robotnik_pp_planner/include/robotnik_pp_planner/Component.h	/^        INIT_STATE,$/;"	e	enum:States
+InitState	robotnik_pp_planner/src/Component.cc	/^void Component::InitState(){$/;"	f	class:Component
+InitState	robotnik_pp_planner/src/purepursuit_planner.cpp	/^	void InitState(){$/;"	f	class:purepursuit_planner_node
+Kr	robotnik_pp_planner/src/purepursuit_planner.cpp	/^	double Kr;$/;"	m	class:purepursuit_planner_node	file:
+MAP_SOURCE	robotnik_pp_planner/src/purepursuit_planner.cpp	/^	MAP_SOURCE = 2$/;"	e	enum:__anon1	file:
+MAP_TIMEOUT_ERROR	robotnik_pp_planner/src/purepursuit_planner.cpp	38;"	d	file:
+MAX_SPEED	robotnik_pp_planner/src/purepursuit_planner.cpp	49;"	d	file:
+MAX_SPEED_LVL1	robotnik_pp_planner/src/purepursuit_planner.cpp	47;"	d	file:
+MAX_SPEED_LVL2	robotnik_pp_planner/src/purepursuit_planner.cpp	48;"	d	file:
+MIN_ANGLE_BEZIER	robotnik_pp_planner/src/purepursuit_planner.cpp	40;"	d	file:
+MagnetStruct	robotnik_pp_planner/src/purepursuit_planner.cpp	/^typedef struct MagnetStruct{$/;"	s	file:
+MagnetStruct	robotnik_pp_planner/src/purepursuit_planner.cpp	/^}MagnetStruct;$/;"	t	typeref:struct:MagnetStruct	file:
+MergePath	robotnik_pp_planner/src/purepursuit_planner.cpp	/^	ReturnValue MergePath(){$/;"	f	class:purepursuit_planner_node
+NOT_ERROR	robotnik_pp_planner/include/robotnik_pp_planner/Component.h	/^        NOT_ERROR = -5$/;"	e	enum:ReturnValue
+NOT_INITIALIZED	robotnik_pp_planner/include/robotnik_pp_planner/Component.h	/^        NOT_INITIALIZED = -2,$/;"	e	enum:ReturnValue
+NSEC_PER_SEC	robotnik_pp_planner/include/robotnik_pp_planner/Component.h	29;"	d
+NextMagnet	robotnik_pp_planner/src/purepursuit_planner.cpp	/^	void NextMagnet(){$/;"	f	class:Path
+NextWaypoint	robotnik_pp_planner/src/purepursuit_planner.cpp	/^	void NextWaypoint(){$/;"	f	class:Path
+NumOfMagnets	robotnik_pp_planner/src/purepursuit_planner.cpp	/^	int NumOfMagnets(){$/;"	f	class:Path
+NumOfWaypoints	robotnik_pp_planner/src/purepursuit_planner.cpp	/^	int NumOfWaypoints(){$/;"	f	class:Path
+ODOM_SOURCE	robotnik_pp_planner/src/purepursuit_planner.cpp	/^	ODOM_SOURCE = 1,$/;"	e	enum:__anon1	file:
+ODOM_TIMEOUT_ERROR	robotnik_pp_planner/src/purepursuit_planner.cpp	37;"	d	file:
+OK	robotnik_pp_planner/include/robotnik_pp_planner/Component.h	/^        OK = 0,$/;"	e	enum:ReturnValue
+OdomCallback	robotnik_pp_planner/src/purepursuit_planner.cpp	/^	void OdomCallback(const nav_msgs::Odometry::ConstPtr& odom_value)$/;"	f	class:purepursuit_planner_node
+Open	robotnik_pp_planner/src/Component.cc	/^ReturnValue Component::Open(){$/;"	f	class:Component
+Optimize	robotnik_pp_planner/src/purepursuit_planner.cpp	/^	ReturnValue Optimize(double distance){$/;"	f	class:Path
+Path	robotnik_pp_planner/src/purepursuit_planner.cpp	/^	Path(){$/;"	f	class:Path
+Path	robotnik_pp_planner/src/purepursuit_planner.cpp	/^class Path{$/;"	c	file:
+Pi	robotnik_pp_planner/include/robotnik_pp_planner/Component.h	30;"	d
+PointDlh	robotnik_pp_planner/src/purepursuit_planner.cpp	/^	ReturnValue PointDlh(geometry_msgs::Pose2D current_position, geometry_msgs::Pose2D *wp) {$/;"	f	class:purepursuit_planner_node
+PointPath	robotnik_pp_planner/scripts/purepursuit_planner/path_marker.py	/^class PointPath(InteractiveMarker):$/;"	c
+PointPathManager	robotnik_pp_planner/scripts/purepursuit_planner/path_marker.py	/^class PointPathManager(InteractiveMarkerServer):$/;"	c
+PosOnQuadraticBezier	robotnik_pp_planner/src/purepursuit_planner.cpp	/^	Waypoint PosOnQuadraticBezier(Waypoint cp0, Waypoint cp1, Waypoint cp2, float t){$/;"	f	class:Path
+PreemptCB	robotnik_pp_planner/src/purepursuit_planner.cpp	/^	void PreemptCB()$/;"	f	class:purepursuit_planner_node
+Print	robotnik_pp_planner/src/purepursuit_planner.cpp	/^	void Print(){$/;"	f	class:Path
+PurePursuit	robotnik_pp_planner/src/purepursuit_planner.cpp	/^	int PurePursuit(){$/;"	f	class:purepursuit_planner_node
+PurepursuitClient	robotnik_pp_planner/scripts/purepursuit_planner/path_marker.py	/^class PurepursuitClient():$/;"	c
+READY_STATE	robotnik_pp_planner/include/robotnik_pp_planner/Component.h	/^        READY_STATE,$/;"	e	enum:States
+ROSSetup	robotnik_pp_planner/src/purepursuit_planner.cpp	/^	void ROSSetup(){$/;"	f	class:purepursuit_planner_node
+ReadAndPublish	robotnik_pp_planner/src/purepursuit_planner.cpp	/^	int ReadAndPublish()$/;"	f	class:purepursuit_planner_node
+ReadyState	robotnik_pp_planner/src/Component.cc	/^void Component::ReadyState(){$/;"	f	class:Component
+ReadyState	robotnik_pp_planner/src/purepursuit_planner.cpp	/^	void ReadyState(){$/;"	f	class:purepursuit_planner_node
+ReturnValue	robotnik_pp_planner/include/robotnik_pp_planner/Component.h	/^enum ReturnValue{$/;"	g
+SHUTDOWN_STATE	robotnik_pp_planner/include/robotnik_pp_planner/Component.h	/^        SHUTDOWN_STATE,$/;"	e	enum:States
+STANDBY_STATE	robotnik_pp_planner/include/robotnik_pp_planner/Component.h	/^        STANDBY_STATE,$/;"	e	enum:States
+SetCurrentMagnet	robotnik_pp_planner/src/purepursuit_planner.cpp	/^	ReturnValue SetCurrentMagnet(int index){$/;"	f	class:Path
+SetCurrentWaypoint	robotnik_pp_planner/src/purepursuit_planner.cpp	/^	ReturnValue SetCurrentWaypoint(int index){$/;"	f	class:Path
+SetLaserBack	robotnik_pp_planner/src/purepursuit_planner.cpp	/^	bool SetLaserBack(){$/;"	f	class:purepursuit_planner_node
+SetLaserFront	robotnik_pp_planner/src/purepursuit_planner.cpp	/^	bool SetLaserFront(){$/;"	f	class:purepursuit_planner_node
+SetRobotSpeed	robotnik_pp_planner/src/purepursuit_planner.cpp	/^	void SetRobotSpeed(double speed, double angle){$/;"	f	class:purepursuit_planner_node
+Setup	robotnik_pp_planner/src/Component.cc	/^ReturnValue Component::Setup(){$/;"	f	class:Component
+Setup	robotnik_pp_planner/src/purepursuit_planner.cpp	/^	ReturnValue Setup(){$/;"	f	class:purepursuit_planner_node
+ShutDown	robotnik_pp_planner/src/Component.cc	/^ReturnValue Component::ShutDown(){$/;"	f	class:Component
+ShutDownState	robotnik_pp_planner/src/purepursuit_planner.cpp	/^	void ShutDownState(){$/;"	f	class:purepursuit_planner_node
+Size	robotnik_pp_planner/src/purepursuit_planner.cpp	/^	unsigned int Size(){$/;"	f	class:Path
+StandbyState	robotnik_pp_planner/src/Component.cc	/^void Component::StandbyState(){$/;"	f	class:Component
+StandbyState	robotnik_pp_planner/src/purepursuit_planner.cpp	/^	void StandbyState(){$/;"	f	class:purepursuit_planner_node
+Start	robotnik_pp_planner/src/Component.cc	/^ReturnValue Component::Start(){$/;"	f	class:Component
+Start	robotnik_pp_planner/src/purepursuit_planner.cpp	/^	ReturnValue Start(){$/;"	f	class:purepursuit_planner_node
+States	robotnik_pp_planner/include/robotnik_pp_planner/Component.h	/^enum States{$/;"	g
+Stop	robotnik_pp_planner/src/Component.cc	/^ReturnValue Component::Stop(){$/;"	f	class:Component
+Stop	robotnik_pp_planner/src/purepursuit_planner.cpp	/^	ReturnValue Stop(){$/;"	f	class:purepursuit_planner_node
+SwitchToState	robotnik_pp_planner/src/Component.cc	/^void Component::SwitchToState(States new_state){$/;"	f	class:Component
+THREAD_NOT_RUNNING	robotnik_pp_planner/include/robotnik_pp_planner/Component.h	/^        THREAD_NOT_RUNNING = -3,$/;"	e	enum:ReturnValue
+THREAD_RUNNING	robotnik_pp_planner/include/robotnik_pp_planner/Component.h	/^        THREAD_RUNNING,$/;"	e	enum:ReturnValue
+UNKNOWN_STATE	robotnik_pp_planner/include/robotnik_pp_planner/Component.h	/^        UNKNOWN_STATE$/;"	e	enum:States
+USEC_PER_SEC	robotnik_pp_planner/include/robotnik_pp_planner/Component.h	28;"	d
+UpdateLookAhead	robotnik_pp_planner/src/purepursuit_planner.cpp	/^	void UpdateLookAhead(){$/;"	f	class:purepursuit_planner_node
+WAYPOINT_POP_DISTANCE_M	robotnik_pp_planner/src/purepursuit_planner.cpp	51;"	d	file:
+Waypoint	robotnik_pp_planner/src/purepursuit_planner.cpp	/^typedef struct Waypoint{$/;"	s	file:
+Waypoint	robotnik_pp_planner/src/purepursuit_planner.cpp	/^}Waypoint;$/;"	t	typeref:struct:Waypoint	file:
+__COMPONENT_H	robotnik_pp_planner/include/robotnik_pp_planner/Component.h	13;"	d
+__init__	robotnik_pp_planner/scripts/purepursuit_planner/path_marker.py	/^	def __init__(self, frame_id, name, description, is_manager = False, speed = 0.2):$/;"	m	class:PointPath
+__init__	robotnik_pp_planner/scripts/purepursuit_planner/path_marker.py	/^	def __init__(self, name, frame_id, planner):$/;"	m	class:PointPathManager
+__init__	robotnik_pp_planner/scripts/purepursuit_planner/path_marker.py	/^	def __init__(self, planner_name):$/;"	m	class:PurepursuitClient
+_name	robotnik_pp_planner/scripts/purepursuit_planner/path_marker.py	/^	_name = rospy.get_name().replace('\/','')$/;"	v
+action_server_goto	robotnik_pp_planner/src/purepursuit_planner.cpp	/^	actionlib::SimpleActionServer<robotnik_pp_msgs::GoToAction> action_server_goto;$/;"	m	class:purepursuit_planner_node	file:
+arg_defaults	robotnik_pp_planner/scripts/purepursuit_planner/path_marker.py	/^	arg_defaults = {$/;"	v
+args	robotnik_pp_planner/scripts/purepursuit_planner/path_marker.py	/^	args = {}$/;"	v
+bCancel	robotnik_pp_planner/src/purepursuit_planner.cpp	/^    bool bCancel;$/;"	m	class:purepursuit_planner_node	file:
+bEnabled	robotnik_pp_planner/src/purepursuit_planner.cpp	/^    bool bEnabled;$/;"	m	class:purepursuit_planner_node	file:
+bInitialized	robotnik_pp_planner/include/robotnik_pp_planner/Component.h	/^		bool bInitialized;$/;"	m	class:Component
+bOptimized	robotnik_pp_planner/src/purepursuit_planner.cpp	/^	bool bOptimized;$/;"	m	class:Path	file:
+bRunning	robotnik_pp_planner/include/robotnik_pp_planner/Component.h	/^		bool bRunning;$/;"	m	class:Component
+calcdiff	robotnik_pp_planner/include/robotnik_pp_planner/Component.h	/^static inline long calcdiff(struct timespec t1, struct timespec t2)$/;"	f
+cancel	robotnik_pp_planner/scripts/purepursuit_planner/path_marker.py	/^	def cancel(self):		$/;"	m	class:PurepursuitClient
+cancelService	robotnik_pp_planner/scripts/purepursuit_planner/path_marker.py	/^	def cancelService(self, param):$/;"	m	class:PointPathManager
+clock	robotnik_pp_planner/include/robotnik_pp_planner/Component.h	/^	int clock;  		\/\/ CLOCK_MONOTONIC or CLOCK_REALTIME$/;"	m	struct:thread_param
+cmd_topic_vel_	robotnik_pp_planner/src/purepursuit_planner.cpp	/^	std::string cmd_topic_vel_;$/;"	m	class:purepursuit_planner_node	file:
+command_type	robotnik_pp_planner/src/purepursuit_planner.cpp	/^    int command_type;$/;"	m	class:purepursuit_planner_node	file:
+convertListOfPointPathIntoGoal	robotnik_pp_planner/scripts/purepursuit_planner/path_marker.py	/^	def convertListOfPointPathIntoGoal(self, inverse = False):$/;"	m	class:PointPathManager
+createNewPoint	robotnik_pp_planner/scripts/purepursuit_planner/path_marker.py	/^	def createNewPoint(self, speed = 0.2):$/;"	m	class:PointPathManager
+dA	robotnik_pp_planner/src/purepursuit_planner.cpp	/^    double dA;$/;"	m	struct:Waypoint	file:
+dDesiredHz	robotnik_pp_planner/include/robotnik_pp_planner/Component.h	/^    double dDesiredHz;$/;"	m	struct:thread_data
+dLinearSpeed	robotnik_pp_planner/src/purepursuit_planner.cpp	/^    double dLinearSpeed;$/;"	m	class:purepursuit_planner_node	file:
+dLookAhead	robotnik_pp_planner/src/purepursuit_planner.cpp	/^    double dLookAhead;$/;"	m	class:purepursuit_planner_node	file:
+dRealHz	robotnik_pp_planner/include/robotnik_pp_planner/Component.h	/^    double dRealHz;$/;"	m	struct:thread_data
+dSpeed	robotnik_pp_planner/src/purepursuit_planner.cpp	/^    double dSpeed;$/;"	m	struct:Waypoint	file:
+dX	robotnik_pp_planner/src/purepursuit_planner.cpp	/^    double dX;$/;"	m	struct:MagnetStruct	file:
+dX	robotnik_pp_planner/src/purepursuit_planner.cpp	/^    double dX;$/;"	m	struct:Waypoint	file:
+dY	robotnik_pp_planner/src/purepursuit_planner.cpp	/^    double dY;$/;"	m	struct:MagnetStruct	file:
+dY	robotnik_pp_planner/src/purepursuit_planner.cpp	/^    double dY;$/;"	m	struct:Waypoint	file:
+d_dist_wheel_to_center_	robotnik_pp_planner/src/purepursuit_planner.cpp	/^    double d_dist_wheel_to_center_;$/;"	m	class:purepursuit_planner_node	file:
+d_lookahear_max_	robotnik_pp_planner/src/purepursuit_planner.cpp	/^    double d_lookahear_min_, d_lookahear_max_;$/;"	m	class:purepursuit_planner_node	file:
+d_lookahear_min_	robotnik_pp_planner/src/purepursuit_planner.cpp	/^    double d_lookahear_min_, d_lookahear_max_;$/;"	m	class:purepursuit_planner_node	file:
+deleteAllPoints	robotnik_pp_planner/scripts/purepursuit_planner/path_marker.py	/^	def deleteAllPoints(self):$/;"	m	class:PointPathManager
+deleteAllPointsCB	robotnik_pp_planner/scripts/purepursuit_planner/path_marker.py	/^	def deleteAllPointsCB(self, feedback):$/;"	m	class:PointPathManager
+deletePointCB	robotnik_pp_planner/scripts/purepursuit_planner/path_marker.py	/^	def deletePointCB(self, feedback):$/;"	m	class:PointPathManager
+desired_freq_	robotnik_pp_planner/src/purepursuit_planner.cpp	/^	double desired_freq_;$/;"	m	class:purepursuit_planner_node	file:
+direction	robotnik_pp_planner/src/purepursuit_planner.cpp	/^    int direction;$/;"	m	class:purepursuit_planner_node	file:
+dot2	robotnik_pp_planner/src/purepursuit_planner.cpp	/^	double dot2( Waypoint w, Waypoint v) {$/;"	f	class:Path
+executeCB	robotnik_pp_planner/src/purepursuit_planner.cpp	/^	void executeCB(const robotnik_pp_msgs::GoToGoalConstPtr &goal)$/;"	f	class:purepursuit_planner_node
+getResult	robotnik_pp_planner/scripts/purepursuit_planner/path_marker.py	/^	def getResult(self):$/;"	m	class:PurepursuitClient
+getState	robotnik_pp_planner/scripts/purepursuit_planner/path_marker.py	/^	def getState(self):$/;"	m	class:PurepursuitClient
+goBackService	robotnik_pp_planner/scripts/purepursuit_planner/path_marker.py	/^	def goBackService(self, param):$/;"	m	class:PointPathManager
+goService	robotnik_pp_planner/scripts/purepursuit_planner/path_marker.py	/^	def goService(self, param):$/;"	m	class:PointPathManager
+goTo	robotnik_pp_planner/scripts/purepursuit_planner/path_marker.py	/^	def goTo(self, goal_list):$/;"	m	class:PurepursuitClient
+goto_feedback	robotnik_pp_planner/src/purepursuit_planner.cpp	/^	robotnik_pp_msgs::GoToFeedback goto_feedback;$/;"	m	class:purepursuit_planner_node	file:
+goto_goal	robotnik_pp_planner/src/purepursuit_planner.cpp	/^	robotnik_pp_msgs::GoToGoal goto_goal;$/;"	m	class:purepursuit_planner_node	file:
+goto_result	robotnik_pp_planner/src/purepursuit_planner.cpp	/^	robotnik_pp_msgs::GoToResult goto_result;$/;"	m	class:purepursuit_planner_node	file:
+iCurrentMagnet	robotnik_pp_planner/src/purepursuit_planner.cpp	/^	int iCurrentMagnet;$/;"	m	class:Path	file:
+iCurrentWaypoint	robotnik_pp_planner/src/purepursuit_planner.cpp	/^	int iCurrentWaypoint;$/;"	m	class:Path	file:
+iID	robotnik_pp_planner/src/purepursuit_planner.cpp	/^    int iID;$/;"	m	struct:MagnetStruct	file:
+iID	robotnik_pp_planner/src/purepursuit_planner.cpp	/^    int iID;$/;"	m	struct:Waypoint	file:
+iOldState	robotnik_pp_planner/include/robotnik_pp_planner/Component.h	/^		States iOldState;$/;"	m	class:Component
+iState	robotnik_pp_planner/include/robotnik_pp_planner/Component.h	/^		States iState;$/;"	m	class:Component
+last_command_time	robotnik_pp_planner/src/purepursuit_planner.cpp	/^	ros::Time last_command_time, last_map_time;$/;"	m	class:purepursuit_planner_node	file:
+last_map_time	robotnik_pp_planner/src/purepursuit_planner.cpp	/^	ros::Time last_command_time, last_map_time;$/;"	m	class:purepursuit_planner_node	file:
+listener	robotnik_pp_planner/src/purepursuit_planner.cpp	/^	tf::TransformListener listener;$/;"	m	class:purepursuit_planner_node	file:
+loadPointsCB	robotnik_pp_planner/scripts/purepursuit_planner/path_marker.py	/^	def loadPointsCB(self, feedback):$/;"	m	class:PointPathManager
+main	robotnik_pp_planner/src/purepursuit_planner.cpp	/^int main(int argc, char** argv)$/;"	f
+max_odom_freq	robotnik_pp_planner/src/purepursuit_planner.cpp	/^	double min_odom_freq, max_odom_freq; $/;"	m	class:purepursuit_planner_node	file:
+max_speed_	robotnik_pp_planner/src/purepursuit_planner.cpp	/^    double max_speed_;$/;"	m	class:purepursuit_planner_node	file:
+min_odom_freq	robotnik_pp_planner/src/purepursuit_planner.cpp	/^	double min_odom_freq, max_odom_freq; $/;"	m	class:purepursuit_planner_node	file:
+mutexPath	robotnik_pp_planner/src/purepursuit_planner.cpp	/^	pthread_mutex_t mutexPath;$/;"	m	class:Path	file:
+mutexThread	robotnik_pp_planner/include/robotnik_pp_planner/Component.h	/^        pthread_mutex_t mutexThread;$/;"	m	class:Component
+name_sc_enable_back_laser_	robotnik_pp_planner/src/purepursuit_planner.cpp	/^	std::string name_sc_enable_front_laser_, name_sc_enable_back_laser_;$/;"	m	class:purepursuit_planner_node	file:
+name_sc_enable_front_laser_	robotnik_pp_planner/src/purepursuit_planner.cpp	/^	std::string name_sc_enable_front_laser_, name_sc_enable_back_laser_;$/;"	m	class:purepursuit_planner_node	file:
+newPointCB	robotnik_pp_planner/scripts/purepursuit_planner/path_marker.py	/^	def newPointCB(self, feedback):$/;"	m	class:PointPathManager
+newPointCB_02	robotnik_pp_planner/scripts/purepursuit_planner/path_marker.py	/^	def newPointCB_02(self, feedback):$/;"	m	class:PointPathManager
+newPointCB_04	robotnik_pp_planner/scripts/purepursuit_planner/path_marker.py	/^	def newPointCB_04(self, feedback):$/;"	m	class:PointPathManager
+newPointCB_06	robotnik_pp_planner/scripts/purepursuit_planner/path_marker.py	/^	def newPointCB_06(self, feedback):$/;"	m	class:PointPathManager
+node_handle_	robotnik_pp_planner/src/purepursuit_planner.cpp	/^	ros::NodeHandle node_handle_;$/;"	m	class:purepursuit_planner_node	file:
+odom_sub_	robotnik_pp_planner/src/purepursuit_planner.cpp	/^	ros::Subscriber odom_sub_;$/;"	m	class:purepursuit_planner_node	file:
+odom_topic_	robotnik_pp_planner/src/purepursuit_planner.cpp	/^	std::string odom_topic_;$/;"	m	class:purepursuit_planner_node	file:
+odometry_robot	robotnik_pp_planner/src/purepursuit_planner.cpp	/^    nav_msgs::Odometry odometry_robot;$/;"	m	class:purepursuit_planner_node	file:
+operator +=	robotnik_pp_planner/src/purepursuit_planner.cpp	/^	Path &operator+=(const Path &a){$/;"	f	class:Path
+package_dir	robotnik_pp_planner/setup.py	/^    package_dir={'': 'scripts'},$/;"	v
+packages	robotnik_pp_planner/setup.py	/^    packages=['purepursuit_planner'],$/;"	v
+pathCurrent	robotnik_pp_planner/src/purepursuit_planner.cpp	/^    Path pathCurrent;$/;"	m	class:purepursuit_planner_node	file:
+pathFilling	robotnik_pp_planner/src/purepursuit_planner.cpp	/^    Path pathFilling;$/;"	m	class:purepursuit_planner_node	file:
+pose2d_robot	robotnik_pp_planner/src/purepursuit_planner.cpp	/^    geometry_msgs::Pose2D pose2d_robot;$/;"	m	class:purepursuit_planner_node	file:
+position_source_	robotnik_pp_planner/src/purepursuit_planner.cpp	/^    std::string position_source_;$/;"	m	class:purepursuit_planner_node	file:
+prio	robotnik_pp_planner/include/robotnik_pp_planner/Component.h	/^	int prio;			\/\/ Thread priority level 0[min]-80[max]$/;"	m	struct:thread_param
+private_node_handle_	robotnik_pp_planner/src/purepursuit_planner.cpp	/^	ros::NodeHandle private_node_handle_;$/;"	m	class:purepursuit_planner_node	file:
+processFeedback	robotnik_pp_planner/scripts/purepursuit_planner/path_marker.py	/^	def processFeedback(self, feedback):$/;"	m	class:PointPath
+pthreadId	robotnik_pp_planner/include/robotnik_pp_planner/Component.h	/^    pthread_t pthreadId;$/;"	m	struct:thread_data
+pthreadPar	robotnik_pp_planner/include/robotnik_pp_planner/Component.h	/^    struct thread_param pthreadPar;$/;"	m	struct:thread_data	typeref:struct:thread_data::thread_param
+purepursuit_client	robotnik_pp_planner/scripts/purepursuit_planner/examples/planner_test_client.py	/^def purepursuit_client():$/;"	f
+purepursuit_client	robotnik_pp_planner/scripts/purepursuit_planner/examples/purepursuit_client.py	/^def purepursuit_client():$/;"	f
+purepursuit_planner_node	robotnik_pp_planner/src/purepursuit_planner.cpp	/^	purepursuit_planner_node(ros::NodeHandle h) : node_handle_(h), private_node_handle_("~"),$/;"	f	class:purepursuit_planner_node
+purepursuit_planner_node	robotnik_pp_planner/src/purepursuit_planner.cpp	/^class purepursuit_planner_node: public Component$/;"	c	file:
+qPath	robotnik_pp_planner/src/purepursuit_planner.cpp	/^    queue <Path> qPath;$/;"	m	class:purepursuit_planner_node	file:
+radnorm	robotnik_pp_planner/include/robotnik_pp_planner/Component.h	/^static inline void radnorm(double* radians)$/;"	f
+radnorm2	robotnik_pp_planner/include/robotnik_pp_planner/Component.h	/^static inline void radnorm2(double* radians)$/;"	f
+result	robotnik_pp_planner/scripts/purepursuit_planner/examples/planner_test_client.py	/^		result = purepursuit_client()$/;"	v
+result	robotnik_pp_planner/scripts/purepursuit_planner/examples/purepursuit_client.py	/^		result = purepursuit_client()$/;"	v
+reverseRouteCB	robotnik_pp_planner/scripts/purepursuit_planner/path_marker.py	/^	def reverseRouteCB(self, feedback):$/;"	m	class:PointPathManager
+sComponentName	robotnik_pp_planner/include/robotnik_pp_planner/Component.h	/^		string sComponentName;$/;"	m	class:Component
+savePointsCB	robotnik_pp_planner/scripts/purepursuit_planner/path_marker.py	/^	def savePointsCB(self, feedback):$/;"	m	class:PointPathManager
+sc_enable_back_laser_	robotnik_pp_planner/src/purepursuit_planner.cpp	/^	ros::ServiceClient sc_enable_back_laser_;$/;"	m	class:purepursuit_planner_node	file:
+sc_enable_front_laser_	robotnik_pp_planner/src/purepursuit_planner.cpp	/^	ros::ServiceClient sc_enable_front_laser_;$/;"	m	class:purepursuit_planner_node	file:
+server	robotnik_pp_planner/scripts/purepursuit_planner/path_marker.py	/^	server = PointPathManager(_name, frame_id = args['frame_id'], planner = args['planner'])$/;"	v
+setup_args	robotnik_pp_planner/setup.py	/^setup_args = generate_distutils_setup($/;"	v
+startRouteCB	robotnik_pp_planner/scripts/purepursuit_planner/path_marker.py	/^	def startRouteCB(self, feedback):$/;"	m	class:PointPathManager
+status_pub_	robotnik_pp_planner/src/purepursuit_planner.cpp	/^	ros::Publisher status_pub_;$/;"	m	class:purepursuit_planner_node	file:
+stopRouteCB	robotnik_pp_planner/scripts/purepursuit_planner/path_marker.py	/^	def stopRouteCB(self, feedback):$/;"	m	class:PointPathManager
+target_frame_	robotnik_pp_planner/src/purepursuit_planner.cpp	/^    std::string target_frame_;$/;"	m	class:purepursuit_planner_node	file:
+threadData	robotnik_pp_planner/include/robotnik_pp_planner/Component.h	/^		thread_data threadData;$/;"	m	class:Component
+thread_data	robotnik_pp_planner/include/robotnik_pp_planner/Component.h	/^typedef struct thread_data{$/;"	s
+thread_data	robotnik_pp_planner/include/robotnik_pp_planner/Component.h	/^}thread_data;$/;"	t	typeref:struct:thread_data
+thread_param	robotnik_pp_planner/include/robotnik_pp_planner/Component.h	/^struct thread_param{$/;"	s
+tranform_map_pub_	robotnik_pp_planner/src/purepursuit_planner.cpp	/^	ros::Publisher tranform_map_pub_;$/;"	m	class:purepursuit_planner_node	file:
+transform	robotnik_pp_planner/src/purepursuit_planner.cpp	/^	tf::StampedTransform transform;$/;"	m	class:purepursuit_planner_node	file:
+tsnorm	robotnik_pp_planner/include/robotnik_pp_planner/Component.h	/^static inline void tsnorm(struct timespec *ts)$/;"	f
+ui_position_source	robotnik_pp_planner/src/purepursuit_planner.cpp	/^    unsigned int ui_position_source;$/;"	m	class:purepursuit_planner_node	file:
+updater_diagnostic	robotnik_pp_planner/src/purepursuit_planner.cpp	/^	diagnostic_updater::Updater updater_diagnostic;	$/;"	m	class:purepursuit_planner_node	file:
+updater_diagnostic_odom	robotnik_pp_planner/src/purepursuit_planner.cpp	/^	diagnostic_updater::TopicDiagnostic *updater_diagnostic_odom; $/;"	m	class:purepursuit_planner_node	file:
+vMagnets	robotnik_pp_planner/src/purepursuit_planner.cpp	/^	vector <MagnetStruct> vMagnets;$/;"	m	class:Path	file:
+vPoints	robotnik_pp_planner/src/purepursuit_planner.cpp	/^	vector <Waypoint> vPoints;$/;"	m	class:Path	file:
+vThreadData	robotnik_pp_planner/include/robotnik_pp_planner/Component.h	/^		vector<thread_data> vThreadData;$/;"	m	class:Component
+vel_pub_	robotnik_pp_planner/src/purepursuit_planner.cpp	/^	ros::Publisher vel_pub_;$/;"	m	class:purepursuit_planner_node	file:
+~Component	robotnik_pp_planner/src/Component.cc	/^Component::~Component(){$/;"	f	class:Component
+~Path	robotnik_pp_planner/src/purepursuit_planner.cpp	/^	~Path(){$/;"	f	class:Path
+~purepursuit_planner_node	robotnik_pp_planner/src/purepursuit_planner.cpp	/^	~purepursuit_planner_node(){	$/;"	f	class:purepursuit_planner_node
