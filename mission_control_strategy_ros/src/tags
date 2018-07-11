@@ -1,0 +1,81 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.9~svn20110310	//
+Controller	Mission_Control_Strategy_for_Autonomous_Navigation/src/controller_node.py	/^class Controller:$/;"	c
+LaserScanToPointCloud	Mission_Control_Strategy_for_Autonomous_Navigation/src/Mapping/laserscan_to_pointcloud.cpp	/^LaserScanToPointCloud::LaserScanToPointCloud(){$/;"	f	class:LaserScanToPointCloud
+LaserScanToPointCloud	Mission_Control_Strategy_for_Autonomous_Navigation/src/Mapping/laserscan_to_pointcloud.cpp	/^class LaserScanToPointCloud$/;"	c	file:
+MissionHandler	Mission_Control_Strategy_for_Autonomous_Navigation/src/mission_node.py	/^class MissionHandler:$/;"	c
+OctomapSrv	Mission_Control_Strategy_for_Autonomous_Navigation/src/Mapping/laserscan_to_pointcloud.cpp	/^typedef octomap_msgs::GetOctomap OctomapSrv;$/;"	t	file:
+Pixel	Mission_Control_Strategy_for_Autonomous_Navigation/src/Mapping/potential_map.cpp	/^    Pixel(int x_in, int y_in){$/;"	f	struct:Pixel
+Pixel	Mission_Control_Strategy_for_Autonomous_Navigation/src/Mapping/potential_map.cpp	/^struct Pixel{$/;"	s	file:
+PotentialMapMaker	Mission_Control_Strategy_for_Autonomous_Navigation/src/Mapping/potential_map.cpp	/^PotentialMapMaker::PotentialMapMaker(){$/;"	f	class:PotentialMapMaker
+PotentialMapMaker	Mission_Control_Strategy_for_Autonomous_Navigation/src/Mapping/potential_map.cpp	/^class PotentialMapMaker{$/;"	c	file:
+WaypointHistory	Mission_Control_Strategy_for_Autonomous_Navigation/src/mission_node.py	/^class WaypointHistory:$/;"	c
+__init__	Mission_Control_Strategy_for_Autonomous_Navigation/src/controller_node.py	/^    def __init__(self):$/;"	m	class:Controller
+__init__	Mission_Control_Strategy_for_Autonomous_Navigation/src/driver_node.py	/^    def __init__(self):$/;"	m	class:driver
+__init__	Mission_Control_Strategy_for_Autonomous_Navigation/src/mission_node.py	/^    def __init__( self ):$/;"	m	class:MissionHandler
+__init__	Mission_Control_Strategy_for_Autonomous_Navigation/src/mission_node.py	/^    def __init__(self):$/;"	m	class:WaypointHistory
+addWaypointToHistory	Mission_Control_Strategy_for_Autonomous_Navigation/src/mission_node.py	/^    def addWaypointToHistory(self, msg_pose ):$/;"	m	class:WaypointHistory
+angle_wrap	Mission_Control_Strategy_for_Autonomous_Navigation/src/driver_node.py	/^def angle_wrap(ang):$/;"	f
+angle_wrap	Mission_Control_Strategy_for_Autonomous_Navigation/src/mission_node.py	/^def angle_wrap(ang):$/;"	f
+checkIfCollisionFree	Mission_Control_Strategy_for_Autonomous_Navigation/src/Mapping/potential_map.cpp	/^bool PotentialMapMaker::checkIfCollisionFree(autonomous_nav::CollisionChecker::Request& request, $/;"	f	class:PotentialMapMaker
+check_goal	Mission_Control_Strategy_for_Autonomous_Navigation/src/driver_node.py	/^    def check_goal(self):$/;"	m	class:driver
+clearGoals	Mission_Control_Strategy_for_Autonomous_Navigation/src/driver_node.py	/^    def clearGoals(self):$/;"	m	class:driver
+collision_srv	Mission_Control_Strategy_for_Autonomous_Navigation/src/Mapping/potential_map.cpp	/^    ros::ServiceServer collision_srv;$/;"	m	class:PotentialMapMaker	file:
+compute_velocity	Mission_Control_Strategy_for_Autonomous_Navigation/src/driver_node.py	/^    def compute_velocity(self):$/;"	m	class:driver
+dist_to_goal_xy	Mission_Control_Strategy_for_Autonomous_Navigation/src/driver_node.py	/^    def dist_to_goal_xy(self):$/;"	m	class:driver
+driver	Mission_Control_Strategy_for_Autonomous_Navigation/src/driver_node.py	/^class driver(object):$/;"	c
+finishExploration	Mission_Control_Strategy_for_Autonomous_Navigation/src/mission_node.py	/^    def finishExploration(self, event):$/;"	m	class:MissionHandler
+frontierCallback	Mission_Control_Strategy_for_Autonomous_Navigation/src/mission_node.py	/^    def frontierCallback(self, msg):$/;"	m	class:MissionHandler
+getRvizMarkers	Mission_Control_Strategy_for_Autonomous_Navigation/src/mission_node.py	/^    def getRvizMarkers(self):$/;"	m	class:WaypointHistory
+has_arrived_xy	Mission_Control_Strategy_for_Autonomous_Navigation/src/driver_node.py	/^    def has_arrived_xy(self):$/;"	m	class:driver
+isPathStillSafe	Mission_Control_Strategy_for_Autonomous_Navigation/src/controller_node.py	/^    def isPathStillSafe(self):$/;"	m	class:Controller
+isWalkable	Mission_Control_Strategy_for_Autonomous_Navigation/src/Mapping/potential_map.cpp	/^bool PotentialMapMaker::isWalkable(struct Pixel start, struct Pixel end){$/;"	f	class:PotentialMapMaker
+isWaypointInHistory	Mission_Control_Strategy_for_Autonomous_Navigation/src/mission_node.py	/^    def isWaypointInHistory(self , msg_pose):$/;"	m	class:WaypointHistory
+laserScanCallback	Mission_Control_Strategy_for_Autonomous_Navigation/src/Mapping/laserscan_to_pointcloud.cpp	/^void LaserScanToPointCloud::laserScanCallback(const sensor_msgs::LaserScanConstPtr &scan){$/;"	f	class:LaserScanToPointCloud
+laser_scan_sub_	Mission_Control_Strategy_for_Autonomous_Navigation/src/Mapping/laserscan_to_pointcloud.cpp	/^        ros::Subscriber laser_scan_sub_;$/;"	m	class:LaserScanToPointCloud	file:
+last_potential_map	Mission_Control_Strategy_for_Autonomous_Navigation/src/Mapping/potential_map.cpp	/^    autonomous_nav::PotentialGrid last_potential_map;$/;"	m	class:PotentialMapMaker	file:
+listener_	Mission_Control_Strategy_for_Autonomous_Navigation/src/Mapping/laserscan_to_pointcloud.cpp	/^        tf::TransformListener listener_;$/;"	m	class:LaserScanToPointCloud	file:
+loop	Mission_Control_Strategy_for_Autonomous_Navigation/src/driver_node.py	/^    def loop(self):$/;"	m	class:driver
+main	Mission_Control_Strategy_for_Autonomous_Navigation/src/Mapping/laserscan_to_pointcloud.cpp	/^int main(int argc, char** argv){$/;"	f
+main	Mission_Control_Strategy_for_Autonomous_Navigation/src/Mapping/potential_map.cpp	/^int main(int argc, char **argv) {$/;"	f
+mtx	Mission_Control_Strategy_for_Autonomous_Navigation/src/Mapping/potential_map.cpp	/^    boost::mutex mtx;$/;"	m	class:PotentialMapMaker	file:
+next_goal	Mission_Control_Strategy_for_Autonomous_Navigation/src/driver_node.py	/^    def next_goal(self):$/;"	m	class:driver
+node_hand_	Mission_Control_Strategy_for_Autonomous_Navigation/src/Mapping/laserscan_to_pointcloud.cpp	/^        ros::NodeHandle node_hand_;$/;"	m	class:LaserScanToPointCloud	file:
+node_handle	Mission_Control_Strategy_for_Autonomous_Navigation/src/Mapping/potential_map.cpp	/^    ros::NodeHandle node_handle;$/;"	m	class:PotentialMapMaker	file:
+odometryCallback	Mission_Control_Strategy_for_Autonomous_Navigation/src/Mapping/potential_map.cpp	/^void PotentialMapMaker::odometryCallback(const nav_msgs::Odometry& msg){$/;"	f	class:PotentialMapMaker
+odometryCallback	Mission_Control_Strategy_for_Autonomous_Navigation/src/driver_node.py	/^    def odometryCallback(self,msg):$/;"	m	class:driver
+odometryCallback	Mission_Control_Strategy_for_Autonomous_Navigation/src/mission_node.py	/^    def odometryCallback(self, msg):$/;"	m	class:MissionHandler
+online_traj_pub	Mission_Control_Strategy_for_Autonomous_Navigation/src/Mapping/potential_map.cpp	/^    ros::Publisher online_traj_pub;$/;"	m	class:PotentialMapMaker	file:
+pathCallback	Mission_Control_Strategy_for_Autonomous_Navigation/src/driver_node.py	/^    def pathCallback(self,msg):$/;"	m	class:driver
+pc_pub_	Mission_Control_Strategy_for_Autonomous_Navigation/src/Mapping/laserscan_to_pointcloud.cpp	/^        ros::Publisher pc_pub_;$/;"	m	class:LaserScanToPointCloud	file:
+planPathAndFollow	Mission_Control_Strategy_for_Autonomous_Navigation/src/controller_node.py	/^    def planPathAndFollow(self):$/;"	m	class:Controller
+planPathTo	Mission_Control_Strategy_for_Autonomous_Navigation/src/Mapping/potential_map.cpp	/^bool PotentialMapMaker::planPathTo(autonomous_nav::PotentialPlanner::Request& request, $/;"	f	class:PotentialMapMaker
+planning_srv	Mission_Control_Strategy_for_Autonomous_Navigation/src/Mapping/potential_map.cpp	/^    ros::ServiceServer planning_srv;$/;"	m	class:PotentialMapMaker	file:
+potential_map_pub	Mission_Control_Strategy_for_Autonomous_Navigation/src/Mapping/potential_map.cpp	/^    ros::Publisher potential_map_pub;$/;"	m	class:PotentialMapMaker	file:
+projectedMapCallback	Mission_Control_Strategy_for_Autonomous_Navigation/src/Mapping/potential_map.cpp	/^void PotentialMapMaker::projectedMapCallback(const nav_msgs::OccupancyGrid& msg){$/;"	f	class:PotentialMapMaker
+projected_map	Mission_Control_Strategy_for_Autonomous_Navigation/src/Mapping/potential_map.cpp	/^    vector<vector<int>> projected_map;$/;"	m	class:PotentialMapMaker	file:
+projected_map_sub	Mission_Control_Strategy_for_Autonomous_Navigation/src/Mapping/potential_map.cpp	/^    ros::Subscriber projected_map_sub;$/;"	m	class:PotentialMapMaker	file:
+projector_	Mission_Control_Strategy_for_Autonomous_Navigation/src/Mapping/laserscan_to_pointcloud.cpp	/^        laser_geometry::LaserProjection projector_;$/;"	m	class:LaserScanToPointCloud	file:
+proposeWaypoints	Mission_Control_Strategy_for_Autonomous_Navigation/src/mission_node.py	/^    def proposeWaypoints(self):$/;"	m	class:MissionHandler
+publish	Mission_Control_Strategy_for_Autonomous_Navigation/src/driver_node.py	/^    def publish(self):$/;"	m	class:driver
+publishRvizPath	Mission_Control_Strategy_for_Autonomous_Navigation/src/Mapping/potential_map.cpp	/^void PotentialMapMaker::publishRvizPath(const autonomous_nav::PotentialPlanner::Response& response){$/;"	f	class:PotentialMapMaker
+replanCallback	Mission_Control_Strategy_for_Autonomous_Navigation/src/mission_node.py	/^    def replanCallback(self, msg):$/;"	m	class:MissionHandler
+requestNewWaypoint	Mission_Control_Strategy_for_Autonomous_Navigation/src/controller_node.py	/^    def requestNewWaypoint(self):$/;"	m	class:Controller
+requestReplan	Mission_Control_Strategy_for_Autonomous_Navigation/src/driver_node.py	/^    def requestReplan(self, random=False):$/;"	m	class:driver
+robot_pixel_i	Mission_Control_Strategy_for_Autonomous_Navigation/src/Mapping/potential_map.cpp	/^    int robot_pixel_i, robot_pixel_j;$/;"	m	class:PotentialMapMaker	file:
+robot_pixel_j	Mission_Control_Strategy_for_Autonomous_Navigation/src/Mapping/potential_map.cpp	/^    int robot_pixel_i, robot_pixel_j;$/;"	m	class:PotentialMapMaker	file:
+robot_pos_sub	Mission_Control_Strategy_for_Autonomous_Navigation/src/Mapping/potential_map.cpp	/^    ros::Subscriber robot_pos_sub;$/;"	m	class:PotentialMapMaker	file:
+robot_x	Mission_Control_Strategy_for_Autonomous_Navigation/src/Mapping/potential_map.cpp	/^    double robot_x, robot_y; $/;"	m	class:PotentialMapMaker	file:
+robot_y	Mission_Control_Strategy_for_Autonomous_Navigation/src/Mapping/potential_map.cpp	/^    double robot_x, robot_y; $/;"	m	class:PotentialMapMaker	file:
+showFrontiersRviz	Mission_Control_Strategy_for_Autonomous_Navigation/src/mission_node.py	/^    def showFrontiersRviz(self):$/;"	m	class:MissionHandler
+showTextRobot	Mission_Control_Strategy_for_Autonomous_Navigation/src/mission_node.py	/^    def showTextRobot(self, text):$/;"	m	class:MissionHandler
+showWaypointRviz	Mission_Control_Strategy_for_Autonomous_Navigation/src/mission_node.py	/^    def showWaypointRviz(self, msg_pose):$/;"	m	class:MissionHandler
+stopNode	Mission_Control_Strategy_for_Autonomous_Navigation/src/Mapping/laserscan_to_pointcloud.cpp	/^void stopNode(int sig)$/;"	f
+updateCurrentWaypoint	Mission_Control_Strategy_for_Autonomous_Navigation/src/mission_node.py	/^    def updateCurrentWaypoint(self):$/;"	m	class:MissionHandler
+waypointCallback	Mission_Control_Strategy_for_Autonomous_Navigation/src/controller_node.py	/^    def waypointCallback(self, req):$/;"	m	class:Controller
+x	Mission_Control_Strategy_for_Autonomous_Navigation/src/Mapping/potential_map.cpp	/^    int x, y;$/;"	m	struct:Pixel	file:
+y	Mission_Control_Strategy_for_Autonomous_Navigation/src/Mapping/potential_map.cpp	/^    int x, y;$/;"	m	struct:Pixel	file:
