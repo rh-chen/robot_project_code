@@ -1,0 +1,8 @@
+prefix=/home/wzm/relocalization_sweeper_ros/devel
+
+Name: relocalization_sweeper
+Description: Description of relocalization_sweeper
+Version: 0.0.0
+Cflags: -I/home/wzm/relocalization_sweeper_ros/devel/include
+Libs: -L/home/wzm/relocalization_sweeper_ros/devel/lib 
+Requires: 

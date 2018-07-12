@@ -1,0 +1,5 @@
+#image data
+sensor_msgs/Image img_data
+---
+geometry_msgs/PoseStamped pose
+
