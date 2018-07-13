@@ -1,0 +1,5 @@
+<launch>
+    <node name="map_modify_service" pkg="map_modify" type="map_modify_node" output="screen">
+    </node>
+
+</launch>

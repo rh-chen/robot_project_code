@@ -1,0 +1,12 @@
+<launch>
+	<arg name="map_file" default="$(find map_modify)/maps/floor19.yaml"/>
+
+    <node name="map_server_for_test" pkg="map_server" type="map_server" args="$(arg map_file)">
+    </node>
+
+    <node name="map_modify_client" pkg="map_modify" type="map_modify_client" output="screen">
+    </node>
+
+	<node pkg="rviz" type="rviz" name="rviz" args="-d $(find map_modify)/rviz/map_modify.rviz" />
+
+</launch>
