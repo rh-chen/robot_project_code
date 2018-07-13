@@ -1,2 +1,0 @@
-relocalization_sweeper
--DCATKIN_DEVEL_PREFIX=/home/wzm/relocalization_sweeper_ros/devel -DCMAKE_INSTALL_PREFIX=/home/wzm/relocalization_sweeper_ros/install -G Unix Makefiles
