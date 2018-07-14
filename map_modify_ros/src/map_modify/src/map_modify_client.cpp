@@ -44,6 +44,7 @@ int main(int argc, char **argv) {
 
   ros::ServiceClient mapClient = n.serviceClient<nav_msgs::GetMap>("/static_map");
   ros::Publisher map_pub = n.advertise<nav_msgs::OccupancyGrid>("/map_modify", 1);
+  ros::Publisher map_contour_pub = n.advertise<nav_msgs::OccupancyGrid>("/map_contour", 1);
 
   nav_msgs::GetMap getMapSrv;
 
@@ -69,6 +70,7 @@ int main(int argc, char **argv) {
     ros::Rate loop_rate(10);
     while(ros::ok()){
         map_pub.publish(srv.response.map);
+        map_contour_pub.publish(srv.response.map_contour);
         ros::spinOnce();
 
         loop_rate.sleep();

@@ -129,15 +129,15 @@ catkin_package(
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
 include_directories(
-# include
-     ${catkin_INCLUDE_DIRS}
+    include/map_modify
+    ${catkin_INCLUDE_DIRS}
     ${OpenCV_INCLUDE_DIRS}
 )
 
 ## Declare a C++ library
-# add_library(${PROJECT_NAME}
-#   src/${PROJECT_NAME}/map_modify.cpp
-# )
+add_library(LSD
+   src/lsd.cpp
+ )
 
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries
@@ -166,17 +166,20 @@ add_executable(map_modify_client src/map_modify_client.cpp)
 #   ${catkin_LIBRARIES}
 # )
  target_link_libraries(map_modify_node
-   ${catkin_LIBRARIES}
+     ${catkin_LIBRARIES}
 	 ${OpenCV_LIBS}
+     LSD
  )
 
  target_link_libraries(map_modify_client
-   ${catkin_LIBRARIES}
+     ${catkin_LIBRARIES}
 	 ${OpenCV_LIBS}
+     LSD
  )
 
 add_dependencies(map_modify_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-add_dependencies(map_modify_client ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(map_modify_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(LSD ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 #############
 ## Install ##
 #############
