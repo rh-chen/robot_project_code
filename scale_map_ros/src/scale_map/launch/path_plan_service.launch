@@ -4,5 +4,7 @@
     </node>
     <node name="scale_map_node" pkg="scale_map" type="scale_map_node" output="screen">
     </node>
+    <node name="map_modify_node" pkg="scale_map" type="map_modify_node" output="screen">
+    </node>
 
 </launch>

@@ -31,7 +31,7 @@
 #include <tf/tf.h>
 #include "scale_map/ScaleMapData.h"
 
-#define SCALE_FACTOR 4
+#define SCALE_FACTOR 6
 
 namespace scale_map{
 
@@ -214,7 +214,7 @@ bool ScaleMapService(
 
 
 
-
+#if 1
 //expand obstacles
 int erosion_radius = req.erosion_radius;
 for(iter_ob = obstacles.begin();iter_ob != obstacles.end();iter_ob++){
@@ -237,6 +237,7 @@ for(iter_ob = obstacles.begin();iter_ob != obstacles.end();iter_ob++){
 		}
 	}
 }
+#endif
 //std::cout << __FILE__ << __LINE__ << std::endl;
 std::cout << "ng_data.size:" << ng_data.size() << std::endl;
 std::cout << "ng_data[i].size:" << ng_data[0].size() << std::endl;

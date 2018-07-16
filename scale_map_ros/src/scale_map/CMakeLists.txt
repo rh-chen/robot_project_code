@@ -67,6 +67,7 @@ find_package(OpenCV REQUIRED)
    FILES
    ScaleMapData.srv
 	 GetCoveragePath.srv
+     ModifyMap.srv
  )
 
 ## Generate actions in the 'action' folder
@@ -126,8 +127,8 @@ catkin_package(
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
 include_directories(
-	#include/scale_map
-  ${catkin_INCLUDE_DIRS}
+    include/scale_map
+    ${catkin_INCLUDE_DIRS}
 	${OpenCV_INCLUDE_DIRS}
 )
 
@@ -145,6 +146,7 @@ include_directories(
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
 add_executable(scale_map_node src/scale_map_node.cpp)
+add_executable(map_modify_node src/map_modify_node.cpp src/lsd.cpp)
 add_executable(scale_map_client src/scale_map_client.cpp)
 add_executable(scale_map_click src/scale_map_click.cpp)
 add_executable(darp_path_plan_node src/darp_path_plan_node.cpp)
@@ -177,8 +179,13 @@ add_executable(darp_path_plan_node src/darp_path_plan_node.cpp)
    ${catkin_LIBRARIES}
 	 ${OpenCV_LIBS}
  )
+ target_link_libraries(map_modify_node
+   ${catkin_LIBRARIES}
+	 ${OpenCV_LIBS}
+ )
 
 add_dependencies(scale_map_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(map_modify_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 add_dependencies(scale_map_client ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 add_dependencies(scale_map_click ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 add_dependencies(darp_path_plan_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
