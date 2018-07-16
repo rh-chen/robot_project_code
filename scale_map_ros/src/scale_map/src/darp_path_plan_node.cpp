@@ -1113,7 +1113,7 @@ bool CoveragePlanService(
   //  binarization
   cv::Mat binarization;
   cv::threshold(
-      map, binarization, req.occupancy_threshold, 255, cv::THRESH_BINARY);
+      map, binarization, req.occupancy_threshold, 255, cv::THRESH_BINARY_INV);
 
 	//std::cout << __FILE__ << __LINE__ << std::endl;
 	//std::cout << "binarization:" << binarization << std::endl;

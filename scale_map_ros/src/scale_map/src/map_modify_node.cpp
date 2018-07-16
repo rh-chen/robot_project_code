@@ -51,86 +51,86 @@ bool MapModifyService(
     cv::Mat map(req.map.info.height, req.map.info.width, CV_8UC1, req.map.data.data());
     vector<int8_t> map_data; 
 
-    cv::Mat bin;
-    cv::threshold(map,bin,req.threshold,255,cv::THRESH_BINARY_INV);
+    cv::Mat bin_step1;
+    cv::threshold(map,bin_step1,req.threshold,255,cv::THRESH_BINARY_INV);
 //template eliminate noise
-#if 1
+#if 0
 int iterate_num = 1;
 for(int l = 0;l < iterate_num;l++){
     for(int i = 1;i < req.map.info.height-1;i++){
         for(int j = 1;j < req.map.info.width-1;j++){
-            if(bin.at<unsigned char>(i,j) == 0){
+            if(bin_step1.at<unsigned char>(i,j) == 0){
                 
                 int count_value_255_v = 0;
                 int count_value_255_h = 0;
                 {
-                     if(bin.at<unsigned char>(i-1,j-1) == 255)
+                     if(bin_step1.at<unsigned char>(i-1,j-1) == 255)
                         count_value_255_h++;
-                     if(bin.at<unsigned char>(i-1,j+1) == 255)
+                     if(bin_step1.at<unsigned char>(i-1,j+1) == 255)
                         count_value_255_h++;
-                     if(bin.at<unsigned char>(i+1,j-1) == 255)
+                     if(bin_step1.at<unsigned char>(i+1,j-1) == 255)
                         count_value_255_h++;
-                     if(bin.at<unsigned char>(i+1,j+1) == 255)
+                     if(bin_step1.at<unsigned char>(i+1,j+1) == 255)
                         count_value_255_h++;
                 }
 
                 if(count_value_255_h >= 3){
-                    bin.at<unsigned char>(i,j) = 255;
+                    map.at<unsigned char>(i,j) = 0;
                     continue;
                 }
                 else{
-                    if(bin.at<unsigned char>(i-1,j) == 255)
+                    if(bin_step1.at<unsigned char>(i-1,j) == 255)
                         count_value_255_v++;
-                    if(bin.at<unsigned char>(i+1,j) == 255)
+                    if(bin_step1.at<unsigned char>(i+1,j) == 255)
                         count_value_255_v++;
-                    if(bin.at<unsigned char>(i,j-1) == 255)
+                    if(bin_step1.at<unsigned char>(i,j-1) == 255)
                         count_value_255_v++;
-                    if(bin.at<unsigned char>(i,j+1) == 255)
+                    if(bin_step1.at<unsigned char>(i,j+1) == 255)
                         count_value_255_v++;
                 }
                 if(count_value_255_v >= 3)
-                    bin.at<unsigned char>(i,j) = 255;
+                    map.at<unsigned char>(i,j) = 0;
             }
             else{
                 
                 int count_value_0_v = 0;
                 int count_value_0_h = 0;
                 {
-                     if(bin.at<unsigned char>(i-1,j-1) == 0)
+                     if(bin_step1.at<unsigned char>(i-1,j-1) == 0)
                         count_value_0_h++;
-                     if(bin.at<unsigned char>(i-1,j+1) == 0)
+                     if(bin_step1.at<unsigned char>(i-1,j+1) == 0)
                         count_value_0_h++;
-                     if(bin.at<unsigned char>(i+1,j-1) == 0)
+                     if(bin_step1.at<unsigned char>(i+1,j-1) == 0)
                         count_value_0_h++;
-                     if(bin.at<unsigned char>(i+1,j+1) == 0)
+                     if(bin_step1.at<unsigned char>(i+1,j+1) == 0)
                         count_value_0_h++;
                 }
 
                 if(count_value_0_h >= 3){
-                    bin.at<unsigned char>(i,j) = 0;
+                    map.at<unsigned char>(i,j) = 100;
                     continue;
                 }
                 else{
-                    if(bin.at<unsigned char>(i-1,j) == 0)
+                    if(bin_step1.at<unsigned char>(i-1,j) == 0)
                         count_value_0_v++;
-                    if(bin.at<unsigned char>(i+1,j) == 0)
+                    if(bin_step1.at<unsigned char>(i+1,j) == 0)
                         count_value_0_v++;
-                    if(bin.at<unsigned char>(i,j-1) == 0)
+                    if(bin_step1.at<unsigned char>(i,j-1) == 0)
                         count_value_0_v++;
-                    if(bin.at<unsigned char>(i,j+1) == 0)
+                    if(bin_step1.at<unsigned char>(i,j+1) == 0)
                         count_value_0_v++;
                 }
                 if(count_value_0_v >= 3)
-                    bin.at<unsigned char>(i,j) = 0;
+                    map.at<unsigned char>(i,j) = 100;
 
             }
         }
     }
 }
 #endif
-
+#if 0
     cv::Mat bin_temp;
-    bin.convertTo(bin_temp,CV_64FC1);
+    bin_step1.convertTo(bin_temp,CV_64FC1);
 
     //std::cout << __FILE__ << __LINE__ << std::endl;
     image_double image = new_image_double(bin_temp.cols,bin_temp.rows);
@@ -151,100 +151,86 @@ for(int l = 0;l < iterate_num;l++){
         pt1.y = int(ntl->values[1 + j * ntl->dim]);
         pt2.x = int(ntl->values[2 + j * ntl->dim]);
         pt2.y = int(ntl->values[3 + j * ntl->dim]);
-        cv::line(bin,pt1,pt2,cv::Scalar(0),1,8);
+        cv::line(map,pt1,pt2,cv::Scalar(100),1,8);
         //cv::line(lsd,pt1,pt2,cv::Scalar(255),1,8);
     }
 
    //std::cout << __FILE__ << __LINE__ << std::endl;
     free_ntuple_list(ntl);
-
+#endif
     //std::cout << __FILE__ << __LINE__ << std::endl;
+    cv::Mat bin_step2;
+    cv::threshold(map,bin_step2,req.threshold,255,cv::THRESH_BINARY_INV);
     
-    //vector<int8_t> map_contour_data; 
-    //for(int i = 0;i < req.map.info.height;i++){
-        //for(int j = 0;j < req.map.info.width;j++){
-            //char value = lsd.at<char>(i,j);
-            //map_contour_data.push_back(value);
-        //}
-    //}
     
-    //res.map_contour.info.height = req.map.info.height;
-    //res.map_contour.info.width = req.map.info.width;
-    //res.map_contour.info.resolution = req.map.info.resolution;
-    //res.map_contour.data = map_contour_data;
-
-    //res.map_contour.header.frame_id = req.map.header.frame_id;
-    //res.map_contour.info.origin.position.x = req.map.info.origin.position.x;
-    //res.map_contour.info.origin.position.y = req.map.info.origin.position.y;
-    
-#if 1
+#if 0
 iterate_num = 1;
 for(int l = 0;l < iterate_num;l++){
     for(int i = 1;i < req.map.info.height-1;i++){
         for(int j = 1;j < req.map.info.width-1;j++){
-            if(bin.at<unsigned char>(i,j) == 0){
+            if(bin_step2.at<unsigned char>(i,j) == 0){
                 
                 int count_value_255_v = 0;
                 int count_value_255_h = 0;
                 {
-                     if(bin.at<unsigned char>(i-1,j-1) == 255)
+                     if(bin_step2.at<unsigned char>(i-1,j-1) == 255)
                         count_value_255_h++;
-                     if(bin.at<unsigned char>(i-1,j+1) == 255)
+                     if(bin_step2.at<unsigned char>(i-1,j+1) == 255)
                         count_value_255_h++;
-                     if(bin.at<unsigned char>(i+1,j-1) == 255)
+                     if(bin_step2.at<unsigned char>(i+1,j-1) == 255)
                         count_value_255_h++;
-                     if(bin.at<unsigned char>(i+1,j+1) == 255)
+                     if(bin_step2.at<unsigned char>(i+1,j+1) == 255)
                         count_value_255_h++;
                 }
 
                 if(count_value_255_h >= 3){
-                    bin.at<unsigned char>(i,j) = 255;
+                    map.at<unsigned char>(i,j) = 0;
                     continue;
                 }
                 else{
-                    if(bin.at<unsigned char>(i-1,j) == 255)
+                    if(bin_step2.at<unsigned char>(i-1,j) == 255)
                         count_value_255_v++;
-                    if(bin.at<unsigned char>(i+1,j) == 255)
+                    if(bin_step2.at<unsigned char>(i+1,j) == 255)
                         count_value_255_v++;
-                    if(bin.at<unsigned char>(i,j-1) == 255)
+                    if(bin_step2.at<unsigned char>(i,j-1) == 255)
                         count_value_255_v++;
-                    if(bin.at<unsigned char>(i,j+1) == 255)
+                    if(bin_step2.at<unsigned char>(i,j+1) == 255)
                         count_value_255_v++;
                 }
                 if(count_value_255_v >= 3)
-                    bin.at<unsigned char>(i,j) = 255;
+                    map.at<unsigned char>(i,j) = 0;
             }
             else{
                 
                 int count_value_0_v = 0;
                 int count_value_0_h = 0;
                 {
-                     if(bin.at<unsigned char>(i-1,j-1) == 0)
+                     if(bin_step2.at<unsigned char>(i-1,j-1) == 0)
                         count_value_0_h++;
-                     if(bin.at<unsigned char>(i-1,j+1) == 0)
+                     if(bin_step2.at<unsigned char>(i-1,j+1) == 0)
                         count_value_0_h++;
-                     if(bin.at<unsigned char>(i+1,j-1) == 0)
+                     if(bin_step2.at<unsigned char>(i+1,j-1) == 0)
                         count_value_0_h++;
-                     if(bin.at<unsigned char>(i+1,j+1) == 0)
+                     if(bin_step2.at<unsigned char>(i+1,j+1) == 0)
                         count_value_0_h++;
                 }
 
                 if(count_value_0_h >= 3){
-                    bin.at<unsigned char>(i,j) = 0;
+                    map.at<unsigned char>(i,j) = 100;
                     continue;
                 }
                 else{
-                    if(bin.at<unsigned char>(i-1,j) == 0)
+                    if(bin_step2.at<unsigned char>(i-1,j) == 0)
                         count_value_0_v++;
-                    if(bin.at<unsigned char>(i+1,j) == 0)
+                    if(bin_step2.at<unsigned char>(i+1,j) == 0)
                         count_value_0_v++;
-                    if(bin.at<unsigned char>(i,j-1) == 0)
+                    if(bin_step2.at<unsigned char>(i,j-1) == 0)
                         count_value_0_v++;
-                    if(bin.at<unsigned char>(i,j+1) == 0)
+                    if(bin_step2.at<unsigned char>(i,j+1) == 0)
                         count_value_0_v++;
                 }
                 if(count_value_0_v >= 3)
-                    bin.at<unsigned char>(i,j) = 0;
+                    map.at<unsigned char>(i,j) = 100;
 
             }
         }
@@ -253,7 +239,7 @@ for(int l = 0;l < iterate_num;l++){
 #endif
     for(int i = 0;i < req.map.info.height;i++){
         for(int j = 0;j < req.map.info.width;j++){
-           char value = bin.at<char>(i,j);
+           char value = map.at<char>(i,j);
            map_data.push_back(value); 
         }
      }

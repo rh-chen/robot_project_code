@@ -34,6 +34,7 @@
 #include <visualization_msgs/MarkerArray.h>
 #include "scale_map/ScaleMapData.h"
 #include "scale_map/GetCoveragePath.h"
+#include "scale_map/ModifyMap.h"
 
 class darp_test{
 public:
@@ -82,9 +83,12 @@ public:
 
 	void clickCallBack(const geometry_msgs::PointStamped::ConstPtr &msg)
 	{
-
 			ros::Publisher pub_map = n.advertise<nav_msgs::OccupancyGrid>("/scale_static_map",1);
 			ros::ServiceClient client = n.serviceClient<scale_map::ScaleMapData>("/sweeper/scale_map_srv");
+            ros::ServiceClient map_modify_client = n.serviceClient<scale_map::ModifyMap>("/sweeper/map_modify_srv");
+  
+            scale_map::ModifyMap map_modify_srv;
+            map_modify_srv.request.threshold = 95;
 
 			scale_map::ScaleMapData srv;
 
@@ -97,12 +101,25 @@ public:
 
 			ros::Duration(2).sleep();
 			if (mapClient.call(getMapSrv)) {
-							srv.request.map = getMapSrv.response.map;
+							//srv.request.map = getMapSrv.response.map;
+                            map_modify_srv.request.map = getMapSrv.response.map;
 							std::cout << "map frame_id: " << srv.request.map.header.frame_id
 											<< std::endl;
 			} else {
-							ROS_ERROR("Failed to call /static_map service.");
+							//ROS_ERROR("Failed to call  get map service.");
+							ROS_ERROR("Failed to call map_modify_srv service.");
 			}
+
+            ros::Time begin2 = ros::Time::now();
+            bool res_srv_map_modify = map_modify_client.call(map_modify_srv);
+            ros::Time end2 = ros::Time::now();
+	        std::cout << "call map_modify_srv time cost:" << (end2-begin2).toSec() << std::endl;
+
+            if(res_srv_map_modify){
+                srv.request.map = map_modify_srv.response.map;
+            }else{
+                ROS_ERROR("Failed to call map_modify_srv service.");
+            }
 
 			ros::Time begin1 = ros::Time::now();
 			bool res_srv_scale_map = client.call(srv);

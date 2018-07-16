@@ -214,7 +214,7 @@ bool ScaleMapService(
 
 
 
-#if 1
+#if 0
 //expand obstacles
 int erosion_radius = req.erosion_radius;
 for(iter_ob = obstacles.begin();iter_ob != obstacles.end();iter_ob++){
