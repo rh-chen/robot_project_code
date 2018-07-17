@@ -18,6 +18,7 @@ find_package(catkin REQUIRED COMPONENTS
   std_msgs
   std_srvs
   tf
+  cv_bridge
 )
 
 ## System dependencies are found with CMake's conventions
@@ -154,6 +155,7 @@ include_directories(
 ## The recommended prefix ensures that target names across packages don't collide
 add_executable(${PROJECT_NAME}_node src/relocalization_sweeper_node.cpp)
 add_executable(${PROJECT_NAME}_client src/relocalization_sweeper_client.cpp)
+add_executable(generate_voc_node src/generate_voc.cpp)
 
  target_link_libraries(${PROJECT_NAME}_node 
      ${catkin_LIBRARIES}
@@ -162,6 +164,12 @@ add_executable(${PROJECT_NAME}_client src/relocalization_sweeper_client.cpp)
 	 ${DBoW3_LIBS}
  )
 
+ target_link_libraries(generate_voc_node 
+     ${catkin_LIBRARIES}
+	 ${OpenCV_LIBS}
+	 ${G2O_LIBS}
+	 ${DBoW3_LIBS}
+ )
  target_link_libraries(${PROJECT_NAME}_client
      ${catkin_LIBRARIES}
 	 ${OpenCV_LIBS}
@@ -171,6 +179,7 @@ add_executable(${PROJECT_NAME}_client src/relocalization_sweeper_client.cpp)
 
 add_dependencies(${PROJECT_NAME}_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 add_dependencies(${PROJECT_NAME}_client ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(generate_voc_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
 ## target back to the shorter version for ease of user use

@@ -1,0 +1,5 @@
+<launch>
+    <node name="relocalization_sweeper_node" pkg="relocalization_sweeper" type="relocalization_sweeper_node" output="screen">
+        <param name="voc_dir" type="string" value="$(find relocalization_sweeper)/voc/" />
+    </node>
+</launch>
