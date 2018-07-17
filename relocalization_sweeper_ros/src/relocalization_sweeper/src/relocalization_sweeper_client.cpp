@@ -38,8 +38,13 @@ int main(int argc,char **argv){
 
     ros::NodeHandle n,pn("~");
     pn.param<std::string>("data_dir",data_dir,"../data/");
-    std::string image_dir = data_dir + "1_rgb.png";
-    cv::Mat test = imread(image_dir);
+    std::string image_dir = data_dir + "7_rgb.png";
+    cv::Mat test = imread(image_dir,0);
+
+    if(test.empty()){
+        ROS_INFO("Load Image Error...");
+        return 1;
+    }
 
     ros::ServiceClient client = n.serviceClient<relocalization_sweeper::GetRobotPose>("/sweeper/relocalization_robot_srv");
     relocalization_sweeper::GetRobotPose srv;

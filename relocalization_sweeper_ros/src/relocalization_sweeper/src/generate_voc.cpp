@@ -19,13 +19,13 @@ int main( int argc, char** argv )
     ros::NodeHandle pn("~");
 
     string dataset_dir;
-	pn.param<string>("dataset_dir", dataset_dir, "../data/");
+	pn.param<string>("dataset_dir", dataset_dir, "../voc_data/");
     ROS_INFO("image data direction:%s",dataset_dir.c_str());
     string voc_dir;
 	pn.param<string>("voc_dir", voc_dir, "../voc/");
     ROS_INFO("voc direction:%s",voc_dir.c_str());
 
-    ifstream fin ( dataset_dir+"/data.txt" );
+    ifstream fin ( dataset_dir+"/voc_data.txt" );
     if ( !fin )
     {
         ROS_INFO("Read Data Fail...");
@@ -48,7 +48,7 @@ int main( int argc, char** argv )
     ROS_INFO("Generating Features ... ");
     vector<Mat> descriptors;
     Ptr< Feature2D > detector = ORB::create();
-    int index = 1;
+    //int index = 0;
     
     //extract orb feature
     for ( string rgb_file:rgb_files )
@@ -62,7 +62,7 @@ int main( int argc, char** argv )
         Mat descriptor;
         detector->detectAndCompute( image, Mat(), keypoints, descriptor );
         descriptors.push_back( descriptor );
-        ROS_INFO("Extracting Features From Image:%d ",index++);
+        //ROS_INFO("Extracting Features From Image:%d ",index++);
     }
     ROS_INFO("Extract Total :%d",(int)(descriptors.size()*500));
     
