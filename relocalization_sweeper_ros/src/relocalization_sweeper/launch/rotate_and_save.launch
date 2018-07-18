@@ -6,6 +6,6 @@
         <param name="robot_pose_topic" type="string" value="" />
         <param name="rgb_dir" type="string" value="$(find relocalization_sweeper)/rgb/" />
         <param name="depth_dir" type="string" value="$(find relocalization_sweeper)/depth/" />
-        <param name="robot_pose_dir" type="string" value="$(find relocalization_sweeper)/pose/" />
+        <param name="robot_pose_dir" type="string" value="$(find relocalization_sweeper)/pose/pose_list.txt" />
     </node>
 </launch>
