@@ -19,6 +19,8 @@ find_package(catkin REQUIRED COMPONENTS
   std_srvs
   tf
   cv_bridge
+  image_transport
+  message_filters
 )
 
 ## System dependencies are found with CMake's conventions
@@ -156,6 +158,7 @@ include_directories(
 add_executable(${PROJECT_NAME}_node src/relocalization_sweeper_node.cpp)
 add_executable(${PROJECT_NAME}_client src/relocalization_sweeper_client.cpp)
 add_executable(generate_voc_node src/generate_voc.cpp)
+add_executable(rotate_and_save_node src/rotate_and_save.cpp)
 
  target_link_libraries(${PROJECT_NAME}_node 
      ${catkin_LIBRARIES}
@@ -176,10 +179,17 @@ add_executable(generate_voc_node src/generate_voc.cpp)
 	 ${G2O_LIBS}
 	 ${DBoW3_LIBS}
  )
+ target_link_libraries(rotate_and_save_node
+     ${catkin_LIBRARIES}
+	 ${OpenCV_LIBS}
+	 ${G2O_LIBS}
+	 ${DBoW3_LIBS}
+ )
 
 add_dependencies(${PROJECT_NAME}_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 add_dependencies(${PROJECT_NAME}_client ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 add_dependencies(generate_voc_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(rotate_and_save_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
 ## target back to the shorter version for ease of user use
