@@ -1,0 +1,14 @@
+<launch>
+    <node name="rotate_and_save_node" pkg="relocalization_sweeper" type="rotate_and_save_node" output="screen">
+        <param name="rgb_topic" type="string" value="" />
+        <param name="depth_topic" type="string" value="" />
+        <param name="camera_info_topic" type="string" value="" />
+        <param name="robot_pose_topic" type="string" value="" />
+        <param name="rgb_dir" type="string" value="$(find relocalization_sweeper)/rgb/" />
+        <param name="depth_dir" type="string" value="$(find relocalization_sweeper)/depth/" />
+        <param name="robot_pose_dir" type="string" value="$(find relocalization_sweeper)/pose/pose_list.txt" />
+        <param name="feature_match_threshold" type="int" value= "50"/>
+        <param name="robot_move_threshold" type="double" value= "0.3"/>
+        <param name="robot_rotate_threshold" type="double" value= "10.0"/>
+    </node>
+</launch>
