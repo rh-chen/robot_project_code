@@ -202,7 +202,7 @@ bool SaveCurrentImageAndRobotPose::countRefAndCurFrame()
 
     int num_of_features = 256;
     double scale_factor = 1.2;
-    double level_pyramid = 5;
+    int level_pyramid = 5;
 
     cv::Ptr<cv::ORB> orb; 
     orb = cv::ORB::create(num_of_features,scale_factor,level_pyramid);
@@ -277,6 +277,11 @@ void SaveCurrentImageAndRobotPose::analysisCB(const sensor_msgs::ImageConstPtr& 
         ss_rgb << frame_index;
         string s_rgb = rgb_directory+ss_rgb.str()+"_rgb.png";
 
+        ofstream outfile_data;
+        outfile_data.open(rgb_directory+"data.txt");
+        outfile_data << ss_rgb.str()+"_rgb.png" << std::endl;
+        outfile_data.close();
+
         stringstream ss_depth;
         ss_depth << frame_index;
         string s_depth = depth_directory+ss_depth.str()+"_depth.png"; 
@@ -314,6 +319,11 @@ void SaveCurrentImageAndRobotPose::analysisCB(const sensor_msgs::ImageConstPtr& 
             stringstream ss_rgb;
             ss_rgb << frame_index;
             string s_rgb = rgb_directory+ss_rgb.str()+"_rgb.png";
+
+            ofstream outfile_data;
+            outfile_data.open(rgb_directory+"data.txt");
+            outfile_data << ss_rgb.str()+"_rgb.png" << std::endl;
+            outfile_data.close();
 
             stringstream ss_depth;
             ss_depth << frame_index;
