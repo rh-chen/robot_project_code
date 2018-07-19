@@ -1,4 +1,5 @@
 #include <ros/ros.h>
+#include <tf/tf.h>
 #include <std_msgs/Float32.h>
 
 #include <cv_bridge/cv_bridge.h>
@@ -14,9 +15,12 @@
 #include <opencv2/core/core.hpp>
 #include <opencv2/features2d/features2d.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
+#include <opencv2/highgui/highgui.hpp>
+#include "opencv2/calib3d/calib3d.hpp"
 
 #include <string>
 #include <iostream>
+#include <fstream>
 #include <sstream>
 #include <algorithm> 
 
@@ -43,11 +47,15 @@ public:
                                string pt,
                                string rgb_dir,
                                string depth_dir,
-                               string pose_dir)
+                               string pose_dir,
+                               double robot_move_t,
+                               double robot_rotate_t,
+                               int feature_match_t)
                                :nh_(h),rgb_topic(rt),depth_topic(dt),camera_info_topic(ct),robot_pose_topic(pt),
-                               rgb_directory(rgb_dir),depth_directory(depth_dir),pose_directory(pose_dir)
+                               rgb_directory(rgb_dir),depth_directory(depth_dir),pose_directory(pose_dir),
+                               robot_move_th(robot_move_t),robot_rotate_th(robot_rotate_t),feature_match_th(feature_match_t)
   {
-        image_index = 0;
+        frame_index = 0;
 
 		rgb_sub = new message_filters::Subscriber<sensor_msgs::Image>(nh_, rgb_topic, 1);
 		depth_sub = new message_filters::Subscriber<sensor_msgs::Image>(nh_, depth_topic, 1);
@@ -71,6 +79,14 @@ public:
                   const sensor_msgs::CameraInfoConstPtr& msg_cam_info,
                   const geometry_msgs::PoseStampedConstPtr& msg_robot_pose);
   bool addKeyFrame();
+  bool countRefAndCurFrame();
+  bool crossRefAndCurPose();
+  void match_features_knn(Mat& query,Mat& train,vector<DMatch>& matches);
+  void refine_match_with_homography(vector<KeyPoint>& queryKeyPoints,
+                                    vector<KeyPoint>& trainKeyPoints,
+                                    float reprojectionThreshold,
+                                    vector<DMatch>& matches,
+                                    Mat& homography);
 
 protected:
    
@@ -80,7 +96,7 @@ protected:
   std::string camera_info_topic;
   std::string robot_pose_topic;
 
-  int image_index;
+  int frame_index;
   cv::Mat ref_frame;
   geometry_msgs::PoseStamped ref_pose;
   cv::Mat cur_frame;
@@ -89,6 +105,10 @@ protected:
   string rgb_directory;
   string depth_directory;
   string pose_directory;
+
+  double robot_move_th;
+  double robot_rotate_th;
+  int feature_match_th;
 
 };
 
@@ -105,14 +125,20 @@ int main(int argc, char** argv)
   string rgb_dir;
   string depth_dir;
   string robot_pose_dir;
+  double robot_move_threshold;
+  double robot_rotate_threshold;
+  int feature_match_threshold;
 
   pn.param<string>("rgb_topic",rgb_t,"");
   pn.param<string>("depth_topic",depth_t,"");
   pn.param<string>("camera_info_topic",camera_info_t,"");
   pn.param<string>("robot_pose_topic",robot_pose_t,"");
-  pn.param<string>("rgb_dir",rgb_dir,"");
-  pn.param<string>("depth_dir",depth_dir,"");
-  pn.param<string>("robot_pose_dir",robot_pose_dir,"");
+  pn.param<string>("rgb_dir",rgb_dir,"../rgb/");
+  pn.param<string>("depth_dir",depth_dir,"../depth/");
+  pn.param<string>("robot_pose_dir",robot_pose_dir,"../pose/");
+  pn.param<double>("robot_move_threshold",robot_move_threshold,0.3);
+  pn.param<double>("robot_rotate_threshold",robot_rotate_threshold,10.0);
+  pn.param<int>("feature_match_threshold",feature_match_threshold,30);
 
   SaveCurrentImageAndRobotPose obj(n,
                                    rgb_t,
@@ -121,30 +147,98 @@ int main(int argc, char** argv)
                                    robot_pose_t,
                                    rgb_dir,
                                    depth_dir,
-                                   pose_dir);
+                                   robot_pose_dir,
+                                   robot_move_threshold,
+                                   robot_rotate_threshold,
+                                   feature_match_threshold);
   ros::spin();
 
   return 0;
 }
-
-bool SaveCurrentImageAndRobotPose::countRefAndCurFrame()
+void SaveCurrentImageAndRobotPose::match_features_knn(Mat& query, Mat& train, vector<DMatch>& matches)
 {
-   
-    
-   if(match.size() < threshold)
+    flann::Index flannIndex(query,flann::LshIndexParams(5,10,2),cvflann::FLANN_DIST_HAMMING);
+    Mat matchindex(train.rows,2,CV_32SC1);
+    Mat matchdistance(train.rows, 2, CV_32FC1);
+    flannIndex.knnSearch(train, matchindex, matchdistance,2,flann::SearchParams());
+     
+    for (int i = 0; i < matchdistance.rows; i++)
+    {
+        if (matchdistance.at<float>(i, 0) < 0.6*matchdistance.at<float>(i, 1))
+         {
+            DMatch dmatches(matchindex.at<int>(i, 0),i, matchdistance.at<float>(i, 0));
+            matches.push_back(dmatches);
+         }
+    }
+}
+void SaveCurrentImageAndRobotPose::refine_match_with_homography(vector<KeyPoint>& queryKeyPoints,
+                                                                vector<KeyPoint>& trainKeyPoints,
+                                                                float reprojectionThreshold,
+                                                                vector<DMatch>& matches,
+                                                                Mat& homography)
+{
+    std::vector<cv::Point2f> srcPoints(matches.size());
+    std::vector<cv::Point2f> dstPoints(matches.size());
+    for (size_t i = 0; i < matches.size(); i++)
+    {
+       srcPoints[i] = trainKeyPoints[matches[i].trainIdx].pt;
+       dstPoints[i] = queryKeyPoints[matches[i].queryIdx].pt;
+    }
+
+    std::vector<unsigned char> inliersMask(srcPoints.size());
+    homography = cv::findHomography(srcPoints,dstPoints,CV_FM_RANSAC,reprojectionThreshold,inliersMask);
+    std::vector<cv::DMatch> inliers;
+    for (size_t i = 0; i<inliersMask.size(); i++)
+    {
+        if (inliersMask[i])
+           inliers.push_back(matches[i]);
+    }
+    matches.swap(inliers);
+}
+bool SaveCurrentImageAndRobotPose::countRefAndCurFrame()
+{   
+    CV_Assert(ref_frame.data != NULL && cur_frame.data != NULL);
+    std::vector<KeyPoint> keyPoint_ref, keyPoint_cur;
+
+    int num_of_features = 256;
+    double scale_factor = 1.2;
+    double level_pyramid = 5;
+
+    cv::Ptr<cv::ORB> orb; 
+    orb = cv::ORB::create(num_of_features,scale_factor,level_pyramid);
+
+    orb->detect(ref_frame, keyPoint_ref);
+    orb->detect(cur_frame, keyPoint_cur);
+
+    Mat descriptorMat_ref, descriptorMat_cur;
+    orb->compute(ref_frame, keyPoint_ref, descriptorMat_ref);
+    orb->compute(cur_frame, keyPoint_cur, descriptorMat_cur);
+
+    std::vector<DMatch> matches;
+    match_features_knn(descriptorMat_ref, descriptorMat_cur,matches);
+
+    Mat homography;
+    refine_match_with_homography(keyPoint_ref,keyPoint_cur,3,matches,homography);
+
+    if(matches.size() < feature_match_th)
         return true;
-   else
+    else
         return false;
 }
 bool SaveCurrentImageAndRobotPose::crossRefAndCurPose()
 {
-    geometry_msgs::Pose ref = ref_pose.pose;
-    geometry_msgs::Pose cur = cur_pose.pose;
+    tf::Transform ref_t;
+    ref_t.setOrigin(tf::Vector3(ref_pose.pose.position.x, ref_pose.pose.position.y, ref_pose.pose.position.z));
+    ref_t.setRotation(tf::Quaternion(ref_pose.pose.orientation.x,ref_pose.pose.orientation.y,ref_pose.pose.orientation.z,ref_pose.pose.orientation.w));
 
-    geometry_msgs::Pose delta = ref.inverse()*cur;
+    tf::Transform cur_t;
+    cur_t.setOrigin(tf::Vector3(cur_pose.pose.position.x, cur_pose.pose.position.y, cur_pose.pose.position.z));
+    cur_t.setRotation(tf::Quaternion(cur_pose.pose.orientation.x,cur_pose.pose.orientation.y,cur_pose.pose.orientation.z,cur_pose.pose.orientation.w));
 
-    if(sqrt(delta.position.x*delta.position.x+delta.position.y*delta.position.y) > robot_move_threshold \
-       || fabs(tf::getYaw(delta.orientation)*180/M_PI) > robot_rotate_threshold)
+    tf::Transform delta = ref_t.inverse()*cur_t;
+
+    if(sqrt(delta.getOrigin().getX()*delta.getOrigin().getX()+delta.getOrigin().getY()*delta.getOrigin().getY()) > robot_move_th \
+       || fabs(tf::getYaw(delta.getRotation())*180/M_PI) > robot_rotate_th)
         return true;
     else
         return false;
@@ -172,24 +266,30 @@ void SaveCurrentImageAndRobotPose::analysisCB(const sensor_msgs::ImageConstPtr& 
     cv::Mat image_rgb = cv_ptr_rgb->image;
 
     cur_frame = image_rgb;
+    
+    if(cur_frame.empty()){
+        ROS_ERROR("Get Current frame fail...");
+    }
 
     ROS_INFO("start save image and robot pose...");  
-    if(image_index == 0){
+    if(frame_index == 0){
         stringstream ss_rgb;
-        ss_rgb << image_index;
+        ss_rgb << frame_index;
         string s_rgb = rgb_directory+ss_rgb.str()+"_rgb.png";
 
         stringstream ss_depth;
-        ss_depth << image_index;
+        ss_depth << frame_index;
         string s_depth = depth_directory+ss_depth.str()+"_depth.png"; 
         
         /*cv_bridge::CvImagePtr cv_ptr_rgb;
         cv_ptr_rgb =  cv_bridge::toCvCopy(msg_rgb, sensor_msgs::image_encodings::MONO8);
         //std::cout << __FILE__ << __LINE__ << std::endl;
         cv::Mat image_rgb = cv_ptr_rgb->image;*/
-        imwrite(s_rgb,cur_frame);
+        cv::imwrite(s_rgb,cur_frame);
         
         ref_frame = cur_frame;
+
+        frame_index++;
 
         cv_bridge::CvImagePtr cv_ptr_depth;
         cv_ptr_depth =  cv_bridge::toCvCopy(msg_depth, sensor_msgs::image_encodings::TYPE_16UC1);
@@ -205,20 +305,43 @@ void SaveCurrentImageAndRobotPose::analysisCB(const sensor_msgs::ImageConstPtr& 
         if(!outfile.is_open())
            ROS_ERROR("Open file failure...");
 
-        outfile << image_index << "\t" << tx << "\t" << ty << "\t" << tz << "\t" << rx << "\t" << ry << rz << "\t" << w << std::endl;
+        outfile << frame_index << "\t" << tx << "\t" << ty << "\t" << tz << "\t" << rx << "\t" << ry << rz << "\t" << w << std::endl;
+        outfile.close();
 
     }
     else{
-        if(checkKeyFrame()){
+        if(addKeyFrame()){
+            stringstream ss_rgb;
+            ss_rgb << frame_index;
+            string s_rgb = rgb_directory+ss_rgb.str()+"_rgb.png";
+
+            stringstream ss_depth;
+            ss_depth << frame_index;
+            string s_depth = depth_directory+ss_depth.str()+"_depth.png"; 
+        
+            /*cv_bridge::CvImagePtr cv_ptr_rgb;
+            cv_ptr_rgb =  cv_bridge::toCvCopy(msg_rgb, sensor_msgs::image_encodings::MONO8);
+            //std::cout << __FILE__ << __LINE__ << std::endl;
+            cv::Mat image_rgb = cv_ptr_rgb->image;*/
+            cv::imwrite(s_rgb,cur_frame);
+        
             ref_frame = cur_frame;
+            frame_index++;
+
+            cv_bridge::CvImagePtr cv_ptr_depth;
+            cv_ptr_depth =  cv_bridge::toCvCopy(msg_depth, sensor_msgs::image_encodings::TYPE_16UC1);
+            //std::cout << __FILE__ << __LINE__ << std::endl;
+            cv::Mat image_depth = cv_ptr_depth->image;
+            imwrite(s_depth,image_depth);
 
             ofstream outfile;
+            double tx,ty,tz;
+            double rx,ry,rz,w;
             outfile.open(depth_directory,ios::app);
             if(!outfile.is_open())
                 ROS_ERROR("Open file failure...");
             else{
-                outfile << image_index << "\t" << tx << "\t" << ty << "\t" << tz << "\t" << rx << "\t" << ry << rz << "\t" << w << std::endl;
-                frame_index++;
+                outfile << frame_index << "\t" << tx << "\t" << ty << "\t" << tz << "\t" << rx << "\t" << ry << rz << "\t" << w << std::endl;
                 outfile.close();
             }
         }
