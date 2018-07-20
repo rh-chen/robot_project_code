@@ -202,7 +202,7 @@ bool SaveCurrentImageAndRobotPose::countRefAndCurFrame()
 
     int num_of_features = 256;
     double scale_factor = 1.2;
-    double level_pyramid = 5;
+    int level_pyramid = 5;
 
     cv::Ptr<cv::ORB> orb; 
     orb = cv::ORB::create(num_of_features,scale_factor,level_pyramid);
@@ -310,7 +310,15 @@ void SaveCurrentImageAndRobotPose::analysisCB(const sensor_msgs::ImageConstPtr& 
         if(!outfile.is_open())
            ROS_ERROR("Open file failure...");
 
-        outfile << frame_index << "\t" << tx << "\t" << ty << "\t" << tz << "\t" << rx << "\t" << ry << rz << "\t" << w << std::endl;
+        outfile << frame_index << "," \
+                << w << "," \
+                << rx << ","\
+                << ry << ","\
+                << rz << ","\
+                << tx << ","\
+                << ty << ","\
+                << tz << std::endl;
+
         outfile.close();
 
     }
@@ -351,7 +359,14 @@ void SaveCurrentImageAndRobotPose::analysisCB(const sensor_msgs::ImageConstPtr& 
             if(!outfile.is_open())
                 ROS_ERROR("Open file failure...");
             else{
-                outfile << frame_index << "\t" << tx << "\t" << ty << "\t" << tz << "\t" << rx << "\t" << ry << rz << "\t" << w << std::endl;
+                outfile << frame_index << "," \
+                        << w << "," \
+                        << rx << ","\
+                        << ry << ","\
+                        << rz << ","\
+                        << tx << ","\
+                        << ty << ","\
+                        << tz << std::endl;
                 outfile.close();
             }
         }

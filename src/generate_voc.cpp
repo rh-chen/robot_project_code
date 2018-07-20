@@ -47,8 +47,11 @@ int main( int argc, char** argv )
     ROS_INFO("rgb_files_size:%d",(int)rgb_files.size());    
     ROS_INFO("Generating Features ... ");
     vector<Mat> descriptors;
-    Ptr< Feature2D > detector = ORB::create();
-    //int index = 0;
+    //Ptr< Feature2D > detector = ORB::create();
+    int num_of_features = 256;
+    double scale_factor = 1.2;
+    int level_pyramid = 5;
+    cv::Ptr<cv::ORB> detector = cv::ORB::create(num_of_features,scale_factor,level_pyramid);
     
     //extract orb feature
     for ( string rgb_file:rgb_files )
@@ -68,7 +71,7 @@ int main( int argc, char** argv )
     
     //create vocabulary 
     ROS_INFO("Creating Vocabulary,Please Wait...");
-    DBoW3::Vocabulary vocab;
+    DBoW3::Vocabulary vocab(10,7);
     vocab.create( descriptors );
     cout << "Vocabulary Info: " << vocab << endl;
     vocab.save( voc_dir+"voc.yml.gz" );

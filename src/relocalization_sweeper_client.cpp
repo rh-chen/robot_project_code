@@ -37,7 +37,7 @@ int main(int argc,char **argv){
     ros::init(argc, argv, "relocalization_robot_client");
 
     ros::NodeHandle n,pn("~");
-    pn.param<std::string>("data_dir",data_dir,"../data/");
+    pn.param<std::string>("data_dir",data_dir,"../rgb/");
     std::string image_dir = data_dir + "7_rgb.png";
     cv::Mat test = imread(image_dir,0);
 
