@@ -109,7 +109,9 @@ void bundleAdjustment (
     const vector<Point3f> points_3d,
     const vector<Point2f> points_2d,
     const Mat& K,
-    Mat& R, Mat& t){
+    Mat& R,
+    Mat& t,
+    Mat& inliers){
     typedef g2o::BlockSolver< g2o::BlockSolverTraits<6,3> > Block;  
     Block::LinearSolverType* linearSolver = new g2o::LinearSolverCSparse<Block::PoseMatrixType>(); 
     Block* solver_ptr = new Block ( linearSolver );  
@@ -132,12 +134,20 @@ void bundleAdjustment (
     optimizer.addVertex ( pose );
 
     int index = 1;
+    /*for ( int i = 0; i < inliers.rows; i++ ){
+        int index = inliers.at<int> ( i,0 );
+        g2o::VertexSBAPointXYZ* point = new g2o::VertexSBAPointXYZ();
+        point->setId ( i );
+        point->setEstimate ( Eigen::Vector3d (points_3d[index].x, points_3d[index].y, points_3d[index].z) );
+        point->setMarginalized ( true );
+        optimizer.addVertex ( point );
+    }*/
     for ( const Point3f p:points_3d )   // landmarks
     {
         g2o::VertexSBAPointXYZ* point = new g2o::VertexSBAPointXYZ();
         point->setId ( index++ );
         point->setEstimate ( Eigen::Vector3d ( p.x, p.y, p.z ) );
-        point->setMarginalized ( true ); // g2o 中必须设置 marg 参见第十讲内容
+        point->setMarginalized ( true );
         optimizer.addVertex ( point );
     }
 
@@ -166,7 +176,7 @@ void bundleAdjustment (
     chrono::steady_clock::time_point t1 = chrono::steady_clock::now();
     optimizer.setVerbose ( true );
     optimizer.initializeOptimization();
-    optimizer.optimize ( 100 );
+    optimizer.optimize (5);
     chrono::steady_clock::time_point t2 = chrono::steady_clock::now();
     chrono::duration<double> time_used = chrono::duration_cast<chrono::duration<double>> ( t2-t1 );
     cout<<"optimization costs time: "<<time_used.count() <<" seconds."<<endl;
@@ -175,9 +185,20 @@ void bundleAdjustment (
     cout<<"T="<<endl<<Eigen::Isometry3d ( pose->estimate() ).matrix() <<endl;
 
 }
-void poseEstimationPnP(vector<KeyPoint>& keypoint_ref,vector<KeyPoint>& keypoint_cur,vector<double>& pose,cv::Mat& depth,vector<DMatch>& matches)
+void poseEstimationPnP(vector<KeyPoint>& keypoint_ref,vector<KeyPoint>& keypoint_cur,vector<float>& pose,cv::Mat& depth,vector<DMatch>& matches)
 {
-    // construct the 3d 2d observations
+    Eigen::Quaterniond q(pose[0],pose[1],pose[2],pose[3]);
+    Eigen::Matrix3d R;
+    R = q.toRotationMatrix();
+    Eigen::Vector3d t;
+    t(0,0) = pose[4];
+    t(1,0) = pose[5];
+    t(2,0) = pose[6];
+
+    Eigen::Vector3d local_point;
+    Eigen::Vector3d global_point;
+
+    //construct the 3d 2d observations
     vector<cv::Point3f> pts3d;
     vector<cv::Point2f> pts2d;
 
@@ -192,8 +213,14 @@ void poseEstimationPnP(vector<KeyPoint>& keypoint_ref,vector<KeyPoint>& keypoint
         temp.x = (image_u-cx)*Depth/fx; 
         temp.y = (image_v-cy)*Depth/fy;
         temp.z = Depth;
+        
+        local_point(0,0) = temp.x;
+        local_point(1,0) = temp.y;
+        local_point(2,0) = temp.z;
 
-        pts3d.push_back(temp);
+        global_point = R*local_point + t;
+
+        pts3d.push_back(cv::Point3f(global_point(0,0),global_point(1,0),global_point(2,0)));
     }
 
     Mat K = ( cv::Mat_<double> ( 3,3 ) <<
@@ -207,9 +234,9 @@ void poseEstimationPnP(vector<KeyPoint>& keypoint_ref,vector<KeyPoint>& keypoint
     int num_inliers_ = inliers.rows;
     cout<<"pnp inliers: "<<num_inliers_<<endl;
    
-	Mat R;
-    cv::Rodrigues ( rvec, R ); 
-    bundleAdjustment ( pts3d, pts2d, K, R, tvec );
+	Mat global_R;
+    cv::Rodrigues (rvec,global_R ); 
+    bundleAdjustment ( pts3d, pts2d, K, global_R, tvec,inliers);
 }
 bool GetRobotCurrentPose(
                          relocalization_sweeper::GetRobotPose::Request &req,
@@ -314,6 +341,28 @@ bool GetRobotCurrentPose(
     if(depth_frame.empty())
         ROS_ERROR("Load Depth image fail...");
 
+    std::ifstream infile(pose_dir+"pose_list.txt");
+    std::vector<std::vector<float> > pose_vec;
+    std::vector<float> temp_vec;
+    if(infile.is_open()){
+        std::string lenStr;
+        while(getline(infile,lenStr)){
+            unsigned int found = 0;
+            int pos = 0;
+            std::vector<float> tempVec;
+            for(unsigned int i = 0;i < lenStr.length()/2;i++){
+                found = lenStr.find(' ',pos);
+                std::string tempData = lenStr.substr(pos,found-pos);
+                temp_vec.push_back(atof(tempData.c_str()));
+                pos = found +1;
+            }
+            pose_vec.push_back(temp_vec);
+        }
+    }
+    
+    vector<float> robot_world_pose;
+    robot_world_pose.swap(pose_vec[ret[0].Id]);
+
     std::vector<DMatch> matches;
     Mat descriptorMat_ref = descriptors[ret[0].Id];
     Mat descriptorMat_cur = source_descriptor;
@@ -325,7 +374,6 @@ bool GetRobotCurrentPose(
     vector<KeyPoint> keyPoint_cur(source_keypoint);
     refine_match_with_homography(keyPoint_ref,keyPoint_cur,3,matches,homography);
 
-    vector<double> robot_world_pose;
     poseEstimationPnP(keyPoint_ref,keyPoint_cur,robot_world_pose,depth_frame,matches);
 
     return true;
@@ -345,6 +393,7 @@ int main(int argc, char **argv) {
   private_nh.param<double>("cx",cx,0);
   private_nh.param<double>("cy",cy,0);
   private_nh.param<std::string>("depth_dir",depth_dir,"../depth/");
+  private_nh.param<std::string>("pose_dir",pose_dir,"../pose/");
 
   //advertise a service for getting a coverage plan
   ros::ServiceServer make_coverage_plan_srv = private_nh.advertiseService(
