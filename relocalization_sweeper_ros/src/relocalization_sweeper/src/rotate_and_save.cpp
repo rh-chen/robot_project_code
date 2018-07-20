@@ -310,7 +310,15 @@ void SaveCurrentImageAndRobotPose::analysisCB(const sensor_msgs::ImageConstPtr& 
         if(!outfile.is_open())
            ROS_ERROR("Open file failure...");
 
-        outfile << frame_index << "\t" << tx << "\t" << ty << "\t" << tz << "\t" << rx << "\t" << ry << rz << "\t" << w << std::endl;
+        outfile << frame_index << "\t" \
+                << w << "\t" \
+                << rx << "\t"\
+                << ry << "\t"\
+                << rz << "\t"\
+                << tx << "\t"\
+                << ty << "\t"\
+                << tz << std::endl;
+
         outfile.close();
 
     }
@@ -351,7 +359,14 @@ void SaveCurrentImageAndRobotPose::analysisCB(const sensor_msgs::ImageConstPtr& 
             if(!outfile.is_open())
                 ROS_ERROR("Open file failure...");
             else{
-                outfile << frame_index << "\t" << tx << "\t" << ty << "\t" << tz << "\t" << rx << "\t" << ry << rz << "\t" << w << std::endl;
+                outfile << frame_index << "\t" \
+                        << w << "\t" \
+                        << rx << "\t"\
+                        << ry << "\t"\
+                        << rz << "\t"\
+                        << tx << "\t"\
+                        << ty << "\t"\
+                        << tz << std::endl;
                 outfile.close();
             }
         }

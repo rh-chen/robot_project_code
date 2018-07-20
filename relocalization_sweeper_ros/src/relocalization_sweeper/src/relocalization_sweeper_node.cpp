@@ -187,13 +187,13 @@ void bundleAdjustment (
 }
 void poseEstimationPnP(vector<KeyPoint>& keypoint_ref,vector<KeyPoint>& keypoint_cur,vector<float>& pose,cv::Mat& depth,vector<DMatch>& matches)
 {
-    Eigen::Quaterniond q(pose[0],pose[1],pose[2],pose[3]);
+    Eigen::Quaterniond q(pose[1],pose[2],pose[3],pose[4]);
     Eigen::Matrix3d R;
     R = q.toRotationMatrix();
     Eigen::Vector3d t;
-    t(0,0) = pose[4];
-    t(1,0) = pose[5];
-    t(2,0) = pose[6];
+    t(0,0) = pose[5];
+    t(1,0) = pose[6];
+    t(2,0) = pose[7];
 
     Eigen::Vector3d local_point;
     Eigen::Vector3d global_point;
