@@ -264,8 +264,10 @@ void SaveCurrentImageAndRobotPose::analysisCB(const sensor_msgs::ImageConstPtr& 
     cv_ptr_rgb =  cv_bridge::toCvCopy(msg_rgb, sensor_msgs::image_encodings::MONO8);
     //std::cout << __FILE__ << __LINE__ << std::endl;
     cv::Mat image_rgb = cv_ptr_rgb->image;
-
     cur_frame = image_rgb;
+
+    cur_pose.header = msg_robot_pose->header;
+    cur_pose.pose = msg_robot_pose->pose;
     
     if(cur_frame.empty()){
         ROS_ERROR("Get Current frame fail...");
@@ -292,9 +294,8 @@ void SaveCurrentImageAndRobotPose::analysisCB(const sensor_msgs::ImageConstPtr& 
         cv::Mat image_rgb = cv_ptr_rgb->image;*/
         cv::imwrite(s_rgb,cur_frame);
         
-        ref_frame = cur_frame;
-
-        frame_index++;
+        //ref_frame = cur_frame;
+        //frame_index++;
 
         cv_bridge::CvImagePtr cv_ptr_depth;
         cv_ptr_depth =  cv_bridge::toCvCopy(msg_depth, sensor_msgs::image_encodings::TYPE_16UC1);
@@ -302,21 +303,36 @@ void SaveCurrentImageAndRobotPose::analysisCB(const sensor_msgs::ImageConstPtr& 
         cv::Mat image_depth = cv_ptr_depth->image;
         imwrite(s_depth,image_depth);
 
+        //ref_pose.header = msg_robot_pose->header;
+        //ref_pose.pose = msg_robot_pose->pose;
+        ref_pose = cur_pose;
+        ref_frame = cur_frame;
+        frame_index++;
+
         double tx,ty,tz;
         double rx,ry,rz,w;
         
+        tx = cur_pose.pose.position.x;
+        ty = cur_pose.pose.position.y;
+        tz = cur_pose.pose.position.z;
+
+        rx = cur_pose.pose.orientation.x;
+        ry = cur_pose.pose.orientation.y;
+        rz = cur_pose.pose.orientation.z;
+        w = cur_pose.pose.orientation.w;
+
         ofstream outfile;
         outfile.open(depth_directory,ios::app);
         if(!outfile.is_open())
            ROS_ERROR("Open file failure...");
 
-        outfile << frame_index << "\t" \
-                << w << "\t" \
-                << rx << "\t"\
-                << ry << "\t"\
-                << rz << "\t"\
-                << tx << "\t"\
-                << ty << "\t"\
+        outfile << frame_index << "," \
+                << w << "," \
+                << rx << ","\
+                << ry << ","\
+                << rz << ","\
+                << tx << ","\
+                << ty << ","\
                 << tz << std::endl;
 
         outfile.close();
@@ -343,8 +359,9 @@ void SaveCurrentImageAndRobotPose::analysisCB(const sensor_msgs::ImageConstPtr& 
             cv::Mat image_rgb = cv_ptr_rgb->image;*/
             cv::imwrite(s_rgb,cur_frame);
         
-            ref_frame = cur_frame;
-            frame_index++;
+            //ref_frame = cur_frame;
+            //frame_index++;
+            //ref_pose = cur_pose;
 
             cv_bridge::CvImagePtr cv_ptr_depth;
             cv_ptr_depth =  cv_bridge::toCvCopy(msg_depth, sensor_msgs::image_encodings::TYPE_16UC1);
@@ -352,20 +369,34 @@ void SaveCurrentImageAndRobotPose::analysisCB(const sensor_msgs::ImageConstPtr& 
             cv::Mat image_depth = cv_ptr_depth->image;
             imwrite(s_depth,image_depth);
 
-            ofstream outfile;
+            ref_frame = cur_frame;
+            frame_index++;
+            ref_pose = cur_pose;
+
             double tx,ty,tz;
             double rx,ry,rz,w;
+
+            tx = cur_pose.pose.position.x;
+            ty = cur_pose.pose.position.y;
+            tz = cur_pose.pose.position.z;
+
+            rx = cur_pose.pose.orientation.x;
+            ry = cur_pose.pose.orientation.y;
+            rz = cur_pose.pose.orientation.z;
+            w = cur_pose.pose.orientation.w;
+            
+            ofstream outfile;
             outfile.open(depth_directory,ios::app);
             if(!outfile.is_open())
                 ROS_ERROR("Open file failure...");
             else{
-                outfile << frame_index << "\t" \
-                        << w << "\t" \
-                        << rx << "\t"\
-                        << ry << "\t"\
-                        << rz << "\t"\
-                        << tx << "\t"\
-                        << ty << "\t"\
+                outfile << frame_index << "," \
+                        << w << "," \
+                        << rx << ","\
+                        << ry << ","\
+                        << rz << ","\
+                        << tx << ","\
+                        << ty << ","\
                         << tz << std::endl;
                 outfile.close();
             }
