@@ -28,7 +28,7 @@ using namespace cv;
 using namespace std;
 
 
-typedef message_filters::sync_policies::ApproximateTime<sensor_msgs::Image,sensor_msgs::Image,sensor_msgs::CameraInfo,geometry_msgs::PoseStamped> sync_pol;
+typedef message_filters::sync_policies::ApproximateTime<sensor_msgs::Image,sensor_msgs::Image,sensor_msgs::CameraInfo, nav_msgs::Odometry> sync_pol;
 
 class SaveCurrentImageAndRobotPose
 {
@@ -36,7 +36,7 @@ public:
 	message_filters::Subscriber<sensor_msgs::Image>* rgb_sub;
 	message_filters::Subscriber<sensor_msgs::Image>* depth_sub;
 	message_filters::Subscriber<sensor_msgs::CameraInfo>* caminfo_sub;
-    message_filters::Subscriber<geometry_msgs::PoseStamped>* pose_sub;
+    message_filters::Subscriber<nav_msgs::Odometry>* pose_sub;
 	message_filters::Synchronizer<sync_pol>* sync;
 
 
@@ -60,7 +60,7 @@ public:
 		rgb_sub = new message_filters::Subscriber<sensor_msgs::Image>(nh_, rgb_topic, 1);
 		depth_sub = new message_filters::Subscriber<sensor_msgs::Image>(nh_, depth_topic, 1);
 		caminfo_sub = new message_filters::Subscriber<sensor_msgs::CameraInfo>(nh_, camera_info_topic, 1);
-		pose_sub = new message_filters::Subscriber<geometry_msgs::PoseStamped>(nh_, robot_pose_topic, 1);
+		pose_sub = new message_filters::Subscriber<nav_msgs::Odometry>(nh_, robot_pose_topic, 1);
 		sync = new  message_filters::Synchronizer<sync_pol>(sync_pol(10), *rgb_sub,*depth_sub,*caminfo_sub,*pose_sub);
 
 		sync->registerCallback(boost::bind(&SaveCurrentImageAndRobotPose::analysisCB,this,_1,_2,_3,_4));
@@ -77,7 +77,7 @@ public:
   void analysisCB(const sensor_msgs::ImageConstPtr& msg_rgb,
                   const sensor_msgs::ImageConstPtr& msg_depth,
                   const sensor_msgs::CameraInfoConstPtr& msg_cam_info,
-                  const geometry_msgs::PoseStampedConstPtr& msg_robot_pose);
+                  const nav_msgs::OdometryConstPtr& msg_robot_pose);
   bool addKeyFrame();
   bool countRefAndCurFrame();
   bool crossRefAndCurPose();
@@ -139,6 +139,16 @@ int main(int argc, char** argv)
   pn.param<double>("robot_move_threshold",robot_move_threshold,0.3);
   pn.param<double>("robot_rotate_threshold",robot_rotate_threshold,10.0);
   pn.param<int>("feature_match_threshold",feature_match_threshold,30);
+
+  ROS_INFO("robot_pose_dir:%s",robot_pose_dir.c_str());
+  ROS_INFO("depth_dir:%s",depth_dir.c_str());
+  ROS_INFO("rgb_dir:%s",rgb_dir.c_str());
+  ROS_INFO("robot_pose_topic:%s",robot_pose_t.c_str());
+  ROS_INFO("rgb_topic:%s",rgb_t.c_str());
+  ROS_INFO("depth_topic:%s",depth_t.c_str());
+  ROS_INFO("robot_move_threshold:%f",robot_move_threshold);
+  ROS_INFO("robot_rotate_threshold:%f",robot_rotate_threshold);
+  ROS_INFO("feature_match_threshold:%d",feature_match_threshold);
 
   SaveCurrentImageAndRobotPose obj(n,
                                    rgb_t,
@@ -217,13 +227,23 @@ bool SaveCurrentImageAndRobotPose::countRefAndCurFrame()
     std::vector<DMatch> matches;
     match_features_knn(descriptorMat_ref, descriptorMat_cur,matches);
 
-    Mat homography;
-    refine_match_with_homography(keyPoint_ref,keyPoint_cur,3,matches,homography);
-
-    if(matches.size() < feature_match_th)
+    if(matches.size() < feature_match_th){
+        ROS_INFO("feature match enough...");
+        ROS_INFO("matches_size:%d",(int)matches.size());
         return true;
-    else
-        return false;
+    }
+    else{
+        Mat homography;
+        refine_match_with_homography(keyPoint_ref,keyPoint_cur,3,matches,homography);
+    
+        if(matches.size() < feature_match_th){
+            ROS_INFO("feature match homography enough...");
+            ROS_INFO("matches_size_homography:%d",(int)matches.size());
+            return true;
+        }
+        else
+            return false;
+    }
 }
 bool SaveCurrentImageAndRobotPose::crossRefAndCurPose()
 {
@@ -238,8 +258,13 @@ bool SaveCurrentImageAndRobotPose::crossRefAndCurPose()
     tf::Transform delta = ref_t.inverse()*cur_t;
 
     if(sqrt(delta.getOrigin().getX()*delta.getOrigin().getX()+delta.getOrigin().getY()*delta.getOrigin().getY()) > robot_move_th \
-       || fabs(tf::getYaw(delta.getRotation())*180/M_PI) > robot_rotate_th)
+       || fabs(tf::getYaw(delta.getRotation())*180/M_PI) > robot_rotate_th){
+        ROS_INFO("robot_move_distance:%f",\
+            sqrt(delta.getOrigin().getX()*delta.getOrigin().getX()+delta.getOrigin().getY()*delta.getOrigin().getY()));
+        ROS_INFO("robot_rotate_angle:%f",fabs(tf::getYaw(delta.getRotation())*180/M_PI));
+        ROS_INFO("robot move or rotate enough...");
         return true;
+    }
     else
         return false;
 }   
@@ -257,7 +282,7 @@ bool SaveCurrentImageAndRobotPose::addKeyFrame()
 void SaveCurrentImageAndRobotPose::analysisCB(const sensor_msgs::ImageConstPtr& msg_rgb,
                                               const sensor_msgs::ImageConstPtr& msg_depth,
                                               const sensor_msgs::CameraInfoConstPtr& msg_cam_info,
-                                              const geometry_msgs::PoseStampedConstPtr& msg_robot_pose)
+                                              const nav_msgs::OdometryConstPtr& msg_robot_pose)
   {
     
     cv_bridge::CvImagePtr cv_ptr_rgb;
@@ -267,7 +292,7 @@ void SaveCurrentImageAndRobotPose::analysisCB(const sensor_msgs::ImageConstPtr& 
     cur_frame = image_rgb;
 
     cur_pose.header = msg_robot_pose->header;
-    cur_pose.pose = msg_robot_pose->pose;
+    cur_pose.pose = msg_robot_pose->pose.pose;
     
     if(cur_frame.empty()){
         ROS_ERROR("Get Current frame fail...");
@@ -280,7 +305,7 @@ void SaveCurrentImageAndRobotPose::analysisCB(const sensor_msgs::ImageConstPtr& 
         string s_rgb = rgb_directory+ss_rgb.str()+"_rgb.png";
 
         ofstream outfile_data;
-        outfile_data.open(rgb_directory+"data.txt");
+        outfile_data.open(rgb_directory+"data.txt",ios::app);
         outfile_data << ss_rgb.str()+"_rgb.png" << std::endl;
         outfile_data.close();
 
@@ -307,7 +332,6 @@ void SaveCurrentImageAndRobotPose::analysisCB(const sensor_msgs::ImageConstPtr& 
         //ref_pose.pose = msg_robot_pose->pose;
         ref_pose = cur_pose;
         ref_frame = cur_frame;
-        frame_index++;
 
         double tx,ty,tz;
         double rx,ry,rz,w;
@@ -322,11 +346,11 @@ void SaveCurrentImageAndRobotPose::analysisCB(const sensor_msgs::ImageConstPtr& 
         w = cur_pose.pose.orientation.w;
 
         ofstream outfile;
-        outfile.open(depth_directory,ios::app);
+        outfile.open(pose_directory,ios::app);
         if(!outfile.is_open())
            ROS_ERROR("Open file failure...");
-
-        outfile << frame_index << "," \
+        else{
+            outfile << frame_index << "," \
                 << w << "," \
                 << rx << ","\
                 << ry << ","\
@@ -335,7 +359,9 @@ void SaveCurrentImageAndRobotPose::analysisCB(const sensor_msgs::ImageConstPtr& 
                 << ty << ","\
                 << tz << std::endl;
 
-        outfile.close();
+            outfile.close();
+            frame_index++;
+        }
 
     }
     else{
@@ -345,7 +371,7 @@ void SaveCurrentImageAndRobotPose::analysisCB(const sensor_msgs::ImageConstPtr& 
             string s_rgb = rgb_directory+ss_rgb.str()+"_rgb.png";
 
             ofstream outfile_data;
-            outfile_data.open(rgb_directory+"data.txt");
+            outfile_data.open(rgb_directory+"data.txt",ios::app);
             outfile_data << ss_rgb.str()+"_rgb.png" << std::endl;
             outfile_data.close();
 
@@ -370,7 +396,6 @@ void SaveCurrentImageAndRobotPose::analysisCB(const sensor_msgs::ImageConstPtr& 
             imwrite(s_depth,image_depth);
 
             ref_frame = cur_frame;
-            frame_index++;
             ref_pose = cur_pose;
 
             double tx,ty,tz;
@@ -386,7 +411,7 @@ void SaveCurrentImageAndRobotPose::analysisCB(const sensor_msgs::ImageConstPtr& 
             w = cur_pose.pose.orientation.w;
             
             ofstream outfile;
-            outfile.open(depth_directory,ios::app);
+            outfile.open(pose_directory,ios::app);
             if(!outfile.is_open())
                 ROS_ERROR("Open file failure...");
             else{
@@ -399,6 +424,7 @@ void SaveCurrentImageAndRobotPose::analysisCB(const sensor_msgs::ImageConstPtr& 
                         << ty << ","\
                         << tz << std::endl;
                 outfile.close();
+                frame_index++;
             }
         }
     }
