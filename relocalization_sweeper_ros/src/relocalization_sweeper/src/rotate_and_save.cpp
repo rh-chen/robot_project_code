@@ -305,7 +305,7 @@ void SaveCurrentImageAndRobotPose::analysisCB(const sensor_msgs::ImageConstPtr& 
         string s_rgb = rgb_directory+ss_rgb.str()+"_rgb.png";
 
         ofstream outfile_data;
-        outfile_data.open(rgb_directory+"data.txt",ios::app);
+        outfile_data.open(rgb_directory+"data.txt",ios::out);
         outfile_data << ss_rgb.str()+"_rgb.png" << std::endl;
         outfile_data.close();
 
@@ -332,6 +332,13 @@ void SaveCurrentImageAndRobotPose::analysisCB(const sensor_msgs::ImageConstPtr& 
         //ref_pose.pose = msg_robot_pose->pose;
         ref_pose = cur_pose;
         ref_frame = cur_frame;
+        
+        double fx,fy,cx,cy;
+        fx = msg_cam_info->K[0];
+        fy = msg_cam_info->K[4];
+
+        cx = msg_cam_info->K[2];
+        cy = msg_cam_info->K[5];
 
         double tx,ty,tz;
         double rx,ry,rz,w;
@@ -346,6 +353,27 @@ void SaveCurrentImageAndRobotPose::analysisCB(const sensor_msgs::ImageConstPtr& 
         w = cur_pose.pose.orientation.w;
 
         ofstream outfile;
+        outfile.open(pose_directory,ios::out);
+        if(!outfile.is_open())
+            ROS_ERROR("Open file_empty failure...");
+        else{
+            outfile << frame_index << "," \
+                << w << "," \
+                << rx << ","\
+                << ry << ","\
+                << rz << ","\
+                << tx << ","\
+                << ty << ","\
+                << tz << ","\
+                << fx << ","\
+                << fy << ","\
+                << cx << ","\
+                << cy << std::endl;
+
+            frame_index++;
+            outfile.close();
+        }
+        /*ofstream outfile;
         outfile.open(pose_directory,ios::app);
         if(!outfile.is_open())
            ROS_ERROR("Open file failure...");
@@ -361,7 +389,7 @@ void SaveCurrentImageAndRobotPose::analysisCB(const sensor_msgs::ImageConstPtr& 
 
             outfile.close();
             frame_index++;
-        }
+        }*/
 
     }
     else{
@@ -398,6 +426,13 @@ void SaveCurrentImageAndRobotPose::analysisCB(const sensor_msgs::ImageConstPtr& 
             ref_frame = cur_frame;
             ref_pose = cur_pose;
 
+            double fx,fy,cx,cy;
+            fx = msg_cam_info->K[0];
+            fy = msg_cam_info->K[4];
+
+            cx = msg_cam_info->K[2];
+            cy = msg_cam_info->K[5];
+
             double tx,ty,tz;
             double rx,ry,rz,w;
 
@@ -416,15 +451,19 @@ void SaveCurrentImageAndRobotPose::analysisCB(const sensor_msgs::ImageConstPtr& 
                 ROS_ERROR("Open file failure...");
             else{
                 outfile << frame_index << "," \
-                        << w << "," \
-                        << rx << ","\
-                        << ry << ","\
-                        << rz << ","\
-                        << tx << ","\
-                        << ty << ","\
-                        << tz << std::endl;
-                outfile.close();
-                frame_index++;
+                    << w << "," \
+                    << rx << ","\
+                    << ry << ","\
+                    << rz << ","\
+                    << tx << ","\
+                    << ty << ","\
+                    << tz << ","\
+                    << fx << ","\
+                    << fy << ","\
+                    << cx << ","\
+                    << cy << std::endl;
+                    outfile.close();
+                    frame_index++;
             }
         }
     }

@@ -18,7 +18,6 @@
 #include <sensor_msgs/PointCloud2.h>
 #include <image_transport/image_transport.h>
 #include <cv_bridge/cv_bridge.h>
-
 #include <boost/thread/thread.hpp>
 #include <boost/make_shared.hpp>
 #include <stdio.h>
@@ -57,7 +56,8 @@ std::string voc_dir;
 std::string dataset_dir;
 std::string pose_dir;
 std::string depth_dir;
-double fx,fy,cx,cy;
+float base_line;
+//double fx,fy,cx,cy;
 
 namespace relocalization_robot{
 using namespace __gnu_cxx;
@@ -111,7 +111,10 @@ void bundleAdjustment (
     const Mat& K,
     Mat& R,
     Mat& t,
-    Mat& inliers){
+    Mat& inliers,
+    Eigen::Matrix3d& R_res,
+    Eigen::Vector3d& t_res){
+
     typedef g2o::BlockSolver< g2o::BlockSolverTraits<6,3> > Block;  
     Block::LinearSolverType* linearSolver = new g2o::LinearSolverCSparse<Block::PoseMatrixType>(); 
     Block* solver_ptr = new Block ( linearSolver );  
@@ -176,14 +179,29 @@ void bundleAdjustment (
     chrono::steady_clock::time_point t1 = chrono::steady_clock::now();
     optimizer.setVerbose ( true );
     optimizer.initializeOptimization();
-    optimizer.optimize (5);
+    optimizer.optimize (10);//optimize num
     chrono::steady_clock::time_point t2 = chrono::steady_clock::now();
     chrono::duration<double> time_used = chrono::duration_cast<chrono::duration<double>> ( t2-t1 );
     cout<<"optimization costs time: "<<time_used.count() <<" seconds."<<endl;
 
     cout<<endl<<"after optimization:"<<endl;
-    cout<<"T="<<endl<<Eigen::Isometry3d ( pose->estimate() ).matrix() <<endl;
+    Eigen::Matrix4d Twc(Eigen::Isometry3d ( pose->estimate() ).matrix());
+    //cout<<"T="<<endl<<Eigen::Isometry3d ( pose->estimate() ).matrix() <<endl;
+    cout<<"T="<<endl<<Twc<<endl;
 
+    R_res(0,0) = Twc(0,0);
+    R_res(0,1) = Twc(0,1);
+    R_res(0,2) = Twc(0,2);
+    R_res(1,0) = Twc(1,0);
+    R_res(1,1) = Twc(1,1);
+    R_res(1,2) = Twc(1,2);
+    R_res(2,0) = Twc(2,0);
+    R_res(2,1) = Twc(2,1);
+    R_res(2,2) = Twc(2,2);
+
+    t_res(0,0) = Twc(0,3);
+    t_res(1,0) = Twc(1,3);
+    t_res(2,0) = Twc(2,3);
 }
 void poseEstimationPnP(vector<KeyPoint>& keypoint_ref,vector<KeyPoint>& keypoint_cur,vector<float>& pose,cv::Mat& depth,vector<DMatch>& matches)
 {
@@ -195,6 +213,12 @@ void poseEstimationPnP(vector<KeyPoint>& keypoint_ref,vector<KeyPoint>& keypoint
     t(1,0) = pose[6];
     t(2,0) = pose[7];
 
+
+    float fx = pose[8];
+    float fy = pose[9];
+    float cx = pose[10];
+    float cy = pose[11];
+
     Eigen::Vector3d local_point;
     Eigen::Vector3d global_point;
 
@@ -202,25 +226,53 @@ void poseEstimationPnP(vector<KeyPoint>& keypoint_ref,vector<KeyPoint>& keypoint
     vector<cv::Point3f> pts3d;
     vector<cv::Point2f> pts2d;
 
+    float depth_threshold_max = 5.0;
+    float depth_threshold_min = 0.6;
     for(int i = 0;i < matches.size();i++){
-        pts2d.push_back(keypoint_cur[matches[i].queryIdx].pt);
+        int image_u = (int)keypoint_ref[matches[i].queryIdx].pt.x;
+        int image_v = (int)keypoint_ref[matches[i].queryIdx].pt.y;
+        float Depth = reinterpret_cast<uint16_t>(depth.at<uint16_t>(image_v,image_u))/1000.0;
+        std::cout << "Depth value:" << Depth << std::endl;
+
+        if(Depth < depth_threshold_max && Depth > depth_threshold_min){
+            pts2d.push_back(keypoint_cur[matches[i].trainIdx].pt);
        
-        int image_u = (int)keypoint_ref[matches[i].trainIdx].pt.x;
-        int image_v = (int)keypoint_ref[matches[i].trainIdx].pt.y;
+            //int image_u = (int)keypoint_ref[matches[i].queryIdx].pt.x;
+            //int image_v = (int)keypoint_ref[matches[i].queryIdx].pt.y;
 
-        uint16_t Depth = reinterpret_cast<uint16_t>(depth.at<uint16_t>(image_v,image_u))/1000;
-        cv::Point3f temp;
-        temp.x = (image_u-cx)*Depth/fx; 
-        temp.y = (image_v-cy)*Depth/fy;
-        temp.z = Depth;
-        
-        local_point(0,0) = temp.x;
-        local_point(1,0) = temp.y;
-        local_point(2,0) = temp.z;
+            float Depth = reinterpret_cast<uint16_t>(depth.at<uint16_t>(image_v,image_u))/1000.0;
+            cv::Point3f temp;
+            temp.x = (image_u-cx)*Depth/fx-base_line/2.0; 
+            temp.y = -(image_v-cy)*Depth/fy;
+            temp.z = Depth;
+       
+            /*std::cout << "old coordinate: " << std::endl;
+            std::cout << "old coordinate_x: " << temp.x << std::endl;
+            std::cout << "old coordinate_y: " << temp.y << std::endl;
+            std::cout << "old coordinate_z: " << temp.z << std::endl;
+            */
+            //coordinate transform
+            cv::Point3f temp_tra;
+            temp_tra.x = temp.z;
+            temp_tra.y = -temp.x;
+            temp_tra.z = temp.y;
 
-        global_point = R*local_point + t;
+            /*std::cout << "new coordinate: " << std::endl;
+            std::cout << "new coordinate_x: " << temp_tra.x << std::endl;
+            std::cout << "new coordinate_y: " << temp_tra.y << std::endl;
+            std::cout << "new coordinate_z: " << temp_tra.z << std::endl;
+            */
 
-        pts3d.push_back(cv::Point3f(global_point(0,0),global_point(1,0),global_point(2,0)));
+            local_point(0,0) = temp_tra.x;
+            local_point(1,0) = temp_tra.y;
+            local_point(2,0) = temp_tra.z;
+
+            global_point = local_point;
+
+            pts3d.push_back(cv::Point3f(global_point(0,0),global_point(1,0),global_point(2,0)));
+        }
+        else
+            ROS_ERROR("depth value is unvalid...");
     }
 
     Mat K = ( cv::Mat_<double> ( 3,3 ) <<
@@ -230,13 +282,27 @@ void poseEstimationPnP(vector<KeyPoint>& keypoint_ref,vector<KeyPoint>& keypoint
             );
 
     Mat rvec, tvec, inliers;
-    cv::solvePnPRansac ( pts3d, pts2d, K, Mat(), rvec, tvec, false, 100, 4.0, 0.99, inliers );
+    cv::solvePnPRansac ( pts3d, pts2d, K, Mat(), rvec, tvec, false, 100, 4.0, 0.99, inliers,CV_EPNP);
     int num_inliers_ = inliers.rows;
     cout<<"pnp inliers: "<<num_inliers_<<endl;
-   
+    std::cout << "tvec:" << tvec << std::endl;
+
+
 	Mat global_R;
-    cv::Rodrigues (rvec,global_R ); 
-    bundleAdjustment ( pts3d, pts2d, K, global_R, tvec,inliers);
+    cv::Rodrigues (rvec,global_R );
+    Eigen::Matrix3d R_res;
+    Eigen::Vector3d t_res;
+
+    bundleAdjustment ( pts3d, pts2d, K, global_R, tvec,inliers,R_res,t_res);
+
+    std::cout << "R_res:" << R_res << std::endl;
+    std::cout << "t_res:" << t_res << std::endl;
+
+    Eigen::Matrix3d Rwc(R*R_res);
+    Eigen::Vector3d twc(R*t_res+t);
+
+    std::cout << "Rwc:" << Rwc << std::endl;
+    std::cout << "twc:" << twc << std::endl;
 }
 bool GetRobotCurrentPose(
                          relocalization_sweeper::GetRobotPose::Request &req,
@@ -303,8 +369,10 @@ bool GetRobotCurrentPose(
     {
         Mat image = imread(rgb_file,0);
 
-        if(image.empty())
+        if(image.empty()){
+            ROS_INFO("Load train image fail...");
             continue;
+        }
 
         vector<KeyPoint> keypoint; 
         Mat descriptor;
@@ -329,7 +397,7 @@ bool GetRobotCurrentPose(
     ROS_INFO("ret_id:%d",(int)ret[0].Id);
     ROS_INFO("ret_id:%d",(int)ret[1].Id);
     ROS_INFO("ret_id:%d",(int)ret[2].Id);
-    //std::cout << __FILE__ << __LINE__ << std::endl;
+    std::cout << __FILE__ << __LINE__ << std::endl;
 
     
     //calculate robot pose according to EPNP
@@ -337,20 +405,22 @@ bool GetRobotCurrentPose(
     ss_depth << ret[0].Id;
     string s_depth = depth_dir+ss_depth.str()+"_depth.png"; 
     cv::Mat depth_frame = cv::imread(s_depth);
+    ROS_INFO("depth_image:%s",s_depth.c_str());
 
     if(depth_frame.empty())
         ROS_ERROR("Load Depth image fail...");
 
-    std::ifstream infile(pose_dir+"pose_list.txt");
+    std::ifstream infile(pose_dir,ios::in);
     std::vector<std::vector<float> > pose_vec;
-    std::vector<float> temp_vec;
     if(infile.is_open()){
         std::string lenStr;
         while(getline(infile,lenStr)){
+            //std::cout << "lenStr:" << lenStr << std::endl;
             unsigned int found = 0;
             int pos = 0;
-            std::vector<float> tempVec;
-            for(unsigned int i = 0;i < lenStr.length()/2;i++){
+            std::vector<float> temp_vec;
+            //std::cout << "lenStr.length:" << lenStr.length() << std::endl;
+            for(unsigned int i = 0;i < 12;i++){
                 found = lenStr.find(",",pos);
                 std::string tempData = lenStr.substr(pos,found-pos);
                 temp_vec.push_back(atof(tempData.c_str()));
@@ -359,24 +429,47 @@ bool GetRobotCurrentPose(
             pose_vec.push_back(temp_vec);
         }
     }
+    else
+        ROS_INFO("Open pose_list file fail...");
     
-    vector<float> robot_world_pose;
-    robot_world_pose.swap(pose_vec[ret[0].Id]);
+    std::cout << "pose_vec_size:" << pose_vec.size() << std::endl;
+    std::cout << __FILE__ << __LINE__ << std::endl;
+    vector<float> robot_world_pose(pose_vec[ret[0].Id]);
+    std::cout << __FILE__ << __LINE__ << std::endl;
+    std::cout << "robot_world_pose_size" << robot_world_pose.size() << std::endl; 
 
+    for(int i = 0;i < robot_world_pose.size();i++){
+        ROS_INFO("%f",robot_world_pose[i]);
+    }
+
+    std::cout << __FILE__ << __LINE__ << std::endl;
     std::vector<DMatch> matches;
-    Mat descriptorMat_ref = descriptors[ret[0].Id];
-    Mat descriptorMat_cur = source_descriptor;
+    Mat descriptorMat_ref(descriptors[ret[0].Id]);
+    Mat descriptorMat_cur(source_descriptor);
 
+    std::cout << __FILE__ << __LINE__ << std::endl;
     match_features_knn(descriptorMat_ref, descriptorMat_cur,matches);
+    
+    std::cout << __FILE__ << __LINE__ << std::endl;
+    if(matches.size() > 8){
+    std::cout << __FILE__ << __LINE__ << std::endl;
+        ROS_INFO("knn matches size:%d",(int)matches.size());
+        Mat homography;
+        vector<KeyPoint> keyPoint_ref(keypoints[ret[0].Id]);
+        vector<KeyPoint> keyPoint_cur(source_keypoint);
+        refine_match_with_homography(keyPoint_ref,keyPoint_cur,3,matches,homography);
+        ROS_INFO("hom matches size:%d",(int)matches.size());
+        
+        poseEstimationPnP(keyPoint_ref,keyPoint_cur,robot_world_pose,depth_frame,matches);
+    std::cout << __FILE__ << __LINE__ << std::endl;
 
-    Mat homography;
-    vector<KeyPoint> keyPoint_ref(keypoints[ret[0].Id]);
-    vector<KeyPoint> keyPoint_cur(source_keypoint);
-    refine_match_with_homography(keyPoint_ref,keyPoint_cur,3,matches,homography);
+        return true;
+    }
+    else{
+        ROS_INFO("There is not enough matches to calculate homography...");
+        return false;
+    }
 
-    poseEstimationPnP(keyPoint_ref,keyPoint_cur,robot_world_pose,depth_frame,matches);
-
-    return true;
 }
 
 }
@@ -388,12 +481,18 @@ int main(int argc, char **argv) {
   ros::NodeHandle private_nh("~");
   private_nh.param<std::string>("voc_dir",voc_dir,"../voc/");
   private_nh.param<std::string>("dataset_dir",dataset_dir,"../data/");
-  private_nh.param<double>("fx",fx,0);
-  private_nh.param<double>("fy",fy,0);
-  private_nh.param<double>("cx",cx,0);
-  private_nh.param<double>("cy",cy,0);
+  //private_nh.param<double>("fx",fx,0);
+  //private_nh.param<double>("fy",fy,0);
+  //private_nh.param<double>("cx",cx,0);
+  //private_nh.param<double>("cy",cy,0);
   private_nh.param<std::string>("depth_dir",depth_dir,"../depth/");
   private_nh.param<std::string>("pose_dir",pose_dir,"../pose/");
+  private_nh.param<float>("base_line",base_line,0.12);
+    
+  ROS_INFO("voc_dir:%s",voc_dir.c_str());
+  ROS_INFO("dataset_dir:%s",dataset_dir.c_str());
+  ROS_INFO("depth_dir:%s",depth_dir.c_str());
+  ROS_INFO("pose_dir:%s",pose_dir.c_str());
 
   //advertise a service for getting a coverage plan
   ros::ServiceServer make_coverage_plan_srv = private_nh.advertiseService(
