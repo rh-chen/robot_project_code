@@ -1,6 +1,7 @@
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
-#include "DBoW3/DBoW3.h"
+#include "DBoW3.h"
+#include "Vocabulary.h"
 #include <opencv2/features2d/features2d.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/opencv.hpp>
@@ -50,14 +51,17 @@ using namespace g2o;
 using namespace cv;
 using namespace std;
 
-typedef g2o::BlockSolver<g2o::BlockSolverTraits<6,2>> Block;
+//typedef g2o::BlockSolver<g2o::BlockSolverTraits<6,2>> Block;
 
 std::string voc_dir;
 std::string dataset_dir;
 std::string pose_dir;
 std::string depth_dir;
-float base_line;
-//double fx,fy,cx,cy;
+double depth_threshold_max;
+double depth_threshold_min;
+int num_of_features;
+double scale_factor;
+int level_pyramid;
 
 namespace relocalization_robot{
 using namespace __gnu_cxx;
@@ -73,7 +77,7 @@ void match_features_knn(Mat& query, Mat& train, vector<DMatch>& matches)
      
     for (int i = 0; i < matchdistance.rows; i++)
     {
-        if (matchdistance.at<float>(i, 0) < 0.6*matchdistance.at<float>(i, 1))
+        if (matchdistance.at<float>(i, 0) < 0.7*matchdistance.at<float>(i, 1))
          {
             DMatch dmatches(matchindex.at<int>(i, 0),i, matchdistance.at<float>(i, 0));
             matches.push_back(dmatches);
@@ -226,12 +230,12 @@ void poseEstimationPnP(vector<KeyPoint>& keypoint_ref,vector<KeyPoint>& keypoint
     vector<cv::Point3f> pts3d;
     vector<cv::Point2f> pts2d;
 
-    float depth_threshold_max = 5.0;
-    float depth_threshold_min = 0.6;
     for(int i = 0;i < matches.size();i++){
-        int image_u = (int)keypoint_ref[matches[i].queryIdx].pt.x;
-        int image_v = (int)keypoint_ref[matches[i].queryIdx].pt.y;
-        float Depth = reinterpret_cast<uint16_t>(depth.at<uint16_t>(image_v,image_u))/1000.0;
+        float image_u = keypoint_ref[matches[i].queryIdx].pt.x;
+        float image_v = keypoint_ref[matches[i].queryIdx].pt.y;
+        int image_j = (int)image_u;
+        int image_i = (int)image_v;
+        float Depth = reinterpret_cast<uint16_t>(depth.at<uint16_t>(image_i,image_j))/1000.0;
         std::cout << "Depth value:" << Depth << std::endl;
 
         if(Depth < depth_threshold_max && Depth > depth_threshold_min){
@@ -240,9 +244,9 @@ void poseEstimationPnP(vector<KeyPoint>& keypoint_ref,vector<KeyPoint>& keypoint
             //int image_u = (int)keypoint_ref[matches[i].queryIdx].pt.x;
             //int image_v = (int)keypoint_ref[matches[i].queryIdx].pt.y;
 
-            float Depth = reinterpret_cast<uint16_t>(depth.at<uint16_t>(image_v,image_u))/1000.0;
+            //float Depth = reinterpret_cast<uint16_t>(depth.at<uint16_t>(image_v,image_u))/1000.0;
             cv::Point3f temp;
-            temp.x = (image_u-cx)*Depth/fx-base_line/2.0; 
+            temp.x = (image_u-cx)*Depth/fx; 
             temp.y = -(image_v-cy)*Depth/fy;
             temp.z = Depth;
        
@@ -282,7 +286,7 @@ void poseEstimationPnP(vector<KeyPoint>& keypoint_ref,vector<KeyPoint>& keypoint
             );
 
     Mat rvec, tvec, inliers;
-    cv::solvePnPRansac ( pts3d, pts2d, K, Mat(), rvec, tvec, false, 100, 4.0, 0.99, inliers,CV_EPNP);
+    cv::solvePnPRansac ( pts3d, pts2d, K, Mat(), rvec, tvec, false, 100, 2.0, 0.99, inliers);
     int num_inliers_ = inliers.rows;
     cout<<"pnp inliers: "<<num_inliers_<<endl;
     std::cout << "tvec:" << tvec << std::endl;
@@ -313,7 +317,7 @@ bool GetRobotCurrentPose(
     ROS_INFO("Vocabulary Direction:%s",voc_dir.c_str());
     ROS_INFO("Data Direction:%s",dataset_dir.c_str());
 
-    DBoW3::Vocabulary voc(voc_dir+"voc.yml.gz");
+    DBoW3::Vocabulary voc(voc_dir);
     //std::cout << __FILE__ << __LINE__ << std::endl;
 
     if(voc.empty()){
@@ -355,9 +359,6 @@ bool GetRobotCurrentPose(
     vector<Mat> descriptors;
     vector<vector<KeyPoint> > keypoints;
     //Ptr< Feature2D > detector = ORB::create();
-    int num_of_features = 256;
-    double scale_factor = 1.2;
-    int level_pyramid = 5;
     cv::Ptr<cv::ORB> detector = cv::ORB::create(num_of_features,scale_factor,level_pyramid);
 
     //calculate source keypoints and descriptor
@@ -383,7 +384,7 @@ bool GetRobotCurrentPose(
     }
 
     //construct database
-    DBoW3::Database db( voc, false, 0);
+    DBoW3::Database db( voc,true, 0);
     for ( int i=0; i<descriptors.size(); i++ )
         db.add(descriptors[i]);
 
@@ -402,7 +403,7 @@ bool GetRobotCurrentPose(
     
     //calculate robot pose according to EPNP
     stringstream ss_depth;
-    ss_depth << ret[0].Id;
+    ss_depth << ret[0].Id+2;
     string s_depth = depth_dir+ss_depth.str()+"_depth.png"; 
     cv::Mat depth_frame = cv::imread(s_depth);
     ROS_INFO("depth_image:%s",s_depth.c_str());
@@ -434,7 +435,7 @@ bool GetRobotCurrentPose(
     
     std::cout << "pose_vec_size:" << pose_vec.size() << std::endl;
     std::cout << __FILE__ << __LINE__ << std::endl;
-    vector<float> robot_world_pose(pose_vec[ret[0].Id]);
+    vector<float> robot_world_pose(pose_vec[ret[0].Id+2]);
     std::cout << __FILE__ << __LINE__ << std::endl;
     std::cout << "robot_world_pose_size" << robot_world_pose.size() << std::endl; 
 
@@ -444,7 +445,7 @@ bool GetRobotCurrentPose(
 
     std::cout << __FILE__ << __LINE__ << std::endl;
     std::vector<DMatch> matches;
-    Mat descriptorMat_ref(descriptors[ret[0].Id]);
+    Mat descriptorMat_ref(descriptors[ret[0].Id+2]);
     Mat descriptorMat_cur(source_descriptor);
 
     std::cout << __FILE__ << __LINE__ << std::endl;
@@ -455,7 +456,7 @@ bool GetRobotCurrentPose(
     std::cout << __FILE__ << __LINE__ << std::endl;
         ROS_INFO("knn matches size:%d",(int)matches.size());
         Mat homography;
-        vector<KeyPoint> keyPoint_ref(keypoints[ret[0].Id]);
+        vector<KeyPoint> keyPoint_ref(keypoints[ret[0].Id+2]);
         vector<KeyPoint> keyPoint_cur(source_keypoint);
         refine_match_with_homography(keyPoint_ref,keyPoint_cur,3,matches,homography);
         ROS_INFO("hom matches size:%d",(int)matches.size());
@@ -481,21 +482,25 @@ int main(int argc, char **argv) {
   ros::NodeHandle private_nh("~");
   private_nh.param<std::string>("voc_dir",voc_dir,"../voc/");
   private_nh.param<std::string>("dataset_dir",dataset_dir,"../data/");
-  //private_nh.param<double>("fx",fx,0);
-  //private_nh.param<double>("fy",fy,0);
-  //private_nh.param<double>("cx",cx,0);
-  //private_nh.param<double>("cy",cy,0);
   private_nh.param<std::string>("depth_dir",depth_dir,"../depth/");
   private_nh.param<std::string>("pose_dir",pose_dir,"../pose/");
-  private_nh.param<float>("base_line",base_line,0.12);
+  private_nh.param<double>("depth_threshold_max",depth_threshold_max,0.0);
+  private_nh.param<double>("depth_threshold_min",depth_threshold_min,0.0);
+  private_nh.param<int>("num_of_features",num_of_features,500);
+  private_nh.param<double>("scale_factor",scale_factor,0.8);
+  private_nh.param<int>("level_pyramid",level_pyramid,5);
     
   ROS_INFO("voc_dir:%s",voc_dir.c_str());
   ROS_INFO("dataset_dir:%s",dataset_dir.c_str());
   ROS_INFO("depth_dir:%s",depth_dir.c_str());
   ROS_INFO("pose_dir:%s",pose_dir.c_str());
+  ROS_INFO("depth_threshold_max:%f",depth_threshold_max);
+  ROS_INFO("depth_threshold_min:%f",depth_threshold_min);
+  ROS_INFO("num_of_features:%d",num_of_features);
+  ROS_INFO("scale_factor:%f",scale_factor);
+  ROS_INFO("level_pyramid:%d",level_pyramid);
 
-  //advertise a service for getting a coverage plan
-  ros::ServiceServer make_coverage_plan_srv = private_nh.advertiseService(
+  ros::ServiceServer relocalization_srv = private_nh.advertiseService(
       "/sweeper/relocalization_robot_srv",
       relocalization_robot::GetRobotCurrentPose);
 

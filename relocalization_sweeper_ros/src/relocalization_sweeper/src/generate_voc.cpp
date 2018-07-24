@@ -1,4 +1,5 @@
-#include "DBoW3/DBoW3.h"
+#include "DBoW3.h"
+#include "Vocabulary.h"
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/features2d/features2d.hpp>
@@ -48,7 +49,7 @@ int main( int argc, char** argv )
     ROS_INFO("Generating Features ... ");
     vector<Mat> descriptors;
     //Ptr< Feature2D > detector = ORB::create();
-    int num_of_features = 256;
+    int num_of_features = 500;
     double scale_factor = 1.2;
     int level_pyramid = 5;
     cv::Ptr<cv::ORB> detector = cv::ORB::create(num_of_features,scale_factor,level_pyramid);
@@ -74,7 +75,7 @@ int main( int argc, char** argv )
     DBoW3::Vocabulary vocab(10,7);
     vocab.create( descriptors );
     cout << "Vocabulary Info: " << vocab << endl;
-    vocab.save( voc_dir+"voc.yml.gz" );
+    vocab.save(voc_dir+"voc.bin");
     ROS_INFO("Done");
     
     return 0;

@@ -210,7 +210,7 @@ bool SaveCurrentImageAndRobotPose::countRefAndCurFrame()
     CV_Assert(ref_frame.data != NULL && cur_frame.data != NULL);
     std::vector<KeyPoint> keyPoint_ref, keyPoint_cur;
 
-    int num_of_features = 256;
+    int num_of_features = 500;
     double scale_factor = 1.2;
     int level_pyramid = 5;
 

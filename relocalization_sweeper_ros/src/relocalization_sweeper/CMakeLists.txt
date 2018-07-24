@@ -26,13 +26,23 @@ find_package(catkin REQUIRED COMPONENTS
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
 find_package(OpenCV REQUIRED)
-
 LIST(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake_modules)
+find_package(CSparse REQUIRED)
+include_directories(${CSPARSE_INCLUDE_DIR})
+
 find_package(DBoW3 REQUIRED)
 find_package(G2O REQUIRED)
 
+IF(G2O_FOUND)
+    include_directories(${G2O_INCLUDE_DIR})
+    message("G2O lib is found:"${G2O_INCLUDE_DIR})
+ENDIF(G2O_FOUND)
+
+find_package(Eigen3 REQUIRED)
+
+include_directories(${EIGEN3_INCLUDE_DIR})
+
 message(STATUS "DBoW3_LIBS:" ${DBoW3_LIBS})
-message(STATUS "G2O_LIBS:" ${G2O_LIBS})
 message(STATUS "OpenCV_INCLUDE_DIRS:" ${OpenCV_INCLUDE_DIRS})
 ## Uncomment this if the package has a setup.py. This macro ensures
 ## modules and global scripts declared therein get installed
@@ -135,7 +145,7 @@ catkin_package(
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
 include_directories(
-# include
+  include/relocalization_sweeper/
   ${catkin_INCLUDE_DIRS}
   ${OpenCV_INCLUDE_DIRS}
   ${DBoW3_INCLUDE_DIRS}
@@ -163,26 +173,24 @@ add_executable(rotate_and_save_node src/rotate_and_save.cpp)
  target_link_libraries(${PROJECT_NAME}_node 
      ${catkin_LIBRARIES}
 	 ${OpenCV_LIBS}
-	 ${G2O_LIBS}
 	 ${DBoW3_LIBS}
+     ${CSPARSE_LIBRARY}
+     g2o_core g2o_stuff g2o_types_sba g2o_csparse_extension
  )
 
  target_link_libraries(generate_voc_node 
      ${catkin_LIBRARIES}
 	 ${OpenCV_LIBS}
-	 ${G2O_LIBS}
 	 ${DBoW3_LIBS}
  )
  target_link_libraries(${PROJECT_NAME}_client
      ${catkin_LIBRARIES}
 	 ${OpenCV_LIBS}
-	 ${G2O_LIBS}
 	 ${DBoW3_LIBS}
  )
  target_link_libraries(rotate_and_save_node
      ${catkin_LIBRARIES}
 	 ${OpenCV_LIBS}
-	 ${G2O_LIBS}
 	 ${DBoW3_LIBS}
  )
 

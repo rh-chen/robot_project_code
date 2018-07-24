@@ -19,13 +19,13 @@
 #      - DBoW3_VERSION_PATCH : Patch version part of VERSION. Example: "0"
 #
 # ===================================================================================
-INCLUDE_DIRECTORIES("/usr/local/include")
-SET(DBoW3_INCLUDE_DIRS "/usr/local/include")
+INCLUDE_DIRECTORIES("/home/wzm/DBow3/src/")
+SET(DBoW3_INCLUDE_DIRS "/home/wzm/DBow3/src/")
 
-LINK_DIRECTORIES("/usr/local/lib")
-SET(DBoW3_LIB_DIR "/usr/local/lib")
+LINK_DIRECTORIES("/home/wzm/DBow3/build/src/")
+SET(DBoW3_LIB_DIR "/home/wzm/DBow3/build/src/")
 
-SET(DBoW3_LIBS libDBoW3.a) 
+SET(DBoW3_LIBS libDBoW3.so) 
 SET(DBoW3_FOUND YES)
 SET(DBoW3_FOUND "YES")
 SET(DBoW3_VERSION        0.0.1)
