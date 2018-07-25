@@ -51,8 +51,6 @@ using namespace g2o;
 using namespace cv;
 using namespace std;
 
-//typedef g2o::BlockSolver<g2o::BlockSolverTraits<6,2>> Block;
-
 std::string voc_dir;
 std::string dataset_dir;
 std::string pose_dir;
@@ -141,14 +139,6 @@ void bundleAdjustment (
     optimizer.addVertex ( pose );
 
     int index = 1;
-    /*for ( int i = 0; i < inliers.rows; i++ ){
-        int index = inliers.at<int> ( i,0 );
-        g2o::VertexSBAPointXYZ* point = new g2o::VertexSBAPointXYZ();
-        point->setId ( i );
-        point->setEstimate ( Eigen::Vector3d (points_3d[index].x, points_3d[index].y, points_3d[index].z) );
-        point->setMarginalized ( true );
-        optimizer.addVertex ( point );
-    }*/
     for ( const Point3f p:points_3d )   // landmarks
     {
         g2o::VertexSBAPointXYZ* point = new g2o::VertexSBAPointXYZ();
@@ -241,10 +231,6 @@ void poseEstimationPnP(vector<KeyPoint>& keypoint_ref,vector<KeyPoint>& keypoint
         if(Depth < depth_threshold_max && Depth > depth_threshold_min){
             pts2d.push_back(keypoint_cur[matches[i].trainIdx].pt);
        
-            //int image_u = (int)keypoint_ref[matches[i].queryIdx].pt.x;
-            //int image_v = (int)keypoint_ref[matches[i].queryIdx].pt.y;
-
-            //float Depth = reinterpret_cast<uint16_t>(depth.at<uint16_t>(image_v,image_u))/1000.0;
             cv::Point3f temp;
             temp.x = (image_u-cx)*Depth/fx; 
             temp.y = -(image_v-cy)*Depth/fy;
@@ -358,14 +344,10 @@ bool GetRobotCurrentPose(
 
     vector<Mat> descriptors;
     vector<vector<KeyPoint> > keypoints;
-    //Ptr< Feature2D > detector = ORB::create();
     cv::Ptr<cv::ORB> detector = cv::ORB::create(num_of_features,scale_factor,level_pyramid);
 
-    //calculate source keypoints and descriptor
     detector->detectAndCompute(source, Mat(), source_keypoint, source_descriptor);
     
-    //int index = 1;
-    //extract orb feature
     for ( string rgb_file:rgb_files )
     {
         Mat image = imread(rgb_file,0);
@@ -380,7 +362,6 @@ bool GetRobotCurrentPose(
         detector->detectAndCompute( image, Mat(), keypoint, descriptor );
         descriptors.push_back( descriptor );
         keypoints.push_back(keypoint);
-        //ROS_INFO("Extracting Features From Image:%d ",index++);
     }
 
     //construct database
@@ -398,12 +379,12 @@ bool GetRobotCurrentPose(
     ROS_INFO("ret_id:%d",(int)ret[0].Id);
     ROS_INFO("ret_id:%d",(int)ret[1].Id);
     ROS_INFO("ret_id:%d",(int)ret[2].Id);
-    std::cout << __FILE__ << __LINE__ << std::endl;
+    //std::cout << __FILE__ << __LINE__ << std::endl;
 
     
     //calculate robot pose according to EPNP
     stringstream ss_depth;
-    ss_depth << ret[0].Id+2;
+    ss_depth << ret[0].Id;
     string s_depth = depth_dir+ss_depth.str()+"_depth.png"; 
     cv::Mat depth_frame = cv::imread(s_depth);
     ROS_INFO("depth_image:%s",s_depth.c_str());
@@ -416,13 +397,13 @@ bool GetRobotCurrentPose(
     if(infile.is_open()){
         std::string lenStr;
         while(getline(infile,lenStr)){
-            //std::cout << "lenStr:" << lenStr << std::endl;
-            unsigned int found = 0;
+            int found = 0;
             int pos = 0;
             std::vector<float> temp_vec;
-            //std::cout << "lenStr.length:" << lenStr.length() << std::endl;
-            for(unsigned int i = 0;i < 12;i++){
+            for(unsigned int i = 0;;i++){
                 found = lenStr.find(",",pos);
+                if(found == std::string::npos)
+                    break;
                 std::string tempData = lenStr.substr(pos,found-pos);
                 temp_vec.push_back(atof(tempData.c_str()));
                 pos = found +1;
@@ -434,35 +415,35 @@ bool GetRobotCurrentPose(
         ROS_INFO("Open pose_list file fail...");
     
     std::cout << "pose_vec_size:" << pose_vec.size() << std::endl;
-    std::cout << __FILE__ << __LINE__ << std::endl;
-    vector<float> robot_world_pose(pose_vec[ret[0].Id+2]);
-    std::cout << __FILE__ << __LINE__ << std::endl;
+    //std::cout << __FILE__ << __LINE__ << std::endl;
+    vector<float> robot_world_pose(pose_vec[ret[0].Id]);
+    //std::cout << __FILE__ << __LINE__ << std::endl;
     std::cout << "robot_world_pose_size" << robot_world_pose.size() << std::endl; 
 
     for(int i = 0;i < robot_world_pose.size();i++){
         ROS_INFO("%f",robot_world_pose[i]);
     }
 
-    std::cout << __FILE__ << __LINE__ << std::endl;
+    //std::cout << __FILE__ << __LINE__ << std::endl;
     std::vector<DMatch> matches;
-    Mat descriptorMat_ref(descriptors[ret[0].Id+2]);
+    Mat descriptorMat_ref(descriptors[ret[0].Id]);
     Mat descriptorMat_cur(source_descriptor);
 
-    std::cout << __FILE__ << __LINE__ << std::endl;
+    //std::cout << __FILE__ << __LINE__ << std::endl;
     match_features_knn(descriptorMat_ref, descriptorMat_cur,matches);
     
-    std::cout << __FILE__ << __LINE__ << std::endl;
+    //std::cout << __FILE__ << __LINE__ << std::endl;
     if(matches.size() > 8){
-    std::cout << __FILE__ << __LINE__ << std::endl;
+    //std::cout << __FILE__ << __LINE__ << std::endl;
         ROS_INFO("knn matches size:%d",(int)matches.size());
         Mat homography;
-        vector<KeyPoint> keyPoint_ref(keypoints[ret[0].Id+2]);
+        vector<KeyPoint> keyPoint_ref(keypoints[ret[0].Id]);
         vector<KeyPoint> keyPoint_cur(source_keypoint);
         refine_match_with_homography(keyPoint_ref,keyPoint_cur,3,matches,homography);
         ROS_INFO("hom matches size:%d",(int)matches.size());
         
         poseEstimationPnP(keyPoint_ref,keyPoint_cur,robot_world_pose,depth_frame,matches);
-    std::cout << __FILE__ << __LINE__ << std::endl;
+    //std::cout << __FILE__ << __LINE__ << std::endl;
 
         return true;
     }
