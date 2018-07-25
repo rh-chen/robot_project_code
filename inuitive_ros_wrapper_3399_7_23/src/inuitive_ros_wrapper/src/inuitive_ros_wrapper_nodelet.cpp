@@ -49,6 +49,7 @@ std::shared_ptr<InuDev::CImuStream>  imuStream;
 COpticalData optical_data;
 
 sensor_msgs::CameraInfoPtr left_cam_info_msg(new sensor_msgs::CameraInfo());
+sensor_msgs::CameraInfoPtr depth_cam_info_msg(new sensor_msgs::CameraInfo());
 sensor_msgs::CameraInfoPtr right_cam_info_msg(new sensor_msgs::CameraInfo());
 sensor_msgs::CameraInfoPtr web_cam_info_msg(new sensor_msgs::CameraInfo());
 
@@ -69,6 +70,7 @@ class InuitiveRosWrapperNodelet : public nodelet::Nodelet {
 
     ros::Publisher pub_left_cam_info;
     ros::Publisher pub_right_cam_info;
+    ros::Publisher pub_depth_cam_info;
     ros::Publisher pub_web_cam_info;
     ros::Publisher pub_imu;
     ros::Publisher pub_point_cloud;
@@ -623,7 +625,7 @@ void  publishVideoMessageReg(std::shared_ptr<InuDev::CVideoStream> iStream,   //
 	const byte* left_data_ptr = left_frame->GetData();
 
 
-	fillVideoCamInfo(left_cam_info_msg,right_cam_info_msg,left_frame_id,right_frame_id,optical_data,left_frame->Height(),left_frame->Width());
+	fillVideoCamInfo(depth_cam_info_msg,right_cam_info_msg,depth_frame_id,right_frame_id,optical_data,left_frame->Height(),left_frame->Width());
 	//right_frame
 	//publishCamInfo(right_cam_info_msg, pub_right_cam_info, getColorImgStamp(right_frame));
 	//publishVideoImage(rightImRGB, pub_right, right_frame_id, getColorImgStamp(right_frame));
@@ -631,13 +633,13 @@ void  publishVideoMessageReg(std::shared_ptr<InuDev::CVideoStream> iStream,   //
 	//left_frame
 	//memcpy(leftImRGB.data,left_data_ptr,left_frame->Height()*left_frame->Width()*left_frame->BytesPerPixel());
 	//publishCamInfo(left_cam_info_msg, pub_left_cam_info, getColorImgStamp(left_frame));
-	publishCamInfo(left_cam_info_msg, pub_left_cam_info, HardTime2Softime(left_frame->Timestamp));
+	publishCamInfo(depth_cam_info_msg, pub_depth_cam_info, HardTime2Softime(left_frame->Timestamp));
 	//publishVideoImage(leftImRGB, pub_left, left_frame_id, getColorImgStamp(left_frame));
 	//publishVideoImage(leftImRGB, pub_left, left_frame_id, HardTime2Softime(left_frame->Timestamp));
 
         // rifht frame
 	//memcpy(rightImRGB.data,right_data_ptr,right_frame->Height()*right_frame->Width()*right_frame->BytesPerPixel());
-	publishCamInfo(right_cam_info_msg, pub_right_cam_info, HardTime2Softime(right_frame->Timestamp));
+	//publishCamInfo(right_cam_info_msg, pub_right_cam_info, HardTime2Softime(right_frame->Timestamp));
 	//publishVideoImage(rightImRGB, pub_right, right_frame_id, HardTime2Softime(right_frame->Timestamp));
 }
 
@@ -872,20 +874,21 @@ void onInit() {
 	std::string img_topic = "image_rect_color";
 	std::string left_topic = "left/" + img_topic;
 	std::string left_cam_info_topic = "left/camera_info";
-	left_frame_id = "/inuitive_left_frame";
+	left_frame_id = "inuitive_left_frame";
 
 	std::string right_topic = "right/" + img_topic;
 	std::string right_cam_info_topic = "right/camera_info";
-	right_frame_id = "/inuitive_right_frame";
+	right_frame_id = "inuitive_right_frame";
 
 	std::string depth_topic = "depth/depth_registered";
-	depth_frame_id = "/inuitive_depth_frame";
+	depth_frame_id = "inuitive_depth_frame";
+    std::string depth_cam_info_topic = "depth/camera_info";
 
 	std::string imu_topic = "imu";
-	imu_frame_id = "/inuitive_imu_frame";
+	imu_frame_id = "inuitive_imu_frame";
 
 	std::string web_topic = "web/" + img_topic;
-        std::string stereo_topic = "stereo/stereo_image_rect_color"; 
+    std::string stereo_topic = "stereo/stereo_image_rect_color"; 
 	std::string web_cam_info_topic = "web/camera_info";
 	web_frame_id = "inuitive_web_frame";
 
@@ -894,31 +897,33 @@ void onInit() {
 	point_cloud_frame_id = "inuitive_point_cloud_frame";
 
 	nh = getMTNodeHandle();
-	nh_ns = getMTPrivateNodeHandle();
+	/*nh_ns = getMTPrivateNodeHandle();
 	nh_ns.getParam("left_topic", left_topic);
 	nh_ns.getParam("left_cam_info_topic", left_cam_info_topic);
 	nh_ns.getParam("right_topic", right_topic);
 	nh_ns.getParam("right_cam_info_topic", right_cam_info_topic);
 	nh_ns.getParam("depth_topic", depth_topic);
 	nh_ns.getParam("imu_topic", imu_topic);
+    nh_ns.getParam("depth_cam_info_topic",depth_cam_info_topic);
 
 	nh_ns.getParam("left_frame_id", left_frame_id);
 	nh_ns.getParam("right_frame_id", right_frame_id);
+    */
 
 	image_transport::ImageTransport it_inuitive(nh);
 
 	pub_left = it_inuitive.advertise(left_topic, 100);
 	NODELET_INFO_STREAM("Advertized on topic " << left_topic);
-	pub_left_cam_info = nh.advertise<sensor_msgs::CameraInfo>(left_cam_info_topic, 1);
-	NODELET_INFO_STREAM("Advertized on topic " << left_cam_info_topic);
+	pub_depth_cam_info = nh.advertise<sensor_msgs::CameraInfo>(depth_cam_info_topic, 1);
+	NODELET_INFO_STREAM("Advertized on topic " << depth_cam_info_topic);
 
 	pub_right = it_inuitive.advertise(right_topic, 100);
 	NODELET_INFO_STREAM("Advertized on topic " << right_topic);
-	pub_right_cam_info = nh.advertise<sensor_msgs::CameraInfo>(right_cam_info_topic, 1);
-	NODELET_INFO_STREAM("Advertized on topic " << right_cam_info_topic);
+	//pub_right_cam_info = nh.advertise<sensor_msgs::CameraInfo>(right_cam_info_topic, 1);
+	//NODELET_INFO_STREAM("Advertized on topic " << right_cam_info_topic);
 
 	pub_web = it_inuitive.advertise(web_topic, 100);
-        pub_stereo = it_inuitive.advertise(stereo_topic, 100);
+    pub_stereo = it_inuitive.advertise(stereo_topic, 100);
 	NODELET_INFO_STREAM("Advertized on topic " << web_topic);
 	pub_web_cam_info = nh.advertise<sensor_msgs::CameraInfo>(web_cam_info_topic, 1);
 	NODELET_INFO_STREAM("Advertized on topic " << web_cam_info_topic);
