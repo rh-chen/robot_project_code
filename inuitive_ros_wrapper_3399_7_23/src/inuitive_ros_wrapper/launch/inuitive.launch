@@ -2,7 +2,7 @@
 
 <launch>
 
-    <arg name="camera" default="stereo"/>
+    <arg name="camera" default="inuitive"/>
 
     <node name="inuitive_ros_wrapper" pkg="inuitive_ros_wrapper" type="inuitive_ros_wrapper_node" respawn="false" output="screen">
     
@@ -10,19 +10,20 @@
 
         <param name="left_topic"  value = "$(arg camera)/left/image_rect"/>
         <param name="right_topic" value = "$(arg camera)/right/image_rect"/>
+        <param name="depth_topic" value = "$(arg camera)/depth/depth_rect"/>
+        <param name="imu_topic" value = "$(arg camera)/imu"/>
         <param name="left_cam_info_topic"  value = "$(arg camera)/left/camera_info"/>
         <param name="right_cam_info_topic" value = "$(arg camera)/right/camera_info"/>
         <param name="depth_cam_info_topic" value = "$(arg camera)/depth/camera_info"/>
-    
-        <param name="left_frame_id"   value = "$(arg camera)_left_frame"/>
-        <param name="right_frame_id"  value = "$(arg camera)_right_frame"/>
+        <param name="web_cam_info_topic" value = "$(arg camera)/web/camera_info"/>
 
+    
     </node>
 
-    <node pkg="tf" type="static_transform_publisher" name="base_left" 
-        args="0 0 0 0 0 0 $(arg camera)_link $(arg camera)_left_frame 100"/>
+    <!--node pkg="tf" type="static_transform_publisher" name="base_left" 
+        args="0 0 0 0 0 0 $(arg camera)_link $(arg camera)_left_frame 100"/-->
 
-    <node pkg="tf" type="static_transform_publisher" name="base_right" 
-        args="0 0 0 0 0 0 $(arg camera)_link $(arg camera)_right_frame 100"/>
+    <!--node pkg="tf" type="static_transform_publisher" name="base_right" 
+        args="0 0 0 0 0 0 $(arg camera)_link $(arg camera)_right_frame 100"/-->
 
 </launch>
