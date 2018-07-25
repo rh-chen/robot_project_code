@@ -1,6 +1,0 @@
-<launch>
-    <node name="generate_voc_node" pkg="relocalization_sweeper" type="generate_voc_node" output="screen">
-        <param name="dataset_dir" type="string" value="$(find relocalization_sweeper)/voc_data/" />
-        <param name="voc_dir" type="string" value="$(find relocalization_sweeper)/voc/" />
-    </node>
-</launch>
