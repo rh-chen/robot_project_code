@@ -402,8 +402,11 @@ bool GetRobotCurrentPose(
             std::vector<float> temp_vec;
             for(unsigned int i = 0;;i++){
                 found = lenStr.find(",",pos);
-                if(found == std::string::npos)
+                if(found == std::string::npos){
+                    std::string tempData = lenStr.substr(pos,lenStr.size()-pos);
+                    temp_vec.push_back(atof(tempData.c_str()));
                     break;
+                }
                 std::string tempData = lenStr.substr(pos,found-pos);
                 temp_vec.push_back(atof(tempData.c_str()));
                 pos = found +1;
