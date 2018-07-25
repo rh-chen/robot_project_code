@@ -1,0 +1,6 @@
+<launch>
+	<node name="inuitive_ros_wrapper" pkg="inuitive_ros_wrapper" type="inuitive_ros_wrapper_node" respawn="false" output="screen" />
+
+  <node name="rviz" pkg="rviz" type="rviz"
+    args="-d $(find inuitive_ros_wrapper)/rviz/inuitive_display.rviz" output="log" />
+</launch>
