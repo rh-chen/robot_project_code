@@ -35,6 +35,52 @@
 #include "VideoStream.h"
 #include "WebCamStream.h"
 #include "ImuStream.h"
+#include <queue>
+
+
+#define N_C 10
+
+struct Acc{
+	float x;
+	float y;
+	float z;
+
+	ros::Time time_stamp;
+	Acc(float x_,float y_,float z_,ros::Time t):x(x_),y(y_),z(z_),time_stamp(t){};
+};
+/*bool operator < (const Acc& a1,const Acc& a2)
+{
+	return a1.time_stamp > a2.time_stamp;
+}*/
+std::deque<Acc> q_acc;
+
+struct Gro{
+	float x;
+	float y;
+	float z;
+
+	ros::Time time_stamp;
+	Gro(float x_,float y_,float z_,ros::Time t):x(x_),y(y_),z(z_),time_stamp(t){};
+};
+
+/*bool operator < (const Gro& g1,const Gro& g2)
+{
+	return g1.time_stamp > g2.time_stamp;
+}*/
+std::deque<Gro> q_gro;
+
+
+float acc_x = 0;
+float acc_y = 0;
+float acc_z = 0;
+
+float gro_x = 0;
+float gro_y = 0;
+float gro_z = 0;
+
+bool init_imu = false;
+
+
 
 namespace inuitive_ros_wrapper {
 
@@ -141,25 +187,6 @@ void publishDepth(cv::Mat &depth, const ros::Time &stamp) {
     pub_depth.publish(imageToROSmsg(depth_convert, sensor_msgs::image_encodings::TYPE_16UC1, depth_frame_id, stamp));
 }
 
-bool acc_get = false;
-bool gro_get = false;
-float acc_x_pre = 0;
-float acc_y_pre = 0;
-float acc_z_pre = 0;
-
-float acc_x = 0;
-float acc_y = 0;
-float acc_z = 0;
-
-float gro_x_pre = 0;
-float gro_y_pre = 0;
-float gro_z_pre = 0;
-
-float gro_x = 0;
-float gro_y = 0;
-float gro_z = 0;
-
-bool init = false;
 
 void publishIMU(const InuDev::CImuFrame  &imu_frame, ros::Publisher &pub_imu,const ros::Time &stamp) {
 	
@@ -177,141 +204,188 @@ void publishIMU(const InuDev::CImuFrame  &imu_frame, ros::Publisher &pub_imu,con
 	else if(it->first == EImuType::eGyroscope)
 		ROS_INFO("eGyroscope");
 
-	if(!init){
-		if(!acc_get){
-			if(it->first == EImuType::eAccelerometer){
+	if(!init_imu){
+		if(it->first == EImuType::eAccelerometer){
+				
+			acc_x = it->second[0];
+			acc_y = it->second[1];
+			acc_z = it->second[2];
 
-				acc_x = it->second[0];
-				acc_y = it->second[1];
-				acc_z = it->second[2];
+			Acc temp(acc_x,acc_y,acc_z,stamp);
+			q_acc.push_back(temp);
 
-				acc_x_pre = acc_x;
-				acc_y_pre = acc_y;
-				acc_z_pre = acc_z;
-
-				acc_get = true;		
-			}
 		}
 
-		if(!gro_get){
-			if(it->first == EImuType::eGyroscope){
+		if(it->first == EImuType::eGyroscope){
 
-				gro_x = it->second[0];
-				gro_y = it->second[1];
-				gro_z = it->second[2];
+			gro_x = it->second[0];
+			gro_y = it->second[1];
+			gro_z = it->second[2];
 				
-				gro_x_pre = gro_x;
-				gro_y_pre = gro_y;
-				gro_z_pre = gro_z;
+			Gro temp(gro_x,gro_y,gro_z,stamp);
+			q_gro.push_back(temp);
 				
-				gro_get = true;
-			}
 		}
 
-		if(acc_get & gro_get){
-			msg.linear_acceleration.x = acc_x;
-			msg.linear_acceleration.y = acc_y;
-			msg.linear_acceleration.z = acc_z;
+		if(q_acc.size() == N_C && q_gro.size() == N_C){
+			Acc acc_tmp(q_acc.back());
+			msg.linear_acceleration.x = acc_tmp.x;
+			msg.linear_acceleration.y = acc_tmp.y;
+			msg.linear_acceleration.z = acc_tmp.z;
 
-			msg.angular_velocity.x = gro_x;
-			msg.angular_velocity.y = gro_y;
-			msg.angular_velocity.z = gro_z;
+			Gro gro_tmp(q_gro.back());
+			msg.angular_velocity.x = gro_tmp.x;
+			msg.angular_velocity.y = gro_tmp.y;
+			msg.angular_velocity.z = gro_tmp.z;
 			
-			init = true;
-			acc_get = false;
-			gro_get = false;
-
+			init_imu = true;
 			pub_imu.publish(msg);
 			
 		}
 	}
 	else{
+#if 1
 		if(it->first == EImuType::eAccelerometer){
+			int i_min = -1;
+			int i_second = -1;
+			double delta_max = 1e+9;
+			for(int i = 0;i < q_gro.size();i++){
+				double delta = abs(stamp.toSec()-q_gro[i].time_stamp.toSec());
+				
+				if(delta < delta_max){
+					if(i == 0){
+						delta_max = delta;
+						i_second = i+1;
+						i_min = i;
+					}
+					else{
+						delta_max = delta;
+						i_second = i_min;
+						i_min = i;
+					}
+				}	
+			}
 			
-			acc_x = it->second[0];
-			acc_y = it->second[1];
-			acc_z = it->second[2];
+			if(i_min > i_second){
+				Gro gro_a(q_gro[i_second]);
+				Gro gro_b(q_gro[i_min]);
 
-			acc_x_pre = acc_x;
-			acc_y_pre = acc_y;
-			acc_z_pre = acc_z;
+				acc_x = it->second[0];
+				acc_y = it->second[1];
+				acc_z = it->second[2];
 
-			msg.linear_acceleration.x = acc_x;
-			msg.linear_acceleration.y = acc_y;
-			msg.linear_acceleration.z = acc_z;
+				float delta = abs((stamp.toSec()-gro_a.time_stamp.toSec())/(abs((gro_a.time_stamp.toSec()-gro_b.time_stamp.toSec()))*1.0));
+				
+				msg.linear_acceleration.x = acc_x;
+				msg.linear_acceleration.y = acc_y;
+				msg.linear_acceleration.z = acc_z;
 
-			msg.angular_velocity.x = gro_x_pre;
-			msg.angular_velocity.y = gro_y_pre;
-			msg.angular_velocity.z = gro_z_pre;
+				msg.angular_velocity.x = gro_a.x + delta*(gro_b.x-gro_a.x);
+				msg.angular_velocity.y = gro_a.y + delta*(gro_b.y-gro_a.y);
+				msg.angular_velocity.z = gro_a.z + delta*(gro_b.z-gro_a.z);
+
+				msg.header.stamp = ros::Time(((gro_a.time_stamp.toNSec() + gro_b.time_stamp.toNSec())/2)*0.000000001);
+				
+			}
+			else{
+				Gro gro_a(q_gro[i_min]);
+				Gro gro_b(q_gro[i_second]);
+
+				acc_x = it->second[0];
+				acc_y = it->second[1];
+				acc_z = it->second[2];
+
+				float delta = abs((stamp.toSec()-gro_a.time_stamp.toSec())/(abs((gro_a.time_stamp.toSec()-gro_b.time_stamp.toSec()))*1.0));
+				
+				msg.linear_acceleration.x = acc_x;
+				msg.linear_acceleration.y = acc_y;
+				msg.linear_acceleration.z = acc_z;
+
+				msg.angular_velocity.x = gro_a.x + delta*(gro_b.x-gro_a.x);
+				msg.angular_velocity.y = gro_a.y + delta*(gro_b.y-gro_a.y);
+				msg.angular_velocity.z = gro_a.z + delta*(gro_b.z-gro_a.z);
+
+				msg.header.stamp = ros::Time(((gro_a.time_stamp.toNSec() + gro_b.time_stamp.toNSec())/2)*0.000000001);
+
+			}
 
 			pub_imu.publish(msg);
-			
+			q_acc.pop_front();
+			q_acc.push_back(Acc(acc_x,acc_y,acc_z,stamp));
+				
 		}
+#if 1
 		else if(it->first == EImuType::eGyroscope){
 			
-			gro_x = it->second[0];
-			gro_y = it->second[1];
-			gro_z = it->second[2];
+			int i_min = -1;
+			int i_second = -1;
+			double delta_max = 1e+9;
+			for(int i = 0;i < q_acc.size();i++){
+				double delta = abs((stamp.toSec()-q_acc[i].time_stamp.toSec()));
 				
-			gro_x_pre = gro_x;
-			gro_y_pre = gro_y;
-			gro_z_pre = gro_z;
-
+				if(delta < delta_max){
+					if(i == 0){
+						delta_max = delta;
+						i_second = i+1;
+						i_min = i;
+					}
+					else{
+						delta_max = delta;
+						i_second = i_min;
+						i_min = i;
+					}
+				}	
+			}
 			
-			msg.linear_acceleration.x = acc_x_pre;
-			msg.linear_acceleration.y = acc_y_pre;
-			msg.linear_acceleration.z = acc_z_pre;
+			if(i_min > i_second){
+				Acc acc_a(q_acc[i_second]);
+				Acc acc_b(q_acc[i_min]);
 
-			msg.angular_velocity.x = gro_x;
-			msg.angular_velocity.y = gro_y;
-			msg.angular_velocity.z = gro_z;
+				gro_x = it->second[0];
+				gro_y = it->second[1];
+				gro_z = it->second[2];
+
+				float delta = abs((stamp.toSec()-acc_a.time_stamp.toSec())/(abs((acc_a.time_stamp.toSec()-acc_b.time_stamp.toSec()))*1.0));
+				
+				msg.linear_acceleration.x = acc_a.x + delta*(acc_b.x-acc_a.x);
+				msg.linear_acceleration.y = acc_a.y + delta*(acc_b.y-acc_a.y);
+				msg.linear_acceleration.z = acc_a.z + delta*(acc_b.z-acc_a.z);
+
+				msg.angular_velocity.x = gro_x;
+				msg.angular_velocity.y = gro_y;
+				msg.angular_velocity.z = gro_z;
+
+				msg.header.stamp = ros::Time(((acc_a.time_stamp.toNSec() + acc_b.time_stamp.toNSec())/2)*0.000000001);
+				
+			}
+			else{
+				Acc acc_a(q_acc[i_min]);
+				Acc acc_b(q_acc[i_second]);
+
+				gro_x = it->second[0];
+				gro_y = it->second[1];
+				gro_z = it->second[2];
+
+				float delta = abs((stamp.toSec()-acc_a.time_stamp.toSec())/(abs((acc_a.time_stamp.toSec()-acc_b.time_stamp.toSec()))*1.0));
+				
+				msg.linear_acceleration.x = acc_a.x + delta*(acc_b.x-acc_a.x);
+				msg.linear_acceleration.y = acc_a.y + delta*(acc_b.y-acc_a.y);
+				msg.linear_acceleration.z = acc_a.z + delta*(acc_b.z-acc_a.z);
+
+				msg.angular_velocity.x = gro_x;
+				msg.angular_velocity.y = gro_y;
+				msg.angular_velocity.z = gro_z;
+
+				msg.header.stamp = ros::Time(((acc_a.time_stamp.toNSec() + acc_b.time_stamp.toNSec())/2)*0.000000001);
+			}
 
 			pub_imu.publish(msg);
+			q_gro.pop_front();
+			q_gro.push_back(Gro(gro_x,gro_y,gro_z,stamp));
 		}
-
+#endif 
+#endif
 	}
-	/*for(it = _SensorsData.begin();it != _SensorsData.end();it++)
-	{
-		if(it->first == EImuType::eAccelerometer)
-		{
-			msg.linear_acceleration.x = it->second[0];
-			msg.linear_acceleration.y = it->second[1];
-			msg.linear_acceleration.z = it->second[2];
-
-			msg.linear_acceleration_covariance[0] = 0;
-			msg.linear_acceleration_covariance[1] = 0;
-			msg.linear_acceleration_covariance[2] = 0;
-
-			msg.linear_acceleration_covariance[3] = 0;
-			msg.linear_acceleration_covariance[4] = 0;
-			msg.linear_acceleration_covariance[5] = 0;
-
-			msg.linear_acceleration_covariance[6] = 0;
-			msg.linear_acceleration_covariance[7] = 0;
-			msg.linear_acceleration_covariance[8] = 0;
-
-		}
-		else if(it->first == EImuType::eGyroscope)
-		{
-			msg.angular_velocity.x = it->second[0];
-			msg.angular_velocity.y = it->second[1];
-			msg.angular_velocity.z = it->second[2];
-
-			msg.angular_velocity_covariance[0] = 0;
-			msg.angular_velocity_covariance[1] = 0;
-			msg.angular_velocity_covariance[2] = 0;
-
-			msg.angular_velocity_covariance[3] = 0;
-			msg.angular_velocity_covariance[4] = 0;
-			msg.angular_velocity_covariance[5] = 0;
-
-			msg.angular_velocity_covariance[6] = 0;
-			msg.angular_velocity_covariance[7] = 0;
-			msg.angular_velocity_covariance[8] = 0;
-
-		}
-	}
-	pub_imu.publish(msg);*/
 }
 
 void publishCamInfo(const sensor_msgs::CameraInfoPtr &cam_info_msg,
@@ -575,17 +649,17 @@ void  publishWebMessageReg(std::shared_ptr<InuDev::CWebCamStream> iStream,   // 
 
 	//cv::Mat webImRGB(iFrame.Height(),iFrame.Width(),CV_16UC1);
 	const byte* web_data_ptr = iFrame.GetData();
-
+	std::cout << "BytesPerPixel:" << iFrame.BytesPerPixel() << std::endl;
 	sensor_msgs::ImagePtr ptr = boost::make_shared<sensor_msgs::Image>();
   sensor_msgs::Image& imgMessage = *ptr;
   imgMessage.header.stamp = HardTime2Softime(iFrame.Timestamp);
   imgMessage.header.frame_id = depth_frame_id;
   imgMessage.height = iFrame.Height();
   imgMessage.width = iFrame.Width();
-  imgMessage.encoding = sensor_msgs::image_encodings::MONO8;
+  imgMessage.encoding = sensor_msgs::image_encodings::MONO16;
   int num = 1;
   imgMessage.is_bigendian = !(*(char *) &num == 1);
-  imgMessage.step = iFrame.Width()*1;
+  imgMessage.step = iFrame.Width()*2;
   size_t size = imgMessage.step * iFrame.Height();
   imgMessage.data.resize(size);
 
