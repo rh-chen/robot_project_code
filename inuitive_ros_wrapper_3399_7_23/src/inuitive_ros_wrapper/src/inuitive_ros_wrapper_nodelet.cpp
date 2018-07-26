@@ -317,7 +317,7 @@ void publishIMU(const InuDev::CImuFrame  &imu_frame, ros::Publisher &pub_imu,con
 void publishCamInfo(const sensor_msgs::CameraInfoPtr &cam_info_msg,
 		const ros::Publisher &pub_cam_info,
 		const ros::Time &stamp) {
-	static int seq = 0;
+	static uint64_t seq = 0;
 	cam_info_msg->header.stamp = stamp;
 	cam_info_msg->header.seq = seq;
 	pub_cam_info.publish(cam_info_msg);
@@ -591,14 +591,13 @@ void  publishWebMessageReg(std::shared_ptr<InuDev::CWebCamStream> iStream,   // 
 
   memcpy((char*) (&imgMessage.data[0]), web_data_ptr, size);
 
-	fillWebCamInfo(web_cam_info_msg,web_frame_id,optical_data,iFrame.Height(),iFrame.Width());
+	//fillWebCamInfo(web_cam_info_msg,web_frame_id,optical_data,iFrame.Height(),iFrame.Width());
 	//memcpy(webImRGB.data,web_data_ptr,iFrame.Height()*iFrame.Width()*iFrame.BytesPerPixel());
 	//publishCamInfo(web_cam_info_msg, pub_web_cam_info, getWebImgStamp(iFrame));
 	//publishWebImage(webImRGB, pub_web, web_frame_id, getWebImgStamp(iFrame));
-	publishCamInfo(web_cam_info_msg, pub_web_cam_info, HardTime2Softime(iFrame.Timestamp));
+	//publishCamInfo(web_cam_info_msg, pub_web_cam_info, HardTime2Softime(iFrame.Timestamp));
 	//publishWebImage(webImRGB, pub_web, web_frame_id, HardTime2Softime(iFrame.Timestamp));
-	pub_img.publish(ptr);
-    delete[] ptr;
+	pub_web.publish(ptr);
 }
 
 void  publishVideoMessageReg(std::shared_ptr<InuDev::CVideoStream> iStream,   // Parent Stream
@@ -618,12 +617,12 @@ void  publishVideoMessageReg(std::shared_ptr<InuDev::CVideoStream> iStream,   //
 	}
 
 	const InuDev::CImageFrame*  left_frame = iFrame.GetLeftFrame();
-	const InuDev::CImageFrame*  right_frame = iFrame.GetRightFrame();
+	//const InuDev::CImageFrame*  right_frame = iFrame.GetRightFrame();
 
-	cv::Mat rightImRGB(right_frame->Height(),right_frame->Width(),CV_8UC4);
-	cv::Mat leftImRGB(left_frame->Height(),left_frame->Width(),CV_8UC4);
-	const byte* right_data_ptr = right_frame->GetData();
-	const byte* left_data_ptr = left_frame->GetData();
+	//cv::Mat rightImRGB(right_frame->Height(),right_frame->Width(),CV_8UC4);
+	//cv::Mat leftImRGB(left_frame->Height(),left_frame->Width(),CV_8UC4);
+	//const byte* right_data_ptr = right_frame->GetData();
+	//const byte* left_data_ptr = left_frame->GetData();
 
 
 	fillVideoCamInfo(depth_cam_info_msg,right_cam_info_msg,depth_frame_id,right_frame_id,optical_data,left_frame->Height(),left_frame->Width());
@@ -682,7 +681,6 @@ void  publishDepthMessageReg(std::shared_ptr<InuDev::CDepthStream> iStream,   //
 	//publishDepth(depthImage,getDepthImgStamp(iFrame));
 	//publishDepth(depthImage,HardTime2Softime(iFrame.Timestamp));
 	pub_depth.publish(ptr);
-    delete[] ptr;
 }
 
 bool device_poll() {
@@ -710,12 +708,12 @@ bool device_poll() {
 	std::cout << "Connected to Sensor" << std::endl;
 
 	//get optical data about video cam and web cam
-	retCode = inuSensor->GetOpticalData(optical_data);
-	if (retCode != InuDev::eOK)
-	{
-		std::cout << "Failed to get video sensor optical params to Inuitive Sensor." << std::endl;
-		return false;
-	}
+	//retCode = inuSensor->GetOpticalData(optical_data);
+	//if (retCode != InuDev::eOK)
+	//{
+	//	std::cout << "Failed to get video sensor optical params to Inuitive Sensor." << std::endl;
+	//	return false;
+	//}
 
 	retCode = inuSensor->SetSensorParams(video_sensor_params,eVideo);
 	if (retCode != InuDev::eOK)
@@ -742,6 +740,13 @@ bool device_poll() {
 		return false;
 	}
 	std::cout << "Sensor is started" << std::endl;
+	//get optical data about video cam and web cam
+	retCode = inuSensor->GetOpticalData(optical_data);
+	if (retCode != InuDev::eOK)
+	{
+		std::cout << "Failed to get video sensor optical params to Inuitive Sensor." << std::endl;
+		return false;
+	}
 
 	//construct webCamStream
 	webCamStream = inuSensor->CreateWebCamStream();
@@ -894,9 +899,9 @@ void onInit() {
 	std::string web_cam_info_topic = "/inuitive/web/camera_info";
 	web_frame_id = "inuitive_web_frame";
 
-	std::string point_cloud_topic = "point_cloud";
-	std::string point_cloud_cam_info_topic = "point_cloud/camera_info";
-	point_cloud_frame_id = "inuitive_point_cloud_frame";
+	//std::string point_cloud_topic = "point_cloud";
+	//std::string point_cloud_cam_info_topic = "point_cloud/camera_info";
+	//point_cloud_frame_id = "inuitive_point_cloud_frame";
 
 	nh = getMTNodeHandle();
 	/*nh_ns = getMTPrivateNodeHandle();
@@ -914,20 +919,20 @@ void onInit() {
 
 	image_transport::ImageTransport it_inuitive(nh);
 
-	pub_left = it_inuitive.advertise(left_topic, 100);
-	NODELET_INFO_STREAM("Advertized on topic " << left_topic);
+	//pub_left = it_inuitive.advertise(left_topic, 100);
+	//NODELET_INFO_STREAM("Advertized on topic " << left_topic);
 	//pub_depth_cam_info = nh.advertise<sensor_msgs::CameraInfo>(depth_cam_info_topic, 1);
 	//NODELET_INFO_STREAM("Advertized on topic " << depth_cam_info_topic);
 
-	pub_right = it_inuitive.advertise(right_topic, 100);
-	NODELET_INFO_STREAM("Advertized on topic " << right_topic);
+	//pub_right = it_inuitive.advertise(right_topic, 100);
+	//NODELET_INFO_STREAM("Advertized on topic " << right_topic);
 	//pub_right_cam_info = nh.advertise<sensor_msgs::CameraInfo>(right_cam_info_topic, 1);
 	//NODELET_INFO_STREAM("Advertized on topic " << right_cam_info_topic);
 
 	pub_web = it_inuitive.advertise(web_topic, 100);
 	NODELET_INFO_STREAM("Advertized on topic " << web_topic);
-	pub_web_cam_info = nh.advertise<sensor_msgs::CameraInfo>(web_cam_info_topic, 1);
-	NODELET_INFO_STREAM("Advertized on topic " << web_cam_info_topic);
+	//pub_web_cam_info = nh.advertise<sensor_msgs::CameraInfo>(web_cam_info_topic, 1);
+	//NODELET_INFO_STREAM("Advertized on topic " << web_cam_info_topic);
 
 	pub_depth = it_inuitive.advertise(depth_topic, 100);
 	NODELET_INFO_STREAM("Advertized on topic " << depth_topic);
@@ -937,19 +942,14 @@ void onInit() {
 	pub_imu = nh.advertise<sensor_msgs::Imu>(imu_topic, 1000);
 	NODELET_INFO_STREAM("Advertized on topic " << imu_topic);
 
-	pub_point_cloud = nh.advertise<sensor_msgs::PointCloud>(point_cloud_topic, 1);
-	NODELET_INFO_STREAM("Advertized on topic " << point_cloud_topic);
+	//pub_point_cloud = nh.advertise<sensor_msgs::PointCloud>(point_cloud_topic, 1);
+	//NODELET_INFO_STREAM("Advertized on topic " << point_cloud_topic);
 
 	device_poll_thread = boost::shared_ptr<boost::thread>
 		(new boost::thread(boost::bind(&InuitiveRosWrapperNodelet::device_poll, this)));
 }
 
 ~InuitiveRosWrapperNodelet() {
-    delete[] left_cam_info_msg;
-    delete[] right_cam_info_msg;
-    delete[] web_cam_info_msg;
-    delete[] depth_cam_info_msg;
-
 	//depthstream
 	if(depthStream != NULL){
 		InuDev::CInuError retCode = depthStream->Stop();
