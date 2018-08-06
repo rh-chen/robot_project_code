@@ -122,11 +122,11 @@ bool ScaleMapService(
 	//map<PointStr,int> empty;
 	uint64 empty_count = 0;
 
-	vector<vector<int8_t> > ng_data;
+	vector<vector<signed char> > ng_data;
 	vector<int8_t> ng_data_1d;
 
-	char currentCellValue;
-	char ng_oldCellValue;
+	signed char currentCellValue;
+	signed char ng_oldCellValue;
 
 	bool cacheObstacleCells = true;
 	bool cacheEmptyCells = true;
@@ -138,7 +138,7 @@ bool ScaleMapService(
 
 		if(ng_row != temp_ng_row){
 			ng_row = temp_ng_row;
-			vector<int8_t> vec_i;
+			vector<signed char> vec_i;
 			ng_data.push_back(vec_i);
 		}
 
@@ -168,7 +168,7 @@ bool ScaleMapService(
 				continue;
 			
 //std::cout << __FILE__ << __LINE__ << std::endl;
-			currentCellValue = map.at<char>(i,j);
+			currentCellValue = map.at<signed char>(i,j);
 			ng_oldCellValue = ng_data[ng_row][ng_col];
 
 			if(currentCellValue == CellType::Obstacle){
