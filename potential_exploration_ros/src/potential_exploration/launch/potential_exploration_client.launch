@@ -1,0 +1,12 @@
+<launch>
+	<arg name="map_file" default="$(find potential_exploration)/maps/home1.yaml"/>
+
+    <node name="map_server_for_node" pkg="map_server" type="map_server" args="$(arg map_file)">
+    </node>
+
+    <node name="potential_exploration_client" pkg="potential_exploration" type="potential_exploration_node" output="screen">
+    </node>
+
+	<node pkg="rviz" type="rviz" name="rviz" args="-d $(find potential_exploration)/rviz/potential_exploration.rviz" />
+
+</launch>

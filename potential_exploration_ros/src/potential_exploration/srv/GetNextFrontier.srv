@@ -1,0 +1,4 @@
+geometry_msgs/PoseStamped start
+nav_msgs/OccupancyGrid map
+---
+geometry_msgs/PoseStamped start
