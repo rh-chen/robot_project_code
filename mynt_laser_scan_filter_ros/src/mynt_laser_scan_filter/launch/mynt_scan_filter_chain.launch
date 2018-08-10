@@ -1,0 +1,7 @@
+<launch>
+  <node pkg="mynt_laser_scan_filter" type="scan_to_scan_filter_chain" name="mynt_laser_filter_node">
+    <rosparam command="load" file="$(find mynt_laser_scan_filter)/launch/mynt_scan_filter_chain.yaml"/>
+		<remap from="scan" to="base_scan" />
+  </node>
+
+</launch>
