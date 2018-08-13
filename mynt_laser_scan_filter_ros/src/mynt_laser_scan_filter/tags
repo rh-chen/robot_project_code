@@ -1,0 +1,199 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.9~svn20110310	//
+BOXFILTER_H	include/mynt_laser_scan_filter/box_filter.h	48;"	d
+GenericLaserScanFilterNode	src/generic_laser_filter_node.cpp	/^  GenericLaserScanFilterNode() :$/;"	f	class:GenericLaserScanFilterNode
+GenericLaserScanFilterNode	src/generic_laser_filter_node.cpp	/^class GenericLaserScanFilterNode$/;"	c	file:
+INTERPOLATION_FILTER_H	include/mynt_laser_scan_filter/interpolation_filter.h	36;"	d
+InterpolationFilter	include/mynt_laser_scan_filter/interpolation_filter.h	/^class InterpolationFilter : public filters::FilterBase<sensor_msgs::LaserScan>$/;"	c	namespace:laser_filters
+LASER_FILTERS_SCAN_MASK_FILTER_H	include/mynt_laser_scan_filter/scan_mask_filter.h	36;"	d
+LASER_SCAN_ANGULAR_BOUNDS_FILTER_H	include/mynt_laser_scan_filter/angular_bounds_filter.h	38;"	d
+LASER_SCAN_ANGULAR_BOUNDS_FILTER_IN_PLACE_H	include/mynt_laser_scan_filter/angular_bounds_filter_in_place.h	38;"	d
+LASER_SCAN_ARRAY_FILTER_H	include/mynt_laser_scan_filter/array_filter.h	31;"	d
+LASER_SCAN_FOOTPRINT_FILTER_H	include/mynt_laser_scan_filter/footprint_filter.h	36;"	d
+LASER_SCAN_FOOTPRINT_FILTER_H	include/mynt_laser_scan_filter/point_cloud_footprint_filter.h	36;"	d
+LASER_SCAN_INTENSITY_FILTER_H	include/mynt_laser_scan_filter/intensity_filter.h	36;"	d
+LASER_SCAN_MEDIAN_FILTER_H	include/mynt_laser_scan_filter/median_filter.h	31;"	d
+LASER_SCAN_RANGE_FILTER_H	include/mynt_laser_scan_filter/range_filter.h	36;"	d
+LASER_SCAN_SHADOWS_FILTER_H	include/mynt_laser_scan_filter/scan_shadows_filter.h	38;"	d
+LaserArrayFilter	include/mynt_laser_scan_filter/array_filter.h	/^class LaserArrayFilter : public filters::FilterBase<sensor_msgs::LaserScan> $/;"	c	namespace:laser_filters
+LaserArrayFilter	src/array_filter.cpp	/^LaserArrayFilter::LaserArrayFilter() :$/;"	f	class:laser_filters::LaserArrayFilter
+LaserMedianFilter	include/mynt_laser_scan_filter/median_filter.h	/^class LaserMedianFilter : public filters::FilterBase<sensor_msgs::LaserScan> $/;"	c	namespace:laser_filters
+LaserMedianFilter	src/median_filter.cpp	/^LaserMedianFilter::LaserMedianFilter() :$/;"	f	class:laser_filters::LaserMedianFilter
+LaserScanAngularBoundsFilter	include/mynt_laser_scan_filter/angular_bounds_filter.h	/^  class LaserScanAngularBoundsFilter : public filters::FilterBase<sensor_msgs::LaserScan>$/;"	c	namespace:laser_filters
+LaserScanAngularBoundsFilterInPlace	include/mynt_laser_scan_filter/angular_bounds_filter_in_place.h	/^  class LaserScanAngularBoundsFilterInPlace : public filters::FilterBase<sensor_msgs::LaserScan>$/;"	c	namespace:laser_filters
+LaserScanBoxFilter	include/mynt_laser_scan_filter/box_filter.h	/^class LaserScanBoxFilter : public filters::FilterBase<sensor_msgs::LaserScan>$/;"	c	namespace:laser_filters
+LaserScanBoxFilter	src/box_filter.cpp	/^laser_filters::LaserScanBoxFilter::LaserScanBoxFilter(){$/;"	f	class:laser_filters::LaserScanBoxFilter
+LaserScanFootprintFilter	include/mynt_laser_scan_filter/footprint_filter.h	/^  LaserScanFootprintFilter(): up_and_running_(false) {}$/;"	f	class:laser_filters::LaserScanFootprintFilter
+LaserScanFootprintFilter	include/mynt_laser_scan_filter/footprint_filter.h	/^class LaserScanFootprintFilter : public filters::FilterBase<sensor_msgs::LaserScan>$/;"	c	namespace:laser_filters
+LaserScanIntensityFilter	include/mynt_laser_scan_filter/intensity_filter.h	/^class LaserScanIntensityFilter : public filters::FilterBase<sensor_msgs::LaserScan>$/;"	c	namespace:laser_filters
+LaserScanMaskFilter	include/mynt_laser_scan_filter/scan_mask_filter.h	/^class LaserScanMaskFilter : public filters::FilterBase<sensor_msgs::LaserScan>$/;"	c	namespace:laser_filters
+LaserScanRangeFilter	include/mynt_laser_scan_filter/range_filter.h	/^class LaserScanRangeFilter : public filters::FilterBase<sensor_msgs::LaserScan>$/;"	c	namespace:laser_filters
+PointCloudFootprintFilter	include/mynt_laser_scan_filter/point_cloud_footprint_filter.h	/^  PointCloudFootprintFilter() {$/;"	f	class:laser_filters::PointCloudFootprintFilter
+PointCloudFootprintFilter	include/mynt_laser_scan_filter/point_cloud_footprint_filter.h	/^class PointCloudFootprintFilter : public filters::FilterBase<sensor_msgs::PointCloud>$/;"	c	namespace:laser_filters
+ScanShadowsFilter	include/mynt_laser_scan_filter/scan_shadows_filter.h	/^  ScanShadowsFilter () $/;"	f	class:laser_filters::ScanShadowsFilter
+ScanShadowsFilter	include/mynt_laser_scan_filter/scan_shadows_filter.h	/^class ScanShadowsFilter : public filters::FilterBase<sensor_msgs::LaserScan>$/;"	c	namespace:laser_filters
+ScanToCloudFilterChain	src/scan_to_cloud_filter_chain.cpp	/^  ScanToCloudFilterChain () : laser_max_range_ (DBL_MAX), private_nh("~"), filter_(tf_, "", 50),$/;"	f	class:ScanToCloudFilterChain
+ScanToCloudFilterChain	src/scan_to_cloud_filter_chain.cpp	/^class ScanToCloudFilterChain$/;"	c	file:
+ScanToScanFilterChain	src/scan_to_scan_filter_chain.cpp	/^  ScanToScanFilterChain() :$/;"	f	class:ScanToScanFilterChain
+ScanToScanFilterChain	src/scan_to_scan_filter_chain.cpp	/^class ScanToScanFilterChain$/;"	c	file:
+box_frame_	include/mynt_laser_scan_filter/box_filter.h	/^    std::string box_frame_;$/;"	m	class:laser_filters::LaserScanBoxFilter
+callback	src/generic_laser_filter_node.cpp	/^  void callback(const sensor_msgs::LaserScan::ConstPtr& msg_in)$/;"	f	class:GenericLaserScanFilterNode
+callback	src/scan_to_scan_filter_chain.cpp	/^  void callback(const sensor_msgs::LaserScan::ConstPtr& msg_in)$/;"	f	class:ScanToScanFilterChain
+cloud_filter_chain_	src/scan_to_cloud_filter_chain.cpp	/^  filters::FilterChain<sensor_msgs::PointCloud2> cloud_filter_chain_;$/;"	m	class:ScanToCloudFilterChain	file:
+cloud_pub_	src/scan_to_cloud_filter_chain.cpp	/^  ros::Publisher cloud_pub_;$/;"	m	class:ScanToCloudFilterChain	file:
+cloud_topic_	src/scan_to_cloud_filter_chain.cpp	/^  std::string scan_topic_, cloud_topic_;$/;"	m	class:ScanToCloudFilterChain	file:
+configure	include/mynt_laser_scan_filter/angular_bounds_filter.h	/^      bool configure()$/;"	f	class:laser_filters::LaserScanAngularBoundsFilter
+configure	include/mynt_laser_scan_filter/angular_bounds_filter_in_place.h	/^      bool configure()$/;"	f	class:laser_filters::LaserScanAngularBoundsFilterInPlace
+configure	include/mynt_laser_scan_filter/footprint_filter.h	/^  bool configure()$/;"	f	class:laser_filters::LaserScanFootprintFilter
+configure	include/mynt_laser_scan_filter/intensity_filter.h	/^  bool configure()$/;"	f	class:laser_filters::LaserScanIntensityFilter
+configure	include/mynt_laser_scan_filter/interpolation_filter.h	/^  bool configure()$/;"	f	class:laser_filters::InterpolationFilter
+configure	include/mynt_laser_scan_filter/point_cloud_footprint_filter.h	/^  bool configure()$/;"	f	class:laser_filters::PointCloudFootprintFilter
+configure	include/mynt_laser_scan_filter/range_filter.h	/^  bool configure()$/;"	f	class:laser_filters::LaserScanRangeFilter
+configure	include/mynt_laser_scan_filter/scan_mask_filter.h	/^  bool configure()$/;"	f	class:laser_filters::LaserScanMaskFilter
+configure	include/mynt_laser_scan_filter/scan_shadows_filter.h	/^  bool configure()$/;"	f	class:laser_filters::ScanShadowsFilter
+configure	src/array_filter.cpp	/^bool LaserArrayFilter::configure()$/;"	f	class:laser_filters::LaserArrayFilter
+configure	src/box_filter.cpp	/^bool laser_filters::LaserScanBoxFilter::configure(){$/;"	f	class:laser_filters::LaserScanBoxFilter
+configure	src/median_filter.cpp	/^bool LaserMedianFilter::configure()$/;"	f	class:laser_filters::LaserMedianFilter
+data_lock	include/mynt_laser_scan_filter/array_filter.h	/^  boost::mutex data_lock; \/\/\/ Protection from multi threaded programs$/;"	m	class:laser_filters::LaserArrayFilter
+data_lock	include/mynt_laser_scan_filter/median_filter.h	/^  boost::mutex data_lock; \/\/\/ Protection from multi threaded programs$/;"	m	class:laser_filters::LaserMedianFilter
+deprecation_timer_	src/generic_laser_filter_node.cpp	/^  ros::Timer deprecation_timer_;$/;"	m	class:GenericLaserScanFilterNode	file:
+deprecation_timer_	src/scan_to_cloud_filter_chain.cpp	/^  ros::Timer deprecation_timer_;$/;"	m	class:ScanToCloudFilterChain	file:
+deprecation_timer_	src/scan_to_scan_filter_chain.cpp	/^  ros::Timer deprecation_timer_;$/;"	m	class:ScanToScanFilterChain	file:
+deprecation_warn	src/generic_laser_filter_node.cpp	/^  void deprecation_warn(const ros::TimerEvent& e)$/;"	f	class:GenericLaserScanFilterNode
+deprecation_warn	src/scan_to_cloud_filter_chain.cpp	/^  void deprecation_warn(const ros::TimerEvent& e)$/;"	f	class:ScanToCloudFilterChain
+deprecation_warn	src/scan_to_scan_filter_chain.cpp	/^  void deprecation_warn(const ros::TimerEvent& e)$/;"	f	class:ScanToScanFilterChain
+disp_hist_	include/mynt_laser_scan_filter/intensity_filter.h	/^  int disp_hist_ ;$/;"	m	class:laser_filters::LaserScanIntensityFilter
+disp_hist_enabled_	include/mynt_laser_scan_filter/intensity_filter.h	/^  bool disp_hist_enabled_;$/;"	m	class:laser_filters::LaserScanIntensityFilter
+filter_	src/scan_to_cloud_filter_chain.cpp	/^  tf::MessageFilter<sensor_msgs::LaserScan> filter_;$/;"	m	class:ScanToCloudFilterChain	file:
+filter_chain_	src/generic_laser_filter_node.cpp	/^  filters::FilterChain<sensor_msgs::LaserScan> filter_chain_;$/;"	m	class:GenericLaserScanFilterNode	file:
+filter_chain_	src/scan_to_scan_filter_chain.cpp	/^  filters::FilterChain<sensor_msgs::LaserScan> filter_chain_;$/;"	m	class:ScanToScanFilterChain	file:
+filter_length_	include/mynt_laser_scan_filter/array_filter.h	/^  unsigned int filter_length_; \/\/\/How many scans to average over$/;"	m	class:laser_filters::LaserArrayFilter
+filter_length_	include/mynt_laser_scan_filter/median_filter.h	/^  unsigned int filter_length_; \/\/\/How many scans to average over$/;"	m	class:laser_filters::LaserMedianFilter
+getAngleWithViewpoint	include/mynt_laser_scan_filter/scan_shadows_filter.h	/^  inline double getAngleWithViewpoint(float r1, float r2, float included_angle)$/;"	f	class:laser_filters::ScanShadowsFilter
+high_fidelity_	src/scan_to_cloud_filter_chain.cpp	/^  bool high_fidelity_;                    \/\/ High fidelity (interpolating time across scan)$/;"	m	class:ScanToCloudFilterChain	file:
+inBox	src/box_filter.cpp	/^bool laser_filters::LaserScanBoxFilter::inBox(tf::Point &point){$/;"	f	class:laser_filters::LaserScanBoxFilter
+inFootprint	include/mynt_laser_scan_filter/footprint_filter.h	/^  bool inFootprint(const geometry_msgs::Point32& scan_pt){$/;"	f	class:laser_filters::LaserScanFootprintFilter
+inFootprint	include/mynt_laser_scan_filter/point_cloud_footprint_filter.h	/^  bool inFootprint(const geometry_msgs::Point32& scan_pt){$/;"	f	class:laser_filters::PointCloudFootprintFilter
+incident_angle_correction_	src/scan_to_cloud_filter_chain.cpp	/^  bool  incident_angle_correction_;$/;"	m	class:ScanToCloudFilterChain	file:
+indexChannel	include/mynt_laser_scan_filter/footprint_filter.h	/^  int indexChannel(const sensor_msgs::PointCloud& scan_cloud){$/;"	f	class:laser_filters::LaserScanFootprintFilter
+inscribed_radius_	include/mynt_laser_scan_filter/footprint_filter.h	/^  double inscribed_radius_;$/;"	m	class:laser_filters::LaserScanFootprintFilter
+inscribed_radius_	include/mynt_laser_scan_filter/point_cloud_footprint_filter.h	/^  double inscribed_radius_;$/;"	m	class:laser_filters::PointCloudFootprintFilter
+intensity_config_	include/mynt_laser_scan_filter/array_filter.h	/^  XmlRpc::XmlRpcValue intensity_config_;$/;"	m	class:laser_filters::LaserArrayFilter
+intensity_filter_	include/mynt_laser_scan_filter/array_filter.h	/^  filters::MultiChannelFilterChain<float> * intensity_filter_;$/;"	m	class:laser_filters::LaserArrayFilter
+intensity_filter_	include/mynt_laser_scan_filter/median_filter.h	/^  filters::MultiChannelFilterChain<float> * intensity_filter_;$/;"	m	class:laser_filters::LaserMedianFilter
+laser_filters	include/mynt_laser_scan_filter/angular_bounds_filter.h	/^namespace laser_filters$/;"	n
+laser_filters	include/mynt_laser_scan_filter/angular_bounds_filter_in_place.h	/^namespace laser_filters$/;"	n
+laser_filters	include/mynt_laser_scan_filter/array_filter.h	/^namespace laser_filters{$/;"	n
+laser_filters	include/mynt_laser_scan_filter/box_filter.h	/^namespace laser_filters$/;"	n
+laser_filters	include/mynt_laser_scan_filter/footprint_filter.h	/^namespace laser_filters$/;"	n
+laser_filters	include/mynt_laser_scan_filter/intensity_filter.h	/^namespace laser_filters$/;"	n
+laser_filters	include/mynt_laser_scan_filter/interpolation_filter.h	/^namespace laser_filters$/;"	n
+laser_filters	include/mynt_laser_scan_filter/median_filter.h	/^namespace laser_filters{$/;"	n
+laser_filters	include/mynt_laser_scan_filter/point_cloud_footprint_filter.h	/^namespace laser_filters$/;"	n
+laser_filters	include/mynt_laser_scan_filter/range_filter.h	/^namespace laser_filters$/;"	n
+laser_filters	include/mynt_laser_scan_filter/scan_mask_filter.h	/^namespace laser_filters$/;"	n
+laser_filters	include/mynt_laser_scan_filter/scan_shadows_filter.h	/^namespace laser_filters{$/;"	n
+laser_filters	src/array_filter.cpp	/^namespace laser_filters$/;"	n	file:
+laser_filters	src/median_filter.cpp	/^namespace laser_filters$/;"	n	file:
+laser_max_range_	include/mynt_laser_scan_filter/scan_shadows_filter.h	/^  double laser_max_range_;           \/\/ Used in laser scan projection$/;"	m	class:laser_filters::ScanShadowsFilter
+laser_max_range_	src/scan_to_cloud_filter_chain.cpp	/^  double laser_max_range_;           \/\/ Used in laser scan projection$/;"	m	class:ScanToCloudFilterChain	file:
+lower_angle_	include/mynt_laser_scan_filter/angular_bounds_filter.h	/^      double lower_angle_;$/;"	m	class:laser_filters::LaserScanAngularBoundsFilter
+lower_angle_	include/mynt_laser_scan_filter/angular_bounds_filter_in_place.h	/^      double lower_angle_;$/;"	m	class:laser_filters::LaserScanAngularBoundsFilterInPlace
+lower_replacement_value_	include/mynt_laser_scan_filter/range_filter.h	/^  float lower_replacement_value_ ;$/;"	m	class:laser_filters::LaserScanRangeFilter
+lower_threshold_	include/mynt_laser_scan_filter/intensity_filter.h	/^  double lower_threshold_ ;$/;"	m	class:laser_filters::LaserScanIntensityFilter
+lower_threshold_	include/mynt_laser_scan_filter/range_filter.h	/^  double lower_threshold_ ;$/;"	m	class:laser_filters::LaserScanRangeFilter
+main	src/generic_laser_filter_node.cpp	/^int main(int argc, char **argv)$/;"	f
+main	src/scan_to_cloud_filter_chain.cpp	/^main (int argc, char** argv)$/;"	f
+main	src/scan_to_scan_filter_chain.cpp	/^int main(int argc, char **argv)$/;"	f
+masks_	include/mynt_laser_scan_filter/scan_mask_filter.h	/^  std::map<std::string, std::vector<size_t> > masks_;$/;"	m	class:laser_filters::LaserScanMaskFilter
+max_	include/mynt_laser_scan_filter/box_filter.h	/^    tf::Point min_, max_; $/;"	m	class:laser_filters::LaserScanBoxFilter
+max_angle_	include/mynt_laser_scan_filter/scan_shadows_filter.h	/^  double min_angle_, max_angle_;          \/\/ Filter angle threshold$/;"	m	class:laser_filters::ScanShadowsFilter
+min_	include/mynt_laser_scan_filter/box_filter.h	/^    tf::Point min_, max_; $/;"	m	class:laser_filters::LaserScanBoxFilter
+min_angle_	include/mynt_laser_scan_filter/scan_shadows_filter.h	/^  double min_angle_, max_angle_;          \/\/ Filter angle threshold$/;"	m	class:laser_filters::ScanShadowsFilter
+msg_	src/generic_laser_filter_node.cpp	/^  sensor_msgs::LaserScan msg_;$/;"	m	class:GenericLaserScanFilterNode	file:
+msg_	src/scan_to_scan_filter_chain.cpp	/^  sensor_msgs::LaserScan msg_;$/;"	m	class:ScanToScanFilterChain	file:
+neighbors_	include/mynt_laser_scan_filter/scan_shadows_filter.h	/^  int window_, neighbors_;$/;"	m	class:laser_filters::ScanShadowsFilter
+nh	src/scan_to_cloud_filter_chain.cpp	/^  ros::NodeHandle nh;$/;"	m	class:ScanToCloudFilterChain	file:
+nh_	src/generic_laser_filter_node.cpp	/^  ros::NodeHandle nh_;$/;"	m	class:GenericLaserScanFilterNode	file:
+nh_	src/scan_to_scan_filter_chain.cpp	/^  ros::NodeHandle nh_;$/;"	m	class:ScanToScanFilterChain	file:
+num_ranges_	include/mynt_laser_scan_filter/array_filter.h	/^  unsigned int num_ranges_; \/\/\/ How many data point are in each row$/;"	m	class:laser_filters::LaserArrayFilter
+num_ranges_	include/mynt_laser_scan_filter/median_filter.h	/^  unsigned int num_ranges_; \/\/\/ How many data point are in each row$/;"	m	class:laser_filters::LaserMedianFilter
+output_pub_	src/generic_laser_filter_node.cpp	/^  ros::Publisher output_pub_;$/;"	m	class:GenericLaserScanFilterNode	file:
+output_pub_	src/scan_to_scan_filter_chain.cpp	/^  ros::Publisher output_pub_;$/;"	m	class:ScanToScanFilterChain	file:
+private_nh	src/scan_to_cloud_filter_chain.cpp	/^  ros::NodeHandle private_nh;$/;"	m	class:ScanToCloudFilterChain	file:
+private_nh_	src/scan_to_scan_filter_chain.cpp	/^  ros::NodeHandle private_nh_;$/;"	m	class:ScanToScanFilterChain	file:
+projector_	include/mynt_laser_scan_filter/box_filter.h	/^    laser_geometry::LaserProjection projector_;$/;"	m	class:laser_filters::LaserScanBoxFilter
+projector_	include/mynt_laser_scan_filter/footprint_filter.h	/^  laser_geometry::LaserProjection projector_;$/;"	m	class:laser_filters::LaserScanFootprintFilter
+projector_	include/mynt_laser_scan_filter/point_cloud_footprint_filter.h	/^  laser_geometry::LaserProjection projector_;$/;"	m	class:laser_filters::PointCloudFootprintFilter
+projector_	src/scan_to_cloud_filter_chain.cpp	/^  laser_geometry::LaserProjection projector_; \/\/ Used to project laser scans$/;"	m	class:ScanToCloudFilterChain	file:
+range_config_	include/mynt_laser_scan_filter/array_filter.h	/^  XmlRpc::XmlRpcValue range_config_;$/;"	m	class:laser_filters::LaserArrayFilter
+range_filter_	include/mynt_laser_scan_filter/array_filter.h	/^  filters::MultiChannelFilterChain<float> * range_filter_;$/;"	m	class:laser_filters::LaserArrayFilter
+range_filter_	include/mynt_laser_scan_filter/median_filter.h	/^  filters::MultiChannelFilterChain<float> * range_filter_;$/;"	m	class:laser_filters::LaserMedianFilter
+scanCallback	src/scan_to_cloud_filter_chain.cpp	/^  scanCallback (const sensor_msgs::LaserScan::ConstPtr& scan_msg)$/;"	f	class:ScanToCloudFilterChain
+scan_filter_chain_	src/scan_to_cloud_filter_chain.cpp	/^  filters::FilterChain<sensor_msgs::LaserScan> scan_filter_chain_;$/;"	m	class:ScanToCloudFilterChain	file:
+scan_sub_	src/generic_laser_filter_node.cpp	/^  message_filters::Subscriber<sensor_msgs::LaserScan> scan_sub_;$/;"	m	class:GenericLaserScanFilterNode	file:
+scan_sub_	src/scan_to_scan_filter_chain.cpp	/^  message_filters::Subscriber<sensor_msgs::LaserScan> scan_sub_;$/;"	m	class:ScanToScanFilterChain	file:
+scan_topic_	src/scan_to_cloud_filter_chain.cpp	/^  std::string scan_topic_, cloud_topic_;$/;"	m	class:ScanToCloudFilterChain	file:
+sub_	src/scan_to_cloud_filter_chain.cpp	/^  message_filters::Subscriber<sensor_msgs::LaserScan> sub_;$/;"	m	class:ScanToCloudFilterChain	file:
+target_frame_	src/scan_to_cloud_filter_chain.cpp	/^  std::string target_frame_;                   \/\/ Target frame for high fidelity result$/;"	m	class:ScanToCloudFilterChain	file:
+temp_scan_	include/mynt_laser_scan_filter/array_filter.h	/^  sensor_msgs::LaserScan temp_scan_; \/** \\todo cache only shallow info not full scan *\/$/;"	m	class:laser_filters::LaserArrayFilter
+temp_scan_	include/mynt_laser_scan_filter/median_filter.h	/^  sensor_msgs::LaserScan temp_scan_; \/** \\todo cache only shallow info not full scan *\/$/;"	m	class:laser_filters::LaserMedianFilter
+tf_	include/mynt_laser_scan_filter/box_filter.h	/^    tf::TransformListener tf_; $/;"	m	class:laser_filters::LaserScanBoxFilter
+tf_	include/mynt_laser_scan_filter/footprint_filter.h	/^  tf::TransformListener tf_;$/;"	m	class:laser_filters::LaserScanFootprintFilter
+tf_	include/mynt_laser_scan_filter/point_cloud_footprint_filter.h	/^  tf::TransformListener tf_;$/;"	m	class:laser_filters::PointCloudFootprintFilter
+tf_	src/generic_laser_filter_node.cpp	/^  tf::TransformListener tf_;$/;"	m	class:GenericLaserScanFilterNode	file:
+tf_	src/scan_to_cloud_filter_chain.cpp	/^  tf::TransformListener tf_;$/;"	m	class:ScanToCloudFilterChain	file:
+tf_	src/scan_to_scan_filter_chain.cpp	/^  tf::TransformListener *tf_;$/;"	m	class:ScanToScanFilterChain	file:
+tf_filter_	src/generic_laser_filter_node.cpp	/^  tf::MessageFilter<sensor_msgs::LaserScan> tf_filter_;$/;"	m	class:GenericLaserScanFilterNode	file:
+tf_filter_	src/scan_to_scan_filter_chain.cpp	/^  tf::MessageFilter<sensor_msgs::LaserScan> *tf_filter_;$/;"	m	class:ScanToScanFilterChain	file:
+tf_filter_tolerance_	src/scan_to_scan_filter_chain.cpp	/^  double tf_filter_tolerance_;$/;"	m	class:ScanToScanFilterChain	file:
+tf_tolerance_	src/scan_to_cloud_filter_chain.cpp	/^  double tf_tolerance_;$/;"	m	class:ScanToCloudFilterChain	file:
+up_and_running_	include/mynt_laser_scan_filter/box_filter.h	/^    bool up_and_running_;$/;"	m	class:laser_filters::LaserScanBoxFilter
+up_and_running_	include/mynt_laser_scan_filter/footprint_filter.h	/^  bool up_and_running_;$/;"	m	class:laser_filters::LaserScanFootprintFilter
+update	include/mynt_laser_scan_filter/angular_bounds_filter.h	/^      bool update(const sensor_msgs::LaserScan& input_scan, sensor_msgs::LaserScan& filtered_scan){$/;"	f	class:laser_filters::LaserScanAngularBoundsFilter
+update	include/mynt_laser_scan_filter/angular_bounds_filter_in_place.h	/^      bool update(const sensor_msgs::LaserScan& input_scan, sensor_msgs::LaserScan& filtered_scan){$/;"	f	class:laser_filters::LaserScanAngularBoundsFilterInPlace
+update	include/mynt_laser_scan_filter/footprint_filter.h	/^  bool update(const sensor_msgs::LaserScan& input_scan, sensor_msgs::LaserScan& filtered_scan)$/;"	f	class:laser_filters::LaserScanFootprintFilter
+update	include/mynt_laser_scan_filter/intensity_filter.h	/^  bool update(const sensor_msgs::LaserScan& input_scan, sensor_msgs::LaserScan& filtered_scan)$/;"	f	class:laser_filters::LaserScanIntensityFilter
+update	include/mynt_laser_scan_filter/interpolation_filter.h	/^  bool update(const sensor_msgs::LaserScan& input_scan, sensor_msgs::LaserScan& filtered_scan)$/;"	f	class:laser_filters::InterpolationFilter
+update	include/mynt_laser_scan_filter/point_cloud_footprint_filter.h	/^  bool update(const sensor_msgs::PointCloud& input_scan, sensor_msgs::PointCloud& filtered_scan)$/;"	f	class:laser_filters::PointCloudFootprintFilter
+update	include/mynt_laser_scan_filter/range_filter.h	/^  bool update(const sensor_msgs::LaserScan& input_scan, sensor_msgs::LaserScan& filtered_scan)$/;"	f	class:laser_filters::LaserScanRangeFilter
+update	include/mynt_laser_scan_filter/scan_mask_filter.h	/^  bool update(const sensor_msgs::LaserScan& data_in, sensor_msgs::LaserScan& data_out)$/;"	f	class:laser_filters::LaserScanMaskFilter
+update	include/mynt_laser_scan_filter/scan_shadows_filter.h	/^  bool update(const sensor_msgs::LaserScan& scan_in, sensor_msgs::LaserScan& scan_out)$/;"	f	class:laser_filters::ScanShadowsFilter
+update	src/array_filter.cpp	/^bool LaserArrayFilter::update(const sensor_msgs::LaserScan& scan_in, sensor_msgs::LaserScan& scan_out)$/;"	f	class:laser_filters::LaserArrayFilter
+update	src/box_filter.cpp	/^bool laser_filters::LaserScanBoxFilter::update($/;"	f	class:laser_filters::LaserScanBoxFilter
+update	src/median_filter.cpp	/^bool LaserMedianFilter::update(const sensor_msgs::LaserScan& scan_in, sensor_msgs::LaserScan& scan_out)$/;"	f	class:laser_filters::LaserMedianFilter
+upper_angle_	include/mynt_laser_scan_filter/angular_bounds_filter.h	/^      double upper_angle_;$/;"	m	class:laser_filters::LaserScanAngularBoundsFilter
+upper_angle_	include/mynt_laser_scan_filter/angular_bounds_filter_in_place.h	/^      double upper_angle_;$/;"	m	class:laser_filters::LaserScanAngularBoundsFilterInPlace
+upper_replacement_value_	include/mynt_laser_scan_filter/range_filter.h	/^  float upper_replacement_value_ ;$/;"	m	class:laser_filters::LaserScanRangeFilter
+upper_threshold_	include/mynt_laser_scan_filter/intensity_filter.h	/^  double upper_threshold_ ;$/;"	m	class:laser_filters::LaserScanIntensityFilter
+upper_threshold_	include/mynt_laser_scan_filter/range_filter.h	/^  double upper_threshold_ ;$/;"	m	class:laser_filters::LaserScanRangeFilter
+use_message_range_limits_	include/mynt_laser_scan_filter/range_filter.h	/^  int use_message_range_limits_ ;$/;"	m	class:laser_filters::LaserScanRangeFilter
+using_cloud_filters_deprecated_	src/scan_to_cloud_filter_chain.cpp	/^  bool  using_cloud_filters_deprecated_;$/;"	m	class:ScanToCloudFilterChain	file:
+using_cloud_filters_wrong_deprecated_	src/scan_to_cloud_filter_chain.cpp	/^  bool  using_cloud_filters_wrong_deprecated_;$/;"	m	class:ScanToCloudFilterChain	file:
+using_cloud_topic_deprecated_	src/scan_to_cloud_filter_chain.cpp	/^  bool  using_cloud_topic_deprecated_;$/;"	m	class:ScanToCloudFilterChain	file:
+using_default_target_frame_deprecated_	src/scan_to_cloud_filter_chain.cpp	/^  bool  using_default_target_frame_deprecated_;$/;"	m	class:ScanToCloudFilterChain	file:
+using_filter_chain_deprecated_	src/scan_to_scan_filter_chain.cpp	/^  bool  using_filter_chain_deprecated_;$/;"	m	class:ScanToScanFilterChain	file:
+using_filter_window_deprecated_	src/scan_to_cloud_filter_chain.cpp	/^  bool  using_filter_window_deprecated_;$/;"	m	class:ScanToCloudFilterChain	file:
+using_laser_max_range_deprecated_	src/scan_to_cloud_filter_chain.cpp	/^  bool  using_laser_max_range_deprecated_;$/;"	m	class:ScanToCloudFilterChain	file:
+using_scan_filters_deprecated_	src/scan_to_cloud_filter_chain.cpp	/^  bool  using_scan_filters_deprecated_;$/;"	m	class:ScanToCloudFilterChain	file:
+using_scan_filters_wrong_deprecated_	src/scan_to_cloud_filter_chain.cpp	/^  bool  using_scan_filters_wrong_deprecated_;$/;"	m	class:ScanToCloudFilterChain	file:
+using_scan_topic_deprecated_	src/scan_to_cloud_filter_chain.cpp	/^  bool  using_scan_topic_deprecated_;$/;"	m	class:ScanToCloudFilterChain	file:
+window_	include/mynt_laser_scan_filter/scan_shadows_filter.h	/^  int window_, neighbors_;$/;"	m	class:laser_filters::ScanShadowsFilter
+window_	src/scan_to_cloud_filter_chain.cpp	/^  int window_;$/;"	m	class:ScanToCloudFilterChain	file:
+xmlrpc_value_	include/mynt_laser_scan_filter/median_filter.h	/^  XmlRpc::XmlRpcValue xmlrpc_value_;$/;"	m	class:laser_filters::LaserMedianFilter
+~InterpolationFilter	include/mynt_laser_scan_filter/interpolation_filter.h	/^  virtual ~InterpolationFilter()$/;"	f	class:laser_filters::InterpolationFilter
+~LaserArrayFilter	src/array_filter.cpp	/^LaserArrayFilter::~LaserArrayFilter()$/;"	f	class:laser_filters::LaserArrayFilter
+~LaserMedianFilter	src/median_filter.cpp	/^LaserMedianFilter::~LaserMedianFilter()$/;"	f	class:laser_filters::LaserMedianFilter
+~LaserScanAngularBoundsFilter	include/mynt_laser_scan_filter/angular_bounds_filter.h	/^      virtual ~LaserScanAngularBoundsFilter(){}$/;"	f	class:laser_filters::LaserScanAngularBoundsFilter
+~LaserScanAngularBoundsFilterInPlace	include/mynt_laser_scan_filter/angular_bounds_filter_in_place.h	/^      virtual ~LaserScanAngularBoundsFilterInPlace(){}$/;"	f	class:laser_filters::LaserScanAngularBoundsFilterInPlace
+~LaserScanFootprintFilter	include/mynt_laser_scan_filter/footprint_filter.h	/^  virtual ~LaserScanFootprintFilter()$/;"	f	class:laser_filters::LaserScanFootprintFilter
+~LaserScanIntensityFilter	include/mynt_laser_scan_filter/intensity_filter.h	/^  virtual ~LaserScanIntensityFilter(){}$/;"	f	class:laser_filters::LaserScanIntensityFilter
+~LaserScanMaskFilter	include/mynt_laser_scan_filter/scan_mask_filter.h	/^  virtual ~LaserScanMaskFilter()$/;"	f	class:laser_filters::LaserScanMaskFilter
+~LaserScanRangeFilter	include/mynt_laser_scan_filter/range_filter.h	/^  virtual ~LaserScanRangeFilter()$/;"	f	class:laser_filters::LaserScanRangeFilter
+~PointCloudFootprintFilter	include/mynt_laser_scan_filter/point_cloud_footprint_filter.h	/^  virtual ~PointCloudFootprintFilter()$/;"	f	class:laser_filters::PointCloudFootprintFilter
+~ScanShadowsFilter	include/mynt_laser_scan_filter/scan_shadows_filter.h	/^  virtual ~ScanShadowsFilter () { }$/;"	f	class:laser_filters::ScanShadowsFilter
+~ScanToScanFilterChain	src/scan_to_scan_filter_chain.cpp	/^  ~ScanToScanFilterChain()$/;"	f	class:ScanToScanFilterChain

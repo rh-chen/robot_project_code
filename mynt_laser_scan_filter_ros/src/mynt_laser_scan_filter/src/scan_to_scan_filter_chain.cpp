@@ -69,8 +69,9 @@ public:
     filter_chain_("sensor_msgs::LaserScan")
   {
     // Configure filter chain
-    
+    std::cout << "configure filter chain ..." << std::endl;    
     using_filter_chain_deprecated_ = private_nh_.hasParam("filter_chain");
+    std::cout << "using_filter_chain_deprecated:" << using_filter_chain_deprecated_ << std::endl;
 
     if (using_filter_chain_deprecated_)
       filter_chain_.configure("filter_chain", private_nh_);
@@ -125,6 +126,7 @@ public:
   // Callback
   void callback(const sensor_msgs::LaserScan::ConstPtr& msg_in)
   {
+    ROS_INFO("start laserscan filter...");
     // Run the filter chain
     if (filter_chain_.update(*msg_in, msg_))
     {
@@ -137,7 +139,7 @@ public:
 int main(int argc, char **argv)
 {
   ros::init(argc, argv, "scan_to_scan_filter_chain");
-  
+  std::cout << "start create scan filter..." << std::endl;  
   ScanToScanFilterChain t;
   ros::spin();
   

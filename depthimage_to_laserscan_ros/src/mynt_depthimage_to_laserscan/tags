@@ -1,0 +1,64 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.9~svn20110310	//
+DEPTH_IMAGE_TO_LASERSCAN	include/mynt_depthimage_to_laserscan/DepthImageToLaserScan.h	35;"	d
+DEPTH_IMAGE_TO_LASERSCAN_DEPTH_TRAITS	include/mynt_depthimage_to_laserscan/depth_traits.h	35;"	d
+DEPTH_IMAGE_TO_LASERSCAN_ROS	include/mynt_depthimage_to_laserscan/DepthImageToLaserScanROS.h	35;"	d
+DepthImageToLaserScan	include/mynt_depthimage_to_laserscan/DepthImageToLaserScan.h	/^  class DepthImageToLaserScan$/;"	c	namespace:mynt_depthimage_to_laserscan
+DepthImageToLaserScan	src/DepthImageToLaserScan.cpp	/^DepthImageToLaserScan::DepthImageToLaserScan(){$/;"	f	class:DepthImageToLaserScan
+DepthImageToLaserScanNodelet	src/DepthImageToLaserScanNodelet.cpp	/^  DepthImageToLaserScanNodelet()  {};$/;"	f	class:mynt_depthimage_to_laserscan::DepthImageToLaserScanNodelet
+DepthImageToLaserScanNodelet	src/DepthImageToLaserScanNodelet.cpp	/^class DepthImageToLaserScanNodelet : public nodelet::Nodelet$/;"	c	namespace:mynt_depthimage_to_laserscan	file:
+DepthImageToLaserScanROS	include/mynt_depthimage_to_laserscan/DepthImageToLaserScanROS.h	/^  class DepthImageToLaserScanROS$/;"	c	namespace:mynt_depthimage_to_laserscan
+DepthImageToLaserScanROS	src/DepthImageToLaserScanROS.cpp	/^DepthImageToLaserScanROS::DepthImageToLaserScanROS(ros::NodeHandle& n, ros::NodeHandle& pnh):pnh_(pnh), it_(n), srv_(pnh) {$/;"	f	class:DepthImageToLaserScanROS
+DepthTraits	include/mynt_depthimage_to_laserscan/depth_traits.h	/^struct DepthTraits<float>$/;"	s	namespace:mynt_depthimage_to_laserscan
+DepthTraits	include/mynt_depthimage_to_laserscan/depth_traits.h	/^struct DepthTraits<uint16_t>$/;"	s	namespace:mynt_depthimage_to_laserscan
+DepthTraits	include/mynt_depthimage_to_laserscan/depth_traits.h	/^template<typename T> struct DepthTraits {};$/;"	s	namespace:mynt_depthimage_to_laserscan
+PACKAGE	cfg/Depth.cfg	/^PACKAGE='mynt_depthimage_to_laserscan'$/;"	v
+angle_between_rays	src/DepthImageToLaserScan.cpp	/^double DepthImageToLaserScan::angle_between_rays(const cv::Point3d& ray1, const cv::Point3d& ray2) const{$/;"	f	class:DepthImageToLaserScan
+cam_model_	include/mynt_depthimage_to_laserscan/DepthImageToLaserScan.h	/^    image_geometry::PinholeCameraModel cam_model_; \/\/\/< image_geometry helper class for managing sensor_msgs\/CameraInfo messages.$/;"	m	class:mynt_depthimage_to_laserscan::DepthImageToLaserScan
+connectCb	src/DepthImageToLaserScanROS.cpp	/^void DepthImageToLaserScanROS::connectCb(const ros::SingleSubscriberPublisher& pub) {$/;"	f	class:DepthImageToLaserScanROS
+connect_mutex_	include/mynt_depthimage_to_laserscan/DepthImageToLaserScanROS.h	/^    boost::mutex connect_mutex_; \/\/\/< Prevents the connectCb and disconnectCb from being called until everything is initialized.$/;"	m	class:mynt_depthimage_to_laserscan::DepthImageToLaserScanROS
+convert	include/mynt_depthimage_to_laserscan/DepthImageToLaserScan.h	/^    void convert(const sensor_msgs::ImageConstPtr& depth_msg, const image_geometry::PinholeCameraModel& cam_model, $/;"	f	class:mynt_depthimage_to_laserscan::DepthImageToLaserScan
+convert_msg	src/DepthImageToLaserScan.cpp	/^sensor_msgs::LaserScanPtr DepthImageToLaserScan::convert_msg(const sensor_msgs::ImageConstPtr& depth_msg,$/;"	f	class:DepthImageToLaserScan
+depthCb	src/DepthImageToLaserScanROS.cpp	/^void DepthImageToLaserScanROS::depthCb(const sensor_msgs::ImageConstPtr& depth_msg,$/;"	f	class:DepthImageToLaserScanROS
+disconnectCb	src/DepthImageToLaserScanROS.cpp	/^void DepthImageToLaserScanROS::disconnectCb(const ros::SingleSubscriberPublisher& pub) {$/;"	f	class:DepthImageToLaserScanROS
+dtl	src/DepthImageToLaserScanNodelet.cpp	/^  boost::shared_ptr<DepthImageToLaserScanROS> dtl;$/;"	m	class:mynt_depthimage_to_laserscan::DepthImageToLaserScanNodelet	file:
+dtl_	include/mynt_depthimage_to_laserscan/DepthImageToLaserScanROS.h	/^    mynt_depthimage_to_laserscan::DepthImageToLaserScan dtl_; \/\/\/< Instance of the DepthImageToLaserScan conversion class.$/;"	m	class:mynt_depthimage_to_laserscan::DepthImageToLaserScanROS
+fromMeters	include/mynt_depthimage_to_laserscan/depth_traits.h	/^  static inline float fromMeters(float depth) { return depth; }$/;"	f	struct:mynt_depthimage_to_laserscan::DepthTraits
+fromMeters	include/mynt_depthimage_to_laserscan/depth_traits.h	/^  static inline uint16_t fromMeters(float depth) { return (depth * 1000.0f) + 0.5f; }$/;"	f	struct:mynt_depthimage_to_laserscan::DepthTraits
+gen	cfg/Depth.cfg	/^gen = ParameterGenerator()$/;"	v
+initializeBuffer	include/mynt_depthimage_to_laserscan/depth_traits.h	/^  static inline void initializeBuffer(std::vector<uint8_t>& buffer) {} \/\/ Do nothing - already zero-filled$/;"	f	struct:mynt_depthimage_to_laserscan::DepthTraits
+initializeBuffer	include/mynt_depthimage_to_laserscan/depth_traits.h	/^  static inline void initializeBuffer(std::vector<uint8_t>& buffer)$/;"	f	struct:mynt_depthimage_to_laserscan::DepthTraits
+it_	include/mynt_depthimage_to_laserscan/DepthImageToLaserScanROS.h	/^    image_transport::ImageTransport it_; \/\/\/< Subscribes to synchronized Image CameraInfo pairs.$/;"	m	class:mynt_depthimage_to_laserscan::DepthImageToLaserScanROS
+magnitude_of_ray	src/DepthImageToLaserScan.cpp	/^double DepthImageToLaserScan::magnitude_of_ray(const cv::Point3d& ray) const{$/;"	f	class:DepthImageToLaserScan
+main	src/depthimage_to_laserscan.cpp	/^int main(int argc, char **argv){$/;"	f
+mynt_depthimage_to_laserscan	include/mynt_depthimage_to_laserscan/DepthImageToLaserScan.h	/^namespace mynt_depthimage_to_laserscan$/;"	n
+mynt_depthimage_to_laserscan	include/mynt_depthimage_to_laserscan/DepthImageToLaserScanROS.h	/^namespace mynt_depthimage_to_laserscan$/;"	n
+mynt_depthimage_to_laserscan	include/mynt_depthimage_to_laserscan/depth_traits.h	/^namespace mynt_depthimage_to_laserscan {$/;"	n
+mynt_depthimage_to_laserscan	src/DepthImageToLaserScanNodelet.cpp	/^namespace mynt_depthimage_to_laserscan$/;"	n	file:
+onInit	src/DepthImageToLaserScanNodelet.cpp	/^  virtual void onInit()$/;"	f	class:mynt_depthimage_to_laserscan::DepthImageToLaserScanNodelet	file:
+output_frame_id_	include/mynt_depthimage_to_laserscan/DepthImageToLaserScan.h	/^    std::string output_frame_id_; \/\/\/< Output frame_id for each laserscan.  This is likely NOT the camera's frame_id.$/;"	m	class:mynt_depthimage_to_laserscan::DepthImageToLaserScan
+pnh_	include/mynt_depthimage_to_laserscan/DepthImageToLaserScanROS.h	/^    ros::NodeHandle pnh_; \/\/\/< Private nodehandle used to generate the transport hints in the connectCb.$/;"	m	class:mynt_depthimage_to_laserscan::DepthImageToLaserScanROS
+pub_	include/mynt_depthimage_to_laserscan/DepthImageToLaserScanROS.h	/^    ros::Publisher pub_; \/\/\/< Publisher for output LaserScan messages$/;"	m	class:mynt_depthimage_to_laserscan::DepthImageToLaserScanROS
+range_max_	include/mynt_depthimage_to_laserscan/DepthImageToLaserScan.h	/^    float range_max_; \/\/\/< Stores the current maximum range to use.$/;"	m	class:mynt_depthimage_to_laserscan::DepthImageToLaserScan
+range_min_	include/mynt_depthimage_to_laserscan/DepthImageToLaserScan.h	/^    float range_min_; \/\/\/< Stores the current minimum range to use.$/;"	m	class:mynt_depthimage_to_laserscan::DepthImageToLaserScan
+reconfigureCb	src/DepthImageToLaserScanROS.cpp	/^void DepthImageToLaserScanROS::reconfigureCb(mynt_depthimage_to_laserscan::DepthConfig& config, uint32_t level){$/;"	f	class:DepthImageToLaserScanROS
+scan_height_	include/mynt_depthimage_to_laserscan/DepthImageToLaserScan.h	/^    int scan_height_; \/\/\/< Number of pixel rows to use when producing a laserscan from an area.$/;"	m	class:mynt_depthimage_to_laserscan::DepthImageToLaserScan
+scan_time_	include/mynt_depthimage_to_laserscan/DepthImageToLaserScan.h	/^    float scan_time_; \/\/\/< Stores the time between scans.$/;"	m	class:mynt_depthimage_to_laserscan::DepthImageToLaserScan
+set_output_frame	src/DepthImageToLaserScan.cpp	/^void DepthImageToLaserScan::set_output_frame(const std::string output_frame_id){$/;"	f	class:DepthImageToLaserScan
+set_range_limits	src/DepthImageToLaserScan.cpp	/^void DepthImageToLaserScan::set_range_limits(const float range_min, const float range_max){$/;"	f	class:DepthImageToLaserScan
+set_scan_height	src/DepthImageToLaserScan.cpp	/^void DepthImageToLaserScan::set_scan_height(const int scan_height){$/;"	f	class:DepthImageToLaserScan
+set_scan_time	src/DepthImageToLaserScan.cpp	/^void DepthImageToLaserScan::set_scan_time(const float scan_time){$/;"	f	class:DepthImageToLaserScan
+srv_	include/mynt_depthimage_to_laserscan/DepthImageToLaserScanROS.h	/^    dynamic_reconfigure::Server<mynt_depthimage_to_laserscan::DepthConfig> srv_; \/\/\/< Dynamic reconfigure server$/;"	m	class:mynt_depthimage_to_laserscan::DepthImageToLaserScanROS
+sub_	include/mynt_depthimage_to_laserscan/DepthImageToLaserScanROS.h	/^    image_transport::CameraSubscriber sub_; \/\/\/< Subscriber for image_transport$/;"	m	class:mynt_depthimage_to_laserscan::DepthImageToLaserScanROS
+toMeters	include/mynt_depthimage_to_laserscan/depth_traits.h	/^  static inline float toMeters(float depth) { return depth; }$/;"	f	struct:mynt_depthimage_to_laserscan::DepthTraits
+toMeters	include/mynt_depthimage_to_laserscan/depth_traits.h	/^  static inline float toMeters(uint16_t depth) { return depth * 0.001f; } \/\/ originally mm$/;"	f	struct:mynt_depthimage_to_laserscan::DepthTraits
+use_point	src/DepthImageToLaserScan.cpp	/^bool DepthImageToLaserScan::use_point(const float new_value, const float old_value, const float range_min, const float range_max) const{  $/;"	f	class:DepthImageToLaserScan
+valid	include/mynt_depthimage_to_laserscan/depth_traits.h	/^  static inline bool valid(float depth) { return std::isfinite(depth); }$/;"	f	struct:mynt_depthimage_to_laserscan::DepthTraits
+valid	include/mynt_depthimage_to_laserscan/depth_traits.h	/^  static inline bool valid(uint16_t depth) { return depth != 0; }$/;"	f	struct:mynt_depthimage_to_laserscan::DepthTraits
+~DepthImageToLaserScan	src/DepthImageToLaserScan.cpp	/^DepthImageToLaserScan::~DepthImageToLaserScan(){$/;"	f	class:DepthImageToLaserScan
+~DepthImageToLaserScanNodelet	src/DepthImageToLaserScanNodelet.cpp	/^  ~DepthImageToLaserScanNodelet() {}$/;"	f	class:mynt_depthimage_to_laserscan::DepthImageToLaserScanNodelet
+~DepthImageToLaserScanROS	src/DepthImageToLaserScanROS.cpp	/^DepthImageToLaserScanROS::~DepthImageToLaserScanROS(){$/;"	f	class:DepthImageToLaserScanROS
