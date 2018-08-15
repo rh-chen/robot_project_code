@@ -1,4 +1,8 @@
-geometry_msgs/PoseStamped start
+#robot pose
+geometry_msgs/Pose start
+#number frontier
+int8 n_frontier
+#map
 nav_msgs/OccupancyGrid map
 ---
-geometry_msgs/PoseStamped start
+geometry_msgs/PoseArray goal
