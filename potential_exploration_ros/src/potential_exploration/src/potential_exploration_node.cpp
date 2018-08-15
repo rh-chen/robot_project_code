@@ -52,9 +52,9 @@ int main(int argc, char **argv) {
         ROS_INFO("Failed to get map...");
     }
 	get_next_frontier_srv.request.map = nav_msgs::OccupancyGrid();
-	get_next_frontier_srv.request.start.pose.position.x = 0.1;
-    get_next_frontier_srv.request.start.pose.position.y = 0.1;
-    get_next_frontier_srv.request.start.pose.position.z = 0.0;
+	get_next_frontier_srv.request.start.position.x = 0.1;
+    get_next_frontier_srv.request.start.position.y = 0.1;
+    get_next_frontier_srv.request.start.position.z = 0.0;
 
 	if(potential_exploration_client.call(get_next_frontier_srv))
 		ROS_INFO("get next frontier success...");

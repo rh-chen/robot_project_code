@@ -31,7 +31,7 @@
 #include <tf/tf.h>
 #include "potential_exploration/GetNextFrontier.h"
 
-#define M_PI 3.1415926
+#define L_PI 3.1415926
 
 namespace potential_exploration_ns{
 using namespace std;
@@ -96,7 +96,7 @@ void projectedMap(const nav_msgs::OccupancyGrid& msg,double robot_x_,double robo
                         projected_map[i][j] = 2;
                         inflation_queue2.push_back(Pixel(i, j));
                     }
-                }geometry_msgs/Quaternion getyaw
+                }
             }
 
             inflation_queue.pop_front();
@@ -143,12 +143,24 @@ void projectedMap(const nav_msgs::OccupancyGrid& msg,double robot_x_,double robo
 }
 
 double angle_wrap(double angle){
-    double angle_temp = angle%(2*M_PI);
+    double angle_res;
+    if(angle > 0){
+        double angle_temp = angle/(2*L_PI);
+        int n_p = std::floor(angle_temp);
+        angle_res = angle-n_p*(2*L_PI);
+        if(angle_res > L_PI)
+            angle_res -= (2*L_PI);
+    }
+    else{
+        double angle_temp = angle/(2*L_PI);
+        int n_p = std::ceil(angle_temp);
+        angle_res = angle-n_p*(2*L_PI);
+        if(fabs(angle_res) > L_PI)
+            angle_res += (2*L_PI);
 
-    if(angle_temp > M_PI)
-        angle_temp -= 2*M_PI;
+    }
 
-    return angle_temp;
+    return angle_res;
 }
 
 typedef struct pose_weight{
@@ -196,10 +208,10 @@ bool getFrontier(vector<vector<int> >& projected_map_,\
               (projected_map_[i+1][j] == 1 && projected_map_[i][j+1] == 2) || \
               (projected_map_[i+1][j] == 2 && projected_map_[i][j-1] == 1) || \
               (projected_map_[i+1][j] == 1 && projected_map_[i][j-1] == 2)){
-                double frontier_x = j*resolution+origin_x;
-                double frontier_y = i*resolution+origin_y;
+                double frontier_x = j*resolution_+origin_x;
+                double frontier_y = i*resolution_+origin_y;
 
-                double angle_to_robot = abs(angle_wrap(robot_theta_-\
+                double angle_to_robot = fabs(angle_wrap(robot_theta_-\
                                         atan2(frontier_y-robot_y,frontier_x-robot_x)));
 
                 double frontier_weight = projected_map_[i][j]*(1+0.8*std::exp(-2.0/angle_to_robot));
