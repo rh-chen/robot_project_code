@@ -38,7 +38,7 @@ using namespace std;
 
 boost::mutex mtx;
 double robot_x, robot_y; 
-vector<vector<int>> projected_map; 
+vector<vector<unsigned int> > projected_map; 
 
 struct Pixel{
     int x, y;
@@ -81,7 +81,7 @@ void projectedMap(const nav_msgs::OccupancyGrid& msg,double robot_x_,double robo
     }
 
     //1. INFLATE OBSTACLES
-    int inflate = 3;
+    int inflate = 1;
     deque<Pixel> inflation_queue2;
 
     for(int n = 0; n < inflate; n++){
@@ -177,7 +177,7 @@ bool cmp(const PoseWeight& a,const PoseWeight& b)
 {
     return a.w > b.w;
 }
-bool getFrontier(vector<vector<int> >& projected_map_,\
+bool getFrontier(vector<vector<unsigned int> >& projected_map_,\
                  double resolution_,\
                  double origin_x,\
                  double origin_y,\
@@ -185,29 +185,43 @@ bool getFrontier(vector<vector<int> >& projected_map_,\
                  int n_frontier,\
                  vector<geometry_msgs::Pose>& v_pose_){
     mtx.lock();
-    double i,j;
-    
     int w = projected_map_.size();
     int h = projected_map_[0].size();
 
     ROS_INFO("projected_map_w:%d",w);
     ROS_INFO("projected_map_h:%d",h);
+#if 0    
+    for(int i = 0;i < w;i++){
+        for(int j = 0;j < h;j++){
+std::cout << __FILE__ << __LINE__ << std::endl;
+            printf("%d",projected_map[i][j]);
+std::cout << __FILE__ << __LINE__ << std::endl;
 
+            if(j == w-1)
+               printf("\n"); 
+        }
+    }
+#endif
     vector<PoseWeight> v_pose_weight;
-
-    for(i = 2;i < h-1;i++){
-        for(j = 2;j < w-1;j++){
+    for(int i = 2;i < w-1;i++){
+        for(int j = 2;j < h-1;j++){
             if(projected_map_[i][j] < 3)
                 continue;
 
-            if((projected_map_[i][j-1] == 2 && projected_map_[i-1][j] == 1) || \
-              (projected_map_[i][j-1] == 1 && projected_map_[i-1][j] == 2) || \
-              (projected_map_[i][j+1] == 2 && projected_map_[i-1][j] == 1) || \
-              (projected_map_[i][j+1] == 1 && projected_map_[i-1][j] == 2) || \
-              (projected_map_[i+1][j] == 2 && projected_map_[i][j+1] == 1) || \
-              (projected_map_[i+1][j] == 1 && projected_map_[i][j+1] == 2) || \
-              (projected_map_[i+1][j] == 2 && projected_map_[i][j-1] == 1) || \
-              (projected_map_[i+1][j] == 1 && projected_map_[i][j-1] == 2)){
+            if(
+              ((projected_map_[i][j-1] == 2) && (projected_map_[i-1][j] == 1)) || \
+              ((projected_map_[i][j-1] == 1) && (projected_map_[i-1][j] == 2)) || \
+              ((projected_map_[i][j+1] == 2) && (projected_map_[i-1][j] == 1)) || \
+              ((projected_map_[i][j+1] == 1) && (projected_map_[i-1][j] == 2)) || \
+              ((projected_map_[i+1][j] == 2) && (projected_map_[i][j+1] == 1)) || \
+              ((projected_map_[i+1][j] == 1) && (projected_map_[i][j+1] == 2)) || \
+              ((projected_map_[i+1][j] == 2) && (projected_map_[i][j-1] == 1)) || \
+              ((projected_map_[i+1][j] == 1) && (projected_map_[i][j-1] == 2)) || \
+              ((projected_map_[i][j-1] == 1) && (projected_map_[i-1][j] == 1)) || \
+              ((projected_map_[i][j+1] == 1) && (projected_map_[i-1][j] == 1)) || \
+              ((projected_map_[i+1][j] == 1) && (projected_map_[i][j+1] == 1)) || \
+              ((projected_map_[i+1][j] == 1) && (projected_map_[i][j-1] == 1))
+              ){
                 double frontier_x = j*resolution_+origin_x;
                 double frontier_y = i*resolution_+origin_y;
 
@@ -224,6 +238,8 @@ bool getFrontier(vector<vector<int> >& projected_map_,\
     
     if(v_pose_weight.size() > n_frontier){
         ROS_INFO("Find enough frontier...");
+        ROS_INFO("Enough Frontier:%d",(int)v_pose_weight.size());
+
         for(int i = 0;i < n_frontier;i++){
             geometry_msgs::Pose p;
             p.position.x = v_pose_weight[i].x;
@@ -239,7 +255,7 @@ bool getFrontier(vector<vector<int> >& projected_map_,\
 }
 	bool GetNextFrontier(potential_exploration::GetNextFrontier::Request &req,
 						 potential_exploration::GetNextFrontier::Response &res){
-		std::cout << "start potential exploration..." << std::endl;
+		ROS_INFO("start potential exploration...");
         if(req.map.info.width * req.map.info.height != req.map.data.size()){
             ROS_ERROR("Invalid map size...");
             return false;
@@ -252,7 +268,30 @@ bool getFrontier(vector<vector<int> >& projected_map_,\
         
         robot_x = req.start.position.x;
         robot_y = req.start.position.y;
+#if 0
+        nav_msgs::OccupancyGrid map_local = nav_msgs::OccupancyGrid();
+        map_local.info.origin.position.x = 0;
+        map_local.info.origin.position.y = 0;
+        map_local.info.origin.position.z = 0;
+        
+        map_local.info.resolution = 0.05;
+        map_local.info.width = 9;
+        map_local.info.height = 9;
 
+        int8_t map_data[81] = {
+            -1,-1,-1,-1,-1,-1,-1,-1,-1,
+            -1,-1,-1,-1,-1,-1,-1,-1,-1,
+            -1,-1,-1,-1,-1,-1,-1,-1,-1,
+            -1,-1,-1,0,0,0,0,0,-1,
+            -1,-1,100,0,0,0,0,-1,-1,
+            -1,-1,-1,0,0,0,0,0,-1,
+            -1,-1,-1,-1,0,0,0,0,-1,
+            -1,-1,-1,0,0,0,0,100,100,
+            -1,-1,-1,-1,-1,100,100,100,-1
+        };
+        vector<int8_t> map_data_(map_data,map_data+81);
+        map_local.data = map_data_;
+#endif
         projectedMap(req.map,robot_x,robot_y);
         
         tf::Quaternion q(req.start.orientation.x,\
@@ -276,10 +315,19 @@ bool getFrontier(vector<vector<int> >& projected_map_,\
                        yaw,\
                        v_pose)){
                 res.goal.poses = v_pose;
+
+                for(int i = 0;i < projected_map.size();i++)
+                    projected_map[i].clear();
+                projected_map.clear();
+
                 return true;
         }
-        else
+        else{
+            for(int i = 0;i < projected_map.size();i++)
+                projected_map[i].clear();
+            projected_map.clear();
             return false;
+        }
 	}
 }
 int main(int argc, char **argv) {

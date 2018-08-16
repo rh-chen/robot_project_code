@@ -44,6 +44,9 @@ int main(int argc, char **argv) {
 
     ros::ServiceClient mapClient = n.serviceClient<nav_msgs::GetMap>("/static_map");
     nav_msgs::GetMap getMapSrv;
+
+    ros::Duration(2).sleep();
+    
     if(mapClient.call(getMapSrv)){
 	    get_next_frontier_srv.request.map = getMapSrv.response.map;
         std::cout << "map frame_id: " << get_next_frontier_srv.request.map.header.frame_id << std::endl;
@@ -51,11 +54,15 @@ int main(int argc, char **argv) {
     else{
         ROS_INFO("Failed to get map...");
     }
-	get_next_frontier_srv.request.map = nav_msgs::OccupancyGrid();
-	get_next_frontier_srv.request.start.position.x = 0.1;
-    get_next_frontier_srv.request.start.position.y = 0.1;
+	//get_next_frontier_srv.request.map = nav_msgs::OccupancyGrid();
+	get_next_frontier_srv.request.start.position.x = 0.02;
+    get_next_frontier_srv.request.start.position.y = 0.2;
     get_next_frontier_srv.request.start.position.z = 0.0;
-
+    get_next_frontier_srv.request.start.orientation.x = -0.707;
+    get_next_frontier_srv.request.start.orientation.y = 0;
+    get_next_frontier_srv.request.start.orientation.z = 0;
+    get_next_frontier_srv.request.start.orientation.w = 0.707;
+    get_next_frontier_srv.request.n_frontier = 1;
 	if(potential_exploration_client.call(get_next_frontier_srv))
 		ROS_INFO("get next frontier success...");
 	else
