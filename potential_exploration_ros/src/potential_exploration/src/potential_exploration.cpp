@@ -48,8 +48,6 @@ struct Pixel{
 };
 
 void projectedMap(const nav_msgs::OccupancyGrid& msg,double robot_x_,double robot_y_){
-    mtx.lock();
-
     //Resize the projected_map variable for new size
     projected_map.resize(msg.info.width);
     for(int i = 0; i < projected_map.size(); i++)
@@ -139,7 +137,6 @@ void projectedMap(const nav_msgs::OccupancyGrid& msg,double robot_x_,double robo
         queue.pop_front();
     }
 
-    mtx.unlock();
 }
 
 double angle_wrap(double angle){
@@ -169,25 +166,24 @@ typedef struct pose_weight{
    double w;
    pose_weight(double x_,double y_,double w_)
    {
-        x_ = x;y = y_;w = w_;
+        x = x_;y = y_;w = w_;
    }
 }PoseWeight;
 
 bool cmp(const PoseWeight& a,const PoseWeight& b)
 {
-    return a.w > b.w;
+    return a.w < b.w;
 }
 bool getFrontier(vector<vector<unsigned int> >& projected_map_,\
                  double resolution_,\
                  double origin_x,\
                  double origin_y,\
-                 double robot_theta_,\
                  int n_frontier,\
+                 double robot_theta_,\
                  vector<geometry_msgs::Pose>& v_pose_){
-    mtx.lock();
     int w = projected_map_.size();
     int h = projected_map_[0].size();
-
+    
     ROS_INFO("projected_map_w:%d",w);
     ROS_INFO("projected_map_h:%d",h);
 #if 0    
@@ -222,8 +218,8 @@ std::cout << __FILE__ << __LINE__ << std::endl;
               ((projected_map_[i+1][j] == 1) && (projected_map_[i][j+1] == 1)) || \
               ((projected_map_[i+1][j] == 1) && (projected_map_[i][j-1] == 1))
               ){
-                double frontier_x = j*resolution_+origin_x;
-                double frontier_y = i*resolution_+origin_y;
+                double frontier_x = i*resolution_+origin_x;
+                double frontier_y = j*resolution_+origin_y;
 
                 double angle_to_robot = fabs(angle_wrap(robot_theta_-\
                                         atan2(frontier_y-robot_y,frontier_x-robot_x)));
@@ -247,11 +243,13 @@ std::cout << __FILE__ << __LINE__ << std::endl;
             p.position.z = 0;
             v_pose_.push_back(p);
         }
+        return true;
     }
-    else
+    else{
         ROS_ERROR("Find unenough frontier...");
+        return false;
+    }
 
-    mtx.unlock();
 }
 	bool GetNextFrontier(potential_exploration::GetNextFrontier::Request &req,
 						 potential_exploration::GetNextFrontier::Response &res){
@@ -262,10 +260,15 @@ std::cout << __FILE__ << __LINE__ << std::endl;
         }
 
         if(req.map.info.resolution < 0){
-            ROS_ERROR("Invaid map resolution");
+            ROS_ERROR("Invalid map resolution");
             return false;
         }
         
+        if(req.n_frontier < 0){
+            ROS_ERROR("Invalid frontier number...");
+            return false;
+        }
+
         robot_x = req.start.position.x;
         robot_y = req.start.position.y;
 #if 0
@@ -317,16 +320,20 @@ std::cout << __FILE__ << __LINE__ << std::endl;
                 res.goal.poses = v_pose;
 
                 for(int i = 0;i < projected_map.size();i++)
-                    projected_map[i].clear();
-                projected_map.clear();
+                    vector<unsigned int>().swap(projected_map[i]);
+                vector<vector<unsigned int>>().swap(projected_map);
 
+    std::cout << "project_map_size:" << projected_map.size() << std::endl;
+    std::cout << "project_map_capacity:" << projected_map.capacity() << std::endl;
                 return true;
         }
         else{
-            for(int i = 0;i < projected_map.size();i++)
-                projected_map[i].clear();
-            projected_map.clear();
-            return false;
+                for(int i = 0;i < projected_map.size();i++)
+                    vector<unsigned int>().swap(projected_map[i]);
+                vector<vector<unsigned int>>().swap(projected_map);
+    std::cout << "project_map_size:" << projected_map.size() << std::endl;
+    std::cout << "project_map_capacity:" << projected_map.capacity() << std::endl;
+                return false;
         }
 	}
 }
