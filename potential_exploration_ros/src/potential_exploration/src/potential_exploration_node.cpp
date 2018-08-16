@@ -105,7 +105,7 @@ public:
         get_next_frontier_srv.request.start.orientation.y = 0;
         get_next_frontier_srv.request.start.orientation.z = 0;
         get_next_frontier_srv.request.start.orientation.w = 0.707;
-        get_next_frontier_srv.request.n_frontier = 100;
+        get_next_frontier_srv.request.n_frontier = 5;
 
 	    if(potential_exploration_client.call(get_next_frontier_srv)){
 		    ROS_INFO("get next frontier success...");

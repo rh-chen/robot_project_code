@@ -47,6 +47,16 @@ struct Pixel{
     }
 };
 
+typedef struct pose_weight{
+   double x;
+   double y;
+   double w;
+   pose_weight(double x_,double y_,double w_)
+   {
+        x = x_;y = y_;w = w_;
+   }
+}PoseWeight;
+
 void projectedMap(const nav_msgs::OccupancyGrid& msg,double robot_x_,double robot_y_){
     //Resize the projected_map variable for new size
     projected_map.resize(msg.info.width);
@@ -138,7 +148,20 @@ void projectedMap(const nav_msgs::OccupancyGrid& msg,double robot_x_,double robo
     }
 
 }
+bool isInHistory(vector<PoseWeight>& v,PoseWeight& c,double th){
+    bool flag = false;
+    for(int i = 0;i < v.size();i++){
+        int delta_x = v[i].x-c.x;
+        int delta_y = v[i].y-c.y;
 
+        if(sqrt(delta_x*delta_x+delta_y*delta_y) < th){
+            flag = true;
+            break;
+        }   
+    }
+
+    return flag;
+}
 double angle_wrap(double angle){
     double angle_res;
     if(angle > 0){
@@ -159,16 +182,6 @@ double angle_wrap(double angle){
 
     return angle_res;
 }
-
-typedef struct pose_weight{
-   double x;
-   double y;
-   double w;
-   pose_weight(double x_,double y_,double w_)
-   {
-        x = x_;y = y_;w = w_;
-   }
-}PoseWeight;
 
 bool cmp(const PoseWeight& a,const PoseWeight& b)
 {
@@ -199,6 +212,8 @@ std::cout << __FILE__ << __LINE__ << std::endl;
     }
 #endif
     vector<PoseWeight> v_pose_weight;
+    double threshold_frontier = 6.0;
+
     for(int i = 2;i < w-1;i++){
         for(int j = 2;j < h-1;j++){
             if(projected_map_[i][j] < 3)
@@ -226,17 +241,19 @@ std::cout << __FILE__ << __LINE__ << std::endl;
 
                 double frontier_weight = projected_map_[i][j]*(1+0.8*std::exp(-2.0/angle_to_robot));
                 
-                v_pose_weight.push_back(PoseWeight(frontier_x,frontier_y,frontier_weight));
+                PoseWeight pw(frontier_x,frontier_y,frontier_weight);
+                if(!isInHistory(v_pose_weight,pw,threshold_frontier))
+                    v_pose_weight.push_back(pw);
               }
         }
     }
     sort(v_pose_weight.begin(),v_pose_weight.end(),cmp);
     
-    if(v_pose_weight.size() > n_frontier){
+    if(v_pose_weight.size() > 0){
         ROS_INFO("Find enough frontier...");
-        ROS_INFO("Enough Frontier:%d",(int)v_pose_weight.size());
+        ROS_INFO("Frontier_num:%d",(int)v_pose_weight.size());
 
-        for(int i = 0;i < n_frontier;i++){
+        for(int i = 0;i < v_pose_weight.size();i++){
             geometry_msgs::Pose p;
             p.position.x = v_pose_weight[i].x;
             p.position.y = v_pose_weight[i].y;
@@ -247,6 +264,7 @@ std::cout << __FILE__ << __LINE__ << std::endl;
     }
     else{
         ROS_ERROR("Find unenough frontier...");
+        ROS_INFO("Frontier_num:%d",(int)v_pose_weight.size());
         return false;
     }
 
@@ -323,16 +341,16 @@ std::cout << __FILE__ << __LINE__ << std::endl;
                     vector<unsigned int>().swap(projected_map[i]);
                 vector<vector<unsigned int>>().swap(projected_map);
 
-    std::cout << "project_map_size:" << projected_map.size() << std::endl;
-    std::cout << "project_map_capacity:" << projected_map.capacity() << std::endl;
+    //std::cout << "project_map_size:" << projected_map.size() << std::endl;
+    //std::cout << "project_map_capacity:" << projected_map.capacity() << std::endl;
                 return true;
         }
         else{
                 for(int i = 0;i < projected_map.size();i++)
                     vector<unsigned int>().swap(projected_map[i]);
                 vector<vector<unsigned int>>().swap(projected_map);
-    std::cout << "project_map_size:" << projected_map.size() << std::endl;
-    std::cout << "project_map_capacity:" << projected_map.capacity() << std::endl;
+    //std::cout << "project_map_size:" << projected_map.size() << std::endl;
+    //std::cout << "project_map_capacity:" << projected_map.capacity() << std::endl;
                 return false;
         }
 	}
