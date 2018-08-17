@@ -129,18 +129,18 @@ public:
 					markerPose.orientation.w = 1.0;
 
 					geometry_msgs::Vector3 markerScale;
-					markerScale.x = 0.05;
+					markerScale.x = 0.1;
 					markerScale.y = 0.1;
 					markerScale.z = 0.1;
 
 					std_msgs::ColorRGBA markerColor;
 					markerColor.a = 1.0;
-					markerColor.r = 1.0;
+					markerColor.g = 1.0;
 
 					int32_t markerId = i;
 
 					visualization_msgs::Marker marker = createMarker("marker",
-													visualization_msgs::Marker::SPHERE,
+													visualization_msgs::Marker::CUBE,
 													markerPose,
 													markerScale,
 													markerColor,
