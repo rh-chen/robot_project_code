@@ -107,7 +107,12 @@ public:
         get_next_frontier_srv.request.start.orientation.w = 0.707;
         get_next_frontier_srv.request.n_frontier = 5;
 
-	    if(potential_exploration_client.call(get_next_frontier_srv)){
+        ros::Time begin = ros::Time::now();
+        bool res_potential_exploration = potential_exploration_client.call(get_next_frontier_srv);
+        ros::Time end = ros::Time::now();
+
+        ROS_INFO("potential_exploration_cost_time:%f",(end-begin).toSec());
+	    if(res_potential_exploration){
 		    ROS_INFO("get next frontier success...");
 		    ros::Publisher marker_pub = n.advertise<visualization_msgs::MarkerArray>("/next_frontiers", 1);
 		    ros::Rate loop_rate(10);

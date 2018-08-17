@@ -212,7 +212,7 @@ std::cout << __FILE__ << __LINE__ << std::endl;
     }
 #endif
     vector<PoseWeight> v_pose_weight;
-    double threshold_frontier = 6.0;
+    double threshold_frontier = 0.6;
 
     for(int i = 2;i < w-1;i++){
         for(int j = 2;j < h-1;j++){
