@@ -1096,7 +1096,7 @@ bool CoveragePlanService(
   //  build map
   for (int i = 0; i < req.map.data.size(); ++i) {
     if (-1 == req.map.data[i]) {  
-      req.map.data[i] = 100;
+      req.map.data[i] = 101;
     }
   }
   cv::Mat map(
@@ -1114,7 +1114,6 @@ bool CoveragePlanService(
   cv::Mat binarization;
   cv::threshold(
       map, binarization, req.occupancy_threshold, 255, cv::THRESH_BINARY_INV);
-
 	//std::cout << __FILE__ << __LINE__ << std::endl;
 	//std::cout << "binarization:" << binarization << std::endl;
   //  erosion

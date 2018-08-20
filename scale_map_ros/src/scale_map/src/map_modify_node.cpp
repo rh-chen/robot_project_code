@@ -39,6 +39,82 @@ using namespace __gnu_cxx;
 using namespace std;
 using namespace cv;
 
+void BresenhamLine(cv::Point& start,cv::Point& end,vector<cv::Point>& v){
+  int dx, dy, incr1, incr2, d, x, y, xend, yend, xdirflag, ydirflag;
+  int cnt = 0;
+
+  dx = abs(end.x-start.x); dy = abs(end.y-start.y);
+  
+  if (dy <= dx) {
+    d = 2*dy - dx; incr1 = 2 * dy; incr2 = 2 * (dy - dx);
+    if (start.x > end.x) {
+      x = end.x; y = end.y;
+      ydirflag = (-1);
+      xend = start.x;
+    } else {
+      x = start.x; y = start.y;
+      ydirflag = 1;
+      xend = end.x;
+    }
+    v.push_back(cv::Point(x,y));
+    if (((end.y - start.y) * ydirflag) > 0) {
+      while (x < xend) {
+	    x++;
+	    if (d <0) {
+	        d+=incr1;
+	    } else {
+	        y++; d+=incr2;
+	    }
+        v.push_back(cv::Point(x,y));
+      }
+    } else {
+      while (x < xend) {
+	    x++;
+	    if (d <0) {
+	        d+=incr1;
+	    } else {
+	        y--; d+=incr2;
+	    }
+        v.push_back(cv::Point(x,y));
+      }
+    }		
+  } else {
+    d = 2*dx - dy;
+    incr1 = 2*dx; incr2 = 2 * (dx - dy);
+    if (start.y > end.y) {
+      y = end.y; x = end.x;
+      yend = start.y;
+      xdirflag = (-1);
+    } else {
+      y = start.y; x = start.x;
+      yend = end.y;
+      xdirflag = 1;
+    }
+    v.push_back(cv::Point(x,y));
+    if (((end.x - start.x) * xdirflag) > 0) {
+      while (y < yend) {
+	    y++;
+	    if (d <0) {
+	        d+=incr1;
+	    } else {
+	        x++; d+=incr2;
+	    }
+        v.push_back(cv::Point(x,y));
+      }
+    } else {
+      while (y < yend) {
+	    y++;
+	    if (d <0) {
+	        d+=incr1;
+	    } else {
+	        x--; d+=incr2;
+	    }
+        v.push_back(cv::Point(x,y));
+      }
+    }
+  }
+}
+
 bool MapModifyService(
     scale_map::ModifyMap::Request &req,     
     scale_map::ModifyMap::Response &res) {
@@ -54,7 +130,8 @@ bool MapModifyService(
     cv::Mat bin_step1;
     cv::threshold(map,bin_step1,req.threshold,255,cv::THRESH_BINARY_INV);
 //template eliminate noise
-#if 0
+#if 1
+int count_step_1 = 0;
 int iterate_num = 1;
 for(int l = 0;l < iterate_num;l++){
     for(int i = 1;i < req.map.info.height-1;i++){
@@ -76,7 +153,7 @@ for(int l = 0;l < iterate_num;l++){
 
                 if(count_value_255_h >= 3){
                     map.at<unsigned char>(i,j) = 0;
-                    continue;
+                    count_step_1 ++;
                 }
                 else{
                     if(bin_step1.at<unsigned char>(i-1,j) == 255)
@@ -87,9 +164,12 @@ for(int l = 0;l < iterate_num;l++){
                         count_value_255_v++;
                     if(bin_step1.at<unsigned char>(i,j+1) == 255)
                         count_value_255_v++;
+
+                    if(count_value_255_v >= 3){
+                        map.at<unsigned char>(i,j) = 0;
+                        count_step_1 ++;
+                    }
                 }
-                if(count_value_255_v >= 3)
-                    map.at<unsigned char>(i,j) = 0;
             }
             else{
                 
@@ -108,7 +188,7 @@ for(int l = 0;l < iterate_num;l++){
 
                 if(count_value_0_h >= 3){
                     map.at<unsigned char>(i,j) = 100;
-                    continue;
+                    count_step_1 ++;
                 }
                 else{
                     if(bin_step1.at<unsigned char>(i-1,j) == 0)
@@ -119,16 +199,19 @@ for(int l = 0;l < iterate_num;l++){
                         count_value_0_v++;
                     if(bin_step1.at<unsigned char>(i,j+1) == 0)
                         count_value_0_v++;
-                }
-                if(count_value_0_v >= 3)
-                    map.at<unsigned char>(i,j) = 100;
 
+                    if(count_value_0_v >= 3){
+                        map.at<unsigned char>(i,j) = 100;
+                        count_step_1 ++;
+                    }
+                }
             }
         }
     }
 }
+ROS_INFO("count_step_1: %d",count_step_1);
 #endif
-#if 0
+#if 1
     cv::Mat bin_temp;
     bin_step1.convertTo(bin_temp,CV_64FC1);
 
@@ -145,16 +228,29 @@ for(int l = 0;l < iterate_num;l++){
 
     //std::cout << __FILE__ << __LINE__ << std::endl;
     ROS_INFO("Lines Number:%d",ntl->size);
+    vector<cv::Point> v_point;
 
     for(int j = 0;j < ntl->size;j++){
-        pt1.x = int(ntl->values[0 + j * ntl->dim]);
-        pt1.y = int(ntl->values[1 + j * ntl->dim]);
-        pt2.x = int(ntl->values[2 + j * ntl->dim]);
-        pt2.y = int(ntl->values[3 + j * ntl->dim]);
-        cv::line(map,pt1,pt2,cv::Scalar(100),1,8);
-        //cv::line(lsd,pt1,pt2,cv::Scalar(255),1,8);
+        cv::Point start,end;
+
+        //pt1.x = int(ntl->values[0 + j * ntl->dim]);
+        //pt1.y = int(ntl->values[1 + j * ntl->dim]);
+        //pt2.x = int(ntl->values[2 + j * ntl->dim]);
+        //pt2.y = int(ntl->values[3 + j * ntl->dim]);
+        start.x = int(ntl->values[0 + j * ntl->dim]);
+        start.y = int(ntl->values[1 + j * ntl->dim]);
+        end.x = int(ntl->values[2 + j * ntl->dim]);
+        end.y = int(ntl->values[3 + j * ntl->dim]);
+
+        BresenhamLine(start,end,v_point);
     }
 
+    ROS_INFO("v_point_size:%d",(int)v_point.size());
+    for(int i = 0;i < v_point.size();i++){
+        map.at<unsigned char>(v_point[i].y,v_point[i].x) = 100;
+    }
+    
+    vector<cv::Point>().swap(v_point);
    //std::cout << __FILE__ << __LINE__ << std::endl;
     free_ntuple_list(ntl);
 #endif
@@ -163,8 +259,9 @@ for(int l = 0;l < iterate_num;l++){
     cv::threshold(map,bin_step2,req.threshold,255,cv::THRESH_BINARY_INV);
     
     
-#if 0
+#if 1
 iterate_num = 1;
+int count_step_2 = 0;
 for(int l = 0;l < iterate_num;l++){
     for(int i = 1;i < req.map.info.height-1;i++){
         for(int j = 1;j < req.map.info.width-1;j++){
@@ -185,7 +282,7 @@ for(int l = 0;l < iterate_num;l++){
 
                 if(count_value_255_h >= 3){
                     map.at<unsigned char>(i,j) = 0;
-                    continue;
+                    count_step_2 ++;
                 }
                 else{
                     if(bin_step2.at<unsigned char>(i-1,j) == 255)
@@ -196,9 +293,13 @@ for(int l = 0;l < iterate_num;l++){
                         count_value_255_v++;
                     if(bin_step2.at<unsigned char>(i,j+1) == 255)
                         count_value_255_v++;
+
+
+                    if(count_value_255_v >= 3){
+                        map.at<unsigned char>(i,j) = 0;
+                        count_step_2 ++;
+                    }
                 }
-                if(count_value_255_v >= 3)
-                    map.at<unsigned char>(i,j) = 0;
             }
             else{
                 
@@ -217,7 +318,7 @@ for(int l = 0;l < iterate_num;l++){
 
                 if(count_value_0_h >= 3){
                     map.at<unsigned char>(i,j) = 100;
-                    continue;
+                    count_step_2 ++;
                 }
                 else{
                     if(bin_step2.at<unsigned char>(i-1,j) == 0)
@@ -228,14 +329,18 @@ for(int l = 0;l < iterate_num;l++){
                         count_value_0_v++;
                     if(bin_step2.at<unsigned char>(i,j+1) == 0)
                         count_value_0_v++;
-                }
-                if(count_value_0_v >= 3)
-                    map.at<unsigned char>(i,j) = 100;
 
+                    if(count_value_0_v >= 3){
+                        map.at<unsigned char>(i,j) = 100;
+                        count_step_2 ++;
+                    }
+
+                }
             }
         }
     }
 }
+ROS_INFO("count_step_2:%d",count_step_2);
 #endif
     for(int i = 0;i < req.map.info.height;i++){
         for(int j = 0;j < req.map.info.width;j++){
