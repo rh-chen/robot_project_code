@@ -83,7 +83,9 @@ public:
 
 	void clickCallBack(const geometry_msgs::PointStamped::ConstPtr &msg)
 	{
-			ros::Publisher pub_map = n.advertise<nav_msgs::OccupancyGrid>("/scale_static_map",1);
+			ros::Publisher pub_map_scale = n.advertise<nav_msgs::OccupancyGrid>("/scale_static_map",1);
+            ros::Publisher pub_map_modify = n.advertise<nav_msgs::OccupancyGrid>("/modify_static_map",1);
+
 			ros::ServiceClient client = n.serviceClient<scale_map::ScaleMapData>("/sweeper/scale_map_srv");
             ros::ServiceClient map_modify_client = n.serviceClient<scale_map::ModifyMap>("/sweeper/map_modify_srv");
   
@@ -117,6 +119,7 @@ public:
 
             if(res_srv_map_modify){
                 srv.request.map = map_modify_srv.response.map;
+                //pub_map_modify.publish(map_modify_srv.response.map);
             }else{
                 ROS_ERROR("Failed to call map_modify_srv service.");
             }
@@ -128,7 +131,7 @@ public:
 			std::cout << "call srv_scale_map time cost:" << (end1-begin1).toSec() << std::endl;
 			//call scale map service
 			if (res_srv_scale_map) {
-
+                    //pub_map_scale.publish(srv.response.map);
 					ros::ServiceClient client_darp = n.serviceClient<scale_map::GetCoveragePath>("/sweeper/make_coverage_plan");
 
 					scale_map::GetCoveragePath srv_darp;
@@ -156,6 +159,10 @@ public:
 							ros::Publisher marker_pub = n.advertise<visualization_msgs::MarkerArray>("/cleanner_planner", 1);
 							ros::Rate loop_rate(10);
 							while(ros::ok()){
+
+                                    pub_map_scale.publish(srv.response.map);
+                                    pub_map_modify.publish(map_modify_srv.response.map);
+
 									int path_size = srv_darp.response.plan.poses.size();
 
 									visualization_msgs::MarkerArray markerArray;

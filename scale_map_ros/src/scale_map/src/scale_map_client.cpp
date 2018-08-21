@@ -121,7 +121,7 @@ int main(int argc, char **argv) {
 
 		ros::ServiceClient client_darp = n.serviceClient<scale_map::GetCoveragePath>("/sweeper/make_coverage_plan");
 
-  	scale_map::GetCoveragePath srv_darp;
+  	    scale_map::GetCoveragePath srv_darp;
 
 		srv_darp.request.erosion_radius = 0.01;
 		srv_darp.request.robot_radius = 0.03;
@@ -170,12 +170,12 @@ int main(int argc, char **argv) {
       	int32_t plannerStartId = 0;
 
       	visualization_msgs::Marker markerSphereStart = createMarker("PlannerStart",
-																																			visualization_msgs::Marker::SPHERE,
-																																			plannerStartPose,
-																																			plannerStartScale,
-																																			plannerStartColor,
-																																			plannerStartId,
-																																			srv_darp.request.map.header.frame_id);
+                                                                    visualization_msgs::Marker::SPHERE,
+                                                                    plannerStartPose,
+                                                                    plannerStartScale,
+                                                                    plannerStartColor,
+                                                                    plannerStartId,
+                                                                    srv_darp.request.map.header.frame_id);
 
       	markerArray.markers.push_back(markerSphereStart);
 
@@ -207,12 +207,12 @@ int main(int argc, char **argv) {
         	int32_t markerArrowId = i;
 
         	visualization_msgs::Marker markerArrow = createMarker("markerArrow",
-																																visualization_msgs::Marker::ARROW,
-																																markerArrowPose,
-																																markerArrowScale,
-																																markerArrowColor,
-																																markerArrowId,
-																																srv_darp.request.map.header.frame_id);
+                                                                visualization_msgs::Marker::ARROW,
+                                                                markerArrowPose,
+                                                                markerArrowScale,
+                                                                markerArrowColor,
+                                                                markerArrowId,
+                                                                srv_darp.request.map.header.frame_id);
 
         	//arrowHead, arrowEnd
         	geometry_msgs::Point p;
