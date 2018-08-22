@@ -106,8 +106,17 @@ bool ScaleMapService(
 
 	float ng_resolution = req.map.info.resolution * SCALE_FACTOR;
 
-	int ng_width = req.map.info.width/SCALE_FACTOR;
-	int ng_height = req.map.info.height/SCALE_FACTOR;
+    int ng_width,ng_height;
+    if((req.map.info.width%SCALE_FACTOR) == 0)
+        ng_width = req.map.info.width/SCALE_FACTOR;
+    else
+        ng_width = (req.map.info.width+(SCALE_FACTOR-req.map.info.width%SCALE_FACTOR))/SCALE_FACTOR;
+
+    if((req.map.info.height%SCALE_FACTOR) == 0)
+        ng_height = req.map.info.height/SCALE_FACTOR;
+    else
+        ng_height = (req.map.info.height+(SCALE_FACTOR-req.map.info.height%SCALE_FACTOR))/SCALE_FACTOR;
+
 	std::cout << "ng_height:" << ng_height << std::endl;
 	std::cout << "ng_width:" << ng_width << std::endl;
 	int ng_row;
@@ -245,6 +254,8 @@ std::cout << "ng_data[i].size:" << ng_data[0].size() << std::endl;
 	for(int i = 0;i < ng_height;i++){
 		for(int j = 0;j < ng_width;j++)
 		{
+            if(ng_data[i][j] == -2)
+                ng_data[i][j] = 100;
 			ng_data_1d.push_back(ng_data[i][j]);
 		}
 	}

@@ -127,93 +127,16 @@ bool MapModifyService(
     cv::Mat map(req.map.info.height, req.map.info.width, CV_8UC1, req.map.data.data());
     vector<int8_t> map_data; 
 
-    cv::Mat bin_step1;
+    cv::Mat bin_step1,bin_step1_out;
     cv::threshold(map,bin_step1,req.threshold,255,cv::THRESH_BINARY_INV);
+    cv::Mat element = getStructuringElement(MORPH_RECT, Size(3, 3));
+    cv::dilate(bin_step1, bin_step1_out, element);
+
+    int iterate_num;
 //template eliminate noise
 #if 1
-int count_step_1 = 0;
-int iterate_num = 1;
-for(int l = 0;l < iterate_num;l++){
-    for(int i = 1;i < req.map.info.height-1;i++){
-        for(int j = 1;j < req.map.info.width-1;j++){
-            if(bin_step1.at<unsigned char>(i,j) == 0){
-                
-                int count_value_255_v = 0;
-                int count_value_255_h = 0;
-                {
-                     if(bin_step1.at<unsigned char>(i-1,j-1) == 255)
-                        count_value_255_h++;
-                     if(bin_step1.at<unsigned char>(i-1,j+1) == 255)
-                        count_value_255_h++;
-                     if(bin_step1.at<unsigned char>(i+1,j-1) == 255)
-                        count_value_255_h++;
-                     if(bin_step1.at<unsigned char>(i+1,j+1) == 255)
-                        count_value_255_h++;
-                }
-
-                if(count_value_255_h >= 3){
-                    map.at<unsigned char>(i,j) = 0;
-                    count_step_1 ++;
-                }
-                else{
-                    if(bin_step1.at<unsigned char>(i-1,j) == 255)
-                        count_value_255_v++;
-                    if(bin_step1.at<unsigned char>(i+1,j) == 255)
-                        count_value_255_v++;
-                    if(bin_step1.at<unsigned char>(i,j-1) == 255)
-                        count_value_255_v++;
-                    if(bin_step1.at<unsigned char>(i,j+1) == 255)
-                        count_value_255_v++;
-
-                    if(count_value_255_v >= 3){
-                        map.at<unsigned char>(i,j) = 0;
-                        count_step_1 ++;
-                    }
-                }
-            }
-            else{
-                
-                int count_value_0_v = 0;
-                int count_value_0_h = 0;
-                {
-                     if(bin_step1.at<unsigned char>(i-1,j-1) == 0)
-                        count_value_0_h++;
-                     if(bin_step1.at<unsigned char>(i-1,j+1) == 0)
-                        count_value_0_h++;
-                     if(bin_step1.at<unsigned char>(i+1,j-1) == 0)
-                        count_value_0_h++;
-                     if(bin_step1.at<unsigned char>(i+1,j+1) == 0)
-                        count_value_0_h++;
-                }
-
-                if(count_value_0_h >= 3){
-                    map.at<unsigned char>(i,j) = 100;
-                    count_step_1 ++;
-                }
-                else{
-                    if(bin_step1.at<unsigned char>(i-1,j) == 0)
-                        count_value_0_v++;
-                    if(bin_step1.at<unsigned char>(i+1,j) == 0)
-                        count_value_0_v++;
-                    if(bin_step1.at<unsigned char>(i,j-1) == 0)
-                        count_value_0_v++;
-                    if(bin_step1.at<unsigned char>(i,j+1) == 0)
-                        count_value_0_v++;
-
-                    if(count_value_0_v >= 3){
-                        map.at<unsigned char>(i,j) = 100;
-                        count_step_1 ++;
-                    }
-                }
-            }
-        }
-    }
-}
-ROS_INFO("count_step_1: %d",count_step_1);
-#endif
-#if 1
     cv::Mat bin_temp;
-    bin_step1.convertTo(bin_temp,CV_64FC1);
+    bin_step1_out.convertTo(bin_temp,CV_64FC1);
 
     //std::cout << __FILE__ << __LINE__ << std::endl;
     image_double image = new_image_double(bin_temp.cols,bin_temp.rows);
@@ -233,16 +156,97 @@ ROS_INFO("count_step_1: %d",count_step_1);
     for(int j = 0;j < ntl->size;j++){
         cv::Point start,end;
 
-        //pt1.x = int(ntl->values[0 + j * ntl->dim]);
-        //pt1.y = int(ntl->values[1 + j * ntl->dim]);
-        //pt2.x = int(ntl->values[2 + j * ntl->dim]);
-        //pt2.y = int(ntl->values[3 + j * ntl->dim]);
         start.x = int(ntl->values[0 + j * ntl->dim]);
         start.y = int(ntl->values[1 + j * ntl->dim]);
         end.x = int(ntl->values[2 + j * ntl->dim]);
         end.y = int(ntl->values[3 + j * ntl->dim]);
+        
+        int delta_x = end.x-start.x;
+        int delta_y = end.y-start.y;
+
+        if(sqrt(delta_x*delta_x+delta_y*delta_y) < 6.0)
+            continue;
 
         BresenhamLine(start,end,v_point);
+#if 0
+        if(start.x == end.x){
+            for(int i = 0;i < v_point.size();i++){
+                map.at<unsigned char>(v_point[i].y,v_point[i].x) = 100;
+                if(bin_step1_out.at<unsigned char>(v_point[i].y,v_point[i].x+1) != \
+                   bin_step1_out.at<unsigned char>(v_point[i].y,v_point[i].x-1)){
+                        if(bin_step1_out.at<unsigned char>(v_point[i].y,v_point[i].x+1) == 0){
+                            if(bin_step1_out.at<unsigned char>(v_point[i].y-1,v_point[i].x+1) != 0 &&\
+                               bin_step1_out.at<unsigned char>(v_point[i].y+1,v_point[i].x+1) != 0)
+                                    map.at< unsigned char>(v_point[i].y,v_point[i].x+1) = 0;
+
+                        }
+                        else{
+                            if(bin_step1_out.at<unsigned char>(v_point[i].y-1,v_point[i].x-1) != 0 &&\
+                               bin_step1_out.at<unsigned char>(v_point[i].y+1,v_point[i].x-1) != 0)
+                                    map.at< unsigned char>(v_point[i].y,v_point[i].x-1) = 0;
+                        }
+                }
+            }
+        }
+        else{
+            if(start.y == end.y){
+                for(int i = 0;i < v_point.size();i++){
+                    map.at<unsigned char>(v_point[i].y,v_point[i].x) = 100;
+                    if(bin_step1_out.at<unsigned char>(v_point[i].y+1,v_point[i].x) != \
+                        bin_step1_out.at<unsigned char>(v_point[i].y-1,v_point[i].x)){
+                            if(bin_step1_out.at<unsigned char>(v_point[i].y-1,v_point[i].x) == 0){
+                                if(bin_step1_out.at<unsigned char>(v_point[i].y-1,v_point[i].x+1) != 0 &&\
+                                    bin_step1_out.at<unsigned char>(v_point[i].y-1,v_point[i].x-1) != 0)
+                                        map.at< unsigned char>(v_point[i].y-1,v_point[i].x) = 0;
+                            }
+                            else{
+                                if(bin_step1_out.at<unsigned char>(v_point[i].y+1,v_point[i].x+1) != 0 &&\
+                                    bin_step1_out.at<unsigned char>(v_point[i].y+1,v_point[i].x-1) != 0)
+                                        map.at< unsigned char>(v_point[i].y+1,v_point[i].x) = 0;
+                            }
+                    }
+                }
+            }
+            else{
+                double k = (start.y-end.y)/((start.x-end.x)*1.0);
+                if(k > 0){
+                    for(int i = 0;i < v_point.size();i++){
+                    map.at<unsigned char>(v_point[i].y,v_point[i].x) = 100;
+                    if(bin_step1_out.at<unsigned char>(v_point[i].y+1,v_point[i].x+1) != \
+                        bin_step1_out.at<unsigned char>(v_point[i].y-1,v_point[i].x-1)){
+                            if(bin_step1_out.at<unsigned char>(v_point[i].y-1,v_point[i].x-1) == 0)
+                                if(bin_step1_out.at<unsigned char>(v_point[i].y-1,v_point[i].x) != 0 &&\
+                                    bin_step1_out.at<unsigned char>(v_point[i].y,v_point[i].x-1) != 0)
+                                        map.at< unsigned char>(v_point[i].y-1,v_point[i].x-1) = 0;
+                            else
+                                if(bin_step1_out.at<unsigned char>(v_point[i].y,v_point[i].x+1) != 0 &&\
+                                    bin_step1_out.at<unsigned char>(v_point[i].y+1,v_point[i].x) != 0)
+                                        map.at< unsigned char>(v_point[i].y+1,v_point[i].x+1) = 0;
+                    }
+                    }
+                }
+                else{
+                    for(int i = 0;i < v_point.size();i++){
+                    map.at<unsigned char>(v_point[i].y,v_point[i].x) = 100;
+                    if(bin_step1_out.at<unsigned char>(v_point[i].y+1,v_point[i].x-1) != \
+                        bin_step1_out.at<unsigned char>(v_point[i].y-1,v_point[i].x+1)){
+                            if(bin_step1_out.at<unsigned char>(v_point[i].y-1,v_point[i].x+1) == 0)
+                                if(bin_step1_out.at<unsigned char>(v_point[i].y-1,v_point[i].x) != 0 &&\
+                                    bin_step1_out.at<unsigned char>(v_point[i].y,v_point[i].x+1) != 0)
+                                        map.at< unsigned char>(v_point[i].y-1,v_point[i].x+1) = 0;
+                            else
+                                if(bin_step1_out.at<unsigned char>(v_point[i].y,v_point[i].x-1) != 0 &&\
+                                    bin_step1_out.at<unsigned char>(v_point[i].y+1,v_point[i].x) != 0)
+                                        map.at< unsigned char>(v_point[i].y+1,v_point[i].x-1) = 0;
+                    }
+                    }
+                }
+            }
+        }
+
+        ROS_INFO("v_point_size:%d",(int)v_point.size());
+        v_point.clear();
+#endif
     }
 
     ROS_INFO("v_point_size:%d",(int)v_point.size());
@@ -260,9 +264,10 @@ ROS_INFO("count_step_1: %d",count_step_1);
     
     
 #if 1
-iterate_num = 1;
-int count_step_2 = 0;
+iterate_num = 5;
+int count_step_2;
 for(int l = 0;l < iterate_num;l++){
+    count_step_2 = 0;
     for(int i = 1;i < req.map.info.height-1;i++){
         for(int j = 1;j < req.map.info.width-1;j++){
             if(bin_step2.at<unsigned char>(i,j) == 0){
@@ -280,8 +285,9 @@ for(int l = 0;l < iterate_num;l++){
                         count_value_255_h++;
                 }
 
-                if(count_value_255_h >= 3){
+                if(count_value_255_h > 3){
                     map.at<unsigned char>(i,j) = 0;
+                    bin_step2.at<unsigned char>(i,j) = 255;
                     count_step_2 ++;
                 }
                 else{
@@ -295,8 +301,9 @@ for(int l = 0;l < iterate_num;l++){
                         count_value_255_v++;
 
 
-                    if(count_value_255_v >= 3){
+                    if(count_value_255_v > 3){
                         map.at<unsigned char>(i,j) = 0;
+                        bin_step2.at<unsigned char>(i,j) = 255;
                         count_step_2 ++;
                     }
                 }
@@ -316,8 +323,9 @@ for(int l = 0;l < iterate_num;l++){
                         count_value_0_h++;
                 }
 
-                if(count_value_0_h >= 3){
+                if(count_value_0_h > 3){
                     map.at<unsigned char>(i,j) = 100;
+                    bin_step2.at<unsigned char>(i,j) = 0;
                     count_step_2 ++;
                 }
                 else{
@@ -330,8 +338,9 @@ for(int l = 0;l < iterate_num;l++){
                     if(bin_step2.at<unsigned char>(i,j+1) == 0)
                         count_value_0_v++;
 
-                    if(count_value_0_v >= 3){
+                    if(count_value_0_v > 3){
                         map.at<unsigned char>(i,j) = 100;
+                        bin_step2.at<unsigned char>(i,j) = 0;
                         count_step_2 ++;
                     }
 
@@ -339,8 +348,8 @@ for(int l = 0;l < iterate_num;l++){
             }
         }
     }
+    ROS_INFO("count_step2:%d",count_step_2);
 }
-ROS_INFO("count_step_2:%d",count_step_2);
 #endif
     for(int i = 0;i < req.map.info.height;i++){
         for(int j = 0;j < req.map.info.width;j++){
