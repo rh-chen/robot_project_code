@@ -4,6 +4,6 @@
     <node name="map_server_for_test" pkg="map_server" type="map_server" args="$(arg map_file)">
     </node>
 
-    <node name="line_detection_and_rotation_client" pkg="line_detection_and_rotation" type="line_detection_and_rotation_node" args="$(arg map_file)">
+    <node name="line_detection_and_rotation_client" pkg="line_detection_and_rotation" type="line_detection_and_rotation_node" output="screen">
     </node>
 </launch>

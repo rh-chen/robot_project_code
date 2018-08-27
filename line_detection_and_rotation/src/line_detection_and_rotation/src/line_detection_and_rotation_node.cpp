@@ -55,10 +55,14 @@ int main(int argc, char* argv[])
 		  ROS_ERROR("Failed to call /static_map service.");
 		  return 1;
 		}
-
+        
+        ros::Time begin = ros::Time::now();
 		bool res = map_rotate_client.call(map_rotate_srv);
+        ros::Time end = ros::Time::now();
+        std::cout << "map rotate cost time:" << (end-begin).toSec() << std::endl;
 
 		if(res){
+                ROS_INFO("map rotate success...");
 				ros::Rate loop_rate(10);
 				while(ros::ok()){
 						pub_map.publish(map_rotate_srv.response.map);			
@@ -67,5 +71,7 @@ int main(int argc, char* argv[])
 						loop_rate.sleep();
 				}		
 		}
+        else
+            ROS_INFO("map rotate fail...");
     return 0;
 }
