@@ -43,7 +43,7 @@ namespace line_detection_and_rotation {
 			int nAngleNum;	
 	}LineData;
 
-	bool ImgRotate(cv::Mat& src_,cv::Mat& dst_,bool direction,int angle)
+	bool ImgRotate(cv::Mat& src_,cv::Mat& dst_,int direction,int angle)
 	{
 		
 		int oldWidth = src_.cols;
@@ -129,7 +129,7 @@ namespace line_detection_and_rotation {
 		int nDist;
 		int nAngleNumber;
 
-		int nMaxAngleNumber = 180;
+		int nMaxAngleNumber = 360;
 		int nMaxDist =(int)sqrt(nRow/2.0 * nRow/2.0 + nCol/2.0 * nCol/2.0);
 		int* pTran = new int[nMaxDist * nMaxAngleNumber * 2];
 		memset(pTran,0,nMaxDist * nMaxAngleNumber * sizeof(int));
@@ -141,7 +141,7 @@ namespace line_detection_and_rotation {
 		//std::cout << __FILE__ << __LINE__ << std::endl;
 		for(ni = 0;ni < nCount;ni++)
 		{
-		 	for(nAngleNumber = -nMaxAngleNumber;nAngleNumber < nMaxAngleNumber;nAngleNumber++)
+		 	for(nAngleNumber = 0;nAngleNumber < nMaxAngleNumber;nAngleNumber++)
 		    {   
                 int x = src[ni].x-nCol/2;
                 int y = nRow-src[ni].y-nRow/2;
@@ -162,7 +162,7 @@ namespace line_detection_and_rotation {
 		bool reFlags = false;
 		for(nDist = nMaxDist;nDist > 0;nDist--)
 		{
-		  for(nAngleNumber = -nMaxAngleNumber;nAngleNumber < nMaxAngleNumber;nAngleNumber++)
+		  for(nAngleNumber = 0;nAngleNumber < nMaxAngleNumber;nAngleNumber++)
 		  {
 		    if(pTran[nDist * nMaxAngleNumber + nAngleNumber] > line.nValue)
 		     {
@@ -200,6 +200,8 @@ namespace line_detection_and_rotation {
             req.map.data[i] = 100;
    
         cv::Mat map(req.map.info.height, req.map.info.width, CV_8UC1, req.map.data.data());
+        ROS_INFO("map_info_height:%d",req.map.info.height);
+        ROS_INFO("map_info_width:%d",req.map.info.width);
 
 		if(!map.empty()){
 				cv::Mat binarization;
@@ -219,7 +221,6 @@ namespace line_detection_and_rotation {
 				//std::cout << __FILE__ << __LINE__ << std::endl;
 
 				bool res_line = lineHoughTransform(map_edge,nDist,nValue,nAngle,binarization.cols,binarization.rows,map_edge.size());
-
 				//std::cout << __FILE__ << __LINE__ << std::endl;
 				if(!res_line)	
 				{
@@ -231,8 +232,23 @@ namespace line_detection_and_rotation {
                         ROS_INFO("nValue:%d",nValue);
                         ROS_INFO("nDist:%d",nDist);
                         ROS_INFO("nAngle:%d",nAngle);
-						cv::Mat dst;		
-						ImgRotate(map,dst,1,nAngle);
+						cv::Mat dst;
+                        int angle_threshold = 3;
+                        int angle_rotate =0;
+                        if(nAngle >= 0 && nAngle < 90)
+                            angle_rotate = nAngle;
+                        else if(nAngle >= 90 && nAngle < 180)
+                            angle_rotate = nAngle-90;
+                        else if(nAngle >= 180 && nAngle < 270)
+                            angle_rotate = nAngle-180;
+                        else if(nAngle >= 270 && nAngle < 360)
+                            angle_rotate = nAngle-270;
+                            
+                        if(angle_rotate > angle_threshold)
+						    ImgRotate(map,dst,1,angle_rotate);
+                        else
+                            ImgRotate(map,dst,1,0);
+                             
 						if(!dst.empty()){
                             ROS_INFO("dst width:%d",dst.cols);
                             ROS_INFO("dst height:%d",dst.rows);
