@@ -76,7 +76,7 @@ namespace line_detection_and_rotation {
 		int newHeight = (int)((fabs(fDstY4 - fDstY1) > fabs(fDstY3 - fDstY2)? fabs(fDstY4 - fDstY1): fabs(fDstY3 - fDstY2))+0.5);
 
 		//std::cout << __FILE__ << __LINE__ << std::endl;
-		cv::Mat dst(newHeight,newWidth,CV_8UC1,cv::Scalar(100));
+		cv::Mat dst(newHeight,newWidth,CV_8UC1);
 
 		//std::cout << __FILE__ << __LINE__ << std::endl;
 		float dx = -0.5*newWidth*cos(theta) - 0.5*newHeight*sin(theta) + 0.5*oldWidth;
@@ -99,7 +99,7 @@ namespace line_detection_and_rotation {
 					}
 					else if (src_.channels() == 1)
 					{
-						dst.at<unsigned char>(h,w) = 0;
+						dst.at<unsigned char>(h,w) = 100;
 					}
 				}
 				else
@@ -218,10 +218,10 @@ namespace line_detection_and_rotation {
 
 				//std::cout << __FILE__ << __LINE__ << std::endl;
 
-				bool res = lineHoughTransform(map_edge,nDist,nValue,nAngle,binarization.cols,binarization.rows,map_edge.size());
+				bool res_line = lineHoughTransform(map_edge,nDist,nValue,nAngle,binarization.cols,binarization.rows,map_edge.size());
 
 				//std::cout << __FILE__ << __LINE__ << std::endl;
-				if(!res)	
+				if(!res_line)	
 				{
                         ROS_ERROR("detetion line fail...");
 						return false;
@@ -236,7 +236,25 @@ namespace line_detection_and_rotation {
 						if(!dst.empty()){
                             ROS_INFO("dst width:%d",dst.cols);
                             ROS_INFO("dst height:%d",dst.rows);
-						    return true;
+
+                            vector<int8_t> map_data;
+				            for(int i = 0;i < dst.rows;i++){
+				                for(int j = 0;j < dst.cols;j++){
+				                    char value = dst.at<char>(i,j);
+				                    map_data.push_back(value); 
+				                }
+				            }
+
+				            res.map.info.height = dst.rows;
+				            res.map.info.width = dst.cols;
+				            res.map.info.resolution = req.map.info.resolution;
+				            res.map.data = map_data;
+
+				            res.map.header.frame_id = req.map.header.frame_id;
+				            res.map.info.origin.position.x = req.map.info.origin.position.x;
+				            res.map.info.origin.position.y = req.map.info.origin.position.y;
+						    
+                            return true;
 						}
 						else
 							return false;
