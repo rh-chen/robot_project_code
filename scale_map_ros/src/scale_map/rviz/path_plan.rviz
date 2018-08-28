@@ -79,7 +79,8 @@ Visualization Manager:
       Marker Topic: /cleanner_planner
       Name: MarkerArray
       Namespaces:
-        {}
+        marker_PlannerStart: true
+        marker_markerArrow: true
       Queue Size: 100
       Value: true
     - Alpha: 0.699999988
@@ -96,12 +97,12 @@ Visualization Manager:
       Class: rviz/Map
       Color Scheme: map
       Draw Behind: false
-      Enabled: false
+      Enabled: true
       Name: Map
       Topic: /modify_static_map
       Unreliable: false
       Use Timestamp: false
-      Value: false
+      Value: true
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
@@ -127,16 +128,16 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 21.5655499
+      Distance: 26.9853916
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.0599999987
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: 1.23469293
-        Y: 2.11609602
-        Z: -0.00122508942
+        X: 6.74910164
+        Y: 7.10180426
+        Z: -0.00671692379
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.0500000007
       Invert Z Axis: false

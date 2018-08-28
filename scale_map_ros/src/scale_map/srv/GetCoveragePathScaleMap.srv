@@ -1,0 +1,25 @@
+# Get a coverage plan from the current position to the goal Pose
+#map_id
+int64 map_id
+# The start pose for the plan
+geometry_msgs/PoseStamped start
+
+#zig stage 0,1,2,3
+int64 stage
+# Erosion radius
+# unit: meter
+float64 erosion_radius
+
+# Robot radius
+# unit: meter
+float64 robot_radius
+
+# Occupancy threshold
+# range: 0 ~ 100
+int8 occupancy_threshold
+
+int32 angle
+
+nav_msgs/OccupancyGrid map
+---
+nav_msgs/Path plan

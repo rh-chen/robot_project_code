@@ -32,7 +32,7 @@
 #include <visualization_msgs/Marker.h>
 #include <visualization_msgs/MarkerArray.h>
 #include "scale_map/ScaleMapData.h"
-#include "scale_map/GetCoveragePath.h"
+#include "scale_map/GetCoveragePathScaleMap.h"
 #include "scale_map/ModifyMap.h"
 
 visualization_msgs::Marker createMarker(const std::string markerName,
@@ -119,9 +119,9 @@ int main(int argc, char **argv) {
 	//call scale map service
   if (res_srv_scale_map) {
 
-		ros::ServiceClient client_darp = n.serviceClient<scale_map::GetCoveragePath>("/sweeper/make_coverage_plan");
+		ros::ServiceClient client_darp = n.serviceClient<scale_map::GetCoveragePathScaleMap>("/sweeper/scale_map_make_coverage_plan");
 
-  	    scale_map::GetCoveragePath srv_darp;
+  	scale_map::GetCoveragePathScaleMap srv_darp;
 
 		srv_darp.request.erosion_radius = 0.01;
 		srv_darp.request.robot_radius = 0.03;
@@ -143,7 +143,7 @@ int main(int argc, char **argv) {
 		if(res_srv_darp){
 			ROS_INFO("call darp service");
 
-    	ros::Publisher marker_pub = n.advertise<visualization_msgs::MarkerArray>("/cleanner_planner", 1);
+    	ros::Publisher marker_pub = n.advertise<visualization_msgs::MarkerArray>("/scale_map_cleanner_planner", 1);
 			ros::Rate loop_rate(10);
 			while(ros::ok()){
 				int path_size = srv_darp.response.plan.poses.size();

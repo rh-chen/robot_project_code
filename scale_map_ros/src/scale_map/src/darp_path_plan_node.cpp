@@ -29,7 +29,7 @@
 #include <algorithm> 
 
 #include <tf/tf.h>
-#include "scale_map/GetCoveragePath.h"
+#include "scale_map/GetCoveragePathScaleMap.h"
 
 
 namespace scale_map{
@@ -1040,8 +1040,8 @@ bool isFlectionPoint(geometry_msgs::PoseStamped& pre_pose,geometry_msgs::PoseSta
 	}
 }
 bool CoveragePlanService(
-    scale_map::GetCoveragePath::Request &req,     
-    scale_map::GetCoveragePath::Response &resp) { 
+    scale_map::GetCoveragePathScaleMap::Request &req,     
+    scale_map::GetCoveragePathScaleMap::Response &resp) { 
   if (req.erosion_radius < 0) {
     ROS_ERROR("erosion_radius < 0");
     return false;
@@ -1114,6 +1114,7 @@ bool CoveragePlanService(
   cv::Mat binarization;
   cv::threshold(
       map, binarization, req.occupancy_threshold, 255, cv::THRESH_BINARY_INV);
+
 	//std::cout << __FILE__ << __LINE__ << std::endl;
 	//std::cout << "binarization:" << binarization << std::endl;
   //  erosion
@@ -1298,7 +1299,16 @@ bool CoveragePlanService(
 		index++;
   }
 
-	resp.plan.poses.push_back(temp_path_node[0]);
+    double angle_rotate = req.angle*CV_PI/180;
+    geometry_msgs::PoseStamped stt_pose = temp_path_node[0];
+    double x_stt = stt_pose.pose.position.x;
+    double y_stt = stt_pose.pose.position.y;
+
+    stt_pose.pose.position.x = x_stt*cos(angle_rotate)+y_stt*sin(angle_rotate);
+    stt_pose.pose.position.y = -x_stt*sin(angle_rotate)+y_stt*cos(angle_rotate);
+    //stt_pose.pose.position.x += req.map.info.width/2*req.map.info.resolution;    
+    //stt_pose.pose.position.y += req.map.info.height/2*req.map.info.resolution;    
+	resp.plan.poses.push_back(stt_pose);
 
 	geometry_msgs::PoseStamped pre_pose;
 	geometry_msgs::PoseStamped cur_pose;
@@ -1310,11 +1320,28 @@ bool CoveragePlanService(
 		nex_pose = temp_path_node[i+1];
 
 		if(isFlectionPoint(pre_pose,cur_pose,nex_pose)){
+            double x_rotate = cur_pose.pose.position.x;
+            double y_rotate = cur_pose.pose.position.y;
+
+            cur_pose.pose.position.x = x_rotate*cos(angle_rotate)+y_rotate*sin(angle_rotate);
+            cur_pose.pose.position.y = -x_rotate*sin(angle_rotate)+y_rotate*cos(angle_rotate);
+            cur_pose.pose.position.z = 0;
+            //cur_pose.pose.position.x += req.map.info.width/2*req.map.info.resolution;    
+            //cur_pose.pose.position.y += req.map.info.height/2*req.map.info.resolution;    
 			resp.plan.poses.push_back(cur_pose);
+
 		}
 	}
+    
+    geometry_msgs::PoseStamped lst_pose = temp_path_node[temp_path_node.size()-1];
+    double x_lst = lst_pose.pose.position.x;
+    double y_lst = lst_pose.pose.position.y;
 
-	resp.plan.poses.push_back(temp_path_node[temp_path_node.size()-1]);
+    lst_pose.pose.position.x = x_lst*cos(angle_rotate)+y_lst*sin(angle_rotate);
+    lst_pose.pose.position.y = -x_lst*sin(angle_rotate)+y_lst*cos(angle_rotate);
+    //lst_pose.pose.position.x += req.map.info.width/2*req.map.info.resolution;    
+    //lst_pose.pose.position.y += req.map.info.height/2*req.map.info.resolution;    
+	resp.plan.poses.push_back(lst_pose);
 
 	environment_grid_.release();
 	binary_grid_.release();
@@ -1332,12 +1359,10 @@ int main(int argc, char **argv) {
 
   //  advertise a service for getting a coverage plan
   ros::ServiceServer make_coverage_plan_srv = private_nh.advertiseService(
-      "/sweeper/make_coverage_plan",
+      "/sweeper/scale_map_make_coverage_plan",
       scale_map::CoveragePlanService);
 
   ROS_INFO("Ready to make coverage plan.");
 
   ros::spin();
-
-  return (0);
 }

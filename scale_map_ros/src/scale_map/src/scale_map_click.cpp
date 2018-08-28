@@ -33,8 +33,9 @@
 #include <visualization_msgs/Marker.h>
 #include <visualization_msgs/MarkerArray.h>
 #include "scale_map/ScaleMapData.h"
-#include "scale_map/GetCoveragePath.h"
+#include "scale_map/GetCoveragePathScaleMap.h"
 #include "scale_map/ModifyMap.h"
+#include "scale_map/MapRotate.h"
 
 class darp_test{
 public:
@@ -85,32 +86,46 @@ public:
 	{
 			ros::Publisher pub_map_scale = n.advertise<nav_msgs::OccupancyGrid>("/scale_static_map",1);
             ros::Publisher pub_map_modify = n.advertise<nav_msgs::OccupancyGrid>("/modify_static_map",1);
+			ros::Publisher pub_map_rotate = n.advertise<nav_msgs::OccupancyGrid>("/map_rotate_map",1);
 
 			ros::ServiceClient client = n.serviceClient<scale_map::ScaleMapData>("/sweeper/scale_map_srv");
             ros::ServiceClient map_modify_client = n.serviceClient<scale_map::ModifyMap>("/sweeper/map_modify_srv");
-  
-            scale_map::ModifyMap map_modify_srv;
-            map_modify_srv.request.threshold = 95;
+			ros::ServiceClient map_rotate_client = n.serviceClient<scale_map::MapRotate>("/sweeper/map_rotate_srv");
+			ros::ServiceClient mapClient = n.serviceClient<nav_msgs::GetMap>("/static_map");
+
+			scale_map::MapRotate map_rotate_srv;
 
 			scale_map::ScaleMapData srv;
 
+      scale_map::ModifyMap map_modify_srv;
+      map_modify_srv.request.threshold = 95;
+
 			srv.request.erosion_radius = 1;
 			srv.request.robot_radius = 0.03;
-
-			ros::ServiceClient mapClient = n.serviceClient<nav_msgs::GetMap>("/static_map");
 
 			nav_msgs::GetMap getMapSrv;
 
 			ros::Duration(2).sleep();
 			if (mapClient.call(getMapSrv)) {
 							//srv.request.map = getMapSrv.response.map;
-                            map_modify_srv.request.map = getMapSrv.response.map;
+              //map_modify_srv.request.map = getMapSrv.response.map;
+							map_rotate_srv.request.map = getMapSrv.response.map;
 							std::cout << "map frame_id: " << srv.request.map.header.frame_id
 											<< std::endl;
 			} else {
 							//ROS_ERROR("Failed to call  get map service.");
 							ROS_ERROR("Failed to call map_modify_srv service.");
 			}
+
+			ros::Time begin3 = ros::Time::now();
+			bool res_map_rotate = map_rotate_client.call(map_rotate_srv);
+      ros::Time end3 = ros::Time::now();
+      std::cout << "map rotate cost time:" << (end3-begin3).toSec() << std::endl;
+			
+			if(res_map_rotate)
+					map_modify_srv.request.map = map_rotate_srv.response.map;
+			else
+					ROS_ERROR("Failed to call map_rotate_srv service.");
 
             ros::Time begin2 = ros::Time::now();
             bool res_srv_map_modify = map_modify_client.call(map_modify_srv);
@@ -132,9 +147,10 @@ public:
 			//call scale map service
 			if (res_srv_scale_map) {
                     //pub_map_scale.publish(srv.response.map);
-					ros::ServiceClient client_darp = n.serviceClient<scale_map::GetCoveragePath>("/sweeper/make_coverage_plan");
+					ros::ServiceClient client_darp = \
+                                       n.serviceClient<scale_map::GetCoveragePathScaleMap>("/sweeper/scale_map_make_coverage_plan");
 
-					scale_map::GetCoveragePath srv_darp;
+					scale_map::GetCoveragePathScaleMap srv_darp;
 
 					srv_darp.request.erosion_radius = 0.01;
 					srv_darp.request.robot_radius = 0.03;
@@ -147,6 +163,7 @@ public:
 					start.pose.position.y = msg->point.y;
 
 					srv_darp.request.start = start;
+                    srv_darp.request.angle = map_rotate_srv.response.angle;
 
 					ros::Time begin = ros::Time::now();
 					bool res_srv_darp = client_darp.call(srv_darp);
@@ -162,6 +179,7 @@ public:
 
                                     pub_map_scale.publish(srv.response.map);
                                     pub_map_modify.publish(map_modify_srv.response.map);
+																		pub_map_rotate.publish(map_rotate_srv.response.map);
 
 									int path_size = srv_darp.response.plan.poses.size();
 
@@ -310,9 +328,9 @@ int main(int argc, char **argv) {
 	//call scale map service
   if (res_srv_scale_map) {
 
-		ros::ServiceClient client_darp = n.serviceClient<scale_map::GetCoveragePath>("/sweeper/make_coverage_plan");
+		ros::ServiceClient client_darp = n.serviceClient<scale_map::GetCoveragePathScaleMap>("/sweeper/make_coverage_plan");
 
-  	scale_map::GetCoveragePath srv_darp;
+  	scale_map::GetCoveragePathScaleMap srv_darp;
 
 		srv_darp.request.erosion_radius = 0.01;
 		srv_darp.request.robot_radius = 0.03;

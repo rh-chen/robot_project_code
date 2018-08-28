@@ -6,5 +6,6 @@
     </node>
     <node name="map_modify_node" pkg="scale_map" type="map_modify_node" output="screen">
     </node>
-
+    <node name="line_detection_and_rotation_node" pkg="scale_map" type="line_detection_and_rotation_node" output="screen">
+    </node>
 </launch>
