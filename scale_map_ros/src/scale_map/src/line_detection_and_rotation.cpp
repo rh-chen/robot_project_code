@@ -43,9 +43,46 @@ namespace line_detection_and_rotation {
 			int nAngleNum;	
 	}LineData;
 
-	bool ImgRotate(cv::Mat& src_,cv::Mat& dst_,int direction,int angle)
+	bool ImgRotate(cv::Mat& src_,cv::Mat& dst_,int direction,int angle,vector<double>& rot_mat)
 	{
-		
+        double scale = 1.0;
+        cv::Point2f image_center(src_.cols/2.0,src_.rows/2.0);
+    
+        cv::Mat rotate_mat = cv::getRotationMatrix2D(image_center,direction*angle,scale);
+
+        std::cout << "rotate_mat:" << rotate_mat << std::endl;
+
+        cv::Rect box;
+        box = cv::RotatedRect(image_center,cv::Size(scale*src_.cols,scale*src_.rows),angle).boundingRect();
+
+        rotate_mat.at<double>(0,2) += box.width/2 - image_center.x;
+        rotate_mat.at<double>(1,2) += box.height/2 - image_center.y;
+
+        cv::Mat dst;
+        cv::warpAffine(src_,dst,rotate_mat, box.size());
+
+        cv::Mat rotate_mat_3(3,3,CV_64FC1);
+        rotate_mat_3.at<double>(0,0) = rotate_mat.at<double>(0,0);
+        rotate_mat_3.at<double>(0,1) = rotate_mat.at<double>(0,1);
+        rotate_mat_3.at<double>(0,2) = rotate_mat.at<double>(0,2);
+        rotate_mat_3.at<double>(1,0) = rotate_mat.at<double>(1,0);
+        rotate_mat_3.at<double>(1,1) = rotate_mat.at<double>(1,1);
+        rotate_mat_3.at<double>(1,2) = rotate_mat.at<double>(1,2);
+        rotate_mat_3.at<double>(2,0) = 0;
+        rotate_mat_3.at<double>(2,1) = 0;
+        rotate_mat_3.at<double>(2,2) = 1;
+
+        cv::Mat rotate_mat_inv;
+        rotate_mat_inv = rotate_mat_3.inv();
+
+        std::cout << "rotate_mat_inv:" << rotate_mat_inv << std::endl;
+
+        for(int i = 0;i < rotate_mat_inv.rows;i++){
+            for(int j = 0;j < rotate_mat_inv.cols;j++){
+                rot_mat.push_back(rotate_mat_inv.at<double>(i,j));
+            }
+        }
+#if 0
 		int oldWidth = src_.cols;
 		int oldHeight = src_.rows;
 
@@ -81,7 +118,9 @@ namespace line_detection_and_rotation {
 		//std::cout << __FILE__ << __LINE__ << std::endl;
 		float dx = -0.5*newWidth*cos(theta) - 0.5*newHeight*sin(theta) + 0.5*oldWidth;
 		float dy = 0.5*newWidth*sin(theta) - 0.5*newHeight*cos(theta) + 0.5*oldHeight;
-		
+		x_tran = dx;
+        y_tran = dy;
+
 		for (int h = 0; h < newHeight; h++)
 		{
 			for (int w = 0; w < newWidth; w++)
@@ -117,6 +156,7 @@ namespace line_detection_and_rotation {
 				}
 			}
 		}
+#endif
         dst_ = dst;
 	}
 
@@ -194,6 +234,10 @@ namespace line_detection_and_rotation {
 				ROS_ERROR("map data error...");
 				return false;
 		}
+        
+        ROS_INFO("map.info.origin.position.x:%f",req.map.info.origin.position.x);
+        ROS_INFO("map.info.origin.position.y:%f",req.map.info.origin.position.y);
+        ROS_INFO("map.info.resolution:%f",req.map.info.resolution);
 
         for(int i = 0;i < req.map.data.size();i++)
         if(req.map.data[i] == -1)
@@ -241,15 +285,19 @@ namespace line_detection_and_rotation {
                             angle_rotate = nAngle-180;
                         else if(nAngle >= 270 && nAngle < 360)
                             angle_rotate = nAngle-270;
-                            
+                       
+                        std::vector<double> rot_mat_inv;
                         if(angle_rotate > angle_threshold)
-						    ImgRotate(map,dst,1,angle_rotate);
+						    ImgRotate(map,dst,-1,angle_rotate,rot_mat_inv);
                         else
-                            ImgRotate(map,dst,1,0);
+                            ImgRotate(map,dst,-1,0,rot_mat_inv);
+
 						if(!dst.empty()){
                             ROS_INFO("dst width:%d",dst.cols);
                             ROS_INFO("dst height:%d",dst.rows);
 
+                            ROS_INFO("map width:%d",map.cols);
+                            ROS_INFO("map height:%d",map.rows);
                             vector<int8_t> map_data;
 				            for(int i = 0;i < dst.rows;i++){
 				                for(int j = 0;j < dst.cols;j++){
@@ -267,7 +315,8 @@ namespace line_detection_and_rotation {
 				            res.map.info.origin.position.x = req.map.info.origin.position.x;
 				            res.map.info.origin.position.y = req.map.info.origin.position.y;
                             
-                            res.angle = angle_rotate;
+                            res.transform = rot_mat_inv;
+
                             return true;
 						}
 						else
@@ -282,7 +331,7 @@ namespace line_detection_and_rotation {
 
 }
 int main(int argc, char **argv) {
-  ros::init(argc, argv, "darp_path_plan_node");
+  ros::init(argc, argv, "map_rotate_node");
 
   ros::NodeHandle private_nh("~");
 

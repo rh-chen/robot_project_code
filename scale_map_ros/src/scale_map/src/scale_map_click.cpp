@@ -97,8 +97,8 @@ public:
 
 			scale_map::ScaleMapData srv;
 
-      scale_map::ModifyMap map_modify_srv;
-      map_modify_srv.request.threshold = 95;
+            scale_map::ModifyMap map_modify_srv;
+            map_modify_srv.request.threshold = 95;
 
 			srv.request.erosion_radius = 1;
 			srv.request.robot_radius = 0.03;
@@ -119,8 +119,8 @@ public:
 
 			ros::Time begin3 = ros::Time::now();
 			bool res_map_rotate = map_rotate_client.call(map_rotate_srv);
-      ros::Time end3 = ros::Time::now();
-      std::cout << "map rotate cost time:" << (end3-begin3).toSec() << std::endl;
+            ros::Time end3 = ros::Time::now();
+            std::cout << "map rotate cost time:" << (end3-begin3).toSec() << std::endl;
 			
 			if(res_map_rotate)
 					map_modify_srv.request.map = map_rotate_srv.response.map;
@@ -163,7 +163,7 @@ public:
 					start.pose.position.y = msg->point.y;
 
 					srv_darp.request.start = start;
-                    srv_darp.request.angle = map_rotate_srv.response.angle;
+                    srv_darp.request.transform = map_rotate_srv.response.transform;
 
 					ros::Time begin = ros::Time::now();
 					bool res_srv_darp = client_darp.call(srv_darp);

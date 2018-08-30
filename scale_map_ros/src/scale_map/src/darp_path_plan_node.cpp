@@ -1299,15 +1299,30 @@ bool CoveragePlanService(
 		index++;
   }
 
-    double angle_rotate = req.angle*CV_PI/180;
+    double map_origin_x = -2.929756;
+    double map_origin_y = -8.461502;
+    double map_resolution = 0.05;
+    
+    double m00 = req.transform[0];
+    double m01 = req.transform[1];
+    double m02 = req.transform[2];
+    double m10 = req.transform[3];
+    double m11 = req.transform[4];
+    double m12 = req.transform[5];
+
     geometry_msgs::PoseStamped stt_pose = temp_path_node[0];
     double x_stt = stt_pose.pose.position.x;
     double y_stt = stt_pose.pose.position.y;
 
-    stt_pose.pose.position.x = x_stt*cos(angle_rotate)+y_stt*sin(angle_rotate);
-    stt_pose.pose.position.y = -x_stt*sin(angle_rotate)+y_stt*cos(angle_rotate);
-    //stt_pose.pose.position.x += req.map.info.width/2*req.map.info.resolution;    
-    //stt_pose.pose.position.y += req.map.info.height/2*req.map.info.resolution;    
+    stt_pose.pose.position.x = (((x_stt-map_origin_x)/map_resolution)*m00+((y_stt-map_origin_y)/map_resolution)*m01+m02)\
+                                                                                                            *map_resolution;
+    stt_pose.pose.position.y = (((x_stt-map_origin_x)/map_resolution)*m10+((y_stt-map_origin_y)/map_resolution)*m11+m12)\
+                                                                                                            *map_resolution;
+
+    stt_pose.pose.position.x += map_origin_x;
+    stt_pose.pose.position.y += map_origin_y;
+
+
 	resp.plan.poses.push_back(stt_pose);
 
 	geometry_msgs::PoseStamped pre_pose;
@@ -1323,11 +1338,14 @@ bool CoveragePlanService(
             double x_rotate = cur_pose.pose.position.x;
             double y_rotate = cur_pose.pose.position.y;
 
-            cur_pose.pose.position.x = x_rotate*cos(angle_rotate)+y_rotate*sin(angle_rotate);
-            cur_pose.pose.position.y = -x_rotate*sin(angle_rotate)+y_rotate*cos(angle_rotate);
+            cur_pose.pose.position.x = (((x_rotate-map_origin_x)/map_resolution)*m00+((y_rotate-map_origin_y)/map_resolution)*m01+m02)\
+                                                                                                                        *map_resolution;
+            cur_pose.pose.position.y = (((x_rotate-map_origin_x)/map_resolution)*m10+((y_rotate-map_origin_y)/map_resolution)*m11+m12)\
+                                                                                                                        *map_resolution;
+            cur_pose.pose.position.x += map_origin_x;
+            cur_pose.pose.position.y += map_origin_y;
+
             cur_pose.pose.position.z = 0;
-            //cur_pose.pose.position.x += req.map.info.width/2*req.map.info.resolution;    
-            //cur_pose.pose.position.y += req.map.info.height/2*req.map.info.resolution;    
 			resp.plan.poses.push_back(cur_pose);
 
 		}
@@ -1337,11 +1355,14 @@ bool CoveragePlanService(
     double x_lst = lst_pose.pose.position.x;
     double y_lst = lst_pose.pose.position.y;
 
-    lst_pose.pose.position.x = x_lst*cos(angle_rotate)+y_lst*sin(angle_rotate);
-    lst_pose.pose.position.y = -x_lst*sin(angle_rotate)+y_lst*cos(angle_rotate);
-    //lst_pose.pose.position.x += req.map.info.width/2*req.map.info.resolution;    
-    //lst_pose.pose.position.y += req.map.info.height/2*req.map.info.resolution;    
-	resp.plan.poses.push_back(lst_pose);
+    lst_pose.pose.position.x = (((x_lst-map_origin_x)/map_resolution)*m00+((y_lst-map_origin_y)/map_resolution)*m01+m02)\
+                                                                                                                 *map_resolution;
+    lst_pose.pose.position.y = (((x_lst-map_origin_x)/map_resolution)*m10+((y_lst-map_origin_y)/map_resolution)*m11+m12)\
+                                                                                                                 *map_resolution;
+	lst_pose.pose.position.x += map_origin_x;
+    lst_pose.pose.position.y += map_origin_y;
+
+    resp.plan.poses.push_back(lst_pose);
 
 	environment_grid_.release();
 	binary_grid_.release();

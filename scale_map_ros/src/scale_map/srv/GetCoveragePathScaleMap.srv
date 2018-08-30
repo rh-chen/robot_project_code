@@ -18,7 +18,7 @@ float64 robot_radius
 # range: 0 ~ 100
 int8 occupancy_threshold
 
-int32 angle
+float64[] transform
 
 nav_msgs/OccupancyGrid map
 ---
