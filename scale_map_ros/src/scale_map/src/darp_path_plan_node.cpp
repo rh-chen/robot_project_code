@@ -1299,9 +1299,9 @@ bool CoveragePlanService(
 		index++;
   }
 
-    double map_origin_x = -2.929756;
-    double map_origin_y = -8.461502;
-    double map_resolution = 0.05;
+    double map_origin_x = req.map_origin_x;
+    double map_origin_y = req.map_origin_y;
+    double map_resolution = req.map_resolution;
     
     double m00 = req.transform[0];
     double m01 = req.transform[1];

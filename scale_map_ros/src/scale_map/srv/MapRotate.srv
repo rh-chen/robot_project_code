@@ -2,3 +2,6 @@ nav_msgs/OccupancyGrid map
 ---
 nav_msgs/OccupancyGrid map
 float64[] transform
+float64 map_origin_x
+float64 map_origin_y
+float64 map_resolution

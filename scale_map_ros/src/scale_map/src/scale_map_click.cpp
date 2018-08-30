@@ -164,6 +164,9 @@ public:
 
 					srv_darp.request.start = start;
                     srv_darp.request.transform = map_rotate_srv.response.transform;
+                    srv_darp.request.map_origin_x = map_rotate_srv.response.map_origin_x;
+                    srv_darp.request.map_origin_y = map_rotate_srv.response.map_origin_y;
+                    srv_darp.request.map_resolution = map_rotate_srv.response.map_resolution;
 
 					ros::Time begin = ros::Time::now();
 					bool res_srv_darp = client_darp.call(srv_darp);

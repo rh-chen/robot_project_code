@@ -316,6 +316,9 @@ namespace line_detection_and_rotation {
 				            res.map.info.origin.position.y = req.map.info.origin.position.y;
                             
                             res.transform = rot_mat_inv;
+                            res.map_origin_x = req.map.info.origin.position.x;
+                            res.map_origin_y = req.map.info.origin.position.y;
+                            res.map_resolution = req.map.info.resolution;
 
                             return true;
 						}
