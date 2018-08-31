@@ -201,12 +201,14 @@ namespace line_detection_and_rotation {
             int delta_y = end.y-start.y;
 
             if(sqrt(delta_x*delta_x+delta_y*delta_y) > max_length){
-                line_angle = atan2(delta_y,delta_x);
+                //line_angle = atan2(delta_y,delta_x);
+                line_angle = cv::fastAtan2(delta_y,delta_x);
                 max_length = sqrt(delta_x*delta_x+delta_y*delta_y);
             }
 	    }
 
-        angle = (line_angle*180.0)/CV_PI+180.0;
+        //angle = (line_angle*180.0)/CV_PI+180.0;
+        angle = line_angle;
         ROS_INFO("line_anlge:%f",angle);
         ROS_INFO("max_length:%f",max_length);
     
@@ -330,7 +332,7 @@ namespace line_detection_and_rotation {
 				}
 				else{
                         ROS_INFO("line detection success...");
-                        ROS_INFO("nAngle:%d",nAngle);
+                        ROS_INFO("nAngle:%f",nAngle);
 						cv::Mat dst;		
 						int angle_threshold = 3;
                         int angle_rotate =0;
