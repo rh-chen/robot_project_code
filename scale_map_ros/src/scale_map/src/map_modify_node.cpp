@@ -130,7 +130,7 @@ bool MapModifyService(
     cv::Mat bin_step1,bin_step1_out;
     cv::threshold(map,bin_step1,req.threshold,255,cv::THRESH_BINARY_INV);
     cv::Mat element = getStructuringElement(MORPH_RECT, Size(3, 3));
-    cv::dilate(bin_step1, bin_step1_out, element);
+    //cv::dilate(bin_step1, bin_step1_out, element);
 
     int dilate_count = 3;
     for(int i = 0;i < dilate_count;i++){ 

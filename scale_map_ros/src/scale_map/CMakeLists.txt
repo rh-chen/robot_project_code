@@ -151,7 +151,7 @@ add_executable(map_modify_node src/map_modify_node.cpp src/lsd.cpp)
 add_executable(scale_map_client src/scale_map_client.cpp)
 add_executable(scale_map_click src/scale_map_click.cpp)
 add_executable(darp_path_plan_node src/darp_path_plan_node.cpp)
-add_executable(line_detection_and_rotation_node src/line_detection_and_rotation.cpp)
+add_executable(line_detection_and_rotation_node src/line_detection_and_rotation.cpp src/lsd.cpp)
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
 ## target back to the shorter version for ease of user use
