@@ -107,25 +107,14 @@ public:
 
 			ros::Duration(2).sleep();
 			if (mapClient.call(getMapSrv)) {
-							//srv.request.map = getMapSrv.response.map;
-              //map_modify_srv.request.map = getMapSrv.response.map;
-							map_rotate_srv.request.map = getMapSrv.response.map;
-							std::cout << "map frame_id: " << srv.request.map.header.frame_id
-											<< std::endl;
+				//srv.request.map = getMapSrv.response.map;
+                map_modify_srv.request.map = getMapSrv.response.map;
+				//map_rotate_srv.request.map = getMapSrv.response.map;
+				std::cout << "map frame_id: " << map_modify_srv.request.map.header.frame_id << std::endl;
 			} else {
-							//ROS_ERROR("Failed to call  get map service.");
-							ROS_ERROR("Failed to call map_modify_srv service.");
+					//ROS_ERROR("Failed to call  get map service.");
+				    ROS_ERROR("Failed to call map_modify_srv service.");
 			}
-
-			ros::Time begin3 = ros::Time::now();
-			bool res_map_rotate = map_rotate_client.call(map_rotate_srv);
-            ros::Time end3 = ros::Time::now();
-            std::cout << "map rotate cost time:" << (end3-begin3).toSec() << std::endl;
-			
-			if(res_map_rotate)
-					map_modify_srv.request.map = map_rotate_srv.response.map;
-			else
-					ROS_ERROR("Failed to call map_rotate_srv service.");
 
             ros::Time begin2 = ros::Time::now();
             bool res_srv_map_modify = map_modify_client.call(map_modify_srv);
@@ -133,8 +122,25 @@ public:
 	        std::cout << "call map_modify_srv time cost:" << (end2-begin2).toSec() << std::endl;
 
             if(res_srv_map_modify){
-                srv.request.map = map_modify_srv.response.map;
-                //pub_map_modify.publish(map_modify_srv.response.map);
+                //srv.request.map = map_modify_srv.response.map;
+                map_rotate_srv.request.map = map_modify_srv.response.map;
+            }else{
+                ROS_ERROR("Failed to call map_modify_srv service.");
+            }
+
+			ros::Time begin3 = ros::Time::now();
+			bool res_map_rotate = map_rotate_client.call(map_rotate_srv);
+            ros::Time end3 = ros::Time::now();
+            std::cout << "map rotate cost time:" << (end3-begin3).toSec() << std::endl;
+			
+			/*if(res_map_rotate)
+					map_modify_srv.request.map = map_rotate_srv.response.map;
+			else
+					ROS_ERROR("Failed to call map_rotate_srv service.");
+            */
+
+            if(res_map_rotate){
+                srv.request.map = map_rotate_srv.response.map;
             }else{
                 ROS_ERROR("Failed to call map_modify_srv service.");
             }
@@ -182,7 +188,7 @@ public:
 
                                     pub_map_scale.publish(srv.response.map);
                                     pub_map_modify.publish(map_modify_srv.response.map);
-																		pub_map_rotate.publish(map_rotate_srv.response.map);
+									pub_map_rotate.publish(map_rotate_srv.response.map);
 
 									int path_size = srv_darp.response.plan.poses.size();
 

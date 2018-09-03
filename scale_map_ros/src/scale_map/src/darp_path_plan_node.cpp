@@ -1077,20 +1077,59 @@ bool CoveragePlanService(
 
   //  build start and goal
   cv::Point start;
+  double start_x_world;
+  double start_y_world;
+  double start_x_origin = req.start.pose.position.x;
+  double start_y_origin = req.start.pose.position.y;
+
+  cv::Mat origin_rotate_mat_inv(3,3,CV_64FC1);
+  cv::Mat origin_rotate_mat;
+  origin_rotate_mat_inv.at<double>(0,0) = req.transform[0];
+  origin_rotate_mat_inv.at<double>(0,1) = req.transform[1];
+  origin_rotate_mat_inv.at<double>(0,2) = req.transform[2];
+  origin_rotate_mat_inv.at<double>(1,0) = req.transform[3];
+  origin_rotate_mat_inv.at<double>(1,1) = req.transform[4];
+  origin_rotate_mat_inv.at<double>(1,2) = req.transform[5];
+  origin_rotate_mat_inv.at<double>(2,0) = 0;
+  origin_rotate_mat_inv.at<double>(2,1) = 0;
+  origin_rotate_mat_inv.at<double>(2,2) = 1;
+
+  origin_rotate_mat = origin_rotate_mat_inv.inv();
+  double m00_ = origin_rotate_mat.at<double>(0,0);
+  double m01_ = origin_rotate_mat.at<double>(0,1);
+  double m02_ = origin_rotate_mat.at<double>(0,2);
+  double m10_ = origin_rotate_mat.at<double>(1,0);
+  double m11_ = origin_rotate_mat.at<double>(1,1);
+  double m12_ = origin_rotate_mat.at<double>(1,2);
+  
+  std::cout << "origin_rotate_mat:" << origin_rotate_mat << std::endl;
+  start_x_world = (((start_x_origin-req.map_origin_x)/req.map_resolution)*m00_+\
+                  ((start_y_origin-req.map_origin_y)/req.map_resolution)*m01_+m02_)*req.map_resolution;
+  start_y_world = (((start_x_origin-req.map_origin_x)/req.map_resolution)*m10_+\
+                  ((start_y_origin-req.map_origin_y)/req.map_resolution)*m11_+m12_)*req.map_resolution;
+  
+  start_x_world += req.map_origin_x;
+  start_y_world += req.map_origin_y;
+
+  ROS_INFO("start_x_grid,start_y_grid:%f,%f",(start_x_origin-req.map_origin_x)/req.map_resolution,\
+                                             (start_y_origin-req.map_origin_y)/req.map_resolution);
+  ROS_INFO("start_x,start_y:%f,%f",req.start.pose.position.x,req.start.pose.position.y);
+  ROS_INFO("rotate_start_x,rotate_start_y:%f,%f",start_x_world,start_y_world);
   if (false == WorldToMap(
+                   req.map.info.resolution, req.map.info.origin.position.x,
+                   req.map.info.origin.position.y, req.map.info.width,
+                   req.map.info.height, start_x_world,
+                   start_y_world, &start.x, &start.y)) {
+    ROS_ERROR("Invalid start. Out of map.");
+    return false;
+  }
+
+  /*if (false == WorldToMap(
                    req.map.info.resolution, req.map.info.origin.position.x,
                    req.map.info.origin.position.y, req.map.info.width,
                    req.map.info.height, req.start.pose.position.x,
                    req.start.pose.position.y, &start.x, &start.y)) {
     ROS_ERROR("Invalid start. Out of map.");
-    return false;
-  }
-  /*if (false == WorldToMap(
-                   req.map.info.resolution, req.map.info.origin.position.x,
-                   req.map.info.origin.position.y, req.map.info.width,
-                   req.map.info.height, req.goal.pose.position.x,
-                   req.goal.pose.position.y, &goal.x, &goal.y)) {
-    ROS_ERROR("Invalid goal. Out of map.");
     return false;
   }*/
   //  build map
@@ -1255,9 +1294,9 @@ bool CoveragePlanService(
 	std::cout << "time cost:" << (end-begin).toSec() << std::endl;
 	//std::cout << __FILE__ << __LINE__ << std::endl;
   // coordinate mapping
-  geometry_msgs::PoseStamped current_pose = req.start;
-	geometry_msgs::PoseStamped next_pose = req.start;
-  cv::Point current,next;
+    geometry_msgs::PoseStamped current_pose;
+	geometry_msgs::PoseStamped next_pose;
+    cv::Point current,next;
 	int index = 0;
 
 	std::vector<geometry_msgs::PoseStamped> temp_path_node;
@@ -1322,7 +1361,8 @@ bool CoveragePlanService(
     stt_pose.pose.position.x += map_origin_x;
     stt_pose.pose.position.y += map_origin_y;
 
-
+    
+    ROS_INFO("stt_start_x,stt_start_y:%f,%f",stt_pose.pose.position.x,stt_pose.pose.position.y);
 	resp.plan.poses.push_back(stt_pose);
 
 	geometry_msgs::PoseStamped pre_pose;

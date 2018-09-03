@@ -347,11 +347,40 @@ namespace line_detection_and_rotation {
                        
                         std::vector<double> rot_mat_inv;
                         if(angle_rotate > angle_threshold){
-                            ros::Time begin_rotate = ros::Time::now();
-						    ImgRotate(map,dst,1,angle_rotate,rot_mat_inv);
-                            ros::Time end_rotate = ros::Time::now();
+                            if((90-angle_rotate) < angle_rotate){
+                                ros::Time begin_rotate = ros::Time::now();
+						        ImgRotate(map,dst,-1,90-angle_rotate,rot_mat_inv);
+                                ros::Time end_rotate = ros::Time::now();
+                                std::cout << "image_rotate_time_cost:" << (end_rotate-begin_rotate).toSec() << std::endl;
+                                std::cout << "rot_mat_inv:" << rot_mat_inv[0] << "  "
+                                                            << rot_mat_inv[1] << "  "
+                                                            << rot_mat_inv[2] << "  " << std::endl;
 
-                            std::cout << "image_rotate_time_cost:" << (end_rotate-begin_rotate).toSec() << std::endl;
+                                std::cout << rot_mat_inv[3] << "  "
+                                          << rot_mat_inv[4] << "  "
+                                          << rot_mat_inv[5] << "  " << std::endl;
+
+                                std::cout << rot_mat_inv[6] << "  "
+                                          << rot_mat_inv[7] << "  "
+                                          << rot_mat_inv[8] << "  " << std::endl;
+                            }
+                            else{    
+                                ros::Time begin_rotate = ros::Time::now();
+						        ImgRotate(map,dst,1,angle_rotate,rot_mat_inv);
+                                ros::Time end_rotate = ros::Time::now();
+                                std::cout << "image_rotate_time_cost:" << (end_rotate-begin_rotate).toSec() << std::endl;
+                                std::cout << "rot_mat_inv:" << rot_mat_inv[0] << "  "
+                                                            << rot_mat_inv[1] << "  "
+                                                            << rot_mat_inv[2] << "  " << std::endl;
+
+                                std::cout << rot_mat_inv[3] << "  "
+                                          << rot_mat_inv[4] << "  "
+                                          << rot_mat_inv[5] << "  " << std::endl;
+
+                                std::cout << rot_mat_inv[6] << "  "
+                                          << rot_mat_inv[7] << "  "
+                                          << rot_mat_inv[8] << "  " << std::endl;
+                            }
                         }
                         else{
                             ros::Time begin_rotate = ros::Time::now();
