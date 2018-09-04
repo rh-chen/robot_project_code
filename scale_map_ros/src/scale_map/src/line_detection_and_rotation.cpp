@@ -44,7 +44,7 @@ namespace line_detection_and_rotation {
 			int nAngleNum;	
 	}LineData;
 
-	bool ImgRotate(cv::Mat& src_,cv::Mat& dst_,int direction,int angle,vector<double>& rot_mat)
+	bool ImgRotate(cv::Mat& src_,cv::Mat& dst_,int direction,double angle,vector<double>& rot_mat)
 	{
 #if 0
         double scale = 1.0;
@@ -334,18 +334,19 @@ namespace line_detection_and_rotation {
                         ROS_INFO("line detection success...");
                         ROS_INFO("nAngle:%f",nAngle);
 						cv::Mat dst;		
-						int angle_threshold = 3;
-                        int angle_rotate =0;
-                        if(nAngle >= 0 && nAngle < 90)
+						double angle_threshold = 3;
+                        double angle_rotate = 0;
+                        if(floor(nAngle) >= 0 && floor(nAngle) < 90)
                             angle_rotate = 90-nAngle;
-                        else if(nAngle >= 90 && nAngle < 180)
+                        else if(floor(nAngle) >= 90 && floor(nAngle) < 180)
                             angle_rotate = 180-nAngle;
-                        else if(nAngle >= 180 && nAngle < 270)
+                        else if(floor(nAngle) >= 180 && floor(nAngle) < 270)
                             angle_rotate = 270-nAngle;
-                        else if(nAngle >= 270 && nAngle < 360)
+                        else if(floor(nAngle) >= 270 && floor(nAngle) < 360)
                             angle_rotate = 360-nAngle;
                        
                         std::vector<double> rot_mat_inv;
+                        ROS_INFO("angle_rotate:%f",angle_rotate);
                         if(angle_rotate > angle_threshold){
                             if((90-angle_rotate) < angle_rotate){
                                 ros::Time begin_rotate = ros::Time::now();
