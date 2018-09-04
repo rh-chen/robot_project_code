@@ -1361,8 +1361,14 @@ bool CoveragePlanService(
     stt_pose.pose.position.x += map_origin_x;
     stt_pose.pose.position.y += map_origin_y;
 
+    double x_delta = start_x_origin-stt_pose.pose.position.x;
+    double y_delta = start_y_origin-stt_pose.pose.position.y;
+
+    stt_pose.pose.position.x += x_delta;
+    stt_pose.pose.position.y += y_delta;
     
     ROS_INFO("stt_start_x,stt_start_y:%f,%f",stt_pose.pose.position.x,stt_pose.pose.position.y);
+    ROS_INFO("x_delta,y_delta:%f,%f",x_delta,y_delta);
 	resp.plan.poses.push_back(stt_pose);
 
 	geometry_msgs::PoseStamped pre_pose;
@@ -1386,6 +1392,10 @@ bool CoveragePlanService(
             cur_pose.pose.position.y += map_origin_y;
 
             cur_pose.pose.position.z = 0;
+
+            cur_pose.pose.position.x += x_delta;
+            cur_pose.pose.position.y += y_delta;
+
 			resp.plan.poses.push_back(cur_pose);
 
 		}
@@ -1401,6 +1411,9 @@ bool CoveragePlanService(
                                                                                                                  *map_resolution;
 	lst_pose.pose.position.x += map_origin_x;
     lst_pose.pose.position.y += map_origin_y;
+
+    lst_pose.pose.position.x += x_delta;
+    lst_pose.pose.position.y += y_delta;
 
     resp.plan.poses.push_back(lst_pose);
 
