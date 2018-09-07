@@ -116,7 +116,7 @@ bool ScaleMapService(
         ng_height = req.map.info.height/SCALE_FACTOR;
     else
         ng_height = (req.map.info.height+(SCALE_FACTOR-req.map.info.height%SCALE_FACTOR))/SCALE_FACTOR;
-
+    
 	std::cout << "ng_height:" << ng_height << std::endl;
 	std::cout << "ng_width:" << ng_width << std::endl;
 	int ng_row;
@@ -137,7 +137,7 @@ bool ScaleMapService(
 	signed char currentCellValue;
 	signed char ng_oldCellValue;
     
-    double scale_grid = 0.2;
+    double scale_grid = 0.35;
 
 	bool cacheObstacleCells = true;
 	bool cacheEmptyCells = true;
@@ -161,6 +161,9 @@ bool ScaleMapService(
 	ng_row = -1;
 	for(int i = 0;i < req.map.info.height;i++){
 		temp_ng_row = i/SCALE_FACTOR;
+        
+        if(temp_ng_row == ng_height)
+            continue;
 
 		if(ng_row != temp_ng_row){
 			ng_row = temp_ng_row;
@@ -172,6 +175,9 @@ bool ScaleMapService(
 		ng_col = -1;
 		for(int j = 0;j < req.map.info.width;j++){
 			temp_ng_col = j/SCALE_FACTOR;
+            
+            if(temp_ng_col == ng_width)
+                continue;
 
 			if(ng_col != temp_ng_col){
 				ng_col = temp_ng_col;
@@ -196,7 +202,7 @@ bool ScaleMapService(
 //std::cout << __FILE__ << __LINE__ << std::endl;
 			currentCellValue = map.at<signed char>(i,j);
 			ng_oldCellValue = ng_data[ng_row][ng_col];
-
+            
 			if(currentCellValue == CellType::Obstacle){
                 ROS_INFO("ng_data_temp:%d",ng_data_temp[ng_row][ng_col]);
                 if(ng_data_temp[ng_row][ng_col] >= (int)floor(SCALE_FACTOR*SCALE_FACTOR*scale_grid)){
@@ -299,19 +305,20 @@ for(iter_ob = obstacles.begin();iter_ob != obstacles.end();iter_ob++){
 std::cout << "ng_data.size:" << ng_data.size() << std::endl;
 std::cout << "ng_data[i].size:" << ng_data[0].size() << std::endl;
 
-	for(int i = 0;i < ng_height;i++){
-		for(int j = 0;j < ng_width;j++)
+	for(int i = 0;i < req.map.info.height/SCALE_FACTOR;i++){
+		for(int j = 0;j < req.map.info.width/SCALE_FACTOR;j++)
 		{
             if(ng_data[i][j] == -2)
-                ng_data[i][j] = 0;
-			ng_data_1d.push_back(ng_data[i][j]);
+			    ng_data_1d.push_back(100);
+			else
+                ng_data_1d.push_back(ng_data[i][j]);
 		}
 	}
 
 //std::cout << __FILE__ << __LINE__ << std::endl;
 
-	res.map.info.height = ng_height;
-	res.map.info.width = ng_width;
+	res.map.info.height = req.map.info.height/SCALE_FACTOR;
+	res.map.info.width = req.map.info.width/SCALE_FACTOR;
 	res.map.info.resolution = ng_resolution;
 
 	res.map.data = ng_data_1d;
