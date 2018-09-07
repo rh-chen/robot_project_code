@@ -981,6 +981,10 @@ bool WorldToMap(
 
   *mx = static_cast<int>((wx - origin_x) / resolution);
   *my = static_cast<int>((wy - origin_y) / resolution);
+  
+  ROS_INFO("mx_int,my_int:%d,%d",*mx,*my);
+  ROS_INFO("mx_float,my_float:%f,%f",(wx - origin_x) / resolution,(wy - origin_y) / resolution);
+  ROS_INFO("mx_delta,my_delta:%f,%f",(wx-origin_x)-resolution*(*mx),(wy-origin_y)-resolution*(*my));
 
   if (*mx < size_x && *my < size_y)
     return true;
@@ -988,6 +992,28 @@ bool WorldToMap(
   return false;
 }
 
+
+bool WorldToMapNew(
+    double resolution, double origin_x, double origin_y, unsigned int size_x,
+    unsigned int size_y, double wx, double wy, int *mx, int *my,double& delta_x,double& delta_y) {
+  if (wx < origin_x || wy < origin_y)
+    return false;
+
+  *mx = static_cast<int>((wx - origin_x) / resolution);
+  *my = static_cast<int>((wy - origin_y) / resolution);
+  
+  ROS_INFO("mx_int,my_int:%d,%d",*mx,*my);
+  ROS_INFO("mx_float,my_float:%f,%f",(wx - origin_x) / resolution,(wy - origin_y) / resolution);
+  ROS_INFO("mx_delta,my_delta:%f,%f",(wx-origin_x)-resolution*(*mx),(wy-origin_y)-resolution*(*my));
+
+  delta_x = (wx-origin_x)-resolution*(*mx);
+  delta_y = (wy-origin_y)-resolution*(*my);
+
+  if (*mx < size_x && *my < size_y)
+    return true;
+
+  return false;
+}
  void drawArrow(cv::Mat& img, cv::Point pStart, cv::Point pEnd, int len, int alpha,             
      cv::Scalar& color, int thickness, int lineType)
 	{    
@@ -1115,14 +1141,21 @@ bool CoveragePlanService(
                                              (start_y_origin-req.map_origin_y)/req.map_resolution);
   ROS_INFO("start_x,start_y:%f,%f",req.start.pose.position.x,req.start.pose.position.y);
   ROS_INFO("rotate_start_x,rotate_start_y:%f,%f",start_x_world,start_y_world);
-  if (false == WorldToMap(
+
+  double delta_x = 0;
+  double delta_y = 0;
+
+  if (false == WorldToMapNew(
                    req.map.info.resolution, req.map.info.origin.position.x,
                    req.map.info.origin.position.y, req.map.info.width,
                    req.map.info.height, start_x_world,
-                   start_y_world, &start.x, &start.y)) {
+                   start_y_world, &start.x, &start.y,delta_x,delta_y)) {
     ROS_ERROR("Invalid start. Out of map.");
     return false;
   }
+
+  delta_x = 0;
+  delta_y = 0;
 
   /*if (false == WorldToMap(
                    req.map.info.resolution, req.map.info.origin.position.x,
@@ -1353,21 +1386,18 @@ bool CoveragePlanService(
     double x_stt = stt_pose.pose.position.x;
     double y_stt = stt_pose.pose.position.y;
 
-    stt_pose.pose.position.x = (((x_stt-map_origin_x)/map_resolution)*m00+((y_stt-map_origin_y)/map_resolution)*m01+m02)\
-                                                                                                            *map_resolution;
-    stt_pose.pose.position.y = (((x_stt-map_origin_x)/map_resolution)*m10+((y_stt-map_origin_y)/map_resolution)*m11+m12)\
-                                                                                                            *map_resolution;
+    stt_pose.pose.position.x = \
+    (((x_stt-map_origin_x)/map_resolution)*m00+((y_stt-map_origin_y)/map_resolution)*m01+m02)*map_resolution;
+    stt_pose.pose.position.y = \
+    (((x_stt-map_origin_x)/map_resolution)*m10+((y_stt-map_origin_y)/map_resolution)*m11+m12)*map_resolution;
     stt_pose.pose.position.x += map_origin_x;
     stt_pose.pose.position.y += map_origin_y;
 
-    double x_delta = 0;
-    double y_delta = 0;
-
-    stt_pose.pose.position.x += x_delta;
-    stt_pose.pose.position.y += y_delta;
+    stt_pose.pose.position.x += delta_x;
+    stt_pose.pose.position.y += delta_y;
     
     ROS_INFO("stt_start_x,stt_start_y:%f,%f",stt_pose.pose.position.x,stt_pose.pose.position.y);
-    //ROS_INFO("x_delta,y_delta:%f,%f",x_delta,y_delta);
+    ROS_INFO("x_delta,y_delta:%f,%f",stt_pose.pose.position.x-start_x_origin,stt_pose.pose.position.y-start_y_origin);
 	resp.plan.poses.push_back(stt_pose);
 
 	geometry_msgs::PoseStamped pre_pose;
@@ -1380,22 +1410,24 @@ bool CoveragePlanService(
 		nex_pose = temp_path_node[i+1];
 
 		if(isFlectionPoint(pre_pose,cur_pose,nex_pose)){
-            double x_rotate = cur_pose.pose.position.x;
-            double y_rotate = cur_pose.pose.position.y;
+          double x_rotate = cur_pose.pose.position.x;
+          double y_rotate = cur_pose.pose.position.y;
 
-            cur_pose.pose.position.x = (((x_rotate-map_origin_x)/map_resolution)*m00+((y_rotate-map_origin_y)/map_resolution)*m01+m02)\
-                                                                                                                        *map_resolution;
-            cur_pose.pose.position.y = (((x_rotate-map_origin_x)/map_resolution)*m10+((y_rotate-map_origin_y)/map_resolution)*m11+m12)\
-                                                                                                                        *map_resolution;
-            cur_pose.pose.position.x += map_origin_x;
-            cur_pose.pose.position.y += map_origin_y;
+          cur_pose.pose.position.x = \
+          (((x_rotate-map_origin_x)/map_resolution)*m00+((y_rotate-map_origin_y)/map_resolution)*m01+m02)\
+          *map_resolution;
+          cur_pose.pose.position.y = \
+          (((x_rotate-map_origin_x)/map_resolution)*m10+((y_rotate-map_origin_y)/map_resolution)*m11+m12)\
+          *map_resolution;
+          cur_pose.pose.position.x += map_origin_x;
+          cur_pose.pose.position.y += map_origin_y;
 
-            cur_pose.pose.position.z = 0;
+          cur_pose.pose.position.z = 0;
 
-            cur_pose.pose.position.x += x_delta;
-            cur_pose.pose.position.y += y_delta;
+          cur_pose.pose.position.x += delta_x;
+          cur_pose.pose.position.y += delta_y;
 
-			resp.plan.poses.push_back(cur_pose);
+	      resp.plan.poses.push_back(cur_pose);
 
 		}
 	}
@@ -1404,15 +1436,15 @@ bool CoveragePlanService(
     double x_lst = lst_pose.pose.position.x;
     double y_lst = lst_pose.pose.position.y;
 
-    lst_pose.pose.position.x = (((x_lst-map_origin_x)/map_resolution)*m00+((y_lst-map_origin_y)/map_resolution)*m01+m02)\
-                                                                                                                 *map_resolution;
-    lst_pose.pose.position.y = (((x_lst-map_origin_x)/map_resolution)*m10+((y_lst-map_origin_y)/map_resolution)*m11+m12)\
-                                                                                                                 *map_resolution;
+    lst_pose.pose.position.x = \
+    (((x_lst-map_origin_x)/map_resolution)*m00+((y_lst-map_origin_y)/map_resolution)*m01+m02)*map_resolution;
+    lst_pose.pose.position.y = \
+    (((x_lst-map_origin_x)/map_resolution)*m10+((y_lst-map_origin_y)/map_resolution)*m11+m12)*map_resolution;
 	lst_pose.pose.position.x += map_origin_x;
     lst_pose.pose.position.y += map_origin_y;
 
-    lst_pose.pose.position.x += x_delta;
-    lst_pose.pose.position.y += y_delta;
+    lst_pose.pose.position.x += delta_x;
+    lst_pose.pose.position.y += delta_y;
 
     resp.plan.poses.push_back(lst_pose);
 

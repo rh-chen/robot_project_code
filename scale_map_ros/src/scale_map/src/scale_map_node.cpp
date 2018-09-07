@@ -136,10 +136,27 @@ bool ScaleMapService(
 
 	signed char currentCellValue;
 	signed char ng_oldCellValue;
+    
+    double scale_grid = 0.2;
 
 	bool cacheObstacleCells = true;
 	bool cacheEmptyCells = true;
 
+    vector<vector<unsigned int> > ng_data_temp;
+    ng_data_temp.resize(ng_height);
+    for(int i = 0;i < ng_data_temp.size();i++)
+        ng_data_temp[i].resize(ng_width,0);
+
+
+    for(int i = 0;i < req.map.info.height;i++){
+        for(int j = 0;j < req.map.info.width;j++){
+            int temp_i = i/SCALE_FACTOR;
+            int temp_j = j/SCALE_FACTOR;
+
+            if((map.at<signed char>(i,j) == -1) || (map.at<signed char>(i,j) == 100))
+                ng_data_temp[temp_i][temp_j] += 1;
+        }
+    }
 //std::cout << __FILE__ << __LINE__ << std::endl;
 	ng_row = -1;
 	for(int i = 0;i < req.map.info.height;i++){
@@ -181,12 +198,33 @@ bool ScaleMapService(
 			ng_oldCellValue = ng_data[ng_row][ng_col];
 
 			if(currentCellValue == CellType::Obstacle){
-				ng_data[ng_row][ng_col] = CellType::Obstacle;
-				if(cacheObstacleCells){
+                ROS_INFO("ng_data_temp:%d",ng_data_temp[ng_row][ng_col]);
+                if(ng_data_temp[ng_row][ng_col] >= (int)floor(SCALE_FACTOR*SCALE_FACTOR*scale_grid)){
+				    ng_data[ng_row][ng_col] = CellType::Obstacle;
+                    if(cacheObstacleCells){
+					    PointStr point_temp(ng_col,ng_row);
+					    obstacles.insert(pair<PointStr,int>(point_temp,obstacle_count++));
+				    }
+                    
+                    if(cacheEmptyCells && (ng_oldCellValue == CellType::Empty))
+				    {
+					    PointStr point_temp(ng_col,ng_row);
+					
+					    delete_element(empty,point_temp);
+				    }
+                }
+                else{
+                    ng_data[ng_row][ng_col] = CellType::Empty;
+                    if(cacheEmptyCells){
+						PointStr point_temp(ng_col,ng_row);
+						empty.insert(pair<PointStr,int>(point_temp,empty_count++));
+					}
+                }
+				/*if(cacheObstacleCells){
 					PointStr point_temp(ng_col,ng_row);
 					obstacles.insert(pair<PointStr,int>(point_temp,obstacle_count++));
-				}
-				if(cacheEmptyCells && (ng_oldCellValue == CellType::Empty))
+				}*/
+				/*if(cacheEmptyCells && (ng_oldCellValue == CellType::Empty))
 				{
 					PointStr point_temp(ng_col,ng_row);
 					
@@ -194,20 +232,30 @@ bool ScaleMapService(
 					delete_element(empty,point_temp);
 					//empty.remove(cv::Point(ng_col,ng_row));
 //std::cout << __FILE__ << __LINE__ << std::endl;
-				}
+				}*/
 			}
 			else if(currentCellValue == CellType::Unexplored){
-				if(ng_oldCellValue != CellType::Obstacle){
-					ng_data[ng_row][ng_col] = CellType::Unexplored;
-					if(cacheEmptyCells && (ng_oldCellValue == CellType::Empty))
-					{
-						PointStr point_temp(ng_col,ng_row);
+                ROS_INFO("ng_data_temp:%d",ng_data_temp[ng_row][ng_col]);
+                if(ng_data_temp[ng_row][ng_col] >= (int)floor(SCALE_FACTOR*SCALE_FACTOR*scale_grid)){
+				    if(ng_oldCellValue != CellType::Obstacle){
+					    ng_data[ng_row][ng_col] = CellType::Unexplored;
+					    if(cacheEmptyCells && (ng_oldCellValue == CellType::Empty))
+					    {
+						    PointStr point_temp(ng_col,ng_row);
 //std::cout << __FILE__ << __LINE__ << std::endl;
-						delete_element(empty,point_temp);
+						    delete_element(empty,point_temp);
 						//empty.remove(cv::Point(ng_col,ng_row));
 //std::cout << __FILE__ << __LINE__ << std::endl;
+					    }
+				    }
+                }
+                else{
+                    ng_data[ng_row][ng_col] = CellType::Empty;
+                    if(cacheEmptyCells){
+						PointStr point_temp(ng_col,ng_row);
+						empty.insert(pair<PointStr,int>(point_temp,empty_count++));
 					}
-				}
+                }
 			}
 			else{
 				if((ng_oldCellValue != CellType::Obstacle) && (ng_oldCellValue != CellType::Unexplored)){
@@ -255,7 +303,7 @@ std::cout << "ng_data[i].size:" << ng_data[0].size() << std::endl;
 		for(int j = 0;j < ng_width;j++)
 		{
             if(ng_data[i][j] == -2)
-                ng_data[i][j] = 100;
+                ng_data[i][j] = 0;
 			ng_data_1d.push_back(ng_data[i][j]);
 		}
 	}
