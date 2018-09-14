@@ -17,6 +17,7 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   std_srvs
   tf
+  std_msgs
 )
 find_package(OpenCV REQUIRED)
 ## System dependencies are found with CMake's conventions
@@ -53,11 +54,10 @@ find_package(OpenCV REQUIRED)
 ##   * add every package in MSG_DEP_SET to generate_messages(DEPENDENCIES ...)
 
 ## Generate messages in the 'msg' folder
-# add_message_files(
-#   FILES
-#   Message1.msg
-#   Message2.msg
-# )
+add_message_files(
+   FILES
+   Pose2DArray.msg
+ )
 
 ## Generate services in the 'srv' folder
  add_service_files(
@@ -80,6 +80,7 @@ find_package(OpenCV REQUIRED)
    DEPENDENCIES
    geometry_msgs
 	 nav_msgs
+     std_msgs
  )
 
 ################################################
@@ -145,6 +146,7 @@ include_directories(
 ## The recommended prefix ensures that target names across packages don't collide
 add_executable(${PROJECT_NAME} src/potential_exploration.cpp)
 add_executable(potential_mission_node src/potential_mission.cpp)
+add_executable(potential_control_node src/potential_control.cpp)
 #add_executable(${PROJECT_NAME}_node src/potential_exploration_node.cpp)
 
 ## Rename C++ executable without prefix
@@ -167,6 +169,10 @@ target_link_libraries(${PROJECT_NAME}
    ${OpenCV_LIBS}
  )
 target_link_libraries(potential_mission_node
+   ${catkin_LIBRARIES}
+   ${OpenCV_LIBS}
+ )
+target_link_libraries(potential_control_node
    ${catkin_LIBRARIES}
    ${OpenCV_LIBS}
  )
