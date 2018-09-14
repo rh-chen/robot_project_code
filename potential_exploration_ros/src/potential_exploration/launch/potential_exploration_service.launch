@@ -1,6 +1,4 @@
 <launch>
-
     <node name="potential_exploration_service" pkg="potential_exploration" type="potential_exploration" output="screen">
     </node>
-
 </launch>

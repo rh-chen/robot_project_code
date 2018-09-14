@@ -16,6 +16,9 @@
 #include <sensor_msgs/PointCloud.h>
 #include <sensor_msgs/PointCloud2.h>
 #include <image_transport/image_transport.h>
+#include <nav_msgs/Odometry.h>
+#include <nav_msgs/OccupancyGrid.h>
+#include "visualization_msgs/Marker.h"
 
 #include <boost/thread/thread.hpp>
 #include <boost/make_shared.hpp>
@@ -30,40 +33,127 @@
 
 #include <tf/tf.h>
 #include "potential_exploration/GetNextFrontier.h"
-
+#include <potential_exploration/PotentialPlanner.h>
+#include <potential_exploration/CollisionChecker.h>
 #define L_PI 3.1415926
 
-namespace potential_exploration_ns{
 using namespace std;
 
-boost::mutex mtx;
-double robot_x, robot_y; 
-vector<vector<unsigned int> > projected_map; 
-
-struct Pixel{
+typedef struct Pixel{
     int x, y;
     Pixel(int x_in, int y_in){
-			x = x_in; y = y_in;
+			x = x_in; y = y_in; 
     }
+}strPixel;
+
+class potential_map{
+public:
+    boost::mutex mtx;
+
+    double map_resolution,map_origin_x,map_origin_y;
+    vector<vector<unsigned int> > projected_map;
+    ros::NodeHandle node_handle;
+
+    ros::Subscriber robot_pos_sub;
+    double robot_x, robot_y,robot_theta;
+
+    ros::Subscriber projected_map_sub;
+    ros::Publisher potential_map_pub;
+
+    int robot_pixel_i, robot_pixel_j;
+    nav_msgs::OccupancyGrid last_potential_map;
+    
+    ros::ServiceServer planning_srv;
+    ros::Publisher online_traj_pub;
+
+    ros::ServiceServer collision_srv;
+
+    //ros::ServiceServer potential_frontier_srv;
+
+    potential_map();
+    void projectedMapCallback(const nav_msgs::OccupancyGrid& msg);
+    
+    void odometryCallback(const nav_msgs::Odometry& msg);
+
+    bool planPathTo(potential_exploration::PotentialPlanner::Request& request,
+                    potential_exploration::PotentialPlanner::Response& response);
+
+    bool checkIfCollisionFree(potential_exploration::CollisionChecker::Request& request,
+                              potential_exploration::CollisionChecker::Response& response);
+
+    bool isWalkable(struct Pixel start, struct Pixel end);
+    
+    void publishRvizPath(const potential_exploration::PotentialPlanner::Response& response);
+
+    /*bool GetNextFrontier(potential_exploration::GetNextFrontier::Request &req,
+						 potential_exploration::GetNextFrontier::Response &res);
+
+    bool getFrontier(vector<vector<unsigned int> >& projected_map_,\
+                     double resolution_,\
+                     double origin_x_,\
+                     double origin_y_,\
+                     int n_frontier_,\
+                     double robot_theta_,\
+                     vector<geometry_msgs::Pose>& v_pose_);
+    */
+    //bool isInHistory(vector<PoseWeight>& v,PoseWeight& c,double th);
+
+    //bool isInHistoryGeometry(vector<geometry_msgs::Pose>& v,geometry_msgs::Pose& c,double th);
+    
+    double angle_wrap(double angle);
 };
 
-typedef struct pose_weight{
-   double x;
-   double y;
-   double w;
-   pose_weight(double x_,double y_,double w_)
-   {
-        x = x_;y = y_;w = w_;
-   }
-}PoseWeight;
+potential_map::potential_map()
+{
+    robot_x = 0; robot_y = 0,robot_theta = 0;
 
-void projectedMap(const nav_msgs::OccupancyGrid& msg,double robot_x_,double robot_y_){
+    last_potential_map = nav_msgs::OccupancyGrid();
+
+    robot_pos_sub = node_handle.subscribe("/odom", 10, &potential_map::odometryCallback, this);
+
+    projected_map_sub = node_handle.subscribe("/map", 1, &potential_map::projectedMapCallback, this);
+
+    potential_map_pub = node_handle.advertise<nav_msgs::OccupancyGrid>("/potential_map", 1);
+
+    planning_srv = node_handle.advertiseService("/sweeper/PotentialPlanner", &potential_map::planPathTo, this);
+    
+    online_traj_pub = node_handle.advertise<visualization_msgs::Marker> ("/sweeper/solution_path", 3, true);
+
+    collision_srv = node_handle.advertiseService("/sweeper/CollisionChecker", &potential_map::checkIfCollisionFree, this);
+
+    //potential_frontier_srv = node_handle.advertiseService("/sweeper/potential_frontier",&potential_map::GetNextFrontier,this);
+
+}
+
+void potential_map::odometryCallback(const nav_msgs::Odometry& msg){
+     mtx.lock();
+     robot_x = msg.pose.pose.position.x;
+     robot_y = msg.pose.pose.position.y;
+
+     tf::Quaternion q(msg.pose.pose.orientation.x,\
+                      msg.pose.pose.orientation.y,\
+                      msg.pose.pose.orientation.z,\
+                      msg.pose.pose.orientation.w);
+
+     double roll,pitch,yaw;
+     tf::Matrix3x3(q).getRPY(roll, pitch, yaw);
+     
+     robot_theta = angle_wrap(yaw);
+     mtx.unlock();
+}
+
+void potential_map::projectedMapCallback(const nav_msgs::OccupancyGrid& msg){
+    mtx.lock();
+
+    map_resolution = msg.info.resolution;
+    map_origin_x = msg.info.origin.position.x;
+    map_origin_y = msg.info.origin.position.y;
+
     //Resize the projected_map variable for new size
     projected_map.resize(msg.info.width);
     for(int i = 0; i < projected_map.size(); i++)
         projected_map[i].resize(msg.info.height, 0);
     
-
     //Copy map into 2D array and initialize inflation queue
     //IN: UNKNOWN -1, FREE 0, OCCUPIED 100
     //OUT: UNKNOWN 1, FREE 0, OCCUPIED 2
@@ -75,10 +165,10 @@ void projectedMap(const nav_msgs::OccupancyGrid& msg,double robot_x_,double robo
             if (msg.data[projected_map.size()*j + i] == 100){ 
                 projected_map[i][j] = 2;
                 //if obstacle add to queue for inflation
-                inflation_queue.push_back({i, j});
+                inflation_queue.push_back(Pixel(i, j));
 
             //Unknown    
-            }else if(msg.data[i +  projected_map.size()*j] == -1){ 
+            }else if(msg.data[projected_map.size()*j + i] == -1){ 
                 projected_map[i][j] = 1;
 
             //Free    
@@ -115,8 +205,8 @@ void projectedMap(const nav_msgs::OccupancyGrid& msg,double robot_x_,double robo
 
     //2. COMPUTE POTENTIAL
     //Put 3 in robot position (have to convert to pixel)
-    int robot_pixel_i = round((robot_x_ - msg.info.origin.position.x)/msg.info.resolution);
-    int robot_pixel_j = round((robot_y_ - msg.info.origin.position.y)/msg.info.resolution);
+    robot_pixel_i = round((robot_x - msg.info.origin.position.x)/msg.info.resolution);
+    robot_pixel_j = round((robot_y - msg.info.origin.position.y)/msg.info.resolution);
 
     if(robot_pixel_i < 0 || robot_pixel_i > msg.info.width ||
         robot_pixel_j < 0 || robot_pixel_j > msg.info.height){
@@ -147,8 +237,221 @@ void projectedMap(const nav_msgs::OccupancyGrid& msg,double robot_x_,double robo
         queue.pop_front();
     }
 
+    last_potential_map.header = msg.header;
+    last_potential_map.info = msg.info;
+    for(int j = 0; j < projected_map[0].size(); j++)
+        for(int i = 0; i < projected_map.size(); i++)
+            last_potential_map.data.push_back( projected_map[i][j]);
+    
+    potential_map_pub.publish(last_potential_map);  
+
+    mtx.unlock();
 }
-bool isInHistory(vector<PoseWeight>& v,PoseWeight& c,double th){
+bool potential_map::planPathTo(potential_exploration::PotentialPlanner::Request& request, 
+                               potential_exploration::PotentialPlanner::Response& response)
+{
+    mtx.lock();
+    float goal_x = request.goal_state_x,
+          goal_y = request.goal_state_y,
+          map_origin_x = last_potential_map.info.origin.position.x,
+          map_origin_y = last_potential_map.info.origin.position.y,
+          map_resolution = last_potential_map.info.resolution;
+
+    int goal_px_x = round((goal_x - map_origin_x)/map_resolution),
+        goal_px_y = round((goal_y - map_origin_y)/map_resolution);
+
+    if(projected_map[goal_px_x][goal_px_y] == 2){
+        ROS_ERROR("Goal is marked as occupied.");
+        mtx.unlock();
+        return false;
+    }
+
+    struct Pixel robot_cell = Pixel(robot_pixel_i, robot_pixel_j);
+    struct Pixel current_cell = Pixel(goal_px_x, goal_px_y);
+    vector<Pixel> pixel_path = vector<Pixel>();
+
+    int watchdog_count = 0;
+    int watchdog_max = 1500;
+
+    while(current_cell.x != robot_cell.x || current_cell.y != robot_cell.y){
+        //Add current_cell to path
+        pixel_path.push_back(current_cell);
+
+        //Init neighbourhood search
+        float min_potential = (float)INT_MAX;
+        float compare_potential = (float)INT_MAX; //Used for weighting the diagonals
+        struct Pixel min_pixel = Pixel(-1, -1);
+
+        //Prepare for loop limits
+        int i_start = std::max(0, current_cell.x-1);
+        int i_end = std::min(current_cell.x+2, (int)last_potential_map.info.width);
+
+        int j_start = std::max(0, current_cell.y-1);
+        int j_end = std::min(current_cell.y+2, (int)last_potential_map.info.height);
+
+        for(int i = i_start; i < i_end; i++){
+            for(int j = j_start; j < j_end; j++){
+                //Can be unknown or obstacle (1,2) or potential >= 3
+                if(projected_map[i][j] < 3) continue;
+
+                compare_potential = projected_map[i][j];
+                //Diagonal check (increase potential to make them less attractive)
+                if( (abs(i-current_cell.x) + abs(j-current_cell.y)) == 2 )
+                    compare_potential += 0.5;
+                
+                //Comparison
+                if(compare_potential <= min_potential){
+                    min_pixel.x = i; 
+                    min_pixel.y = j;
+                    min_potential = compare_potential;
+                }
+            }
+        }
+        //Update cell to add to path
+        current_cell = min_pixel;
+
+        //Watchdog anti-blocker
+        if(watchdog_count++ > watchdog_max){
+            ROS_WARN("No path found, max iter reached");
+            response.poses.clear(); 
+            mtx.unlock();
+            return false;
+        }
+    }
+
+
+    //GREEDY smoothing
+    vector<Pixel> pixel_path_smooth = vector<Pixel>();
+    pixel_path_smooth.push_back(pixel_path.back());
+
+    int segment_end_idx = pixel_path.size()-1;
+    while(segment_end_idx != 0){
+        for(int i = 0; i < segment_end_idx; i++){
+            if(isWalkable(pixel_path.at(i), 
+                          pixel_path.at(segment_end_idx)))
+            {   
+                //Add new point to smooth path
+                pixel_path_smooth.push_back(pixel_path.at(i));
+
+                //Reset search for segment until this one
+                segment_end_idx = i;
+
+                //Get out of loop
+                break;
+            }
+        }
+    }
+    // Reverse path to get start to goal path
+    std::reverse(pixel_path_smooth.begin(), pixel_path_smooth.end());
+
+    //Convert from pixel path (i,j) to pose path (x,y) for driver
+    geometry_msgs::Pose2D pose;
+    for(int i = 0; i < pixel_path_smooth.size(); i ++){
+        pose = geometry_msgs::Pose2D();
+        pose.x = pixel_path_smooth.at(i).x * map_resolution + map_origin_x;
+        pose.y = pixel_path_smooth.at(i).y * map_resolution + map_origin_y;
+        response.poses.insert(response.poses.begin(), pose);
+    }
+
+    publishRvizPath(response);
+
+    mtx.unlock();
+}
+
+//############################################
+// Collision checking
+
+bool potential_map::checkIfCollisionFree(potential_exploration::CollisionChecker::Request& request, 
+                                         potential_exploration::CollisionChecker::Response& response)
+{
+    mtx.lock();
+    float map_origin_x = last_potential_map.info.origin.position.x,
+          map_origin_y = last_potential_map.info.origin.position.y,
+          map_resolution = last_potential_map.info.resolution;
+
+    response.path_safe = true;
+
+    struct Pixel  start_px(-1, -1), end_px(-1,-1);
+    for(int i = 0; i < request.poses.size()-1; i++){
+        //Check each point in the way
+        start_px.x = round((request.poses.at(i).x - map_origin_x)/map_resolution);
+        start_px.y = round((request.poses.at(i).y - map_origin_y)/map_resolution);
+
+        end_px.x = round((request.poses.at(i+1).x - map_origin_x)/map_resolution);
+        end_px.y = round((request.poses.at(i+1).y - map_origin_y)/map_resolution);
+
+        if(!isWalkable(start_px, end_px)) {
+            response.path_safe = false; 
+            break;
+        }
+    }
+
+    mtx.unlock();
+    return true;
+}
+
+bool potential_map::isWalkable(struct Pixel start, struct Pixel end){
+    //Checks collision-free straight line from start to end
+
+    //Get vector between start and end
+    float path_x = end.x - start.x;
+    float path_y = end.y - start.y;
+    float path_length = std::sqrt(path_x*path_x + path_y*path_y);
+
+    //Prepare step increase
+    float step_length = 0.2;
+    float delta_x = step_length*(path_x/path_length); 
+    float delta_y = step_length*(path_y/path_length);
+
+    //Prepare checking loop
+    float check_point_x = start.x;
+    float check_point_y = start.y;
+    for(float i = 0; i < path_length; i += step_length){
+        //Obstacle == 2 in projected_map; <= 2 for obstacle + unknown space
+        if(projected_map.at(std::round(check_point_x)).at(std::round(check_point_y)) == 2) 
+            return false;
+
+        check_point_x += delta_x;
+        check_point_y += delta_y;
+    }
+
+    return true;
+}
+
+void potential_map::publishRvizPath(const potential_exploration::PotentialPlanner::Response& response){
+    //Send path to rviz
+    visualization_msgs::Marker m = visualization_msgs::Marker();
+
+    m.header.frame_id = "/odom";
+    m.header.stamp = ros::Time::now();
+    m.action = visualization_msgs::Marker::ADD;
+    m.pose.orientation.w = 1.0;
+    m.id = 0;
+    m.type = visualization_msgs::Marker::LINE_LIST;
+    m.scale.x = 0.02;
+
+    m.color.g = m.color.a = 1.0;  
+    m.ns = "potential_path";  
+
+    geometry_msgs::Point p;
+    for(int i = 1; i < response.poses.size(); i++){
+        //Build pose for marker display
+        p = geometry_msgs::Point();
+        p.x = response.poses[i].x;
+        p.y = response.poses[i].y;
+        p.z = 0.2;
+        m.points.push_back(p);
+
+        p = geometry_msgs::Point();
+        p.x = response.poses[i-1].x;
+        p.y = response.poses[i-1].y;
+        p.z = 0.2;
+        m.points.push_back(p);
+    }
+
+    online_traj_pub.publish(m);
+}
+/*bool potential_map::isInHistory(vector<PoseWeight>& v,PoseWeight& c,double th){
     bool flag = false;
     for(int i = 0;i < v.size();i++){
         int delta_x = v[i].x-c.x;
@@ -162,7 +465,22 @@ bool isInHistory(vector<PoseWeight>& v,PoseWeight& c,double th){
 
     return flag;
 }
-double angle_wrap(double angle){
+
+bool potential_map::isInHistoryGeometry(vector<geometry_msgs::Pose>& v,geometry_msgs::Pose& c,double th){
+    bool flag = false;
+    for(int i = 0;i < v.size();i++){
+        int delta_x = v[i].position.x-c.position.x;
+        int delta_y = v[i].position.y-c.position.y;
+
+        if(sqrt(delta_x*delta_x+delta_y*delta_y) < th){
+            flag = true;
+            break;
+        }   
+    }
+
+    return flag;
+}*/
+double potential_map::angle_wrap(double angle){
     double angle_res;
     if(angle > 0){
         double angle_temp = angle/(2*L_PI);
@@ -183,15 +501,12 @@ double angle_wrap(double angle){
     return angle_res;
 }
 
-bool cmp(const PoseWeight& a,const PoseWeight& b)
-{
-    return a.w < b.w;
-}
-bool getFrontier(vector<vector<unsigned int> >& projected_map_,\
+/*
+bool potential_map::getFrontier(vector<vector<unsigned int> >& projected_map_,\
                  double resolution_,\
-                 double origin_x,\
-                 double origin_y,\
-                 int n_frontier,\
+                 double origin_x_,\
+                 double origin_y_,\
+                 int n_frontier_,\
                  double robot_theta_,\
                  vector<geometry_msgs::Pose>& v_pose_){
     int w = projected_map_.size();
@@ -199,21 +514,8 @@ bool getFrontier(vector<vector<unsigned int> >& projected_map_,\
     
     ROS_INFO("projected_map_w:%d",w);
     ROS_INFO("projected_map_h:%d",h);
-#if 0    
-    for(int i = 0;i < w;i++){
-        for(int j = 0;j < h;j++){
-std::cout << __FILE__ << __LINE__ << std::endl;
-            printf("%d",projected_map[i][j]);
-std::cout << __FILE__ << __LINE__ << std::endl;
 
-            if(j == w-1)
-               printf("\n"); 
-        }
-    }
-#endif
     vector<PoseWeight> v_pose_weight;
-    double threshold_frontier = 0.6;
-
     for(int i = 2;i < w-1;i++){
         for(int j = 2;j < h-1;j++){
             if(projected_map_[i][j] < 3)
@@ -233,8 +535,8 @@ std::cout << __FILE__ << __LINE__ << std::endl;
               ((projected_map_[i+1][j] == 1) && (projected_map_[i][j+1] == 1)) || \
               ((projected_map_[i+1][j] == 1) && (projected_map_[i][j-1] == 1))
               ){
-                double frontier_x = i*resolution_+origin_x;
-                double frontier_y = j*resolution_+origin_y;
+                double frontier_x = i*resolution_+origin_x_;
+                double frontier_y = j*resolution_+origin_y_;
 
                 double angle_to_robot = fabs(angle_wrap(robot_theta_-\
                                         atan2(frontier_y-robot_y,frontier_x-robot_x)));
@@ -269,104 +571,40 @@ std::cout << __FILE__ << __LINE__ << std::endl;
     }
 
 }
-	bool GetNextFrontier(potential_exploration::GetNextFrontier::Request &req,
-						 potential_exploration::GetNextFrontier::Response &res){
+	bool potential_map::GetNextFrontier(potential_exploration::GetNextFrontier::Request &req,
+						                potential_exploration::GetNextFrontier::Response &res){
 		ROS_INFO("start potential exploration...");
-        if(req.map.info.width * req.map.info.height != req.map.data.size()){
-            ROS_ERROR("Invalid map size...");
-            return false;
-        }
-
-        if(req.map.info.resolution < 0){
-            ROS_ERROR("Invalid map resolution");
-            return false;
-        }
-        
-        if(req.n_frontier < 0){
-            ROS_ERROR("Invalid frontier number...");
-            return false;
-        }
-
-        robot_x = req.start.position.x;
-        robot_y = req.start.position.y;
-#if 0
-        nav_msgs::OccupancyGrid map_local = nav_msgs::OccupancyGrid();
-        map_local.info.origin.position.x = 0;
-        map_local.info.origin.position.y = 0;
-        map_local.info.origin.position.z = 0;
-        
-        map_local.info.resolution = 0.05;
-        map_local.info.width = 9;
-        map_local.info.height = 9;
-
-        int8_t map_data[81] = {
-            -1,-1,-1,-1,-1,-1,-1,-1,-1,
-            -1,-1,-1,-1,-1,-1,-1,-1,-1,
-            -1,-1,-1,-1,-1,-1,-1,-1,-1,
-            -1,-1,-1,0,0,0,0,0,-1,
-            -1,-1,100,0,0,0,0,-1,-1,
-            -1,-1,-1,0,0,0,0,0,-1,
-            -1,-1,-1,-1,0,0,0,0,-1,
-            -1,-1,-1,0,0,0,0,100,100,
-            -1,-1,-1,-1,-1,100,100,100,-1
-        };
-        vector<int8_t> map_data_(map_data,map_data+81);
-        map_local.data = map_data_;
-#endif
-        projectedMap(req.map,robot_x,robot_y);
-        
-        tf::Quaternion q(req.start.orientation.x,\
-                        req.start.orientation.y,\
-                        req.start.orientation.z,\
-                        req.start.orientation.w);
-
-        double roll,pitch,yaw;
-        tf::Matrix3x3(q).getRPY(roll, pitch, yaw);
-        
-        ROS_INFO("Roll:%f",roll);
-        ROS_INFO("Pitch:%f",pitch);
-        ROS_INFO("Yaw:%f",yaw);
 
         vector<geometry_msgs::Pose> v_pose;
         if(getFrontier(projected_map,\
-                       req.map.info.resolution,\
-                       req.map.info.origin.position.x,\
-                       req.map.info.origin.position.y,\
+                       map_resolution,\
+                       map_origin_x,\
+                       map_origin_y,\
                        req.n_frontier,\
-                       yaw,\
+                       robot_theta,\
                        v_pose)){
                 res.goal.poses = v_pose;
 
                 for(int i = 0;i < projected_map.size();i++)
                     vector<unsigned int>().swap(projected_map[i]);
                 vector<vector<unsigned int>>().swap(projected_map);
-
-    //std::cout << "project_map_size:" << projected_map.size() << std::endl;
-    //std::cout << "project_map_capacity:" << projected_map.capacity() << std::endl;
                 return true;
         }
         else{
-                for(int i = 0;i < projected_map.size();i++)
-                    vector<unsigned int>().swap(projected_map[i]);
-                vector<vector<unsigned int>>().swap(projected_map);
-    //std::cout << "project_map_size:" << projected_map.size() << std::endl;
-    //std::cout << "project_map_capacity:" << projected_map.capacity() << std::endl;
-                return false;
+            res.goal.poses = v_pose;
+            for(int i = 0;i < projected_map.size();i++)
+                vector<unsigned int>().swap(projected_map[i]);
+            vector<vector<unsigned int>>().swap(projected_map);
+            return true;
         }
 	}
-}
+*/
 int main(int argc, char **argv) {
-  ros::init(argc, argv, "potential_exploration_node");
+    ros::init(argc, argv, "potential_exploration_node");
 
-  ros::NodeHandle private_nh("~");
+    potential_map pm;
 
-  ros::ServiceServer potential_exploration_srv = private_nh.advertiseService(
-      "/sweeper/potential_exploration",
-      potential_exploration_ns::GetNextFrontier);
+    ros::spin();
 
-  ROS_INFO("Ready to get next frontier...");
-
-  ros::spin();
-
-  return (0);
+    return (0);
 }
