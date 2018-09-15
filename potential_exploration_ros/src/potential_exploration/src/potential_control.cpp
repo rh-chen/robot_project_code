@@ -63,6 +63,8 @@ class robot_control{
 };
 
 robot_control::robot_control(){
+   current_waypoint = geometry_msgs::Pose2D();
+
    driver_pub = node_handle.advertise<potential_exploration::Pose2DArray>("/controller_path",1);
    replan_pub = node_handle.advertise<std_msgs::Bool>("/mission_replan",1);
 

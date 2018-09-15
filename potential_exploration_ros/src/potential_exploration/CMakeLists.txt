@@ -147,6 +147,7 @@ include_directories(
 add_executable(${PROJECT_NAME} src/potential_exploration.cpp)
 add_executable(potential_mission_node src/potential_mission.cpp)
 add_executable(potential_control_node src/potential_control.cpp)
+add_executable(potential_driver_node src/potential_driver.cpp)
 #add_executable(${PROJECT_NAME}_node src/potential_exploration_node.cpp)
 
 ## Rename C++ executable without prefix
@@ -173,6 +174,10 @@ target_link_libraries(potential_mission_node
    ${OpenCV_LIBS}
  )
 target_link_libraries(potential_control_node
+   ${catkin_LIBRARIES}
+   ${OpenCV_LIBS}
+ )
+target_link_libraries(potential_driver_node
    ${catkin_LIBRARIES}
    ${OpenCV_LIBS}
  )

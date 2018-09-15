@@ -19,7 +19,7 @@
 #include <nav_msgs/Odometry.h>
 #include <nav_msgs/OccupancyGrid.h>
 #include "visualization_msgs/Marker.h"
-
+#include "std_msgs/Bool.h"
 #include <boost/thread/thread.hpp>
 #include <boost/make_shared.hpp>
 
@@ -83,6 +83,7 @@ class MissionHandle{
     public:
         boost::mutex mtx;
         bool needs_new_frontier;
+        bool next_frontier_random;
         bool fresh_frontiers;
 
         geometry_msgs::Pose2D current_wp;
@@ -94,6 +95,7 @@ class MissionHandle{
 
         ros::Subscriber odometry_sub;
         ros::Subscriber potential_map_sub;
+        ros::Subscriber replan_sub;
         ros::ServiceServer frontier_srv;
 
         MissionHandle();
@@ -110,13 +112,36 @@ class MissionHandle{
         void addWaypointToHistory(vector<geometry_msgs::Pose2D>& v,geometry_msgs::Pose2D& c);
         void proposeWaypoints();
         void updateCurrentWaypoint();
+        void replanCallback(const std_msgs::Bool& msg);
 };
 
 MissionHandle::MissionHandle(){
+   needs_new_frontier = true;
+   next_frontier_random  = false;
+   fresh_frontiers = false;
+
+   robot_x = 0;
+   robot_y = 0;
+   robot_theta = 0;
+
+   current_wp = geometry_msgs::Pose2D();
+
    odometry_sub = node_handle.subscribe("/odom",100,&MissionHandle::odometryCallback,this);
    potential_map_sub = node_handle.subscribe("/potential_map",100,&MissionHandle::frontierCallback,this);
+   replan_sub = node_handle.subscribe("/mission_replan",100,&MissionHandle::replanCallback,this);
 }
 
+void MissionHandle::replanCallback(const std_msgs::Bool& msg){
+    mtx.lock();
+    if(msg.data){
+        needs_new_frontier = true;
+        next_frontier_random = true;
+    }
+    else
+        needs_new_frontier = true;
+
+    mtx.unlock();
+}
 void MissionHandle::odometryCallback(const nav_msgs::Odometry& msg){
    mtx.lock();
    robot_x = msg.pose.pose.position.x;
@@ -285,14 +310,20 @@ void MissionHandle::proposeWaypoints(){
     bool found_waypoint = false;
     int waypoints_tried = 0;
     while((!found_waypoint) && (waypoints_tried < 2*frontiers.size())){
+
         sort(frontiers.begin(),frontiers.end(),cmp);
+        int row_min;
+        if(!next_frontier_random)
+            row_min = 0;
+        else
+            row_min = std::rand()%(frontiers.size()-1);
 
         geometry_msgs::Pose2D msg_pose = geometry_msgs::Pose2D();
-        msg_pose.x = frontiers[0].x;
-        msg_pose.y = frontiers[0].y;
+        msg_pose.x = frontiers[row_min].x;
+        msg_pose.y = frontiers[row_min].y;
     
         if((waypoints_tried < frontiers.size()) && (isWaypointInHistory(wp_history,msg_pose,waypoint_threshold))){
-            frontiers[0].w *= 10;
+            frontiers[row_min].w *= 10;
             waypoints_tried += 1;
             continue;
         }
@@ -313,13 +344,13 @@ void MissionHandle::proposeWaypoints(){
                 found_waypoint = true;
             }
             else{
-                frontiers[0].w *= 10;
+                frontiers[row_min].w *= 10;
                 waypoints_tried += 1;
             }
     }
     
     fresh_frontiers = false;
-    
+    next_frontier_random = false; 
     mtx.unlock();
 }
 
