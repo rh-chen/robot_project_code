@@ -45,11 +45,14 @@ typedef struct Pixel{
 			x = x_in; y = y_in; 
     }
 }strPixel;
-
 class potential_map{
 public:
-    boost::mutex mtx;
-
+    boost::mutex mtx0;
+    boost::mutex mtx1;
+    boost::mutex mtx2;
+    boost::mutex mtx3;
+    boost::mutex mtx4;
+	
     double map_resolution,map_origin_x,map_origin_y;
     vector<vector<unsigned int> > projected_map;
     ros::NodeHandle node_handle;
@@ -126,7 +129,7 @@ potential_map::potential_map()
 }
 
 void potential_map::odometryCallback(const nav_msgs::Odometry& msg){
-     mtx.lock();
+     mtx0.lock();
      robot_x = msg.pose.pose.position.x;
      robot_y = msg.pose.pose.position.y;
 
@@ -139,15 +142,18 @@ void potential_map::odometryCallback(const nav_msgs::Odometry& msg){
      tf::Matrix3x3(q).getRPY(roll, pitch, yaw);
      
      robot_theta = angle_wrap(yaw);
-     mtx.unlock();
+     mtx0.unlock();
 }
 
 void potential_map::projectedMapCallback(const nav_msgs::OccupancyGrid& msg){
-    mtx.lock();
-
+    mtx1.lock();
+//std::cout << __FILE__ << __LINE__ << std::endl;
     map_resolution = msg.info.resolution;
     map_origin_x = msg.info.origin.position.x;
     map_origin_y = msg.info.origin.position.y;
+
+    ROS_INFO("map_width:%d",(int)msg.info.width);
+    ROS_INFO("map_height:%d",(int)msg.info.height);
 
     //Resize the projected_map variable for new size
     projected_map.resize(msg.info.width);
@@ -211,7 +217,7 @@ void potential_map::projectedMapCallback(const nav_msgs::OccupancyGrid& msg){
     if(robot_pixel_i < 0 || robot_pixel_i > msg.info.width ||
         robot_pixel_j < 0 || robot_pixel_j > msg.info.height){
         ROS_ERROR("Robot outside of projected_map");
-        mtx.unlock();
+        mtx1.unlock();
         return;
     }
 
@@ -239,18 +245,27 @@ void potential_map::projectedMapCallback(const nav_msgs::OccupancyGrid& msg){
 
     last_potential_map.header = msg.header;
     last_potential_map.info = msg.info;
+    vector<signed char> vec_data;
     for(int j = 0; j < projected_map[0].size(); j++)
         for(int i = 0; i < projected_map.size(); i++)
-            last_potential_map.data.push_back( projected_map[i][j]);
-    
-    potential_map_pub.publish(last_potential_map);  
+            vec_data.push_back(projected_map[i][j]);
 
-    mtx.unlock();
+    last_potential_map.data = vec_data;
+
+    potential_map_pub.publish(last_potential_map);  
+    /*for(int i = 0;i < projected_map.size();i++)
+	vector<unsigned int>().swap(projected_map[i]);
+    vector<vector<unsigned int>>().swap(projected_map);
+    */
+    vector<signed char>().swap(vec_data);    
+//std::cout << __FILE__ << __LINE__ << std::endl;
+    mtx1.unlock();
 }
 bool potential_map::planPathTo(potential_exploration::PotentialPlanner::Request& request, 
                                potential_exploration::PotentialPlanner::Response& response)
 {
-    mtx.lock();
+    mtx2.lock();
+//std::cout << __FILE__ << __LINE__ << std::endl;
     float goal_x = request.goal_state_x,
           goal_y = request.goal_state_y,
           map_origin_x = last_potential_map.info.origin.position.x,
@@ -260,12 +275,16 @@ bool potential_map::planPathTo(potential_exploration::PotentialPlanner::Request&
     int goal_px_x = round((goal_x - map_origin_x)/map_resolution),
         goal_px_y = round((goal_y - map_origin_y)/map_resolution);
 
+    ROS_INFO("goal_px_x:%d",goal_px_x);
+    ROS_INFO("goal_px_y:%d",goal_px_y);
+//std::cout << __FILE__ << __LINE__ << std::endl;
     if(projected_map[goal_px_x][goal_px_y] == 2){
         ROS_ERROR("Goal is marked as occupied.");
-        mtx.unlock();
+        mtx2.unlock();
         return false;
     }
 
+//std::cout << __FILE__ << __LINE__ << std::endl;
     struct Pixel robot_cell = Pixel(robot_pixel_i, robot_pixel_j);
     struct Pixel current_cell = Pixel(goal_px_x, goal_px_y);
     vector<Pixel> pixel_path = vector<Pixel>();
@@ -277,6 +296,7 @@ bool potential_map::planPathTo(potential_exploration::PotentialPlanner::Request&
         //Add current_cell to path
         pixel_path.push_back(current_cell);
 
+//std::cout << __FILE__ << __LINE__ << std::endl;
         //Init neighbourhood search
         float min_potential = (float)INT_MAX;
         float compare_potential = (float)INT_MAX; //Used for weighting the diagonals
@@ -289,6 +309,7 @@ bool potential_map::planPathTo(potential_exploration::PotentialPlanner::Request&
         int j_start = std::max(0, current_cell.y-1);
         int j_end = std::min(current_cell.y+2, (int)last_potential_map.info.height);
 
+//std::cout << __FILE__ << __LINE__ << std::endl;
         for(int i = i_start; i < i_end; i++){
             for(int j = j_start; j < j_end; j++){
                 //Can be unknown or obstacle (1,2) or potential >= 3
@@ -310,16 +331,18 @@ bool potential_map::planPathTo(potential_exploration::PotentialPlanner::Request&
         //Update cell to add to path
         current_cell = min_pixel;
 
+//std::cout << __FILE__ << __LINE__ << std::endl;
         //Watchdog anti-blocker
         if(watchdog_count++ > watchdog_max){
             ROS_WARN("No path found, max iter reached");
             response.poses.clear(); 
-            mtx.unlock();
+            mtx2.unlock();
             return false;
         }
     }
 
 
+//std::cout << __FILE__ << __LINE__ << std::endl;
     //GREEDY smoothing
     vector<Pixel> pixel_path_smooth = vector<Pixel>();
     pixel_path_smooth.push_back(pixel_path.back());
@@ -344,6 +367,7 @@ bool potential_map::planPathTo(potential_exploration::PotentialPlanner::Request&
     // Reverse path to get start to goal path
     std::reverse(pixel_path_smooth.begin(), pixel_path_smooth.end());
 
+//std::cout << __FILE__ << __LINE__ << std::endl;
     //Convert from pixel path (i,j) to pose path (x,y) for driver
     geometry_msgs::Pose2D pose;
     for(int i = 0; i < pixel_path_smooth.size(); i ++){
@@ -353,9 +377,11 @@ bool potential_map::planPathTo(potential_exploration::PotentialPlanner::Request&
         response.poses.insert(response.poses.begin(), pose);
     }
 
-    publishRvizPath(response);
+    //publishRvizPath(response);
 
-    mtx.unlock();
+//std::cout << __FILE__ << __LINE__ << std::endl;
+    mtx2.unlock();
+    return true;
 }
 
 //############################################
@@ -364,7 +390,8 @@ bool potential_map::planPathTo(potential_exploration::PotentialPlanner::Request&
 bool potential_map::checkIfCollisionFree(potential_exploration::CollisionChecker::Request& request, 
                                          potential_exploration::CollisionChecker::Response& response)
 {
-    mtx.lock();
+    mtx3.lock();
+//std::cout << __FILE__ << __LINE__ << std::endl;
     float map_origin_x = last_potential_map.info.origin.position.x,
           map_origin_y = last_potential_map.info.origin.position.y,
           map_resolution = last_potential_map.info.resolution;
@@ -386,13 +413,15 @@ bool potential_map::checkIfCollisionFree(potential_exploration::CollisionChecker
         }
     }
 
-    mtx.unlock();
+//std::cout << __FILE__ << __LINE__ << std::endl;
+    mtx3.unlock();
     return true;
 }
 
 bool potential_map::isWalkable(struct Pixel start, struct Pixel end){
     //Checks collision-free straight line from start to end
 
+//std::cout << __FILE__ << __LINE__ << std::endl;
     //Get vector between start and end
     float path_x = end.x - start.x;
     float path_y = end.y - start.y;
@@ -415,6 +444,7 @@ bool potential_map::isWalkable(struct Pixel start, struct Pixel end){
         check_point_y += delta_y;
     }
 
+//std::cout << __FILE__ << __LINE__ << std::endl;
     return true;
 }
 

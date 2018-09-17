@@ -44,6 +44,10 @@ using namespace std;
 class robot_control{
     public:
         boost::mutex mtx;
+	boost::mutex mtx1;
+	boost::mutex mtx2;
+	boost::mutex mtx3;
+
         ros::NodeHandle node_handle;
 
         geometry_msgs::Pose2D current_waypoint;
@@ -53,6 +57,8 @@ class robot_control{
         ros::Publisher replan_pub;
 
         ros::ServiceServer waypoint_proposition_srv;
+	ros::ServiceClient pp_client;
+	ros::ServiceClient ck_client;
 
         robot_control();
         bool planPathAndFollow();
@@ -70,13 +76,16 @@ robot_control::robot_control(){
 
    waypoint_proposition_srv = \
                     node_handle.advertiseService("/sweeper/WaypointProposition", &robot_control::waypointCallback, this);
+   pp_client = \
+          node_handle.serviceClient<potential_exploration::PotentialPlanner>("/sweeper/PotentialPlanner");
+   ck_client = \
+          node_handle.serviceClient<potential_exploration::CollisionChecker>("/sweeper/CollisionChecker");
 }
 
 bool robot_control::planPathAndFollow(){
     mtx.lock();
-    
-    ros::ServiceClient pp_client = \
-                       node_handle.serviceClient<potential_exploration::PotentialPlanner>("/sweeper/PotentialPlanner");
+   
+    vector<geometry_msgs::Pose2D>().swap(current_path); 
     potential_exploration::PotentialPlanner pp_srv;
     pp_srv.request.goal_state_x = current_waypoint.x;
     pp_srv.request.goal_state_y = current_waypoint.y;
@@ -99,29 +108,37 @@ bool robot_control::planPathAndFollow(){
 }
 bool robot_control::waypointCallback(potential_exploration::WaypointProposition::Request& req,
                                      potential_exploration::WaypointProposition::Response& res){
-    mtx.lock();
+    mtx1.lock();
+    ROS_INFO("way point call back...");
+    ROS_INFO("req.waypoint.x,req.waypoint.y:%f,%f",req.waypoint.x,req.waypoint.y);
     current_waypoint.x = req.waypoint.x;
     current_waypoint.y = req.waypoint.y;
-    mtx.unlock();
-    bool plan_path_res = planPathAndFollow();
+
+    bool plan_path_res = false;
+    plan_path_res = planPathAndFollow();
     
     if(plan_path_res){
         res.accepted = true;
+	ROS_INFO("call /sweeper/PotentialPlanner success...");
+	mtx1.unlock();
         return true;
     }
-    else
+    else{
+	res.accepted = false;
+	ROS_INFO("call /sweeper/PotentialPlanner fail...");
+	mtx1.unlock();
         return false;
+    }
 }
 bool robot_control::isPathStillSafe(){
-    mtx.lock();
-
+    mtx2.lock();
+    ROS_INFO("is or not path still safe...");
+    ROS_INFO("current_path_size:%d",(int)current_path.size());
     if(current_path.size() <= 0){
-        mtx.unlock();
+        mtx2.unlock();
         return true;
     }
 
-    ros::ServiceClient ck_client = \
-                       node_handle.serviceClient<potential_exploration::CollisionChecker>("/sweeper/CollisionChecker");
     potential_exploration::CollisionChecker ck_srv;
 
     ck_srv.request.poses = current_path;
@@ -129,13 +146,18 @@ bool robot_control::isPathStillSafe(){
     bool ck_res = ck_client.call(ck_srv);
 
     if(ck_res)
-        if(ck_srv.response.path_safe)
+        if(ck_srv.response.path_safe){
+	    mtx2.unlock();
             return true;
-        else
+	}
+        else{
+	    mtx2.unlock();
             return false;
-    else
+	}
+    else{
+	mtx2.unlock();
         return false;
-
+    }
 }
 void robot_control::requestNewWaypoint(){
    std_msgs::Bool bl;
@@ -150,7 +172,9 @@ int main(int argc, char **argv) {
 
     ros::Rate r(100);
     while(ros::ok()){
+	ROS_INFO("potential control loop ...");
         if(!rc.isPathStillSafe()){
+	    ROS_INFO("path not safe,recalcalating...");
             int num_tries = 0;
             while(!rc.planPathAndFollow()){
                 ros::Duration(0.5).sleep();
@@ -163,6 +187,15 @@ int main(int argc, char **argv) {
                 }
             }
         }
+	else{
+	    ROS_INFO("publishing current path...");
+	    potential_exploration::Pose2DArray msg;
+	    for(int i = 0;i < rc.current_path.size();i++){
+                msg.poses.push_back(rc.current_path[i]);
+            }
+	    
+            rc.driver_pub.publish(msg);
+	}
         ros::spinOnce();
         r.sleep();
     }
