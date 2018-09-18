@@ -44,6 +44,8 @@ using namespace std;
 class potential_driver{
    public:
         boost::mutex mtx;
+        boost::mutex mtx1;
+        boost::mutex mtx2;
 
         ros::NodeHandle node_handle;
         ros::Publisher vel_pub;
@@ -179,7 +181,9 @@ void potential_driver::odometryCallback(const nav_msgs::Odometry& msg){
 }
 
 void potential_driver::pathCallback(const potential_exploration::Pose2DArray& msg){
-    mtx.lock();
+    mtx1.lock();
+    ROS_INFO("call path Call back...");
+    ROS_INFO("path_poses_size:%d",(int)msg.poses.size());
     if(msg.poses.size() == 0){
         follow_path = false;
         if(goals_x.size() != 0)
@@ -205,7 +209,8 @@ void potential_driver::pathCallback(const potential_exploration::Pose2DArray& ms
        follow_path = true;
     }
 
-    mtx.unlock();
+    ROS_INFO("call path Call back end...");
+    mtx1.unlock();
 }
 
 void potential_driver::compute_velocity(){
@@ -235,27 +240,31 @@ void potential_driver::compute_velocity(){
 }
 
 void potential_driver::loop(){
-    mtx.lock();
-    if(last_inactive != ros::Time(0)){
+    mtx2.lock();
+    if(last_inactive != ros::Time(0))
         if((ros::Time::now()-last_inactive).toSec() > inactive_thresh){
             requestReplan(true);
+	    ROS_INFO("call requestReplan ...");
             last_inactive = ros::Time(0);
         }
-    }
+    if(follow_path)
+	ROS_INFO("follow the path...");
+    else
+	ROS_INFO("not follow the path...");
 
     if(follow_path){
         check_goal();
         compute_velocity();
         vel_pub.publish(vmsg);
     }
-    mtx.unlock();
+    mtx2.unlock();
 }
 int main(int argc, char **argv) {
     ros::init(argc, argv, "potential_driver_node");
     
     potential_driver pd;
     
-    ros::Rate r(30);
+    ros::Rate r(5);
     while(ros::ok()){
         pd.loop();
         ros::spinOnce();

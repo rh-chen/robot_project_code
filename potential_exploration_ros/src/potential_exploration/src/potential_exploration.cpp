@@ -185,7 +185,7 @@ void potential_map::projectedMapCallback(const nav_msgs::OccupancyGrid& msg){
     }
 
     //1. INFLATE OBSTACLES
-    int inflate = 1;
+    int inflate = 3;
     deque<Pixel> inflation_queue2;
 
     for(int n = 0; n < inflate; n++){
@@ -277,14 +277,23 @@ bool potential_map::planPathTo(potential_exploration::PotentialPlanner::Request&
 
     ROS_INFO("goal_px_x:%d",goal_px_x);
     ROS_INFO("goal_px_y:%d",goal_px_y);
-//std::cout << __FILE__ << __LINE__ << std::endl;
+if(goal_px_x >= last_potential_map.info.width || goal_px_x < 0){
+	ROS_WARN("goal is outside map...");
+	mtx2.unlock();
+	return false;
+    }
+if(goal_px_y >= last_potential_map.info.height || goal_px_y < 0){
+	ROS_WARN("goal is outside map...");
+	mtx2.unlock();
+	return false;
+    }
+std::cout << __FILE__ << __LINE__ << std::endl;
     if(projected_map[goal_px_x][goal_px_y] == 2){
         ROS_ERROR("Goal is marked as occupied.");
         mtx2.unlock();
         return false;
     }
-
-//std::cout << __FILE__ << __LINE__ << std::endl;
+std::cout << __FILE__ << __LINE__ << std::endl;
     struct Pixel robot_cell = Pixel(robot_pixel_i, robot_pixel_j);
     struct Pixel current_cell = Pixel(goal_px_x, goal_px_y);
     vector<Pixel> pixel_path = vector<Pixel>();
@@ -331,18 +340,20 @@ bool potential_map::planPathTo(potential_exploration::PotentialPlanner::Request&
         //Update cell to add to path
         current_cell = min_pixel;
 
-//std::cout << __FILE__ << __LINE__ << std::endl;
+std::cout << __FILE__ << __LINE__ << std::endl;
         //Watchdog anti-blocker
         if(watchdog_count++ > watchdog_max){
             ROS_WARN("No path found, max iter reached");
-            response.poses.clear(); 
+            response.poses.clear();
+ 
+std::cout << __FILE__ << __LINE__ << std::endl;
             mtx2.unlock();
             return false;
         }
     }
 
 
-//std::cout << __FILE__ << __LINE__ << std::endl;
+std::cout << __FILE__ << __LINE__ << std::endl;
     //GREEDY smoothing
     vector<Pixel> pixel_path_smooth = vector<Pixel>();
     pixel_path_smooth.push_back(pixel_path.back());
@@ -391,7 +402,7 @@ bool potential_map::checkIfCollisionFree(potential_exploration::CollisionChecker
                                          potential_exploration::CollisionChecker::Response& response)
 {
     mtx3.lock();
-//std::cout << __FILE__ << __LINE__ << std::endl;
+std::cout << __FILE__ << __LINE__ << std::endl;
     float map_origin_x = last_potential_map.info.origin.position.x,
           map_origin_y = last_potential_map.info.origin.position.y,
           map_resolution = last_potential_map.info.resolution;
@@ -413,7 +424,7 @@ bool potential_map::checkIfCollisionFree(potential_exploration::CollisionChecker
         }
     }
 
-//std::cout << __FILE__ << __LINE__ << std::endl;
+std::cout << __FILE__ << __LINE__ << std::endl;
     mtx3.unlock();
     return true;
 }

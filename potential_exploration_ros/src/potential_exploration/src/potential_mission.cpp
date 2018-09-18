@@ -53,11 +53,18 @@ typedef struct pose_weight{
    }
 }PoseWeight;
 
-bool cmp(const PoseWeight& a,const PoseWeight& b)
+/*bool poseWeightCmp(const PoseWeight& a,const PoseWeight& b)
 {
     return a.w < b.w;
-}
+}*/
+class poseWeightCmp{
+    public:
+        bool operator()(PoseWeight const &a,PoseWeight const &b)const
+        {
+            return a.w < b.w;
+        }
 
+};
 double angle_wrap(double angle){
     double angle_res;
     if(angle > 0){
@@ -94,15 +101,15 @@ class MissionHandle{
         geometry_msgs::Pose2D current_wp;
         double robot_x,robot_y,robot_theta;
 
-        vector<PoseWeight> frontiers;
-
+        //vector<PoseWeight> frontiers;
+	    std::map<PoseWeight,int,poseWeightCmp> frontiers;
         ros::NodeHandle node_handle;
 
         ros::Subscriber odometry_sub;
         ros::Subscriber potential_map_sub;
         ros::Subscriber replan_sub;
         ros::ServiceServer frontier_srv;
-    	ros::ServiceClient waypoint_propose_client;
+	ros::ServiceClient waypoint_propose_client;
 
         MissionHandle();
         void odometryCallback(const nav_msgs::Odometry& msg);
@@ -112,8 +119,7 @@ class MissionHandle{
                          double origin_x_,\
                          double origin_y_,\
                          int n_frontier_,\
-                         double robot_theta_,\
-                         vector<PoseWeight>& v_pose_);
+                         double robot_theta_);
         bool isWaypointInHistory(vector<geometry_msgs::Pose2D>& v,geometry_msgs::Pose2D& c,double th);
         void addWaypointToHistory(vector<geometry_msgs::Pose2D>& v,geometry_msgs::Pose2D& c);
         void proposeWaypoints();
@@ -143,6 +149,7 @@ MissionHandle::MissionHandle(){
 void MissionHandle::replanCallback(const std_msgs::Bool& msg){
     mtx.lock();
     if(msg.data){
+	ROS_INFO("call mission replan,next frontier random  ...");
         needs_new_frontier = true;
         next_frontier_random = true;
     }
@@ -172,8 +179,7 @@ bool MissionHandle::getFrontier(vector<vector<unsigned int> >& projected_map_,\
                  double origin_x_,\
                  double origin_y_,\
                  int n_frontier_,\
-                 double robot_theta_,\
-                 vector<PoseWeight>& v_pose_){
+                 double robot_theta_){
     int w = projected_map_.size();
     int h = projected_map_[0].size();
     
@@ -191,7 +197,8 @@ std::cout << __FILE__ << __LINE__ << std::endl;
         }
     }
 #endif
-    vector<PoseWeight> v_pose_weight;
+    frontiers.clear();
+    int key = 0;
     for(int i = 2;i < w-1;i++){
         for(int j = 2;j < h-1;j++){
             if(projected_map_[i][j] < 3)
@@ -212,6 +219,7 @@ std::cout << __FILE__ << __LINE__ << std::endl;
               ((projected_map_[i+1][j] == 1) && (projected_map_[i][j-1] == 1))
               )
               {
+		key++;
                 double frontier_x = i*resolution_+origin_x_;
                 double frontier_y = j*resolution_+origin_y_;
 
@@ -221,17 +229,18 @@ std::cout << __FILE__ << __LINE__ << std::endl;
                 double frontier_weight = projected_map_[i][j]*(1+0.8*std::exp(-2.0/angle_to_robot));
                 
                 PoseWeight pw(frontier_x,frontier_y,frontier_weight);
-                v_pose_weight.push_back(pw);
+                //v_pose_weight.push_back(pw);
+		frontiers.insert(pair<PoseWeight,int>(pw,key));
              }
         }
     }
-    sort(v_pose_weight.begin(),v_pose_weight.end(),cmp);
+    //sort(v_pose_weight.begin(),v_pose_weight.end(),poseWeightCmp);
     
-    if(v_pose_weight.size() > 0){
-        ROS_INFO("Find enough frontier:%d",(int)v_pose_weight.size());
-        for(int i = 0;i < v_pose_weight.size();i++){
+    if(frontiers.size() > 0){
+        ROS_INFO("Find enough frontier:%d",(int)frontiers.size());
+        /*for(int i = 0;i < v_pose_weight.size();i++){
             v_pose_.push_back(PoseWeight(v_pose_weight[i].x,v_pose_weight[i].y,v_pose_weight[i].w));
-        }
+        }*/
 
         return true;
     }
@@ -276,14 +285,12 @@ void MissionHandle::frontierCallback(const nav_msgs::OccupancyGrid& msg){
             }
         }
 	
-	vector<PoseWeight>().swap(frontiers);
         if(getFrontier(projected_map,\
                        msg.info.resolution,\
                        msg.info.origin.position.x,\
                        msg.info.origin.position.y,\
                        0,\
-                       robot_theta,\
-                       frontiers)){
+                       robot_theta)){
 
                 for(int i = 0;i < projected_map.size();i++)
                     vector<unsigned int>().swap(projected_map[i]);
@@ -335,20 +342,27 @@ void MissionHandle::proposeWaypoints(){
     while((!found_waypoint) && (waypoints_tried < frontiers.size())){
 	ROS_INFO("waypoints_tried:%d",(int)waypoints_tried);
 	ROS_INFO("frontiers_size:%d",(int)frontiers.size());
-        sort(frontiers.begin(),frontiers.end(),cmp);
+        //sort(frontiers.begin(),frontiers.end(),cmp);
         int row_min;
         if(!next_frontier_random)
             row_min = 0;
         else
             row_min = std::rand()%(frontiers.size()-1);
 	
+    	
+	map<PoseWeight,int>::iterator frontier_iter = frontiers.begin();
+    while(row_min > 0){
+        row_min--;
+        frontier_iter++;
+    }
 	ROS_INFO("row_min:%d",row_min);
         geometry_msgs::Pose2D msg_pose = geometry_msgs::Pose2D();
-        msg_pose.x = frontiers[row_min].x;
-        msg_pose.y = frontiers[row_min].y;
+        msg_pose.x = frontier_iter->first.x;
+        msg_pose.y = frontier_iter->first.y;
     
         if((waypoints_tried < frontiers.size()) && (isWaypointInHistory(wp_history,msg_pose,waypoint_threshold))){
-            frontiers[row_min].w *= 10;
+            //frontiers[row_min].w *= 10;
+            //frontier_iter->first.w *= 10;
             waypoints_tried += 1;
             continue;
         }
@@ -361,18 +375,23 @@ void MissionHandle::proposeWaypoints(){
         wp_res = waypoint_propose_client.call(wp_srv);
 	if(wp_res)
 		ROS_INFO("call /sweeper/WaypointProposition success...");
-	else
+	else{
 		ROS_INFO("call /sweeper/WaypointProposition fail...");
-    if(wp_srv.response.accepted){
-        current_wp.x = msg_pose.x;
-        current_wp.y = msg_pose.y;
-        needs_new_frontier = false;
-        found_waypoint = true;
-    }
-    else{
-        frontiers[row_min].w *= 10;
-        waypoints_tried += 1;
+		map<PoseWeight,int>::iterator iter;
+		iter = frontiers.find(frontier_iter->first);
+		frontiers.erase(iter);
+	}
+        if(wp_srv.response.accepted){
+                current_wp.x = msg_pose.x;
+                current_wp.y = msg_pose.y;
+                needs_new_frontier = false;
+                found_waypoint = true;
         }
+       	else{
+                //frontiers[row_min].w *= 10;
+                //frontier_iter->first.w *= 10;
+                waypoints_tried += 1;
+       	}
     }
 #endif    
     fresh_frontiers = false;
@@ -390,15 +409,16 @@ void MissionHandle::updateCurrentWaypoint(){
         
     ROS_INFO("robot_x,robot_y:%f,%f",robot_x,robot_y);
     ROS_INFO("current_wp.x,current_wp.y:%f,%f",current_wp.x,current_wp.y);
-    for(int i = 0;i < frontiers.size();i++){
-        if(fabs(current_wp.x-frontiers[i].x) < 0.04 && \
-           fabs(current_wp.y-frontiers[i].y) < 0.04){
+    for(map<PoseWeight,int>::iterator it = frontiers.begin();it != frontiers.end();it++)
+    {
+        if(fabs(current_wp.x-it->first.x) < 0.04 && \
+           fabs(current_wp.y-it->first.y) < 0.04){
                 if(std::sqrt(std::pow(current_wp.x-robot_x,2)+std::pow(current_wp.y-robot_y,2)) < 0.2){
                     addWaypointToHistory(wp_history,current_wp);
                     break;
                 }
                 else{
-		            ROS_INFO("update current waypoint return...");
+		    ROS_INFO("update current waypoint return...");
                     mtx4.unlock();
                     return;
                 }
@@ -416,7 +436,7 @@ int main(int argc, char **argv) {
 
     MissionHandle mh;
    
-    ros::Rate r(100);
+    ros::Rate r(5);
     while(ros::ok()){
 	ROS_INFO("mission handle loop ...");
 	ROS_INFO("needs_new_frontier:%d",(int)mh.needs_new_frontier);

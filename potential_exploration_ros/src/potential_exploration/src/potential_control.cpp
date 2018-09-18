@@ -132,7 +132,7 @@ bool robot_control::waypointCallback(potential_exploration::WaypointProposition:
 }
 bool robot_control::isPathStillSafe(){
     mtx2.lock();
-    ROS_INFO("is or not path still safe...");
+    ROS_INFO("call path still safe...");
     ROS_INFO("current_path_size:%d",(int)current_path.size());
     if(current_path.size() <= 0){
         mtx2.unlock();
@@ -170,14 +170,14 @@ int main(int argc, char **argv) {
     
     robot_control rc;
 
-    ros::Rate r(100);
+    ros::Rate r(4);
     while(ros::ok()){
 	ROS_INFO("potential control loop ...");
         if(!rc.isPathStillSafe()){
 	    ROS_INFO("path not safe,recalcalating...");
             int num_tries = 0;
             while(!rc.planPathAndFollow()){
-                ros::Duration(0.5).sleep();
+                ros::Duration(0.4).sleep();
                 num_tries += 1;
 
                 if(num_tries == 3){
@@ -187,7 +187,7 @@ int main(int argc, char **argv) {
                 }
             }
         }
-	else{
+	/*else{
 	    ROS_INFO("publishing current path...");
 	    potential_exploration::Pose2DArray msg;
 	    for(int i = 0;i < rc.current_path.size();i++){
@@ -195,7 +195,7 @@ int main(int argc, char **argv) {
             }
 	    
             rc.driver_pub.publish(msg);
-	}
+	}*/
         ros::spinOnce();
         r.sleep();
     }
