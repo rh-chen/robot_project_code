@@ -102,7 +102,7 @@ class MissionHandle{
         ros::Subscriber potential_map_sub;
         ros::Subscriber replan_sub;
         ros::ServiceServer frontier_srv;
-	ros::ServiceClient waypoint_propose_client;
+    	ros::ServiceClient waypoint_propose_client;
 
         MissionHandle();
         void odometryCallback(const nav_msgs::Odometry& msg);
@@ -363,16 +363,16 @@ void MissionHandle::proposeWaypoints(){
 		ROS_INFO("call /sweeper/WaypointProposition success...");
 	else
 		ROS_INFO("call /sweeper/WaypointProposition fail...");
-        if(wp_srv.response.accepted){
-                current_wp.x = msg_pose.x;
-                current_wp.y = msg_pose.y;
-                needs_new_frontier = false;
-                found_waypoint = true;
+    if(wp_srv.response.accepted){
+        current_wp.x = msg_pose.x;
+        current_wp.y = msg_pose.y;
+        needs_new_frontier = false;
+        found_waypoint = true;
+    }
+    else{
+        frontiers[row_min].w *= 10;
+        waypoints_tried += 1;
         }
-       	else{
-                frontiers[row_min].w *= 10;
-                waypoints_tried += 1;
-       	}
     }
 #endif    
     fresh_frontiers = false;
@@ -398,7 +398,7 @@ void MissionHandle::updateCurrentWaypoint(){
                     break;
                 }
                 else{
-		    ROS_INFO("update current waypoint return...");
+		            ROS_INFO("update current waypoint return...");
                     mtx4.unlock();
                     return;
                 }

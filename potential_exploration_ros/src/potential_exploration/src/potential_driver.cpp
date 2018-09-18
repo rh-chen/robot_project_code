@@ -236,11 +236,12 @@ void potential_driver::compute_velocity(){
 
 void potential_driver::loop(){
     mtx.lock();
-    if(last_inactive == ros::Time(0))
+    if(last_inactive != ros::Time(0)){
         if((ros::Time::now()-last_inactive).toSec() > inactive_thresh){
             requestReplan(true);
             last_inactive = ros::Time(0);
         }
+    }
 
     if(follow_path){
         check_goal();
