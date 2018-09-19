@@ -132,8 +132,8 @@ bool robot_control::waypointCallback(potential_exploration::WaypointProposition:
 }
 bool robot_control::isPathStillSafe(){
     mtx2.lock();
-    ROS_INFO("call path still safe...");
-    ROS_INFO("current_path_size:%d",(int)current_path.size());
+    //ROS_INFO("call path still safe...");
+    //ROS_INFO("current_path_size:%d",(int)current_path.size());
     if(current_path.size() <= 0){
         mtx2.unlock();
         return true;
@@ -145,7 +145,8 @@ bool robot_control::isPathStillSafe(){
     
     bool ck_res = ck_client.call(ck_srv);
 
-    if(ck_res)
+    if(ck_res){
+	ROS_INFO("current path is ok...");
         if(ck_srv.response.path_safe){
 	    mtx2.unlock();
             return true;
@@ -154,7 +155,9 @@ bool robot_control::isPathStillSafe(){
 	    mtx2.unlock();
             return false;
 	}
+    }
     else{
+	ROS_INFO("current path is bad...");
 	mtx2.unlock();
         return false;
     }
@@ -172,7 +175,7 @@ int main(int argc, char **argv) {
 
     ros::Rate r(4);
     while(ros::ok()){
-	ROS_INFO("potential control loop ...");
+	//ROS_INFO("potential control loop ...");
         if(!rc.isPathStillSafe()){
 	    ROS_INFO("path not safe,recalcalating...");
             int num_tries = 0;

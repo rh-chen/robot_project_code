@@ -88,7 +88,7 @@ class potential_driver{
 };
 
 potential_driver::potential_driver(){
-    goal_th_xy = 0.1;
+    goal_th_xy = 0.20;
     inactive_thresh = 5;
     max_lin_speed = 0.5;
     max_ang_speed = 0.75;
@@ -182,7 +182,7 @@ void potential_driver::odometryCallback(const nav_msgs::Odometry& msg){
 
 void potential_driver::pathCallback(const potential_exploration::Pose2DArray& msg){
     mtx1.lock();
-    ROS_INFO("call path Call back...");
+    //ROS_INFO("call path Call back...");
     ROS_INFO("path_poses_size:%d",(int)msg.poses.size());
     if(msg.poses.size() == 0){
         follow_path = false;
@@ -209,13 +209,14 @@ void potential_driver::pathCallback(const potential_exploration::Pose2DArray& ms
        follow_path = true;
     }
 
-    ROS_INFO("call path Call back end...");
+    //ROS_INFO("call path Call back end...");
     mtx1.unlock();
 }
 
 void potential_driver::compute_velocity(){
     geometry_msgs::Twist temp_msg = geometry_msgs::Twist();
-
+    
+    double k = 0.7;
     if(!follow_path){
         temp_msg.linear.x = vmsg.linear.x*0.4;
         temp_msg.angular.z = vmsg.angular.z*0.4;
@@ -226,11 +227,11 @@ void potential_driver::compute_velocity(){
 
        double sign_angle = delta_angle_to_goal/fabs(delta_angle_to_goal);
        temp_msg.angular.z = \
-                -sign_angle*std::min(std::min(max_ang_speed,6*fabs(delta_angle_to_goal)),fabs(vmsg.angular.z)*1.1+0.05);
+                -sign_angle*std::min(std::min(max_ang_speed,6*fabs(delta_angle_to_goal)),fabs(vmsg.angular.z)*k+0.05);
 
-       if(fabs(delta_angle_to_goal) < 0.01){
+       if(fabs(delta_angle_to_goal) < 0.1){
             temp_msg.linear.x = \
-                    std::min(std::min(max_lin_speed,2*dist_to_goal_xy()+0.1),vmsg.linear.x*1.1+0.05);
+                    std::min(std::min(max_lin_speed,2*dist_to_goal_xy()+0.1),vmsg.linear.x*k+0.05);
        }
        else
             temp_msg.linear.x = vmsg.linear.x*0.75;
@@ -241,12 +242,14 @@ void potential_driver::compute_velocity(){
 
 void potential_driver::loop(){
     mtx2.lock();
-    if(last_inactive != ros::Time(0))
+    if(last_inactive != ros::Time(0)){
+	ROS_INFO("(ros::Time::now()-last_inactive):%f",(ros::Time::now()-last_inactive).toSec());
         if((ros::Time::now()-last_inactive).toSec() > inactive_thresh){
             requestReplan(true);
 	    ROS_INFO("call requestReplan ...");
             last_inactive = ros::Time(0);
         }
+    }	
     if(follow_path)
 	ROS_INFO("follow the path...");
     else
@@ -255,6 +258,8 @@ void potential_driver::loop(){
     if(follow_path){
         check_goal();
         compute_velocity();
+	ROS_INFO("vmsg.linear.x:%f",vmsg.linear.x);
+	ROS_INFO("vmsg.angular.z:%f",vmsg.angular.z);
         vel_pub.publish(vmsg);
     }
     mtx2.unlock();
@@ -264,7 +269,7 @@ int main(int argc, char **argv) {
     
     potential_driver pd;
     
-    ros::Rate r(5);
+    ros::Rate r(100);
     while(ros::ok()){
         pd.loop();
         ros::spinOnce();

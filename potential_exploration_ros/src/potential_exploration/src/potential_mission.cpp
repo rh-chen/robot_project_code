@@ -93,6 +93,7 @@ class MissionHandle{
         boost::mutex mtx2;
         boost::mutex mtx3;
         boost::mutex mtx4;
+        boost::mutex mtx5;
 
         bool needs_new_frontier;
         bool next_frontier_random;
@@ -180,11 +181,12 @@ bool MissionHandle::getFrontier(vector<vector<unsigned int> >& projected_map_,\
                  double origin_y_,\
                  int n_frontier_,\
                  double robot_theta_){
+    mtx5.lock();
     int w = projected_map_.size();
     int h = projected_map_[0].size();
     
-    ROS_INFO("projected_map_w:%d",w);
-    ROS_INFO("projected_map_h:%d",h);
+    //ROS_INFO("projected_map_w:%d",w);
+    //ROS_INFO("projected_map_h:%d",h);
 #if 0    
     for(int i = 0;i < w;i++){
         for(int j = 0;j < h;j++){
@@ -241,19 +243,20 @@ std::cout << __FILE__ << __LINE__ << std::endl;
         /*for(int i = 0;i < v_pose_weight.size();i++){
             v_pose_.push_back(PoseWeight(v_pose_weight[i].x,v_pose_weight[i].y,v_pose_weight[i].w));
         }*/
-
+	mtx5.unlock();
         return true;
     }
     else{
+	mtx5.unlock();
         return false;
     }
 
 }
 void MissionHandle::frontierCallback(const nav_msgs::OccupancyGrid& msg){
-	ROS_INFO("start find frontier...");
-	ROS_INFO("msg.info.width:%d",(int)msg.info.width);
-	ROS_INFO("msg.info.height:%d",(int)msg.info.height);
-	ROS_INFO("msg.data:%d",(int)msg.data.size());
+	//ROS_INFO("start find frontier...");
+	//ROS_INFO("msg.info.width:%d",(int)msg.info.width);
+	//ROS_INFO("msg.info.height:%d",(int)msg.info.height);
+	//ROS_INFO("msg.data:%d",(int)msg.data.size());
 	mtx2.lock();	
         if(msg.info.width * msg.info.height != msg.data.size()){
             ROS_ERROR("Invalid potential map size...");
@@ -339,7 +342,8 @@ void MissionHandle::proposeWaypoints(){
     ROS_INFO("call propose waypoints ...");
     bool found_waypoint = false;
     int waypoints_tried = 0;
-    while((!found_waypoint) && (waypoints_tried < frontiers.size())){
+    int frontier_sum = frontiers.size();
+    while((!found_waypoint) && (waypoints_tried < frontier_sum)){
 	ROS_INFO("waypoints_tried:%d",(int)waypoints_tried);
 	ROS_INFO("frontiers_size:%d",(int)frontiers.size());
         //sort(frontiers.begin(),frontiers.end(),cmp);
@@ -347,20 +351,20 @@ void MissionHandle::proposeWaypoints(){
         if(!next_frontier_random)
             row_min = 0;
         else
-            row_min = std::rand()%(frontiers.size()-1);
+            row_min = std::rand()%(frontiers.size());
 	
     	
+	ROS_INFO("row_min:%d",row_min);
 	map<PoseWeight,int>::iterator frontier_iter = frontiers.begin();
     while(row_min > 0){
         row_min--;
         frontier_iter++;
     }
-	ROS_INFO("row_min:%d",row_min);
         geometry_msgs::Pose2D msg_pose = geometry_msgs::Pose2D();
         msg_pose.x = frontier_iter->first.x;
         msg_pose.y = frontier_iter->first.y;
     
-        if((waypoints_tried < frontiers.size()) && (isWaypointInHistory(wp_history,msg_pose,waypoint_threshold))){
+        if((waypoints_tried < frontier_sum) && (isWaypointInHistory(wp_history,msg_pose,waypoint_threshold))){
             //frontiers[row_min].w *= 10;
             //frontier_iter->first.w *= 10;
             waypoints_tried += 1;
@@ -373,15 +377,9 @@ void MissionHandle::proposeWaypoints(){
 
 	bool wp_res = false;
         wp_res = waypoint_propose_client.call(wp_srv);
-	if(wp_res)
+        
+	if(wp_srv.response.accepted){
 		ROS_INFO("call /sweeper/WaypointProposition success...");
-	else{
-		ROS_INFO("call /sweeper/WaypointProposition fail...");
-		map<PoseWeight,int>::iterator iter;
-		iter = frontiers.find(frontier_iter->first);
-		frontiers.erase(iter);
-	}
-        if(wp_srv.response.accepted){
                 current_wp.x = msg_pose.x;
                 current_wp.y = msg_pose.y;
                 needs_new_frontier = false;
@@ -391,6 +389,10 @@ void MissionHandle::proposeWaypoints(){
                 //frontiers[row_min].w *= 10;
                 //frontier_iter->first.w *= 10;
                 waypoints_tried += 1;
+		ROS_INFO("call /sweeper/WaypointProposition fail...");
+		map<PoseWeight,int>::iterator iter;
+		iter = frontiers.find(frontier_iter->first);
+		frontiers.erase(iter);
        	}
     }
 #endif    
@@ -407,8 +409,8 @@ void MissionHandle::updateCurrentWaypoint(){
         return;
     }
         
-    ROS_INFO("robot_x,robot_y:%f,%f",robot_x,robot_y);
-    ROS_INFO("current_wp.x,current_wp.y:%f,%f",current_wp.x,current_wp.y);
+    //ROS_INFO("robot_x,robot_y:%f,%f",robot_x,robot_y);
+    //ROS_INFO("current_wp.x,current_wp.y:%f,%f",current_wp.x,current_wp.y);
     for(map<PoseWeight,int>::iterator it = frontiers.begin();it != frontiers.end();it++)
     {
         if(fabs(current_wp.x-it->first.x) < 0.04 && \
@@ -418,7 +420,7 @@ void MissionHandle::updateCurrentWaypoint(){
                     break;
                 }
                 else{
-		    ROS_INFO("update current waypoint return...");
+		    //ROS_INFO("update current waypoint return...");
                     mtx4.unlock();
                     return;
                 }
@@ -438,7 +440,7 @@ int main(int argc, char **argv) {
    
     ros::Rate r(5);
     while(ros::ok()){
-	ROS_INFO("mission handle loop ...");
+	//ROS_INFO("mission handle loop ...");
 	ROS_INFO("needs_new_frontier:%d",(int)mh.needs_new_frontier);
 	ROS_INFO("fresh_frontiers:%d",(int)mh.fresh_frontiers);
         if(mh.needs_new_frontier && mh.fresh_frontiers)
