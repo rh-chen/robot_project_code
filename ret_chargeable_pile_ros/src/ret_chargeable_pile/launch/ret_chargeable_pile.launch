@@ -1,0 +1,16 @@
+<launch>
+	<arg name="camera_frame" default="stereo_left_frame" />
+	<arg name="world_frame" default="ar_marker" />
+	<arg name="max_freq" default="10.0" />
+
+	<node name="ret_chargeable_pile" pkg="ret_chargeable_pile" type="ret_chargeable_pile_node" respawn="false" output="screen">
+		<param name="camera_frame"  type="string" value="$(arg camera_frame)" />
+		<param name="world_frame"  type="string" value="$(arg world_frame)" />
+		<param name="max_freq"  type="double" value="$(arg max_freq)" />
+
+		<!--remap from="ret_chargeable_pile/cmd_vel" to="cmd_vel_mux/input/navi"/-->
+	</node>
+
+	<!--node name="rviz" pkg="rviz" type="rviz" args="-d $(find ret_chargeable_pile)/rviz/marker.rviz" output="log" /-->
+
+</launch>

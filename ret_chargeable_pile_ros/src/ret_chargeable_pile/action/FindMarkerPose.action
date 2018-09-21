@@ -1,0 +1,10 @@
+#goal definition
+int32 markerID
+---
+#result definition
+geometry_msgs/PoseWithCovariance pose
+geometry_msgs/TwistWithCovariance twist
+---
+#feedback
+geometry_msgs/PoseWithCovariance pose
+geometry_msgs/TwistWithCovariance twist
