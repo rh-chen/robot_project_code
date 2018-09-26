@@ -26,6 +26,7 @@
 
 #include <ar_track_alvar_msgs/AlvarMarker.h>
 #include <ar_track_alvar_msgs/AlvarMarkers.h>
+#include <ret_chargeable_pile/CheckBumper.h>
 
 
 #define PI 3.1415926
@@ -101,15 +102,18 @@ class robot_control{
 
 	geometry_msgs::Twist move_cmd;
 
+    ros::ServiceClient check_bumper_client;
+
 	robot_control(ros::NodeHandle n):nh(n)
 	{
 		msg_sub = nh.subscribe("/ar_pose_marker", 1000,&robot_control::poseCallback,this);
         odom_sub = nh.subscribe("/odom_combined",1000,&robot_control::odomCallback,this);
 		cmd_vel_pub = nh.advertise<geometry_msgs::Twist>("/mobile_base/commands/velocity",1000);
-		//bumper_sub = nh.subscribe("/mobile_base/events/bumper", 1000,&robot_control::bumperCallback,this);
+
+        check_bumper_client = nh.serviceClient<ret_chargeable_pile::CheckBumper>("/sweeper/CheckBumper");
 	}
+
 	void poseCallback(const ar_track_alvar_msgs::AlvarMarkers::ConstPtr &msg);
-	//void bumperCallback(const kobuki_msgs::BumperEvent::ConstPtr &msg);
 	void robot_move_base();
 	void rotate_n_angle(double n,int direction);
 	void straight_n_distance(double n,bool check_bumper);
@@ -151,15 +155,6 @@ class robot_control{
        robot_theta = angle_wrap(yaw);
        mtx.unlock();
     }
-	/*void robot_control::bumperCallback(const kobuki_msgs::BumperEvent::ConstPtr &msg)
-	{
-        mtx1.lock();
-		if(msg->state == msg->PRESSED)
-			robot_reach_goal = true;
-		else
-			robot_reach_goal = false;
-        mtx1.unlock();
-	}*/
 	void robot_control::rotate_n_angle(double n,int direction)
 	{
         mtx2.lock();
@@ -233,15 +228,21 @@ class robot_control{
     
         if(check_bumper){
             ros::Rate lr(100);
+            ret_chargeable_pile::CheckBumper cb_srv;
+            cb_srv.request.check = true;
+
             while(ros::ok()){
                 cmd_vel_pub.publish(common_move_cmd);
                 lr.sleep();
-                //call srv
-                /*if(res_srv){
-                    cmd_vel_pub.publish(geometry_msgs::Twist());
-                    mtx3.unlock();
-                    return;
-                }*/
+                
+                bool res_srv = check_bumper_client.call(cb_srv);
+                if(res_srv){
+                    if(cb_srv.response.active){
+                        cmd_vel_pub.publish(geometry_msgs::Twist());
+                        mtx3.unlock();
+                        return;
+                    }
+                }
             }
         }
 		//get odom data
