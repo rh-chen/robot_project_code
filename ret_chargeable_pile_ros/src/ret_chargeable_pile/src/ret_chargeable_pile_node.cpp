@@ -404,7 +404,7 @@ void robot_control::robot_move_base()
 						ROS_INFO("angle_to_nearby:%f",angle_to_nearby);
 						ROS_INFO("robot_theta:%f",robot_theta);
                         
-                        double rotation_to_nearby = PI/2+marker_yaw-angle_to_nearby;
+                        double rotation_to_nearby = PI/2+marker_pitch-angle_to_nearby;
                         double rotation_to_nearby_back = PI/2-angle_to_nearby;
 						
                         ros::Duration(0.5).sleep();
@@ -456,7 +456,7 @@ void robot_control::robot_move_base()
 						ROS_INFO("angle_to_nearby:%f",angle_to_nearby);
 						ROS_INFO("robot_theta:%f",robot_theta);
                         
-                        double rotation_to_nearby = PI/2-marker_yaw+angle_to_nearby;
+                        double rotation_to_nearby = PI/2-marker_pitch+angle_to_nearby;
                         double rotation_to_nearby_back = PI/2+angle_to_nearby;
 						
                         ros::Duration(0.5).sleep();
@@ -500,8 +500,6 @@ void robot_control::robot_move_base()
                         }*/
 
 					}
-
-                    forward_to_marker_nearby = false;
 				}
 				else
 				{
@@ -544,10 +542,10 @@ void robot_control::robot_move_base()
                     }
 				}
 			}
-			else if(!is_position_unsuitable && is_angle_unsuitable)
-			{
-					if(marker_pitch < 0)
-					{
+			else{
+                if(is_angle_unsuitable){
+				    if(marker_pitch < 0)
+				    {
 						ros::Duration(0.5).sleep();
 						rotate_n_angle(fabs(marker_pitch/2),-1);
 						ros::Duration(0.5).sleep();
@@ -558,6 +556,7 @@ void robot_control::robot_move_base()
 						rotate_n_angle(fabs(marker_pitch/2),1);
 						ros::Duration(0.5).sleep();
 					}
+                }
 			}		
 
 #endif	
