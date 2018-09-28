@@ -80,7 +80,7 @@ double vx = 0.1;
 
 double robot_to_marker_distance = 0.6;
 
-string odom_frame = "/odom_combined";
+string odom_frame = "/odom";
 string base_frame = "/base_link";
 
 class robot_control{
@@ -105,7 +105,7 @@ class robot_control{
 	robot_control(ros::NodeHandle n):nh(n)
 	{
 		msg_sub = nh.subscribe("/ar_pose_marker", 1000,&robot_control::poseCallback,this);
-        odom_sub = nh.subscribe("/odom_combined",1000,&robot_control::odomCallback,this);
+        odom_sub = nh.subscribe("/odom",1000,&robot_control::odomCallback,this);
 		cmd_vel_pub = nh.advertise<geometry_msgs::Twist>("/mobile_base/commands/velocity",1000);
 
         check_bumper_client = nh.serviceClient<ret_chargeable_pile::CheckBumper>("/sweeper/CheckBumper");
@@ -320,7 +320,9 @@ class robot_control{
 					ROS_INFO("marker_z:%f\n",marker_z);
 					ROS_INFO("marker_pitch:%f\n",marker_pitch);
 					ROS_INFO("marker_roll:%f\n",marker_roll);
+                    marker_yaw += PI/2;
 					ROS_INFO("marker_yaw:%f\n",marker_yaw);
+                    
 				
 					alter_marker_x = marker_x;
 					alter_marker_y = marker_y - half_base_line*cos(marker_pitch);
@@ -333,7 +335,6 @@ class robot_control{
 					ROS_INFO("alter_marker_x:%f\n",alter_marker_x);
 					ROS_INFO("alter_marker_y:%f\n",alter_marker_y);
 					ROS_INFO("alter_marker_z:%f\n",alter_marker_z);
-					ROS_INFO("marker_pitch:%f\n",marker_pitch);				
 				
 					if(alter_marker_z > robot_to_marker_distance)
 						forward_to_marker_nearby = true;
@@ -388,21 +389,22 @@ void robot_control::robot_move_base()
 {
         mtx5.lock();
 		ROS_INFO("is_position_unsuitable:%d",is_position_unsuitable);
-		ROS_INFO("is_angle_unsuitable:%d",is_angle_unsuitable);
+        ROS_INFO("is_angle_unsuitable:%d",is_angle_unsuitable);
+		ROS_INFO("forward_to_marker_nearby:%d",forward_to_marker_nearby);
 #if 1
 			if(is_position_unsuitable)
 			{
-				if(forward_to_marker_nearby == true)
+				if(forward_to_marker_nearby)
 				{
 					if(alter_marker_y > position_threshold)
 					{
-						double angle_to_nearby = cv::fastAtan2(alter_marker_z-robot_to_marker_distance,alter_marker_y);
-                        angle_to_nearby = angle_wrap(angle_to_nearby*PI/180);
+						//double angle_to_nearby = cv::fastAtan2(alter_marker_z-robot_to_marker_distance,alter_marker_y);
+						double angle_to_nearby = atan((alter_marker_z-robot_to_marker_distance)/alter_marker_y);
                         
 						ROS_INFO("angle_to_nearby:%f",angle_to_nearby);
 						ROS_INFO("robot_theta:%f",robot_theta);
                         
-                        double rotation_to_nearby = PI/2+marker_pitch-angle_to_nearby;
+                        double rotation_to_nearby = PI/2+marker_yaw-angle_to_nearby;
                         double rotation_to_nearby_back = PI/2-angle_to_nearby;
 						
                         ros::Duration(0.5).sleep();
@@ -448,13 +450,13 @@ void robot_control::robot_move_base()
 					}
 					else if(alter_marker_y < -position_threshold)
 					{
-                        double angle_to_nearby = cv::fastAtan2(alter_marker_z-robot_to_marker_distance,alter_marker_y);
-                        angle_to_nearby = angle_wrap(angle_to_nearby*PI/180);
+                        //double angle_to_nearby = cv::fastAtan2(alter_marker_z-robot_to_marker_distance,alter_marker_y);
+                        double angle_to_nearby = atan((alter_marker_z-robot_to_marker_distance)/alter_marker_y);
                         
 						ROS_INFO("angle_to_nearby:%f",angle_to_nearby);
 						ROS_INFO("robot_theta:%f",robot_theta);
                         
-                        double rotation_to_nearby = PI/2-marker_pitch+angle_to_nearby;
+                        double rotation_to_nearby = PI/2-marker_yaw+angle_to_nearby;
                         double rotation_to_nearby_back = PI/2+angle_to_nearby;
 						
                         ros::Duration(0.5).sleep();
@@ -506,37 +508,37 @@ void robot_control::robot_move_base()
 					if(alter_marker_y > position_threshold)
 					{
                         
-                        if(marker_pitch < 0){
+                        {
 						    ros::Duration(0.5).sleep();
-                            rotate_n_angle(PI/2+marker_pitch,1);        
+                            rotate_n_angle(PI/2+marker_pitch,-1);        
 						    ros::Duration(0.5).sleep();
-						    straight_n_distance(fabs(alter_marker_y),false);
+						    straight_n_distance(fabs(alter_marker_y/2),false);
 						    ros::Duration(0.5).sleep();
-                            rotate_n_angle(PI/2,-1);        
+                            rotate_n_angle(PI/2,1);        
 						    ros::Duration(0.5).sleep();
                         }
 					}
 					else if(alter_marker_y < -position_threshold)
 					{
-                        if(marker_pitch > 0){
+                        {
 						    ros::Duration(0.5).sleep();
-                            rotate_n_angle(PI/2-marker_pitch,-1);        
+                            rotate_n_angle(PI/2-marker_pitch,1);        
 						    ros::Duration(0.5).sleep();
-						    straight_n_distance(fabs(alter_marker_y),false);
+						    straight_n_distance(fabs(alter_marker_y/2),false);
 						    ros::Duration(0.5).sleep();
-                            rotate_n_angle(PI/2,1);        
+                            rotate_n_angle(PI/2,-1);        
 						    ros::Duration(0.5).sleep();
                         }
 					}
                     else{
                          if(marker_pitch < 0){
 						    ros::Duration(0.5).sleep();
-                            rotate_n_angle(fabs(marker_pitch),-1);        
+                            rotate_n_angle(fabs(marker_pitch/2),-1);        
 						    ros::Duration(0.5).sleep();
                          }
-                        if(marker_pitch > 0){
+                        else{
 						    ros::Duration(0.5).sleep();
-                            rotate_n_angle(fabs(marker_pitch),1);        
+                            rotate_n_angle(fabs(marker_pitch/2),1);        
 						    ros::Duration(0.5).sleep();
                          }
                     }
@@ -547,13 +549,13 @@ void robot_control::robot_move_base()
 					if(marker_pitch < 0)
 					{
 						ros::Duration(0.5).sleep();
-						rotate_n_angle(fabs(marker_pitch),-1);
+						rotate_n_angle(fabs(marker_pitch/2),-1);
 						ros::Duration(0.5).sleep();
 					}
 					else
 					{
 						ros::Duration(0.5).sleep();
-						rotate_n_angle(fabs(marker_pitch),1);
+						rotate_n_angle(fabs(marker_pitch/2),1);
 						ros::Duration(0.5).sleep();
 					}
 			}		
