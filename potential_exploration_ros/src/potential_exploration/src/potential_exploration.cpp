@@ -45,6 +45,7 @@ typedef struct Pixel{
 			x = x_in; y = y_in; 
     }
 }strPixel;
+
 class potential_map{
 public:
     boost::mutex mtx0;

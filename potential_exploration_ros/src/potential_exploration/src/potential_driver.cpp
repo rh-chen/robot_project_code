@@ -218,8 +218,8 @@ void potential_driver::compute_velocity(){
     
     double k = 0.7;
     if(!follow_path){
-        temp_msg.linear.x = vmsg.linear.x*0.4;
-        temp_msg.angular.z = vmsg.angular.z*0.4;
+        temp_msg.linear.x = 0;
+        temp_msg.angular.z = 0.6;
     }
     else if(dist_to_goal_xy() > goal_th_xy){
        double angle_to_goal =  atan2(goals_y[active_goal]-position_y,goals_x[active_goal]-position_x);

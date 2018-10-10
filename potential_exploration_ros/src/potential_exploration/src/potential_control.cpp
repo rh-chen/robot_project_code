@@ -113,6 +113,7 @@ bool robot_control::waypointCallback(potential_exploration::WaypointProposition:
     ROS_INFO("req.waypoint.x,req.waypoint.y:%f,%f",req.waypoint.x,req.waypoint.y);
     current_waypoint.x = req.waypoint.x;
     current_waypoint.y = req.waypoint.y;
+    mtx1.unlock();
 
     bool plan_path_res = false;
     plan_path_res = planPathAndFollow();
@@ -120,13 +121,11 @@ bool robot_control::waypointCallback(potential_exploration::WaypointProposition:
     if(plan_path_res){
         res.accepted = true;
 	ROS_INFO("call /sweeper/PotentialPlanner success...");
-	mtx1.unlock();
         return true;
     }
     else{
 	res.accepted = false;
 	ROS_INFO("call /sweeper/PotentialPlanner fail...");
-	mtx1.unlock();
         return false;
     }
 }
