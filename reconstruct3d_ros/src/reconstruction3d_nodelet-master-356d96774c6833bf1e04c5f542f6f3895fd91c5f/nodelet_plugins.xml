@@ -1,0 +1,10 @@
+<library path="lib/libreconstruction3d_nodelet">
+    <class name="reconstruction3d_nodelet/pointcloud"
+           type="reconstruction3d_nodelet::PointCloudXYZRGB"
+           base_class_type="nodelet::Nodelet">
+       <description>
+           this is point_cloud nodelet.
+       </description>
+    </class>
+</library>
+
