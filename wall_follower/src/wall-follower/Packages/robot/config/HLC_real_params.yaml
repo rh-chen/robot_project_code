@@ -1,0 +1,30 @@
+# The distance from LRF center to furthest vertice of robot is 0.23 so we
+# make this distance bigger so we also take care of the movement 
+# speed
+high_security_distance : 0.75
+# This the distance to the opposite side of the wall we are following.
+# We make it smaller so that we can fit into tighter corners
+low_security_distance : 0.65
+# This distance is 0.4 so that there is 0.12 space for the robot to march
+# forward
+wall_follow_distance : 0.9
+# 0.5 assures that we can take tight turns and also that we never hit the
+# wall given the specified security distance
+linear_velocity : 0.1
+# 1 is enough for the turn to have the desired effect without getting into
+#complicated situations
+angular_velocity : 0.5
+# Defines the starting angle of the right robot range
+right_limit: 30
+# Defines the starting angle of the left robot range
+left_limit: 60
+# Topic to publish messages to robot
+publish_topic: "/mobile_base/commands/velocity"
+# Topic to get data from LRF
+laser_topic: "/scan"
+# Topic to get data from circle detector
+circle_topic: "circle_detect"
+# Variable to detect that we are in simulation to change hit circle mode
+simulation: false
+# Cumulative angle to detect loop
+cumulative_angle: 100

@@ -1,0 +1,57 @@
+/**
+\mainpage
+SE Lab Team 7
+
+Team Members
+- Atabak Hafeez [atabakhafeez]
+- Maria Ficiu [MariaFiciu]
+- Rubin Deliallisi [rdeliallisi]
+- Siddharth Shukla [thunderboltsid]
+
+Project Description:
+A robot developed using ROS that can navigate a maze based on the input from a laser range finder.
+
+External Dependencies:
+- ROS : v1.11.16 (Jade)
+- OpenCV : v3.1.10
+- GoogleTest : v1.7.0
+- Doxygen : v1.8.11
+
+Development timeline
+- Sprint 1: Completed circle detection (Maria, Atabak), Completed random walk (Rubin),
+  Basic wall following - a bit buggy (Rubin), Object detection without OpenCV using analytical methods - Experimental,
+  not merged yet (Siddharth)
+
+- Sprint 2: High Level Control (Rubin), Circle Detection (Atabak, Siddharth), HLC & CD Tests (Maria, Rubin, Siddharth), HLC & CD Docs (Maria), System tests (Atabak, Siddharth)
+
+- Sprint 3: Code Modularization,Optimization and Cleanup(Rubin), Custom level based Logger(Atabak, Siddharth), Integration and Unit Tests(Atabak, Maria), High Level Control adjustments for real robot(Rubin), Code Documentation(Maria, Siddharth)
+
+Setup:
+- Navigate to your catkin workspace
+- Run `cd src`
+- Run `git clone https://github.com/JacobsUniversitySELab2016S/se-lab-team-7.git`
+- Navigate back to your catkin workspace (`cd ../`)
+- Run `catkin_make`
+- Run `source devel/setup.bash` or `source devel/setup.zsh` or `source devel/setup.sh` depending on your shell
+- Run `roslaunch robot simulator.launch world_name:=easy [--screen]`
+- Run `roslaunch robot simulator.launch world_name:=medium [--screen]`
+- Run `roslaunch robot simulator.launch world_name:=hard [--screen]`
+- The --screen option serves to view the logging output on the screen
+
+Tests:
+- Navigate to your catkin workspace
+- Run `catkin_make`
+- Run `source devel/setup.bash` or `source devel/setup.zsh` or `source devel/setup.sh` depending on your shell
+- Run `catkin_make run_tests` to execute test cases including system tests (i.e. individual levels)
+
+Generate Documentation:
+- Navigate to the git project root
+- Run `doxygen Doxyfile` to generate documentation
+
+Logger Usage:
+- The Logger might be used in case logging levels are needed. Right now ROS_INFO is enough for our
+  purposes.
+- `Logger::Instance().Log("message", Logger::log_level_debug);`
+- `Logger::Instance().Log("message", Logger::log_level_info);`
+- `Logger::Instance().Log("message", Logger::log_level_error);`
+*/
