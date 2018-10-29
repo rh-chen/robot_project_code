@@ -1,0 +1,40 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.9~svn20110310	//
+CrossProduct	src/FFD.cpp	/^float CrossProduct(float x0,float y0,float x1,float y1,float x2,float y2)$/;"	f
+FFD	src/FFD.cpp	/^vector<vector<int> > FFD( MyPoint pose,vector<MyPoint> lr, const nav_msgs::OccupancyGrid& map, int map_height, int map_width)$/;"	f
+FRONTIER_CLOSE_LIST	src/wavefront_frontier_detection.cpp	/^const int MAP_OPEN_LIST = 1, MAP_CLOSE_LIST = 2, FRONTIER_OPEN_LIST = 3, FRONTIER_CLOSE_LIST = 4;$/;"	v
+FRONTIER_OPEN_LIST	src/wavefront_frontier_detection.cpp	/^const int MAP_OPEN_LIST = 1, MAP_CLOSE_LIST = 2, FRONTIER_OPEN_LIST = 3, FRONTIER_CLOSE_LIST = 4;$/;"	v
+Frontier	src/FFD.hpp	8;"	d
+Get_Line	src/FFD.cpp	/^Line Get_Line( MyPoint prev, MyPoint curr )$/;"	f
+Line	src/FFD.hpp	/^struct Line{$/;"	s
+MAP_CLOSE_LIST	src/wavefront_frontier_detection.cpp	/^const int MAP_OPEN_LIST = 1, MAP_CLOSE_LIST = 2, FRONTIER_OPEN_LIST = 3, FRONTIER_CLOSE_LIST = 4;$/;"	v
+MAP_OPEN_LIST	src/wavefront_frontier_detection.cpp	/^const int MAP_OPEN_LIST = 1, MAP_CLOSE_LIST = 2, FRONTIER_OPEN_LIST = 3, FRONTIER_CLOSE_LIST = 4;$/;"	v
+MIN_FOUND	src/wavefront_frontier_detection.cpp	/^const int MIN_FOUND = 1;$/;"	v
+MoveBaseClient	src/turtlebot_mapping.cpp	/^typedef actionlib::SimpleActionClient<move_base_msgs::MoveBaseAction> MoveBaseClient;$/;"	t	file:
+MyPoint	src/FFD.hpp	/^struct MyPoint{$/;"	s
+N_S	src/wavefront_frontier_detection.cpp	/^const int N_S = 8;$/;"	v
+OCC_THRESHOLD	src/wavefront_frontier_detection.cpp	/^const int OCC_THRESHOLD = 10;$/;"	v
+Sort_Polar	src/FFD.cpp	/^vector<MyPoint> Sort_Polar( vector<MyPoint> lr, MyPoint pose )$/;"	f
+TurtlebotExploration	src/turtlebot_mapping.cpp	/^	TurtlebotExploration(ros::NodeHandle& nh) {$/;"	f	class:TurtlebotExploration
+TurtlebotExploration	src/turtlebot_mapping.cpp	/^class TurtlebotExploration {$/;"	c	file:
+frontier_cloud	src/turtlebot_mapping.cpp	/^	sensor_msgs::PointCloud frontier_cloud;$/;"	m	class:TurtlebotExploration	file:
+frontier_publisher	src/turtlebot_mapping.cpp	/^	ros::Publisher frontier_publisher;$/;"	m	class:TurtlebotExploration	file:
+get_big_neighbours	src/wavefront_frontier_detection.cpp	/^void get_big_neighbours(int n_array[], int position, int map_width) {$/;"	f
+get_column_from_offset	src/wavefront_frontier_detection.cpp	/^int get_column_from_offset(int offset, int width) {$/;"	f
+get_neighbours	src/wavefront_frontier_detection.cpp	/^void get_neighbours(int n_array[], int position, int map_width) {$/;"	f
+get_neighbours2	src/FFD.cpp	/^void get_neighbours2(int n_array[], int position, int map_width)$/;"	f
+get_row_from_offset	src/wavefront_frontier_detection.cpp	/^int get_row_from_offset(int offset, int width) {$/;"	f
+is_frontier_point	src/wavefront_frontier_detection.cpp	/^bool is_frontier_point(const nav_msgs::OccupancyGrid& map, int point, int map_size, int map_width) {$/;"	f
+is_frontier_point2	src/FFD.cpp	/^bool is_frontier_point2(const nav_msgs::OccupancyGrid& map, int point, int map_size, int map_width)$/;"	f
+main	src/turtlebot_mapping.cpp	/^int main(int argc, char **argv) {$/;"	f
+mapCallback	src/turtlebot_mapping.cpp	/^	void mapCallback( const nav_msgs::OccupancyGrid& map )$/;"	f	class:TurtlebotExploration
+mapSub	src/turtlebot_mapping.cpp	/^	ros::Subscriber mapSub;$/;"	m	class:TurtlebotExploration	file:
+points	src/FFD.hpp	/^std::vector<MyPoint> points;$/;"	m	struct:Line
+spin	src/turtlebot_mapping.cpp	/^	void spin() {$/;"	f	class:TurtlebotExploration
+wfd	src/wavefront_frontier_detection.cpp	/^vector<vector<int> > wfd(const nav_msgs::OccupancyGrid& map, int map_height, int map_width, int pose) {	$/;"	f
+x	src/FFD.hpp	/^int x;$/;"	m	struct:MyPoint
+y	src/FFD.hpp	/^int y;$/;"	m	struct:MyPoint

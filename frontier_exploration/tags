@@ -1,0 +1,129 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.9~svn20110310	//
+BOUNDED_EXPLORE_LAYER_H_	include/frontier_exploration/bounded_explore_layer.h	2;"	d
+BoundedExploreLayer	include/frontier_exploration/bounded_explore_layer.h	/^class BoundedExploreLayer : public costmap_2d::Layer, public costmap_2d::Costmap2D$/;"	c	namespace:frontier_exploration
+BoundedExploreLayer	plugins/bounded_explore_layer.cpp	/^    BoundedExploreLayer::BoundedExploreLayer(){}$/;"	f	class:frontier_exploration::BoundedExploreLayer
+COSTMAP_TOOLS_H_	include/frontier_exploration/costmap_tools.h	2;"	d
+DELETEALL	include/frontier_exploration/bounded_explore_layer.h	/^    static const int DELETEALL = 3;$/;"	m	class:frontier_exploration::BoundedExploreLayer
+FRONTIER_SEARCH_H_	include/frontier_exploration/frontier_search.h	2;"	d
+FrontierExplorationClient	src/explore_client.cpp	/^    FrontierExplorationClient() :$/;"	f	class:frontier_exploration::FrontierExplorationClient
+FrontierExplorationClient	src/explore_client.cpp	/^class FrontierExplorationClient{$/;"	c	namespace:frontier_exploration	file:
+FrontierExplorationServer	src/explore_server.cpp	/^    FrontierExplorationServer(std::string name) :$/;"	f	class:frontier_exploration::FrontierExplorationServer
+FrontierExplorationServer	src/explore_server.cpp	/^class FrontierExplorationServer$/;"	c	namespace:frontier_exploration	file:
+FrontierSearch	include/frontier_exploration/frontier_search.h	/^class FrontierSearch{$/;"	c	namespace:frontier_exploration
+FrontierSearch	src/frontier_search.cpp	/^FrontierSearch::FrontierSearch(costmap_2d::Costmap2D &costmap, int min_frontier_size, std::string &travel_point) :$/;"	f	class:frontier_exploration::FrontierSearch
+GEOMETRY_TOOLS_H_	include/frontier_exploration/geometry_tools.h	2;"	d
+NearestCellTest	src/test/costmap_tools_tests.cpp	/^class NearestCellTest : public ::testing::Test{$/;"	c	file:
+NeighborhoodFunctionTest	src/test/costmap_tools_tests.cpp	/^class NeighborhoodFunctionTest : public ::testing::Test{$/;"	c	file:
+PointInPolygonTest	src/test/geometry_tools_tests.cpp	/^class PointInPolygonTest : public::testing::Test{$/;"	c	file:
+SetUp	src/test/costmap_tools_tests.cpp	/^    virtual void SetUp(){$/;"	f	class:NearestCellTest
+SetUp	src/test/costmap_tools_tests.cpp	/^    virtual void SetUp(){$/;"	f	class:NeighborhoodFunctionTest
+SetUp	src/test/geometry_tools_tests.cpp	/^    virtual void SetUp(){$/;"	f	class:PointInPolygonTest
+TEST	src/test/geometry_tools_tests.cpp	/^TEST(PointsAdjacentTest, different)$/;"	f
+TEST	src/test/geometry_tools_tests.cpp	/^TEST(PointsAdjacentTest, identical)$/;"	f
+TEST_F	src/test/costmap_tools_tests.cpp	/^TEST_F(NearestCellTest, differentCell)$/;"	f
+TEST_F	src/test/costmap_tools_tests.cpp	/^TEST_F(NearestCellTest, offMap)$/;"	f
+TEST_F	src/test/costmap_tools_tests.cpp	/^TEST_F(NearestCellTest, sameCell)$/;"	f
+TEST_F	src/test/costmap_tools_tests.cpp	/^TEST_F(NeighborhoodFunctionTest, corner)$/;"	f
+TEST_F	src/test/costmap_tools_tests.cpp	/^TEST_F(NeighborhoodFunctionTest, edge)$/;"	f
+TEST_F	src/test/costmap_tools_tests.cpp	/^TEST_F(NeighborhoodFunctionTest, middle)$/;"	f
+TEST_F	src/test/costmap_tools_tests.cpp	/^TEST_F(NeighborhoodFunctionTest, offMap)$/;"	f
+TEST_F	src/test/geometry_tools_tests.cpp	/^TEST_F(PointInPolygonTest, inside){$/;"	f
+TEST_F	src/test/geometry_tools_tests.cpp	/^TEST_F(PointInPolygonTest, outside){$/;"	f
+anyPointsNearby	include/frontier_exploration/geometry_tools.h	/^  bool anyPointsNearby(const T &one, const std::list<S> &list, const double &proximity){$/;"	f	namespace:frontier_exploration
+as_	src/explore_server.cpp	/^    actionlib::SimpleActionServer<frontier_exploration::ExploreTaskAction> as_;$/;"	m	class:frontier_exploration::FrontierExplorationServer	file:
+blacklistPointService	plugins/bounded_explore_layer.cpp	/^    bool BoundedExploreLayer::blacklistPointService(frontier_exploration::BlacklistPoint::Request &req, frontier_exploration::BlacklistPoint::Response &res) {$/;"	f	class:frontier_exploration::BoundedExploreLayer
+blacklistPointService_	include/frontier_exploration/bounded_explore_layer.h	/^    ros::ServiceServer blacklistPointService_;$/;"	m	class:frontier_exploration::BoundedExploreLayer
+blacklist_	include/frontier_exploration/bounded_explore_layer.h	/^    std::list<geometry_msgs::Point> blacklist_;$/;"	m	class:frontier_exploration::BoundedExploreLayer
+blacklist_marker_pub_	include/frontier_exploration/bounded_explore_layer.h	/^    ros::Publisher blacklist_marker_pub_;$/;"	m	class:frontier_exploration::BoundedExploreLayer
+blacklist_radius_	include/frontier_exploration/bounded_explore_layer.h	/^    double blacklist_radius_;$/;"	m	class:frontier_exploration::BoundedExploreLayer
+buildNewFrontier	src/frontier_search.cpp	/^Frontier FrontierSearch::buildNewFrontier(unsigned int initial_cell, unsigned int reference, std::vector<bool>& frontier_flag){$/;"	f	class:frontier_exploration::FrontierSearch
+clearBlacklistService	plugins/bounded_explore_layer.cpp	/^    bool BoundedExploreLayer::clearBlacklistService(std_srvs::Empty::Request &req, std_srvs::Empty::Response &resp) {$/;"	f	class:frontier_exploration::BoundedExploreLayer
+clearBlacklistService_	include/frontier_exploration/bounded_explore_layer.h	/^    ros::ServiceServer clearBlacklistService_;$/;"	m	class:frontier_exploration::BoundedExploreLayer
+configured_	include/frontier_exploration/bounded_explore_layer.h	/^    bool configured_, marked_;$/;"	m	class:frontier_exploration::BoundedExploreLayer
+costmap_	include/frontier_exploration/frontier_search.h	/^    costmap_2d::Costmap2D& costmap_;$/;"	m	class:frontier_exploration::FrontierSearch
+costmap_	src/test/costmap_tools_tests.cpp	/^    costmap_2d::Costmap2D costmap_;$/;"	m	class:NearestCellTest	file:
+costmap_	src/test/costmap_tools_tests.cpp	/^    costmap_2d::Costmap2D costmap_;$/;"	m	class:NeighborhoodFunctionTest	file:
+doneMovingCb	src/explore_server.cpp	/^    void doneMovingCb(const actionlib::SimpleClientGoalState& state, const move_base_msgs::MoveBaseResultConstPtr& result){$/;"	f	class:frontier_exploration::FrontierExplorationServer	file:
+dsrv_	include/frontier_exploration/bounded_explore_layer.h	/^    dynamic_reconfigure::Server<costmap_2d::GenericPluginConfig> *dsrv_;$/;"	m	class:frontier_exploration::BoundedExploreLayer
+executeCb	src/explore_server.cpp	/^    void executeCb(const frontier_exploration::ExploreTaskGoalConstPtr &goal)$/;"	f	class:frontier_exploration::FrontierExplorationServer	file:
+explore_costmap_ros_	src/explore_server.cpp	/^    boost::shared_ptr<costmap_2d::Costmap2DROS> explore_costmap_ros_;$/;"	m	class:frontier_exploration::FrontierExplorationServer	file:
+feedbackMovingCb	src/explore_server.cpp	/^    void feedbackMovingCb(const move_base_msgs::MoveBaseFeedbackConstPtr& feedback){$/;"	f	class:frontier_exploration::FrontierExplorationServer	file:
+feedback_	src/explore_server.cpp	/^    frontier_exploration::ExploreTaskFeedback feedback_;$/;"	m	class:frontier_exploration::FrontierExplorationServer	file:
+frequency_	src/explore_server.cpp	/^    double frequency_, goal_aliasing_;$/;"	m	class:frontier_exploration::FrontierExplorationServer	file:
+frontierService_	include/frontier_exploration/bounded_explore_layer.h	/^    ros::ServiceServer frontierService_;$/;"	m	class:frontier_exploration::BoundedExploreLayer
+frontier_cloud_pub	include/frontier_exploration/bounded_explore_layer.h	/^    ros::Publisher frontier_cloud_pub;$/;"	m	class:frontier_exploration::BoundedExploreLayer
+frontier_exploration	include/frontier_exploration/bounded_explore_layer.h	/^namespace frontier_exploration$/;"	n
+frontier_exploration	include/frontier_exploration/costmap_tools.h	/^namespace frontier_exploration{$/;"	n
+frontier_exploration	include/frontier_exploration/frontier_search.h	/^namespace frontier_exploration{$/;"	n
+frontier_exploration	include/frontier_exploration/geometry_tools.h	/^namespace frontier_exploration{$/;"	n
+frontier_exploration	plugins/bounded_explore_layer.cpp	/^namespace frontier_exploration$/;"	n	file:
+frontier_exploration	src/explore_client.cpp	/^namespace frontier_exploration{$/;"	n	file:
+frontier_exploration	src/explore_server.cpp	/^namespace frontier_exploration{$/;"	n	file:
+frontier_exploration	src/frontier_search.cpp	/^namespace frontier_exploration{$/;"	n	file:
+frontier_travel_point_	include/frontier_exploration/bounded_explore_layer.h	/^    std::string frontier_travel_point_;$/;"	m	class:frontier_exploration::BoundedExploreLayer
+getNextFrontier	plugins/bounded_explore_layer.cpp	/^    bool BoundedExploreLayer::getNextFrontier(geometry_msgs::PoseStamped start_pose, geometry_msgs::PoseStamped &next_frontier){$/;"	f	class:frontier_exploration::BoundedExploreLayer
+getNextFrontierService	plugins/bounded_explore_layer.cpp	/^    bool BoundedExploreLayer::getNextFrontierService(frontier_exploration::GetNextFrontier::Request &req, frontier_exploration::GetNextFrontier::Response &res){$/;"	f	class:frontier_exploration::BoundedExploreLayer
+global_frame_	include/frontier_exploration/bounded_explore_layer.h	/^    std::string global_frame_;$/;"	m	class:frontier_exploration::BoundedExploreLayer
+goal_aliasing_	src/explore_server.cpp	/^    double frequency_, goal_aliasing_;$/;"	m	class:frontier_exploration::FrontierExplorationServer	file:
+input_	src/explore_client.cpp	/^    geometry_msgs::PolygonStamped input_;$/;"	m	class:frontier_exploration::FrontierExplorationClient	file:
+isDiscretized	include/frontier_exploration/bounded_explore_layer.h	/^    bool isDiscretized()$/;"	f	class:frontier_exploration::BoundedExploreLayer
+isNewFrontierCell	src/frontier_search.cpp	/^bool FrontierSearch::isNewFrontierCell(unsigned int idx, const std::vector<bool>& frontier_flag){$/;"	f	class:frontier_exploration::FrontierSearch
+main	src/explore_client.cpp	/^int main(int argc, char** argv)$/;"	f
+main	src/explore_server.cpp	/^int main(int argc, char** argv)$/;"	f
+main	src/test/costmap_tools_tests.cpp	/^int main(int argc, char **argv){$/;"	f
+main	src/test/frontier_search_tests.cpp	/^int main(int argc, char **argv){$/;"	f
+main	src/test/geometry_tools_tests.cpp	/^int main(int argc, char **argv){$/;"	f
+mapUpdateKeepObstacles	plugins/bounded_explore_layer.cpp	/^    void BoundedExploreLayer::mapUpdateKeepObstacles(costmap_2d::Costmap2D& master_grid, int min_i, int min_j, int max_i, int max_j){$/;"	f	class:frontier_exploration::BoundedExploreLayer
+map_	include/frontier_exploration/frontier_search.h	/^    unsigned char* map_;$/;"	m	class:frontier_exploration::FrontierSearch
+marked_	include/frontier_exploration/bounded_explore_layer.h	/^    bool configured_, marked_;$/;"	m	class:frontier_exploration::BoundedExploreLayer
+matchSize	plugins/bounded_explore_layer.cpp	/^    void BoundedExploreLayer::matchSize(){$/;"	f	class:frontier_exploration::BoundedExploreLayer
+min_frontier_size_	include/frontier_exploration/bounded_explore_layer.h	/^    int min_frontier_size_;$/;"	m	class:frontier_exploration::BoundedExploreLayer
+min_frontier_size_	include/frontier_exploration/frontier_search.h	/^    int min_frontier_size_;$/;"	m	class:frontier_exploration::FrontierSearch
+move_client_	src/explore_server.cpp	/^    actionlib::SimpleActionClient<move_base_msgs::MoveBaseAction> move_client_;$/;"	m	class:frontier_exploration::FrontierExplorationServer	file:
+move_client_goal_	src/explore_server.cpp	/^    move_base_msgs::MoveBaseGoal move_client_goal_;$/;"	m	class:frontier_exploration::FrontierExplorationServer	file:
+move_client_lock_	src/explore_server.cpp	/^    boost::mutex move_client_lock_;$/;"	m	class:frontier_exploration::FrontierExplorationServer	file:
+moving_	src/explore_server.cpp	/^    bool success_, moving_;$/;"	m	class:frontier_exploration::FrontierExplorationServer	file:
+nearestCell	include/frontier_exploration/costmap_tools.h	/^bool nearestCell(unsigned int &result, unsigned int start, unsigned char val, const costmap_2d::Costmap2D& costmap){$/;"	f	namespace:frontier_exploration
+nh_	src/explore_client.cpp	/^    ros::NodeHandle nh_;$/;"	m	class:frontier_exploration::FrontierExplorationClient	file:
+nh_	src/explore_server.cpp	/^    ros::NodeHandle nh_;$/;"	m	class:frontier_exploration::FrontierExplorationServer	file:
+nhood4	include/frontier_exploration/costmap_tools.h	/^std::vector<unsigned int> nhood4(unsigned int idx, const costmap_2d::Costmap2D& costmap){$/;"	f	namespace:frontier_exploration
+nhood8	include/frontier_exploration/costmap_tools.h	/^std::vector<unsigned int> nhood8(unsigned int idx, const costmap_2d::Costmap2D& costmap){$/;"	f	namespace:frontier_exploration
+onInitialize	plugins/bounded_explore_layer.cpp	/^    void BoundedExploreLayer::onInitialize(){$/;"	f	class:frontier_exploration::BoundedExploreLayer
+pointCb	src/explore_client.cpp	/^    void pointCb(const geometry_msgs::PointStampedConstPtr& point){$/;"	f	class:frontier_exploration::FrontierExplorationClient	file:
+pointInPolygon	include/frontier_exploration/geometry_tools.h	/^  bool pointInPolygon(const T &point, const geometry_msgs::Polygon &polygon){$/;"	f	namespace:frontier_exploration
+point_	src/explore_client.cpp	/^    ros::Subscriber point_;$/;"	m	class:frontier_exploration::FrontierExplorationClient	file:
+point_viz_pub_	src/explore_client.cpp	/^    ros::Publisher point_viz_pub_;$/;"	m	class:frontier_exploration::FrontierExplorationClient	file:
+point_viz_timer_	src/explore_client.cpp	/^    ros::WallTimer point_viz_timer_;$/;"	m	class:frontier_exploration::FrontierExplorationClient	file:
+pointsDistance	include/frontier_exploration/geometry_tools.h	/^  double pointsDistance(const T &one, const S &two){$/;"	f	namespace:frontier_exploration
+pointsNearby	include/frontier_exploration/geometry_tools.h	/^  bool pointsNearby(const T &one, const S &two, const double &proximity){$/;"	f	namespace:frontier_exploration
+polygonPerimeter	include/frontier_exploration/geometry_tools.h	/^  double polygonPerimeter(const geometry_msgs::Polygon &polygon){$/;"	f	namespace:frontier_exploration
+polygonService_	include/frontier_exploration/bounded_explore_layer.h	/^    ros::ServiceServer polygonService_;$/;"	m	class:frontier_exploration::BoundedExploreLayer
+polygon_	include/frontier_exploration/bounded_explore_layer.h	/^    geometry_msgs::Polygon polygon_;$/;"	m	class:frontier_exploration::BoundedExploreLayer
+polygon_	src/test/geometry_tools_tests.cpp	/^    geometry_msgs::Polygon polygon_;$/;"	m	class:PointInPolygonTest	file:
+preemptCb	src/explore_server.cpp	/^    void preemptCb(){$/;"	f	class:frontier_exploration::FrontierExplorationServer	file:
+private_nh_	src/explore_client.cpp	/^    ros::NodeHandle private_nh_;$/;"	m	class:frontier_exploration::FrontierExplorationClient	file:
+private_nh_	src/explore_server.cpp	/^    ros::NodeHandle private_nh_;$/;"	m	class:frontier_exploration::FrontierExplorationServer	file:
+reconfigureCB	plugins/bounded_explore_layer.cpp	/^    void BoundedExploreLayer::reconfigureCB(costmap_2d::GenericPluginConfig &config, uint32_t level){$/;"	f	class:frontier_exploration::BoundedExploreLayer
+reset	plugins/bounded_explore_layer.cpp	/^    void BoundedExploreLayer::reset(){$/;"	f	class:frontier_exploration::BoundedExploreLayer
+resize_to_boundary_	include/frontier_exploration/bounded_explore_layer.h	/^    bool resize_to_boundary_;$/;"	m	class:frontier_exploration::BoundedExploreLayer
+retry_	src/explore_server.cpp	/^    int retry_;$/;"	m	class:frontier_exploration::FrontierExplorationServer	file:
+searchFrom	src/frontier_search.cpp	/^std::list<Frontier> FrontierSearch::searchFrom(geometry_msgs::Point position){$/;"	f	class:frontier_exploration::FrontierSearch
+size_x_	include/frontier_exploration/frontier_search.h	/^    unsigned int size_x_ , size_y_;$/;"	m	class:frontier_exploration::FrontierSearch
+size_y_	include/frontier_exploration/frontier_search.h	/^    unsigned int size_x_ , size_y_;$/;"	m	class:frontier_exploration::FrontierSearch
+success_	src/explore_server.cpp	/^    bool success_, moving_;$/;"	m	class:frontier_exploration::FrontierExplorationServer	file:
+tf_listener_	include/frontier_exploration/bounded_explore_layer.h	/^    tf::TransformListener tf_listener_;$/;"	m	class:frontier_exploration::BoundedExploreLayer
+tf_listener_	src/explore_server.cpp	/^    tf::TransformListener tf_listener_;$/;"	m	class:frontier_exploration::FrontierExplorationServer	file:
+travel_point_	include/frontier_exploration/frontier_search.h	/^    std::string travel_point_;$/;"	m	class:frontier_exploration::FrontierSearch
+updateBoundaryPolygon	plugins/bounded_explore_layer.cpp	/^    bool BoundedExploreLayer::updateBoundaryPolygon(geometry_msgs::PolygonStamped polygon_stamped){$/;"	f	class:frontier_exploration::BoundedExploreLayer
+updateBoundaryPolygonService	plugins/bounded_explore_layer.cpp	/^    bool BoundedExploreLayer::updateBoundaryPolygonService(frontier_exploration::UpdateBoundaryPolygon::Request &req, frontier_exploration::UpdateBoundaryPolygon::Response &res){$/;"	f	class:frontier_exploration::BoundedExploreLayer
+updateBounds	plugins/bounded_explore_layer.cpp	/^    void BoundedExploreLayer::updateBounds(double robot_x, double robot_y, double robot_yaw, double* min_x,$/;"	f	class:frontier_exploration::BoundedExploreLayer
+updateCosts	plugins/bounded_explore_layer.cpp	/^    void BoundedExploreLayer::updateCosts(costmap_2d::Costmap2D& master_grid, int min_i, int min_j, int max_i, int max_j){$/;"	f	class:frontier_exploration::BoundedExploreLayer
+vizPubCb	src/explore_client.cpp	/^    void vizPubCb(){$/;"	f	class:frontier_exploration::FrontierExplorationClient	file:
+waiting_for_center_	src/explore_client.cpp	/^    bool waiting_for_center_;$/;"	m	class:frontier_exploration::FrontierExplorationClient	file:
+yawOfVector	include/frontier_exploration/geometry_tools.h	/^  double yawOfVector(const T &origin, const S &end){$/;"	f	namespace:frontier_exploration
+~BoundedExploreLayer	plugins/bounded_explore_layer.cpp	/^    BoundedExploreLayer::~BoundedExploreLayer(){$/;"	f	class:frontier_exploration::BoundedExploreLayer

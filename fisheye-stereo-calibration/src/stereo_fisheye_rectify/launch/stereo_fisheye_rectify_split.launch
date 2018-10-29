@@ -1,0 +1,12 @@
+<launch>
+    <!-- Launch file for stereo fisheye rectification -->
+    <node pkg="stereo_fisheye_rectify" type="stereo_fr_split" name="stereo_fisheye_rectify" output="screen">
+      <param name="calib_file" value="/home/wzm/fisheye-stereo-calibration/src/stereo_fisheye_rectify/params/cam_stereo.yml"/>
+      <param name="img_width" type="int" value="752"/>
+      <param name="img_height" type="int" value="480"/>
+      <remap from="~left/image_raw" to="/stereo/left/image_raw"/>
+      <remap from="~right/image_raw" to="/stereo/right/image_raw"/>
+      <remap from="~left/rectified" to="/stereo_fisheye_rectify/left/image_rect"/>
+      <remap from="~right/rectified" to="/stereo_fisheye_rectify/right/image_rect"/>
+    </node>
+</launch>

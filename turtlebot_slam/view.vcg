@@ -1,0 +1,166 @@
+Background\ ColorB=0
+Background\ ColorG=0
+Background\ ColorR=0
+Camera\ Config=1.5698 4.1804 7.72087 0.0564818 -0.960209 1.19209e-07
+Camera\ Type=rviz::XYOrbitViewController
+Edges.Enabled=1
+Edges.Marker\ Topic=/graph_vis
+Edges.Queue\ Size=100
+EstimatedPose.Axes\ Length=0.4
+EstimatedPose.Axes\ Radius=0.05
+EstimatedPose.Enabled=1
+EstimatedPose.Shape=1
+EstimatedPose.Topic=/last_pose
+Fixed\ Frame=/odom
+Global\ Path.Alpha=1
+Global\ Path.ColorB=0
+Global\ Path.ColorG=0
+Global\ Path.ColorR=1
+Global\ Path.Enabled=1
+Global\ Path.Topic=/move_base_node/TrajectoryPlannerROS/global_plan
+Goal.Axes\ Length=0.2
+Goal.Axes\ Radius=0.1
+Goal.Enabled=1
+Goal.Shape=1
+Goal.Topic=/move_base_node/current_goal
+Grid.Alpha=0.5
+Grid.Cell\ Size=1
+Grid.ColorB=0.5
+Grid.ColorG=0.5
+Grid.ColorR=0.5
+Grid.Enabled=1
+Grid.Line\ Style=0
+Grid.Line\ Width=0.03
+Grid.Normal\ Cell\ Count=0
+Grid.OffsetX=0
+Grid.OffsetY=0
+Grid.OffsetZ=0
+Grid.Plane=0
+Grid.Plane\ Cell\ Count=10
+Grid.Reference\ Frame=<Fixed Frame>
+Map.Alpha=0.7
+Map.Draw\ Behind=0
+Map.Enabled=1
+Map.Topic=/map
+PointCloud..AxisColorAutocompute\ Value\ Bounds=1
+PointCloud..AxisColorAxis=2
+PointCloud..AxisColorMax\ Value=10
+PointCloud..AxisColorMin\ Value=-10
+PointCloud..AxisColorUse\ Fixed\ Frame=1
+PointCloud..FlatColorColorB=1
+PointCloud..FlatColorColorG=1
+PointCloud..FlatColorColorR=1
+PointCloud..IntensityAutocompute\ Intensity\ Bounds=1
+PointCloud..IntensityChannel\ Name=intensity
+PointCloud..IntensityMax\ ColorB=1
+PointCloud..IntensityMax\ ColorG=1
+PointCloud..IntensityMax\ ColorR=1
+PointCloud..IntensityMax\ Intensity=4096
+PointCloud..IntensityMin\ ColorB=0
+PointCloud..IntensityMin\ ColorG=0
+PointCloud..IntensityMin\ ColorR=0
+PointCloud..IntensityMin\ Intensity=0
+PointCloud..IntensityUse\ full\ RGB\ spectrum=0
+PointCloud.Alpha=1
+PointCloud.Billboard\ Size=0.01
+PointCloud.Color\ Transformer=Intensity
+PointCloud.Decay\ Time=0
+PointCloud.Enabled=1
+PointCloud.Position\ Transformer=XYZ
+PointCloud.Queue\ Size=10
+PointCloud.Selectable=1
+PointCloud.Style=0
+PointCloud.Topic=/frontiers
+Pose\ Array.Arrow\ Length=0.3
+Pose\ Array.ColorB=0
+Pose\ Array.ColorG=0.1
+Pose\ Array.ColorR=1
+Pose\ Array.Enabled=1
+Pose\ Array.Topic=/particlecloud
+Poses.Arrow\ Length=0.3
+Poses.ColorB=0
+Poses.ColorG=1
+Poses.ColorR=0.917647
+Poses.Enabled=1
+Poses.Topic=/pose
+Property\ Grid\ Splitter=295,78
+Property\ Grid\ State=;splitterratio=0.5
+QMainWindow=000000ff00000000fd00000003000000000000011d000001c7fc0200000001fb000000100044006900730070006c0061007900730000000017000001c7000000ee00ffffff000000010000012a000001b3fc0200000003fb0000001e0054006f006f006c002000500072006f007000650072007400690065007300000000340000006f0000006700fffffffb0000000a00560069006500770073000000003400000114000000bb00fffffffb0000001200530065006c0065006300740069006f006e0000000034000001b30000006700ffffff00000003000002760000003efc0100000001fb0000000800540069006d00650100000000000002760000022600ffffff00000276000001c700000004000000040000000800000008fc0000000100000002000000010000000a0054006f006f006c00730000000000ffffffff0000000000000000
+Robot\ Model.Alpha=1
+Robot\ Model.Collision\ Enabled=0
+Robot\ Model.Enabled=1
+Robot\ Model.Robot\ Description=robot_description
+Robot\ Model.TF\ Prefix=
+Robot\ Model.Update\ Interval=0
+Robot\ Model.Visual\ Enabled=1
+Robot_Base.Alpha=1
+Robot_Base.ColorB=0.498039
+Robot_Base.ColorG=0
+Robot_Base.ColorR=0.333333
+Robot_Base.Enabled=1
+Robot_Base.Topic=/move_base_node/local_costmap/robot_footprint
+TF.All\ Enabled=1
+TF.Enabled=1
+TF.Frame\ Timeout=15
+TF.Marker\ Scale=1
+TF.Show\ Arrows=1
+TF.Show\ Axes=1
+TF.Show\ Names=1
+TF.Update\ Interval=0
+Target\ Frame=<Fixed Frame>
+Tool\ 2D\ Nav\ GoalTopic=move_base_simple/goal
+Tool\ 2D\ Pose\ EstimateTopic=initialpose
+target.Axes\ Length=0.1
+target.Axes\ Radius=0.1
+target.Enabled=1
+target.Shape=1
+target.Topic=/move_base_simple/goal
+[Display0]
+ClassName=rviz::MapDisplay
+Name=Map
+[Display1]
+ClassName=rviz::PoseArrayDisplay
+Name=Pose Array
+[Display10]
+ClassName=rviz::PoseDisplay
+Name=Goal
+[Display11]
+ClassName=rviz::PoseArrayDisplay
+Name=Poses
+[Display12]
+ClassName=rviz::MarkerDisplay
+Name=Edges
+[Display2]
+ClassName=rviz::GridDisplay
+Name=Grid
+[Display3]
+ClassName=rviz::RobotModelDisplay
+Name=Robot Model
+[Display4]
+ClassName=rviz::TFDisplay
+Name=TF
+[Display5]
+ClassName=rviz::PointCloudDisplay
+Name=PointCloud
+[Display6]
+ClassName=rviz::PoseDisplay
+Name=EstimatedPose
+[Display7]
+ClassName=rviz::PolygonDisplay
+Name=Robot_Base
+[Display8]
+ClassName=rviz::PathDisplay
+Name=Global Path
+[Display9]
+ClassName=rviz::PoseDisplay
+Name=target
+[TF.Frames.]
+base_footprint.Enabled=1
+base_laser_link.Enabled=1
+base_link.Enabled=1
+odom.Enabled=1
+[Window]
+Height=592
+Width=650
+X=0
+Y=578
