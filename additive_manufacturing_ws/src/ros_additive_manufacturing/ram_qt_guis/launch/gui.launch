@@ -1,0 +1,5 @@
+<?xml version="1.0"?>
+<launch>
+  <include file="$(find ram_qt_guis)/launch/nodes.launch"/>
+  <node name="ram_rviz" pkg="rviz" type="rviz" args="-s '' -d $(find ram_qt_guis)/config/ram.rviz" output="screen" required="true"/>
+</launch>

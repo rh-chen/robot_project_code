@@ -1,0 +1,53 @@
+# How to color the trajectory:
+# 0 = Layer level
+# 1 = Layer index
+# 2 = Speed
+# 3 = Pose type
+# 4 = Laser power
+uint32 color_mode
+
+# Display modes:
+# 0 = wire frame mode
+# 1 = cylinders mode
+# 2 = wire + axis mode
+# 3 = cylinders + axis mode
+uint32 display_mode
+
+# Cylinder size in meters (display modes 1 and 3)
+float32 cylinder_size
+
+# If display mode 0 or 2: Line size in meters
+float32 wire_size
+
+# If display mode 2 or 3: Axis size in meters
+float32 axis_size
+
+# Label displayed on each pose
+# 0 = pose number
+# 1 = layer level
+# 2 = layer index
+# 3 = pose number within layer
+uint32 label_type
+
+# If true, labels will be displayed
+bool display_labels
+
+# Text size in meters (specifies the height of an uppercase "A")
+float32 labels_size
+
+# If true, display a range of layers
+# If false, display the whole trajectory
+bool display_range_of_layers
+
+# First layer in the range
+uint32 first_layer
+
+# Last layer in the range
+uint32 last_layer
+
+# Color of displayed mesh
+std_msgs/ColorRGBA mesh_color
+---
+# If empty, service succeeded
+# If failure, contains an error string
+string error
