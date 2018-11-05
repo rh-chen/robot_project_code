@@ -1,0 +1,6 @@
+<launch>
+    <node name="map_modify_node" pkg="additive_cpp" type="map_modify_node" output="screen">
+    </node>
+    <node name="line_detection_and_rotation_node" pkg="additive_cpp" type="line_detection_and_rotation_node" output="screen">
+    </node>
+</launch>
