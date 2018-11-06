@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(additive_cpp)
 
-set(CMAKE_CXX_FLAGS "-std=c++0x -Wno-deprecated")
+set(CMAKE_CXX_FLAGS "-std=c++0x -Wno-deprecated -Wno-write-strings")
 ## Compile as C++11, supported in ROS Kinetic and newer
 add_compile_options(-std=c++11)
 
