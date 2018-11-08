@@ -1,0 +1,12 @@
+<launch>
+	<arg name="map_file" default="$(find ram_path_planning)/maps/bad_poselist.yaml"/>
+
+    <node name="map_server_for_test" pkg="map_server" type="map_server" args="$(arg map_file)">
+    </node>
+
+    <node name="ram_cpp_node" pkg="ram_path_planning" type="ram_cpp_node" output="screen">
+    </node>
+
+	<node pkg="rviz" type="rviz" name="rviz" args="-d $(find ram_path_planning)/rviz/path_plan.rviz" />
+
+</launch>

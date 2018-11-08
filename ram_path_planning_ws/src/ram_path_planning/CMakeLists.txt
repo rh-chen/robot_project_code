@@ -86,6 +86,7 @@ generate_messages(
 include_directories(
   include
   ${catkin_INCLUDE_DIRS}
+  ${OpenCV_INCLUDE_DIRS}
 )
 
 # Library (mostly VTK) that slices a mesh into layers
@@ -105,17 +106,18 @@ include_directories(
 
 # Service node
 add_executable(
-  ${PROJECT_NAME}
+  ${PROJECT_NAME}_node
   src/Cpp.cpp
 )
 target_link_libraries(
-  ${PROJECT_NAME}
+  ${PROJECT_NAME}_node
   ${catkin_LIBRARIES}
   ${VTK_LIBRARIES}
+  ${OpenCV_LIBS}
   #${PROJECT_NAME}_mesh_slicer
 )
 add_dependencies(
-  ${PROJECT_NAME}
+  ${PROJECT_NAME}_node
   ${PROJECT_NAME}_generate_messages_cpp
   ${catkin_EXPORTED_TARGETS}
 )
@@ -130,7 +132,7 @@ target_link_libraries(map_modify_node
 add_dependencies(map_modify_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 
-add_executable(ram_cpp_node src/additive_cpp_node.cpp)
+add_executable(ram_cpp_node src/ram_cpp_node.cpp)
 target_link_libraries(ram_cpp_node
    ${catkin_LIBRARIES}
    ${OpenCV_LIBS}

@@ -1,0 +1,8 @@
+<launch>
+    <node name="map_modify_node" pkg="ram_path_planning" type="map_modify_node" output="screen">
+    </node>
+    <node name="line_detection_and_rotation_node" pkg="ram_path_planning" type="line_detection_and_rotation_node" output="screen">
+    </node>
+    <node name="ram_path_planning_node" pkg="ram_path_planning" type="ram_path_planning_node" output="screen">
+    </node>
+</launch>

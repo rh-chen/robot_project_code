@@ -447,7 +447,7 @@ int main(int argc, char **argv) {
       "/sweeper/map_rotate_srv",
       line_detection_and_rotation::MapRotate);
 
-  ROS_INFO("Ready to Map rotate...");
+  ROS_INFO("Ready to map rotate...");
 
   ros::spin();
 

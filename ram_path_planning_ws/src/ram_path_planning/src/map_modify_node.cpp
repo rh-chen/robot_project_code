@@ -385,7 +385,7 @@ int main(int argc, char **argv) {
 
   ros::ServiceServer map_modify_srv = private_nh.advertiseService("/sweeper/map_modify_srv",ns_map_modify::MapModifyService);
 
-  ROS_INFO(" Map modify service active.");
+  ROS_INFO("Ready to map modify...");
 
   ros::spin();
 
