@@ -175,7 +175,7 @@ namespace Cpp
   std::string DonghongDing::generateOneLayerTrajectory(
                                                        const int current_progrress_value,
                                                        const int next_progress_value,
-                                                       const std::string yaml_file,
+													   Polygon& poly_data,
                                                        Layer &layer,
                                                        const double deposited_material_width,
                                                        const double contours_filtering_tolerance,
@@ -184,8 +184,8 @@ namespace Cpp
                                                        const bool use_gui)
   {
     // Prepare contours
-    const Polygon poly_data = Polygon::New();
-    std::vector<unsigned> layer_count;
+    //const Polygon poly_data = Polygon::New();
+    //std::vector<unsigned> layer_count;
     /*if (!ram_utils::yamlFileToPolydata2(yaml_file, poly_data, layer_count))
       if (!ram_utils::yamlFileToPolydata(yaml_file, poly_data))
         return "Could not parse the YAML file";

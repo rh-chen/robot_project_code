@@ -30,7 +30,7 @@ namespace Cpp
     std::string generateOneLayerTrajectory(
                                            const int current_progrress_value,
                                            const int next_progress_value,
-                                           const std::string yaml_file,
+                                           Polygon& poly_data,
                                            Layer &layer,
                                            const double deposited_material_width,
                                            const double contours_filtering_tolerance,

@@ -71,7 +71,7 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
 	std::vector<std::vector<cv::Point> > valid_external_contours;
 	std::vector<std::vector<cv::Point> > valid_internal_contours;
 
-	cv::findContours(bin,contours,hierarchy,CV_RETR_TREE,CV_CHAIN_APPROX_NONE,cv::Point());
+	cv::findContours(bin,contours,hierarchy,CV_RETR_TREE,CV_CHAIN_APPROX_SIMPLE,cv::Point());
 
 	ROS_INFO("find contours:%d",(int)contours.size());
 
@@ -94,47 +94,73 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
 
 	ROS_INFO("valid_external_contour_number:%d",valid_external_contour);
 	ROS_INFO("valid_internal_contour_number:%d",valid_internal_contour);
+	
+	vtkSmartPointer<vtkPolyData> polygonPolyData = vtkSmartPointer<vtkPolyData>::New();
 
-#if 0
-  ram_path_planning::AdditiveManufacturingTrajectory msg;
-  DonghongDing dhd;
-  std::string goal_file = "";
-  Layer current_layer_;
-  // Generate trajectory
-  if (true)
-  {
-    std::string error_message;
-    error_message = dhd.generateOneLayerTrajectory(
-													10, 50, goal_file,current_layer_,
+	for(int i = 0;i < valid_external_contour;i++){
+
+		vtkSmartPointer<vtkPoints> local_pts = vtkSmartPointer<vtkPoints>::New();
+		vtkSmartPointer<vtkPolygon> local_polygon = vtkSmartPointer<vtkPolygon>::New();
+
+		local_polygon->GetPointIds()->SetNumberOfIds(valid_external_contours[i].size());
+
+		std::vector<cv::Point> contour_poly;
+		cv::approxPolyDP(cv::Mat(valid_external_contours[i]), contour_poly,6,true);
+
+		for(int j = 0;j < contour_poly.size();j++){
+			double point_x = contour_poly[j].x*req.map_resolution+req.map_origin_x;
+			double point_y = contour_poly[j].y*req.map_resolution+req.map_origin_y;
+
+			local_pts->InsertNextPoint(point_x,point_y, 0.0);
+			local_polygon->GetPointIds()->SetId(j, j);
+		}
+		vtkSmartPointer<vtkCellArray> local_cells = vtkSmartPointer<vtkCellArray>::New();
+		local_cells->InsertNextCell(local_polygon);
+
+		polygonPolyData->SetPoints(local_pts);
+		polygonPolyData->SetPolys(local_cells);
+	}
+
+  	ram_path_planning::AdditiveManufacturingTrajectory msg;
+  	DonghongDing dhd;
+
+	PolygonVector polygon_vector_;
+  	Layer current_layer_;
+
+	polygon_vector_.push_back(polygonPolyData);
+	current_layer_.push_back(polygon_vector_);
+  	// Generate trajectory
+  	if (valid_external_contour > 0)
+  	{
+    	std::string error_message;
+    	error_message = dhd.generateOneLayerTrajectory(
+													10, 50,polygonPolyData,current_layer_,
                                                     req.deposited_material_width,
                                                     req.contours_filtering_tolerance, M_PI / 6,
                                                     false,
                                                     use_gui);
 
 
-    if (error_message.empty())
-    {
-      dhd.connectYamlLayers( 50,90,current_layer_, msg,req.number_of_layers,req.height_between_layers);
-    }
-    else
-    {
-      ROS_ERROR_STREAM(error_message);
-      return false;
-    }
-  }
+    	if (error_message.empty())
+    	{
+      		dhd.connectYamlLayers( 50,90,current_layer_, msg,req.number_of_layers,req.height_between_layers);
+    	}
+    	else
+    	{
+      		ROS_ERROR_STREAM(error_message);
+      		return false;
+    	}
+  	}
 
-  // Trajectory is now complete
-  // Fill response and publish trajectory
-  if (msg.poses.size() == 0)
-  {
-   	  ROS_ERROR_STREAM("Trajectory is empty");
-      return false;
-  }
-  // Add UUID
-  for (auto &pose : msg.poses)
-    pose.unique_id = unique_id::toMsg(unique_id::fromRandom());
-
-#endif
+  	// Trajectory is now complete
+  	// Fill response and publish trajectory
+  	if (msg.poses.size() == 0)
+  	{
+   	  	ROS_ERROR_STREAM("Trajectory is empty");
+      	return false;
+  	}
+	
+	ROS_INFO("Trajectory size:%d",(int)msg.poses.size());
 	return true;
 }
 
