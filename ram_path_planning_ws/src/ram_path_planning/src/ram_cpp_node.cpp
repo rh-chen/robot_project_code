@@ -141,7 +141,7 @@ public:
 					srv_zigzag.request.map_origin_y = map_rotate_srv.response.map_origin_y;
 					srv_zigzag.request.map_resolution = map_rotate_srv.response.map_resolution;
 					srv_zigzag.request.height_between_layers = 1;
-					srv_zigzag.request.deposited_material_width = 0.3;
+					srv_zigzag.request.deposited_material_width = 0.25;
 					srv_zigzag.request.contours_filtering_tolerance = 0.1;
 					srv_zigzag.request.transform = map_rotate_srv.response.transform;
 					srv_zigzag.request.map = map_rotate_srv.response.map;
@@ -161,12 +161,12 @@ public:
 
                                     pub_map_modify.publish(map_modify_srv.response.map);
 									pub_map_rotate.publish(map_rotate_srv.response.map);
-#if 0
-									int path_size = srv_darp.response.plan.poses.size();
+#if 1
+									int path_size = srv_zigzag.response.path.poses.size();
 
 									visualization_msgs::MarkerArray markerArray;
 
-									geometry_msgs::PoseStamped startPose = srv_darp.response.plan.poses[0];
+									geometry_msgs::PoseStamped startPose = srv_zigzag.response.path.poses[0];
 
 									//marker start pose
 									geometry_msgs::Pose  plannerStartPose;
@@ -191,7 +191,7 @@ public:
 																	plannerStartScale,
 																	plannerStartColor,
 																	plannerStartId,
-																	srv_darp.request.map.header.frame_id);
+																	srv_zigzag.request.map.header.frame_id);
 
 									markerArray.markers.push_back(markerSphereStart);
 
@@ -201,7 +201,7 @@ public:
 
 									for(int i = 1; i < path_size; ++i) {
 
-											geometry_msgs::PoseStamped pose = srv_darp.response.plan.poses[i];
+											geometry_msgs::PoseStamped pose = srv_zigzag.response.path.poses[i];
 											//ROS_INFO_STREAM("poses:%s" << pose);
 
 											//marker planner pose
@@ -228,7 +228,7 @@ public:
 																			markerArrowScale,
 																			markerArrowColor,
 																			markerArrowId,
-																			srv_darp.request.map.header.frame_id);
+																			srv_zigzag.request.map.header.frame_id);
 
 											//arrowHead, arrowEnd
 											geometry_msgs::Point p;

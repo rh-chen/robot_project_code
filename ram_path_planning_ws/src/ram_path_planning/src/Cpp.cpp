@@ -154,13 +154,22 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
 
   	// Trajectory is now complete
   	// Fill response and publish trajectory
-  	if (msg.poses.size() == 0)
+  	if (msg.poses.size() <= 0)
   	{
    	  	ROS_ERROR_STREAM("Trajectory is empty");
       	return false;
   	}
 	
 	ROS_INFO("Trajectory size:%d",(int)msg.poses.size());
+
+	for(int i = 0;i < msg.poses.size();i++){
+		geometry_msgs::PoseStamped current_pose;
+		current_pose.pose.position.x = msg.poses[i].pose.position.x;
+		current_pose.pose.position.y = msg.poses[i].pose.position.y;
+		current_pose.pose.position.z = msg.poses[i].pose.position.z;
+
+		res.path.poses.push_back(current_pose);
+	}
 	return true;
 }
 
