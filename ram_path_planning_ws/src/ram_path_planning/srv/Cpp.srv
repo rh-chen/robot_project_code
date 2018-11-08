@@ -1,0 +1,19 @@
+int8 occupancy_threshold
+
+int8 number_of_layers
+
+float64[] transform
+
+float64 map_origin_x
+
+float64 map_origin_y
+
+float64 map_resolution
+
+float64 height_between_layers
+
+float64 deposited_material_width
+
+float64 contours_filtering_tolerance
+---
+float64 res
