@@ -192,7 +192,7 @@ namespace Cpp
 	*/
 
     std::array<double, 3> normal_vector = {0, 0, 1};
-    layer.clear();
+    //layer.clear();
     return generateOneLayerTrajectory(current_progrress_value, next_progress_value, poly_data, layer,
                                       deposited_material_width,
                                       contours_filtering_tolerance, normal_vector,

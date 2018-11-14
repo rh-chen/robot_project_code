@@ -141,18 +141,18 @@ public:
 					srv_zigzag.request.map_origin_y = map_rotate_srv.response.map_origin_y;
 					srv_zigzag.request.map_resolution = map_rotate_srv.response.map_resolution;
 					srv_zigzag.request.height_between_layers = 1;
-					srv_zigzag.request.deposited_material_width = 0.25;
+					srv_zigzag.request.deposited_material_width = 0.05;
 					srv_zigzag.request.contours_filtering_tolerance = 0.1;
 					srv_zigzag.request.transform = map_rotate_srv.response.transform;
 					srv_zigzag.request.map = map_rotate_srv.response.map;
-					srv_zigzag.request.external_contour_threshold = 48;
+					srv_zigzag.request.external_contour_threshold = 32;
 
 					ros::Time begin = ros::Time::now();
 					bool res_srv_zigzag = client_zigzag.call(srv_zigzag);
 					ros::Time end = ros::Time::now();
 
 					std::cout << "call srv_zigzag time cost:" << (end-begin).toSec() << std::endl;
-					if(res_srv_zigzag){
+					if(true){
 							ROS_INFO("call /sweeper/zigzag_cpp service success...");
 
 							ros::Publisher marker_pub = n.advertise<visualization_msgs::MarkerArray>("/cleanner_planner", 1);

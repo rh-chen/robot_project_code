@@ -70,56 +70,83 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
 	std::vector<cv::Vec4i> hierarchy;
 	std::vector<std::vector<cv::Point> > valid_external_contours;
 	std::vector<std::vector<cv::Point> > valid_internal_contours;
+	std::vector<std::vector<cv::Point> > valid_contours;
 
-	cv::findContours(bin,contours,hierarchy,CV_RETR_TREE,CV_CHAIN_APPROX_SIMPLE,cv::Point());
+	cv::findContours(bin,contours,hierarchy,CV_RETR_TREE,CV_CHAIN_APPROX_NONE,cv::Point());
 
 	ROS_INFO("find contours:%d",(int)contours.size());
+	
+	int external_contour_id;
+	int max_external_contour = 0;
 
-	int valid_external_contour = 0;
-	int valid_internal_contour = 0;
+	//find external contour and has subcontour 
 	for(int i = 0;i < contours.size();i++){
-		if(hierarchy[i][2] == -1){
+		if(contours[i].size() > max_external_contour){
+			max_external_contour = contours[i].size();
+			external_contour_id = i;
+		}
+	}
+
+	valid_external_contours.push_back(contours[external_contour_id]);
+	valid_contours.push_back(contours[external_contour_id]);
+	ROS_INFO("valid_external_contour_size:%d",contours[external_contour_id].size());
+	//find subcontour
+	for(int i = 0;i < contours.size();i++){
+		if(hierarchy[i][3] == external_contour_id){
 			if(contours[i].size() > req.external_contour_threshold){
-				valid_external_contour++;
-				valid_external_contours.push_back(contours[i]);
-				ROS_INFO("valid_external_contour_size:%d",(int)contours[i].size());
+				valid_internal_contours.push_back(contours[i]);
+				valid_contours.push_back(contours[i]);
+				ROS_INFO("valid_internal_contour_size:%d",contours[i].size());
 			}
 		}
-		else{
-			valid_internal_contour++;
-			valid_internal_contours.push_back(contours[i]);
-			ROS_INFO("valid_internal_contour_size:%d",(int)contours[i].size());
-		}
 	}
 
-	ROS_INFO("valid_external_contour_number:%d",valid_external_contour);
-	ROS_INFO("valid_internal_contour_number:%d",valid_internal_contour);
+	ROS_INFO("valid_external_contour_number:%d",valid_external_contours.size());
+	ROS_INFO("valid_internal_contour_number:%d",valid_internal_contours.size());
 	
 	vtkSmartPointer<vtkPolyData> polygonPolyData = vtkSmartPointer<vtkPolyData>::New();
+	vtkSmartPointer<vtkPoints> pts = vtkSmartPointer<vtkPoints>::New();
+	vtkSmartPointer<vtkCellArray> cells = vtkSmartPointer<vtkCellArray>::New();
+	
+	double epsilon_approx_poly = 6.0;	
+	//add external contour data
+	for(int i = 0;i < valid_contours.size();i++){
 
-	for(int i = 0;i < valid_external_contour;i++){
-
-		vtkSmartPointer<vtkPoints> local_pts = vtkSmartPointer<vtkPoints>::New();
-		vtkSmartPointer<vtkPolygon> local_polygon = vtkSmartPointer<vtkPolygon>::New();
-
-		local_polygon->GetPointIds()->SetNumberOfIds(valid_external_contours[i].size());
+		vtkSmartPointer<vtkPolygon> polygon = vtkSmartPointer<vtkPolygon>::New();
 
 		std::vector<cv::Point> contour_poly;
-		cv::approxPolyDP(cv::Mat(valid_external_contours[i]), contour_poly,6,true);
+		
+		if(i == 0){
+			cv::approxPolyDP(cv::Mat(valid_contours[i]), contour_poly,epsilon_approx_poly,true);
+			
+			std::cout << "contour_poly_size:" << contour_poly.size() << std::endl;
+			for(int j = 0;j < contour_poly.size();j++){
+				double point_x = contour_poly[j].x*req.map_resolution+req.map_origin_x;
+				double point_y = contour_poly[j].y*req.map_resolution+req.map_origin_y;
 
-		for(int j = 0;j < contour_poly.size();j++){
-			double point_x = contour_poly[j].x*req.map_resolution+req.map_origin_x;
-			double point_y = contour_poly[j].y*req.map_resolution+req.map_origin_y;
-
-			local_pts->InsertNextPoint(point_x,point_y, 0.0);
-			local_polygon->GetPointIds()->SetId(j, j);
+				polygon->GetPointIds()->InsertNextId(pts->GetNumberOfPoints());
+				pts->InsertNextPoint(point_x,point_y,0.0);
+			}
+			cells->InsertNextCell(polygon);
 		}
-		vtkSmartPointer<vtkCellArray> local_cells = vtkSmartPointer<vtkCellArray>::New();
-		local_cells->InsertNextCell(local_polygon);
+		else{
+			cv::RotatedRect rRect = cv::minAreaRect(valid_contours[i]);
+			cv::Point2f vertices[4];
+			rRect.points(vertices);
 
-		polygonPolyData->SetPoints(local_pts);
-		polygonPolyData->SetPolys(local_cells);
+			for(int i = 0;i < 4;i++){
+				double point_x = vertices[i].x*req.map_resolution+req.map_origin_x;
+				double point_y = vertices[i].y*req.map_resolution+req.map_origin_y;
+
+				polygon->GetPointIds()->InsertNextId(pts->GetNumberOfPoints());
+				pts->InsertNextPoint(point_x,point_y,0.0);
+			}
+			cells->InsertNextCell(polygon);
+		}
 	}
+
+	polygonPolyData->SetPoints(pts);
+	polygonPolyData->SetPolys(cells);
 
   	ram_path_planning::AdditiveManufacturingTrajectory msg;
   	DonghongDing dhd;
@@ -130,7 +157,7 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
 	polygon_vector_.push_back(polygonPolyData);
 	current_layer_.push_back(polygon_vector_);
   	// Generate trajectory
-  	if (valid_external_contour > 0)
+  	if (valid_contours.size() > 0)
   	{
     	std::string error_message;
     	error_message = dhd.generateOneLayerTrajectory(
@@ -153,7 +180,6 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
   	}
 
   	// Trajectory is now complete
-  	// Fill response and publish trajectory
   	if (msg.poses.size() <= 0)
   	{
    	  	ROS_ERROR_STREAM("Trajectory is empty");
