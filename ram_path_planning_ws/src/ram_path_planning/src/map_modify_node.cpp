@@ -306,6 +306,26 @@ if(contours.size() > 1){
 		}
 	}
  }
+
+
+
+cv::Mat bin_step4;
+cv::threshold(map,bin_step4,req.threshold,255,cv::THRESH_BINARY_INV);
+std::vector<std::vector<cv::Point> > contours_step4;
+std::vector<cv::Vec4i> hierarchy_step4;
+cv::findContours(bin_step4,contours_step4,hierarchy_step4,CV_RETR_TREE,CV_CHAIN_APPROX_NONE,cv::Point());
+
+int limit_contour_point = 9;
+for(int i = 0;i < contours_step4.size();i++){
+	if(contours_step4[i].size() < limit_contour_point){
+		cv::Rect boundRect = cv::boundingRect(cv::Mat(contours_step4[i]));
+		for(int i = boundRect.tl().x;i < boundRect.br().x;i++){
+			for(int j = boundRect.tl().y;j < boundRect.br().y;j++){
+				map.at<unsigned char>(j,i) = 0;
+			}
+		}
+	}
+}
 #endif
     for(int i = 0;i < req.map.info.height;i++){
         for(int j = 0;j < req.map.info.width;j++){

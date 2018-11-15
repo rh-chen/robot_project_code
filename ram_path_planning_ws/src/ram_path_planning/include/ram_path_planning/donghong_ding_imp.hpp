@@ -9,9 +9,9 @@ namespace Cpp
                                        "cpp/path_planning/generate_trajectory/DonghongDing"),
           semaphore_(4)
   {
-    this->deposited_material_width_ = 0.002; // 2 millimeters
+    this->deposited_material_width_ = 0.3; // 2 millimeters
 
-    contours_filtering_tolerance_ = 0.0025; // 2.5 millimeters
+    contours_filtering_tolerance_ = 0.25; // 2.5 millimeters
     polygon_division_tolerance_ = M_PI / 6; // 30 degrees
     closest_to_bisector_ = false;
   }
@@ -115,6 +115,11 @@ namespace Cpp
       ROS_INFO_STREAM("Enter was pressed: zigzag in convex polygons");
     }
 
+	ROS_INFO("layer_size:%d",(size_t)layer.size());
+	ROS_INFO("layer_polygons_size:%d",(size_t)layer[0].size());
+	for(int i = 0;i < (size_t)layer[0].size();i++){
+		ROS_INFO("layer_polygons_polydata_size:%d",(size_t)layer[0][i]->GetNumberOfCells());
+	}
     // Path generation in convex polygons
     std::vector<std::future<bool> > futures;
     for (auto polygons : layer)
@@ -509,6 +514,8 @@ namespace Cpp
     vtkSmartPointer<vtkPolyData> poly_data = vtkSmartPointer<vtkPolyData>::New();
     poly_data->DeepCopy(polygon_source[polygon_position]);
     vtkIdType n_cells = poly_data->GetNumberOfCells();
+
+	//ROS_INFO("n_cells:%d",(size_t)n_cells);
     if (n_cells == 0)
     {
       ROS_WARN_STREAM("divideInConvexPolygons: poly_data is empty");
@@ -973,12 +980,12 @@ namespace Cpp
       left_chain->GetPoint(i, p_i);
       new_points->GetPoint(i, new_p_i);
 
-      for (vtkIdType j(0); j < left_chain->GetNumberOfPoints(); ++j)
+      for (vtkIdType j(0); j < left_chain->GetNumberOfPoints(); ++j)//j(0)
       {
         double p_j[3];
         double new_p_j[3];
-        left_chain->GetPoint(i, p_j);
-        new_points->GetPoint(i, new_p_j);
+        left_chain->GetPoint(j, p_j);//i
+        new_points->GetPoint(j, new_p_j);//i
 
         double u; //  Parametric coordinate of the line 1
         double v; //  Parametric coordinate of the line 2
@@ -1394,13 +1401,15 @@ namespace Cpp
   bool DonghongDing::generateTrajectoryInConvexPolygon(const Polygon poly_data)
   {
     semaphore_.wait(); //Semaphore
-
+	
+	ROS_INFO("Handle The Polygon");
     this->removeDuplicatePoints(poly_data);
     this->mergeColinearEdges(poly_data);
 
     if (!this->offsetPolygonContour(poly_data, this->deposited_material_width_ / 2.0))
     {
       semaphore_.signal();
+	  ROS_INFO("error 1");
       return false;
     };
 
@@ -1420,18 +1429,24 @@ namespace Cpp
     if (!offsetLeftChain(poly_data, edge_id, opposite_point_id, left_chain, right_chain))
     {
       semaphore_.signal();
+
+	  ROS_INFO("error 2");
       return false;
     }
 
     if (!this->offsetPolygonContour(poly_data, this->deposited_material_width_))
     {
       semaphore_.signal();
+
+	  ROS_INFO("error 3");
       return false;
     }
 
     if (!zigzagGeneration(poly_data, edge_id, opposite_point_id, zigzag_points, this->deposited_material_width_))
     {
       semaphore_.signal();
+
+	  ROS_INFO("error 4");
       return false;
     }
 

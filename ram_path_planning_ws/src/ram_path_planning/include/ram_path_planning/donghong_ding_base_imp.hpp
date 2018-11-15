@@ -326,12 +326,22 @@ namespace Cpp
         double v1[3];
         vtkMath::Subtract(p0, p1, v1);
         vtkMath::Subtract(p2, p1, v2);
+
         vtkMath::Normalize(v1);
         vtkMath::Normalize(v2);
+
+		ROS_INFO("v1:%f,%f,%f",v1[0],v1[1],v1[2]);
+		ROS_INFO("v2:%f,%f,%f",v2[0],v2[1],v2[2]);
         double angle = angleBetweenVectors(v1, v2);
+
+		ROS_INFO("angle:%f",angle*180/3.1415926);
+
         double bisector[3];
         vtkMath::Add(v1, v2, bisector);
+
+		ROS_INFO("bisector:%f,%f,%f",bisector[0],bisector[1],bisector[2]);
         vtkMath::Normalize(bisector);
+
         double new_point[3];
         for (int k = 0; k < 3; ++k)
           new_point[k] = p1[k] + deposited_material_width / sin(angle / 2) * bisector[k];
