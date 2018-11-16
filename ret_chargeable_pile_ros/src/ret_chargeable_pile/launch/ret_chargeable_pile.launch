@@ -1,5 +1,5 @@
 <launch>
-	<arg name="camera_frame" default="stereo_left_frame" />
+	<arg name="camera_frame" default="mynteye_left_frame" />
 	<arg name="world_frame" default="ar_marker" />
 	<arg name="max_freq" default="10.0" />
 

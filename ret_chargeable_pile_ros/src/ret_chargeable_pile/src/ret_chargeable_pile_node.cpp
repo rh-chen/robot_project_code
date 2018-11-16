@@ -71,7 +71,7 @@ double marker_roll;
 double marker_pitch;
 
 double position_threshold = 0.03;
-double angle_threshold = 0.03;
+double angle_threshold = 0.05;
 double angular_tolerance = 2.0*PI/180; 
 double rate_frequency = 100;
 
@@ -215,7 +215,9 @@ class robot_control{
 		common_move_cmd.angular.z = 0;
     
         if(check_bumper){
+            ROS_INFO("check bumper and stop...");
             ros::Rate lr(100);
+            bool res_srv = false;
             ret_chargeable_pile::CheckBumper cb_srv;
             cb_srv.request.check = true;
 
@@ -223,7 +225,7 @@ class robot_control{
                 cmd_vel_pub.publish(common_move_cmd);
                 lr.sleep();
                 
-                bool res_srv = check_bumper_client.call(cb_srv);
+                res_srv = check_bumper_client.call(cb_srv);
                 if(res_srv){
                     if(cb_srv.response.active){
                         cmd_vel_pub.publish(geometry_msgs::Twist());
@@ -276,6 +278,17 @@ class robot_control{
 		{
 			ROS_INFO("world_frame:%s\n",world_frame.c_str());
 #if 1
+			ROS_INFO("markers.size:%d",(size_t)msg->markers.size());
+			if(msg->markers.size() <= 0){
+				is_forward_marker = false;
+				is_position_unsuitable = false;
+				is_angle_unsuitable = false;
+				forward_to_marker_nearby = false;
+				
+				mtx4.unlock();
+				return;
+			}
+				
 			ar_track_alvar_msgs::AlvarMarker marker = msg->markers[0];
 			if(marker.header.frame_id == world_frame+string_frame_pose)
 			{
@@ -320,7 +333,6 @@ class robot_control{
 					ROS_INFO("marker_z:%f\n",marker_z);
 					ROS_INFO("marker_pitch:%f\n",marker_pitch);
 					ROS_INFO("marker_roll:%f\n",marker_roll);
-                    marker_yaw += PI/2;
 					ROS_INFO("marker_yaw:%f\n",marker_yaw);
                     
 				
@@ -570,7 +582,7 @@ int main(int argc, char** argv)
 
 	robot_control rc(n);
 
-	pn.param<string>("camera_frame", camera_frame, "stereo_left_frame");
+	pn.param<string>("camera_frame", camera_frame, "mynteye_left_frame");
     pn.param<string>("world_frame", world_frame, "ar_marker");
 	pn.param<double>("max_freq", max_frequency, 10.0);
 
