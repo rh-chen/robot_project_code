@@ -115,11 +115,11 @@ namespace Cpp
       ROS_INFO_STREAM("Enter was pressed: zigzag in convex polygons");
     }
 
-	ROS_INFO("layer_size:%d",(size_t)layer.size());
+	/*ROS_INFO("layer_size:%d",(size_t)layer.size());
 	ROS_INFO("layer_polygons_size:%d",(size_t)layer[0].size());
 	for(int i = 0;i < (size_t)layer[0].size();i++){
 		ROS_INFO("layer_polygons_polydata_size:%d",(size_t)layer[0][i]->GetNumberOfCells());
-	}
+	}*/
     // Path generation in convex polygons
     std::vector<std::future<bool> > futures;
     for (auto polygons : layer)
@@ -1406,6 +1406,25 @@ namespace Cpp
     this->removeDuplicatePoints(poly_data);
     this->mergeColinearEdges(poly_data);
 
+    vtkIdType edge_id;
+    vtkIdType opposite_point_id;
+    double h;
+
+	double d_m_w_ =  this->deposited_material_width_;
+	ROS_INFO("old_deposited_material_width:%f",this->deposited_material_width_);
+
+    h = identifyZigzagDirection(poly_data, edge_id, opposite_point_id);
+
+	ROS_INFO("h:%f",h);
+    if (std::floor(h / this->deposited_material_width_) <= 8){
+      	ROS_WARN_STREAM("warning: h/d <= 8 | h/d = " << h / this->deposited_material_width_);
+		if(std::floor(h / this->deposited_material_width_) > 5)
+			this->deposited_material_width_ = 0.2f;
+		else
+			this->deposited_material_width_ = 0.05f;
+	}
+
+	ROS_INFO("new_deposited_material_width:%f",this->deposited_material_width_);
     if (!this->offsetPolygonContour(poly_data, this->deposited_material_width_ / 2.0))
     {
       semaphore_.signal();
@@ -1413,13 +1432,14 @@ namespace Cpp
       return false;
     };
 
-    vtkIdType edge_id;
+    /*vtkIdType edge_id;
     vtkIdType opposite_point_id;
     double h;
 
     h = identifyZigzagDirection(poly_data, edge_id, opposite_point_id);
-    if (h / this->deposited_material_width_ <= 4)
+    if (h / this->deposited_material_width_ <= 4){
       ROS_WARN_STREAM("warning: h/d <= 4 | h/d = " << h / this->deposited_material_width_);
+	}*/
 
     vtkSmartPointer<vtkPoints> left_chain = vtkSmartPointer<vtkPoints>::New();
     vtkSmartPointer<vtkPoints> right_chain = vtkSmartPointer<vtkPoints>::New();
@@ -1454,6 +1474,8 @@ namespace Cpp
     this->removeDuplicatePoints(poly_data);
     this->mergeColinearEdges(poly_data);
     semaphore_.signal();
+
+	this->deposited_material_width_ = d_m_w_;
     return true;
   }
 

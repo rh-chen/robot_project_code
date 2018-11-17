@@ -57,7 +57,7 @@ namespace Cpp
     const double calculation_tol_ = 1e-6; // In meters
 
     double deposited_material_width_; // In meters
-
+	double contours_filtering_tolerance_;
     /*
      * angle in the interval [-PI , PI]
      * angleBetweenVectors(x,y) != angleBetweenVectors(y,x)

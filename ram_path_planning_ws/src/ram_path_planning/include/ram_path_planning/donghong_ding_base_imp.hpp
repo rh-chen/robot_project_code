@@ -330,16 +330,16 @@ namespace Cpp
         vtkMath::Normalize(v1);
         vtkMath::Normalize(v2);
 
-		ROS_INFO("v1:%f,%f,%f",v1[0],v1[1],v1[2]);
-		ROS_INFO("v2:%f,%f,%f",v2[0],v2[1],v2[2]);
+		//ROS_INFO("v1:%f,%f,%f",v1[0],v1[1],v1[2]);
+		//ROS_INFO("v2:%f,%f,%f",v2[0],v2[1],v2[2]);
         double angle = angleBetweenVectors(v1, v2);
 
-		ROS_INFO("angle:%f",angle*180/3.1415926);
+		//ROS_INFO("angle:%f",angle*180/3.1415926);
 
         double bisector[3];
         vtkMath::Add(v1, v2, bisector);
 
-		ROS_INFO("bisector:%f,%f,%f",bisector[0],bisector[1],bisector[2]);
+		//ROS_INFO("bisector:%f,%f,%f",bisector[0],bisector[1],bisector[2]);
         vtkMath::Normalize(bisector);
 
         double new_point[3];
@@ -691,6 +691,7 @@ namespace Cpp
     for (vtkIdType cell_id(0); cell_id < n_cells; ++cell_id)
     {
       vtkIdType n_points = polygon->GetCell(cell_id)->GetNumberOfPoints();
+
       vtkSmartPointer<vtkPolygon> contour = vtkSmartPointer<vtkPolygon>::New();
       double p0[3];
       polygon->GetCell(cell_id)->GetPoints()->GetPoint(0, p0); //fist point in this contour
