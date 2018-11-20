@@ -1,5 +1,5 @@
 <launch>
-	<arg name="camera_frame" default="mynt_left_frame" />
+	<arg name="camera_frame" default="mynteye_left_frame" />
 	<arg name="world_frame" default="ar_marker" />
 	<arg name="max_freq" default="10.0" />
 
@@ -10,5 +10,10 @@
 
 		<!--remap from="ret_chargeable_pile/cmd_vel" to="cmd_vel_mux/input/navi"/-->
 	</node>
+
+       <node name="check_bumper_node" pkg="ret_chargeable_pile" type="check_bumper_node" respawn="true" output="screen"></node>
+        
+
+	<!--node name="rviz" pkg="rviz" type="rviz" args="-d $(find ret_chargeable_pile)/rviz/marker.rviz" output="log" /-->
 
 </launch>

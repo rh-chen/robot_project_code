@@ -1,8 +1,10 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(ret_chargeable_pile)
 
+set(CMAKE_CXX_FLAGS "-std=c++0x -Wno-deprecated")
 ## Compile as C++11, supported in ROS Kinetic and newer
 # add_compile_options(-std=c++11)
+add_compile_options(-std=c++11)
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
@@ -11,7 +13,7 @@ find_package(catkin REQUIRED COMPONENTS
   actionlib
   actionlib_msgs
   nav_msgs
-  roscpp
+  roscpp	
   rospy
   sensor_msgs
   std_msgs
@@ -21,13 +23,16 @@ find_package(catkin REQUIRED COMPONENTS
 	cv_bridge
 	image_transport
 	ar_track_alvar_msgs
+	pcl_conversions
+	pcl_ros
+    std_srvs
 )
 
 find_package(OpenCV REQUIRED)
 find_package(Boost REQUIRED)
 
-add_action_files(DIRECTORY action FILES FindMarkerPose.action)
-generate_messages(DEPENDENCIES std_msgs actionlib_msgs geometry_msgs)
+#add_action_files(DIRECTORY action FILES FindMarkerPose.action)
+#generate_messages(DEPENDENCIES std_msgs actionlib_msgs geometry_msgs)
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
@@ -70,11 +75,10 @@ generate_messages(DEPENDENCIES std_msgs actionlib_msgs geometry_msgs)
 # )
 
 ## Generate services in the 'srv' folder
-# add_service_files(
-#   FILES
-#   Service1.srv
-#   Service2.srv
-# )
+ add_service_files(
+   FILES
+   CheckBumper.srv
+ )
 
 ## Generate actions in the 'action' folder
 # add_action_files(
@@ -84,10 +88,13 @@ generate_messages(DEPENDENCIES std_msgs actionlib_msgs geometry_msgs)
 # )
 
 ## Generate added messages and services with any dependencies listed here
-# generate_messages(
-#   DEPENDENCIES
-#   actionlib_msgs#   nav_msgs#   sensor_msgs#   std_msgs
-# )
+ generate_messages(
+   DEPENDENCIES
+   actionlib_msgs
+   nav_msgs
+   sensor_msgs
+   std_msgs
+ )
 
 ################################################
 ## Declare ROS dynamic reconfigure parameters ##
@@ -152,7 +159,8 @@ include_directories(
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
 add_executable(${PROJECT_NAME}_node src/ret_chargeable_pile_node.cpp)
-
+add_executable(check_bumper_node src/check_bumper.cpp)
+##add_executable(integrate_color_and_depth_node src/integrate_color_and_depth.cpp)
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
 ## target back to the shorter version for ease of user use
@@ -170,6 +178,16 @@ target_link_libraries(${PROJECT_NAME}_node
 	 ${Boost_LIBRARIES}
  )
 
+target_link_libraries(check_bumper_node
+   ${catkin_LIBRARIES}
+	 ${OpenCV_LIBS}
+	 ${Boost_LIBRARIES}
+ )
+#target_link_libraries(integrate_color_and_depth_node
+#   ${catkin_LIBRARIES}
+#	 ${OpenCV_LIBS}
+#	 ${Boost_LIBRARIES}
+# )
 #############
 ## Install ##
 #############
