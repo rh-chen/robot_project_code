@@ -59,10 +59,8 @@ CheckBumper::CheckBumper(){
 }
 void CheckBumper::bumperCallback(const kobuki_msgs::BumperEvent::ConstPtr& msg){
     mtx.lock();
-    if(msg->state == msg->PRESSED)
+    if(msg->bumper == msg->PRESSED)
         bumper_is_active = true;
-    else
-        bumper_is_active = false;
     mtx.unlock();
 }
 
