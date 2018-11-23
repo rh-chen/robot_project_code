@@ -84,8 +84,8 @@ double marker_yaw;
 double marker_roll;
 double marker_pitch;
 
-double position_threshold = 0.09;
-double angle_threshold = 0.09;
+double position_threshold = 0.05;
+double angle_threshold = 0.07;
 double angular_tolerance = 2.0*PI/180; 
 double rate_frequency = 100;
 
@@ -119,7 +119,7 @@ class robot_control{
 	robot_control(ros::NodeHandle n):nh(n)
 	{
 		msg_sub = nh.subscribe("/ar_pose_marker", 1000,&robot_control::poseCallback,this);
-        odom_sub = nh.subscribe("/odom",1000,&robot_control::odomCallback,this);
+        //odom_sub = nh.subscribe("/odom",1000,&robot_control::odomCallback,this);
 		cmd_vel_pub = nh.advertise<geometry_msgs::Twist>("/mobile_base/commands/velocity",1000);
 
         check_bumper_client = nh.serviceClient<ret_chargeable_pile::CheckBumper>("/sweeper/CheckBumper");
@@ -153,7 +153,7 @@ class robot_control{
 
         return angle_res;
     }
-    void robot_control::odomCallback(const nav_msgs::Odometry& msg){
+    /*void robot_control::odomCallback(const nav_msgs::Odometry& msg){
         mtx.lock();
        robot_x = msg.pose.pose.position.x;
        robot_y = msg.pose.pose.position.y;
@@ -166,10 +166,10 @@ class robot_control{
        tf::Matrix3x3(q).getRPY(roll, pitch, yaw);
        robot_theta = angle_wrap(yaw);
 
-	if(!marker_is_visible)
+	if(!start_alter_robot)
 		cmd_vel_pub.publish(rotate_move_cmd);
        mtx.unlock();
-    }
+    }*/
 	void robot_control::rotate_n_angle(double n,int direction)
 	{
         mtx2.lock();
@@ -277,7 +277,7 @@ class robot_control{
             float x = OdomToBaselink.getOrigin().x();
             float y = OdomToBaselink.getOrigin().y();
 
-		    ROS_INFO("x:%f,y:%f",x,y);
+		    //ROS_INFO("x:%f,y:%f",x,y);
 
             distance = sqrt(pow((x - x_start), 2) +  pow((y - y_start), 2));
         }
@@ -288,9 +288,7 @@ class robot_control{
 	void robot_control::poseCallback(const ar_track_alvar_msgs::AlvarMarkers::ConstPtr &msg)
 	{
         mtx4.lock();
-		ROS_INFO("world_frame:%s\n",world_frame.c_str());
-		static int count_msg = 0;
-
+		ROS_INFO("msg->header.frame_id:%s\n",msg->header.frame_id.c_str());
 #if 1
 
 		if(msg->header.frame_id == world_frame)
@@ -298,7 +296,7 @@ class robot_control{
 			ROS_INFO("world_frame:%s\n",world_frame.c_str());
 #if 1
 			ROS_INFO("markers.size:%d",(size_t)msg->markers.size());
-			if(msg->markers.size() <= 0){
+			/*if(msg->markers.size() <= 0){
 				is_forward_marker = false;
 				is_position_unsuitable = false;
 				is_angle_unsuitable = false;
@@ -307,7 +305,7 @@ class robot_control{
 
 				mtx4.unlock();
 				return;
-			}
+			}*/
 				
 			ar_track_alvar_msgs::AlvarMarker marker = msg->markers[0];
 			if(marker.header.frame_id == world_frame+string_frame_pose)
@@ -487,19 +485,19 @@ class robot_control{
 			}
 			else{
 				marker_is_visible = false;
-				//cmd_vel_pub.publish(rotate_move_cmd);
+				cmd_vel_pub.publish(rotate_move_cmd);
 			}
 #endif
 		}
 		else{
 			marker_is_visible = false;
-			//cmd_vel_pub.publish(rotate_move_cmd);
+			cmd_vel_pub.publish(rotate_move_cmd);
 		}
 #endif
 		}
 		else{
 			marker_is_visible = false;
-			//cmd_vel_pub.publish(rotate_move_cmd);
+			cmd_vel_pub.publish(rotate_move_cmd);
 		}
 #endif
         mtx4.unlock();
@@ -566,6 +564,19 @@ void robot_control::robot_move_base()
                         rotate_n_angle(rotation_to_nearby_back,-1);
                         ros::Duration(0.5).sleep();
 					}
+					else{
+						if(marker_pitch < 0){
+						    ros::Duration(0.5).sleep();
+                            rotate_n_angle(fabs(marker_pitch)/2,1);        
+						    ros::Duration(0.5).sleep();
+                         }
+                        else{
+						    ros::Duration(0.5).sleep();
+                            rotate_n_angle(fabs(marker_pitch)/2,-1);        
+						    ros::Duration(0.5).sleep();
+                         }
+                        straight_n_distance(fabs(alter_marker_z - robot_to_marker_distance),false);
+					}
 				}
 				else
 				{
@@ -597,12 +608,12 @@ void robot_control::robot_move_base()
                     else{
                          if(marker_pitch < 0){
 						    ros::Duration(0.5).sleep();
-                            rotate_n_angle(fabs(marker_pitch),-1);        
+                            rotate_n_angle(fabs(marker_pitch)/2,1);        
 						    ros::Duration(0.5).sleep();
                          }
                         else{
 						    ros::Duration(0.5).sleep();
-                            rotate_n_angle(fabs(marker_pitch),1);        
+                            rotate_n_angle(fabs(marker_pitch)/2,-1);        
 						    ros::Duration(0.5).sleep();
                          }
                     }
@@ -613,13 +624,13 @@ void robot_control::robot_move_base()
 				    if(marker_pitch < 0)
 				    {
 						ros::Duration(0.5).sleep();
-						rotate_n_angle(fabs(marker_pitch),-1);
+						rotate_n_angle(fabs(marker_pitch),1);
 						ros::Duration(0.5).sleep();
 					}
 					else
 					{
 						ros::Duration(0.5).sleep();
-						rotate_n_angle(fabs(marker_pitch),1);
+						rotate_n_angle(fabs(marker_pitch),-1);
 						ros::Duration(0.5).sleep();
 					}
                 }
