@@ -1,3 +1,0 @@
-1.roslaunch mynt_eye_ros_wrapper mynteye.launch mynteye:=mynteye ir_control:=0
-2.roslaunch mynteye_image_pipeline stereo_img_sub_pro.launch
-3.roslaunch ret_chargeable_pile ret_chargeable_pile.launch
