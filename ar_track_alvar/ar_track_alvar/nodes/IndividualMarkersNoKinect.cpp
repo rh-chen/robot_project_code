@@ -85,8 +85,8 @@ void getCapCallback (const sensor_msgs::ImageConstPtr & image_msg)
 		try{
 			tf::StampedTransform CamToOutput;
     			try{
-					tf_listener->waitForTransform(output_frame, image_msg->header.frame_id, image_msg->header.stamp, ros::Duration(1.0));
-					tf_listener->lookupTransform(output_frame, image_msg->header.frame_id, image_msg->header.stamp, CamToOutput);
+						tf_listener->waitForTransform(output_frame, image_msg->header.frame_id, image_msg->header.stamp, ros::Duration(1.0));
+						tf_listener->lookupTransform(output_frame, image_msg->header.frame_id, image_msg->header.stamp, CamToOutput);
    				}
     			catch (tf::TransformException ex){
       				ROS_ERROR("%s",ex.what());
@@ -106,8 +106,11 @@ void getCapCallback (const sensor_msgs::ImageConstPtr & image_msg)
             marker_detector.Detect(&ipl_image, cam, true, false, max_new_marker_error, max_track_error, CVSEQ, true);
             arPoseMarkers_.markers.clear ();
 			//add code 4.18
-			if(marker_detector.markers->size() <= 0)
+			if(marker_detector.markers->size() <= 0){
 					arPoseMarkers_.header.frame_id = "NO_MARKER";
+					arMarkerPub_.publish (arPoseMarkers_);
+                    return;
+            }
 
 			for (size_t i=0; i<marker_detector.markers->size(); i++)
 			{
@@ -365,4 +368,4 @@ int main(int argc, char *argv[])
   }
 
     return 0;
-}
+}		

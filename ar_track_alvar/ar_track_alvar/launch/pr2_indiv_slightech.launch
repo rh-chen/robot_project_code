@@ -2,11 +2,12 @@
 	<arg name="marker_size" default="11.9" />
 	<arg name="max_new_marker_error" default="0.08" />
 	<arg name="max_track_error" default="0.2" />
-	<arg name="cam_image_topic" default="/mynteye/color" />
-	<arg name="cam_info_topic" default="/mynteye/camera_info" />
-	<arg name="output_frame" default="/camera_rgb_optical_frame" />
 
-	<node name="ar_track_alvar" pkg="ar_track_alvar" type="individualMarkersNoKinect" respawn="false" output="screen">
+	<arg name="cam_image_topic" default="/mynteye/points" />
+	<arg name="cam_info_topic" default="/mynteye/camera_info" />
+	<arg name="output_frame" default="/integrate_point_cloud" />
+
+	<node name="ar_track_alvar" pkg="ar_track_alvar" type="individualMarkers" respawn="false" output="screen">
 		<param name="marker_size"           type="double" value="$(arg marker_size)" />
 		<param name="max_new_marker_error"  type="double" value="$(arg max_new_marker_error)" />
 		<param name="max_track_error"       type="double" value="$(arg max_track_error)" />
@@ -16,5 +17,4 @@
 		<remap from="camera_info"   to="$(arg cam_info_topic)" />
 	</node>
 
-	<!--node pkg="tf" type="static_transform_publisher" name="marker_map_broadcaster" args="0 0 0 0 0 0 /mynt_left_frame /torso_lift_link 100" /-->
 </launch>

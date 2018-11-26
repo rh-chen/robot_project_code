@@ -234,7 +234,7 @@ void Camera::SetCameraInfo(const sensor_msgs::CameraInfo &camInfo)
     x_res = calib_x_res;
     y_res = calib_y_res;
 
-    cvmSet(&calib_K, 0, 0, cam_info_.K[0]);
+    /*cvmSet(&calib_K, 0, 0, cam_info_.K[0]);
     cvmSet(&calib_K, 0, 1, cam_info_.K[1]);
     cvmSet(&calib_K, 0, 2, cam_info_.K[2]);
     cvmSet(&calib_K, 1, 0, cam_info_.K[3]);
@@ -243,7 +243,16 @@ void Camera::SetCameraInfo(const sensor_msgs::CameraInfo &camInfo)
     cvmSet(&calib_K, 2, 0, cam_info_.K[6]);
     cvmSet(&calib_K, 2, 1, cam_info_.K[7]);
     cvmSet(&calib_K, 2, 2, cam_info_.K[8]);
-
+	*/
+	cvmSet(&calib_K, 0, 0, cam_info_.P[0]);
+	cvmSet(&calib_K, 0, 1, cam_info_.P[1]);
+    cvmSet(&calib_K, 0, 2, cam_info_.P[2]);
+    cvmSet(&calib_K, 1, 0, cam_info_.P[4]);
+    cvmSet(&calib_K, 1, 1, cam_info_.P[5]);
+    cvmSet(&calib_K, 1, 2, cam_info_.P[6]);
+    cvmSet(&calib_K, 2, 0, cam_info_.P[8]);
+    cvmSet(&calib_K, 2, 1, cam_info_.P[9]);
+    cvmSet(&calib_K, 2, 2, cam_info_.P[10]);
     if (cam_info_.D.size() >= 4) {
         cvmSet(&calib_D, 0, 0, cam_info_.D[0]);
         cvmSet(&calib_D, 1, 0, cam_info_.D[1]);
@@ -639,6 +648,7 @@ void Camera::Distort(CvPoint2D32f & point)
 void Camera::CalcExteriorOrientation(vector<CvPoint3D64f>& pw, vector<CvPoint2D64f>& pi,
 					Pose *pose)
 {
+	//ROS_INFO("CalcExteriorOrientatin 4");
 	double ext_rodriques[3];
 	double ext_translate[3];
 	CvMat ext_rodriques_mat = cvMat(3, 1, CV_64F, ext_rodriques);
@@ -663,6 +673,7 @@ void Camera::CalcExteriorOrientation(vector<CvPoint3D64f>& pw, vector<CvPoint2D6
 void Camera::CalcExteriorOrientation(vector<CvPoint3D64f>& pw, vector<PointDouble >& pi,
 					CvMat *rodriques, CvMat *tra)
 {
+	//ROS_INFO("CalcExteriorOrientatin 3");
 	//assert(pw.size() == pi.size());
 
 	int size = (int)pi.size();
@@ -689,7 +700,8 @@ void Camera::CalcExteriorOrientation(vector<CvPoint3D64f>& pw, vector<PointDoubl
 
 	cvZero(tra);
 	//cvmodFindExtrinsicCameraParams2(&world_mat, &image_mat, &calib_K, &calib_D, rodriques, tra, error);
-	cvFindExtrinsicCameraParams2(&world_mat, &image_mat, &calib_K, &calib_D, rodriques, tra);
+	//cvFindExtrinsicCameraParams2(&world_mat, &image_mat, &calib_K, &calib_D, rodriques, tra);
+	cvFindExtrinsicCameraParams2(&world_mat, &image_mat, &calib_K, NULL, rodriques, tra);
 	
 	delete[] world_pts;
 	delete[] image_pts;
@@ -698,6 +710,7 @@ void Camera::CalcExteriorOrientation(vector<CvPoint3D64f>& pw, vector<PointDoubl
 void Camera::CalcExteriorOrientation(vector<PointDouble >& pw, vector<PointDouble >& pi,
 					CvMat *rodriques, CvMat *tra)
 {
+	//ROS_INFO("CalcExteriorOrientatin 2");
 	//assert(pw.size() == pi.size());
 	int size = (int)pi.size();
 
@@ -714,6 +727,7 @@ void Camera::CalcExteriorOrientation(vector<PointDouble >& pw, vector<PointDoubl
 
 void Camera::CalcExteriorOrientation(vector<PointDouble>& pw, vector<PointDouble >& pi, Pose *pose)
 {
+	//ROS_INFO("CalcExteriorOrientatin 1");
 	double ext_rodriques[3];
 	double ext_translate[3];
 	CvMat ext_rodriques_mat = cvMat(3, 1, CV_64F, ext_rodriques);

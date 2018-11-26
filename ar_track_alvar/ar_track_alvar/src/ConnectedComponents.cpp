@@ -98,9 +98,16 @@ void LabelingCvSeq::LabelSquares(IplImage* image, bool visualize)
     else {
         cerr<<"Unsupported image format"<<endl;
     }
+    
+    IplImage* gray_filter = cvCloneImage(gray);
+    cvZero(gray_filter);
 
-    cvAdaptiveThreshold(gray, bw, 255, CV_ADAPTIVE_THRESH_MEAN_C, CV_THRESH_BINARY_INV, thresh_param1, thresh_param2);
+    cvSmooth(gray,gray_filter,CV_GAUSSIAN,3,3);
+    //cvAdaptiveThreshold(gray, bw, 255, CV_ADAPTIVE_THRESH_MEAN_C, CV_THRESH_BINARY_INV, thresh_param1, thresh_param2);
     //cvThreshold(gray, bw, 127, 255, CV_THRESH_BINARY_INV);
+    cvThreshold(gray_filter,bw,0, 255, CV_THRESH_OTSU|CV_THRESH_BINARY_INV);
+	
+    cvReleaseImage(&gray_filter);
 
     CvSeq* contours;
     CvSeq* squares = cvCreateSeq(0, sizeof(CvSeq), sizeof(CvSeq), storage);
