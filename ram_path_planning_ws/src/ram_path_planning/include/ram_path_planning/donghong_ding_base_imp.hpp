@@ -396,6 +396,8 @@ namespace Cpp
         //intersection between i contour and the (i+1=j) contour
         vtkIdType n_edges_i = poly_data->GetCell(i)->GetNumberOfEdges();
         vtkIdType n_edges_j = poly_data->GetCell(j)->GetNumberOfEdges();
+
+
         for (vtkIdType e_i(0); e_i < n_edges_i; ++e_i)
         {
           for (vtkIdType e_j(0); e_j < n_edges_j; ++e_j)

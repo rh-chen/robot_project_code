@@ -184,7 +184,7 @@ bool MapModifyService(
     cv::Mat bin_step2_out;
     bin_step2.copyTo(bin_step2_out);
 #if 1
-iterate_num = 1;
+iterate_num = 9;
 int count_step_2;
 for(int l = 0;l < iterate_num;l++){
     count_step_2 = 0;

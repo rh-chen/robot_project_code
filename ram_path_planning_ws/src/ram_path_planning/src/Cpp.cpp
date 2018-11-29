@@ -108,21 +108,31 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
 	vtkSmartPointer<vtkPoints> pts = vtkSmartPointer<vtkPoints>::New();
 	vtkSmartPointer<vtkCellArray> cells = vtkSmartPointer<vtkCellArray>::New();
 	
-	double epsilon_approx_poly = 6.0;	
+	double epsilon_approx_poly = 3.0;	
 	//add external contour data
 	for(int i = 0;i < valid_contours.size();i++){
 
 		vtkSmartPointer<vtkPolygon> polygon = vtkSmartPointer<vtkPolygon>::New();
 
-		std::vector<cv::Point> contour_poly;
-		
 		if(i == 0){
-			cv::approxPolyDP(cv::Mat(valid_contours[i]), contour_poly,epsilon_approx_poly,true);
-			
+			std::vector<cv::Point> contour_poly;
+			std::vector<cv::Point> convex_contour_poly;
+
+			cv::approxPolyDP(cv::Mat(valid_contours[i]), contour_poly,epsilon_approx_poly,true);			
 			std::cout << "contour_poly_size:" << contour_poly.size() << std::endl;
-			for(int j = 0;j < contour_poly.size();j++){
-				double point_x = contour_poly[j].x*req.map_resolution+req.map_origin_x;
-				double point_y = contour_poly[j].y*req.map_resolution+req.map_origin_y;
+
+			cv::convexHull(contour_poly,convex_contour_poly,false,true);
+			std::cout << "convex_contour_poly_size:" << convex_contour_poly.size() << std::endl;
+
+			for(int j = 0;j < convex_contour_poly.size();j++){
+				double point_x = convex_contour_poly[j].x*req.map_resolution+req.map_origin_x;
+				double point_y = convex_contour_poly[j].y*req.map_resolution+req.map_origin_y;
+				
+				geometry_msgs::Pose pose_;
+				pose_.position.x = point_x;
+				pose_.position.y = point_y;
+
+				res.pose.push_back(pose_);	
 
 				polygon->GetPointIds()->InsertNextId(pts->GetNumberOfPoints());
 				pts->InsertNextPoint(point_x,point_y,0.0);
@@ -156,6 +166,7 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
 
 	polygon_vector_.push_back(polygonPolyData);
 	current_layer_.push_back(polygon_vector_);
+#if 1
   	// Generate trajectory
   	if (valid_contours.size() > 0)
   	{
@@ -196,6 +207,7 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
 
 		res.path.poses.push_back(current_pose);
 	}
+#endif
 	return true;
 }
 

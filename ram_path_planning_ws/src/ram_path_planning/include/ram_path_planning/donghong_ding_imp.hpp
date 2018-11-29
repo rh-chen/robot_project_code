@@ -65,8 +65,9 @@ namespace Cpp
     if (!this->mergeColinearEdges(poly_data, contours_filtering_tolerance_))
       return "Failed to merge colinear edges";
 
-    if (this->intersectionBetweenContours(poly_data))
+    if (this->intersectionBetweenContours(poly_data)){
       return "Contours intersects";
+	}
 
     std::vector<int> level;
     std::vector<int> father;
@@ -1402,7 +1403,6 @@ namespace Cpp
   {
     semaphore_.wait(); //Semaphore
 	
-	ROS_INFO("Handle The Polygon");
     this->removeDuplicatePoints(poly_data);
     this->mergeColinearEdges(poly_data);
 
@@ -1410,21 +1410,19 @@ namespace Cpp
     vtkIdType opposite_point_id;
     double h;
 
-	double d_m_w_ =  this->deposited_material_width_;
-	ROS_INFO("old_deposited_material_width:%f",this->deposited_material_width_);
+	ROS_INFO("deposited_material_width:%f",this->deposited_material_width_);
 
     h = identifyZigzagDirection(poly_data, edge_id, opposite_point_id);
 
 	ROS_INFO("h:%f",h);
-    if (std::floor(h / this->deposited_material_width_) <= 8){
+    /*if (std::floor(h / this->deposited_material_width_) <= 8){
       	ROS_WARN_STREAM("warning: h/d <= 8 | h/d = " << h / this->deposited_material_width_);
 		if(std::floor(h / this->deposited_material_width_) > 5)
 			this->deposited_material_width_ = 0.2f;
 		else
 			this->deposited_material_width_ = 0.05f;
 	}
-
-	ROS_INFO("new_deposited_material_width:%f",this->deposited_material_width_);
+	*/
     if (!this->offsetPolygonContour(poly_data, this->deposited_material_width_ / 2.0))
     {
       semaphore_.signal();
@@ -1475,7 +1473,6 @@ namespace Cpp
     this->mergeColinearEdges(poly_data);
     semaphore_.signal();
 
-	this->deposited_material_width_ = d_m_w_;
     return true;
   }
 

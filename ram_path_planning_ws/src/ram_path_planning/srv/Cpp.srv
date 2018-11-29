@@ -21,3 +21,4 @@ float64 contours_filtering_tolerance
 nav_msgs/OccupancyGrid map
 ---
 nav_msgs/Path path
+geometry_msgs/Pose[] pose
