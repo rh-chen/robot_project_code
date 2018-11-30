@@ -1,6 +1,6 @@
-int8 occupancy_threshold
+int32 occupancy_threshold
 
-int8 external_contour_threshold
+int32 external_contour_threshold
 
 int8 number_of_layers
 
@@ -11,6 +11,10 @@ float64 map_origin_x
 float64 map_origin_y
 
 float64 map_resolution
+
+float64 start_position_x
+
+float64 start_position_y
 
 int8 height_between_layers
 

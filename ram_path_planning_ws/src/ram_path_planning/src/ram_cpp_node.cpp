@@ -140,6 +140,8 @@ public:
 					srv_zigzag.request.map_origin_x = map_rotate_srv.response.map_origin_x;
 					srv_zigzag.request.map_origin_y = map_rotate_srv.response.map_origin_y;
 					srv_zigzag.request.map_resolution = map_rotate_srv.response.map_resolution;
+					srv_zigzag.request.start_position_x = msg->point.x;
+					srv_zigzag.request.start_position_y = msg->point.y;
 					srv_zigzag.request.height_between_layers = 1;
 					srv_zigzag.request.deposited_material_width = 0.3;
 					srv_zigzag.request.contours_filtering_tolerance = 0.3;
@@ -163,7 +165,7 @@ public:
 									pub_map_rotate.publish(map_rotate_srv.response.map);
 
 									visualization_msgs::MarkerArray markerArray;
-#if 1
+#if 0
 								//external contour
 								{
 									geometry_msgs::Pose startPose = srv_zigzag.response.pose[0];
@@ -313,7 +315,6 @@ public:
 								//coverage_path
 								{
 									geometry_msgs::PoseStamped startPose = srv_zigzag.response.path.poses[0];
-
 									//marker start pose
 									geometry_msgs::Pose  plannerStartPose;
 									plannerStartPose.position.x = startPose.pose.position.x;
@@ -348,9 +349,7 @@ public:
 									for(int i = 1; i < srv_zigzag.response.path.poses.size(); ++i) {
 
 											geometry_msgs::PoseStamped pose = srv_zigzag.response.path.poses[i];
-											//ROS_INFO_STREAM("poses:%s" << pose);
-
-											//marker planner pose
+											
 											geometry_msgs::Pose  markerArrowPose;
 											markerArrowPose.position.x = last_point.x;
 											markerArrowPose.position.y = last_point.y;

@@ -1409,12 +1409,8 @@ namespace Cpp
     vtkIdType edge_id;
     vtkIdType opposite_point_id;
     double h;
-
-	ROS_INFO("deposited_material_width:%f",this->deposited_material_width_);
-
     h = identifyZigzagDirection(poly_data, edge_id, opposite_point_id);
 
-	ROS_INFO("h:%f",h);
     /*if (std::floor(h / this->deposited_material_width_) <= 8){
       	ROS_WARN_STREAM("warning: h/d <= 8 | h/d = " << h / this->deposited_material_width_);
 		if(std::floor(h / this->deposited_material_width_) > 5)

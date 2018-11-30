@@ -66,6 +66,7 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
 	cv::Mat bin;
 	cv::threshold(map,bin,req.occupancy_threshold,255,cv::THRESH_BINARY_INV);
 
+#if 1
 	std::vector<std::vector<cv::Point> > contours;
 	std::vector<cv::Vec4i> hierarchy;
 	std::vector<std::vector<cv::Point> > valid_external_contours;
@@ -123,7 +124,6 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
 
 			cv::convexHull(contour_poly,convex_contour_poly,false,true);
 			std::cout << "convex_contour_poly_size:" << convex_contour_poly.size() << std::endl;
-
 			for(int j = 0;j < convex_contour_poly.size();j++){
 				double point_x = convex_contour_poly[j].x*req.map_resolution+req.map_origin_x;
 				double point_y = convex_contour_poly[j].y*req.map_resolution+req.map_origin_y;
@@ -166,7 +166,7 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
 
 	polygon_vector_.push_back(polygonPolyData);
 	current_layer_.push_back(polygon_vector_);
-#if 1
+
   	// Generate trajectory
   	if (valid_contours.size() > 0)
   	{
