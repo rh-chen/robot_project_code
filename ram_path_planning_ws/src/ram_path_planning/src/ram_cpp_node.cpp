@@ -16,6 +16,7 @@
 #include <sensor_msgs/PointCloud.h>
 #include <sensor_msgs/PointCloud2.h>
 #include <geometry_msgs/PointStamped.h>
+#include <nav_msgs/OccupancyGrid.h>
 #include <image_transport/image_transport.h>
 
 #include <boost/thread/thread.hpp>
@@ -36,13 +37,16 @@
 #include "ram_path_planning/MapRotate.h"
 #include "ram_path_planning/Cpp.h"
 
-class darp_test{
+class cpp_test{
 public:
 	ros::NodeHandle n;
 	ros::Subscriber sub;
+	ros::Subscriber sub_;
+	nav_msgs::OccupancyGrid msg_;
 
-	darp_test(ros::NodeHandle n_):n(n_){
-		sub = n.subscribe("/clicked_point",1000,&darp_test::clickCallBack,this);
+	cpp_test(ros::NodeHandle n_):n(n_){
+		sub = n.subscribe("/clicked_point",1000,&cpp_test::clickCallBack,this);
+		sub_ = n.subscribe("/map",1000,&cpp_test::mapCallBack,this);
 	}
 
 	visualization_msgs::Marker createMarker(const std::string markerName,
@@ -80,7 +84,9 @@ public:
 			return marker;
 	}
 
-
+	void mapCallBack(const nav_msgs::OccupancyGrid::ConstPtr &msg){
+		msg_ = *msg;
+	}
 	void clickCallBack(const geometry_msgs::PointStamped::ConstPtr &msg)
 	{
             ros::Publisher pub_map_modify = n.advertise<nav_msgs::OccupancyGrid>("/modify_static_map",1);
@@ -88,7 +94,7 @@ public:
 
             ros::ServiceClient map_modify_client = n.serviceClient<ram_path_planning::ModifyMap>("/sweeper/map_modify_srv");
 			ros::ServiceClient map_rotate_client = n.serviceClient<ram_path_planning::MapRotate>("/sweeper/map_rotate_srv");
-			ros::ServiceClient mapClient = n.serviceClient<nav_msgs::GetMap>("/static_map");
+			//ros::ServiceClient mapClient = n.serviceClient<nav_msgs::GetMap>("/static_map");
 
 			ram_path_planning::MapRotate map_rotate_srv;
 
@@ -96,15 +102,16 @@ public:
             ram_path_planning::ModifyMap map_modify_srv;
             map_modify_srv.request.threshold = 95;
 
-			nav_msgs::GetMap getMapSrv;
+			//nav_msgs::GetMap getMapSrv;
 
 			ros::Duration(2).sleep();
-			if (mapClient.call(getMapSrv)) {
+			map_modify_srv.request.map = msg_;
+			/*if (mapClient.call(getMapSrv)) {
                 map_modify_srv.request.map = getMapSrv.response.map;
 				std::cout << "map frame_id: " << map_modify_srv.request.map.header.frame_id << std::endl;
 			} else {
 				    ROS_ERROR("Failed to call map_modify_srv service.");
-			}
+			}*/
 
             ros::Time begin2 = ros::Time::now();
             bool res_srv_map_modify = map_modify_client.call(map_modify_srv);
@@ -421,7 +428,7 @@ int main(int argc, char **argv) {
 	
 	ros::NodeHandle n;
 	
-	darp_test dt(n);
+	cpp_test dt(n);
 	ros::spin();
 
 	return 0;
