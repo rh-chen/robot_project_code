@@ -36,6 +36,8 @@
 #include "ram_path_planning/ModifyMap.h"
 #include "ram_path_planning/MapRotate.h"
 #include "ram_path_planning/Cpp.h"
+#include "ram_path_planning/ScaleMapData.h"
+
 
 class cpp_test{
 public:
@@ -94,7 +96,7 @@ public:
 
             ros::ServiceClient map_modify_client = n.serviceClient<ram_path_planning::ModifyMap>("/sweeper/map_modify_srv");
 			ros::ServiceClient map_rotate_client = n.serviceClient<ram_path_planning::MapRotate>("/sweeper/map_rotate_srv");
-			//ros::ServiceClient mapClient = n.serviceClient<nav_msgs::GetMap>("/static_map");
+			ros::ServiceClient mapClient = n.serviceClient<nav_msgs::GetMap>("/static_map");
 
 			ram_path_planning::MapRotate map_rotate_srv;
 
@@ -102,16 +104,17 @@ public:
             ram_path_planning::ModifyMap map_modify_srv;
             map_modify_srv.request.threshold = 95;
 
-			//nav_msgs::GetMap getMapSrv;
+			nav_msgs::GetMap getMapSrv;
 
 			ros::Duration(2).sleep();
-			map_modify_srv.request.map = msg_;
-			/*if (mapClient.call(getMapSrv)) {
+			//map_modify_srv.request.map = msg_;
+			if (mapClient.call(getMapSrv)) {
                 map_modify_srv.request.map = getMapSrv.response.map;
 				std::cout << "map frame_id: " << map_modify_srv.request.map.header.frame_id << std::endl;
 			} else {
 				    ROS_ERROR("Failed to call map_modify_srv service.");
-			}*/
+					return;
+			}
 
             ros::Time begin2 = ros::Time::now();
             bool res_srv_map_modify = map_modify_client.call(map_modify_srv);
@@ -122,6 +125,7 @@ public:
                 map_rotate_srv.request.map = map_modify_srv.response.map;
             }else{
                 ROS_ERROR("Failed to call map_modify_srv service.");
+				return;
             }
 
 			ros::Time begin3 = ros::Time::now();
@@ -129,13 +133,6 @@ public:
             ros::Time end3 = ros::Time::now();
             std::cout << "map rotate cost time:" << (end3-begin3).toSec() << std::endl;
             
-			if(res_map_rotate){
-				ROS_INFO("map rotate success...");
-				//add zigzag algorithm
-			}
-			else
-				ROS_INFO("map rotate fail...");
-
 			if (res_map_rotate) {
 					ros::ServiceClient client_zigzag = \
                                        n.serviceClient<ram_path_planning::Cpp>("/sweeper/zigzag_cpp_srv");
@@ -150,7 +147,7 @@ public:
 					srv_zigzag.request.start_position_x = msg->point.x;
 					srv_zigzag.request.start_position_y = msg->point.y;
 					srv_zigzag.request.height_between_layers = 1;
-					srv_zigzag.request.deposited_material_width = 0.3;
+					srv_zigzag.request.deposited_material_width = 0.1;
 					srv_zigzag.request.contours_filtering_tolerance = 0.3;
 					srv_zigzag.request.transform = map_rotate_srv.response.transform;
 					srv_zigzag.request.map = map_rotate_srv.response.map;
@@ -170,7 +167,7 @@ public:
 
                                     pub_map_modify.publish(map_modify_srv.response.map);
 									pub_map_rotate.publish(map_rotate_srv.response.map);
-
+								
 									visualization_msgs::MarkerArray markerArray;
 #if 0
 								//external contour

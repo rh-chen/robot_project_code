@@ -13,6 +13,7 @@
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/opencv.hpp>
 #include <opencv2/core/matx.hpp>
+#include <deque>
 
 typedef vtkSmartPointer<vtkPolyData> Polygon;
 typedef std::vector<Polygon> PolygonVector;
@@ -21,6 +22,16 @@ typedef std::vector<PolygonVector> Layer;
 bool use_gui = false;
 
 namespace Cpp{
+
+bool hasConvexDefects(std::vector<cv::Vec4i>& defects_,int start_,int end_,int& mid_){
+	for(int i = 0;i < defects_.size();i++){
+		if((defects_[i][0] == start_) && (defects_[i][1] == end_)){
+			mid_ = defects_[i][2];
+			return true;
+		}
+	}
+	return false;
+}
 
 bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
 			   ram_path_planning::Cpp::Response& res){
@@ -117,16 +128,61 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
 
 		if(i == 0){
 			std::vector<cv::Point> contour_poly;
-			std::vector<cv::Point> convex_contour_poly;
+			std::vector<cv::Point> convex_contour_poly_P;
+ 			std::vector<int> convex_contour_poly_I;
+			std::vector<cv::Vec4i> convex_defects;
 
 			cv::approxPolyDP(cv::Mat(valid_contours[i]), contour_poly,epsilon_approx_poly,true);			
 			std::cout << "contour_poly_size:" << contour_poly.size() << std::endl;
 
-			cv::convexHull(contour_poly,convex_contour_poly,false,true);
-			std::cout << "convex_contour_poly_size:" << convex_contour_poly.size() << std::endl;
-			for(int j = 0;j < convex_contour_poly.size();j++){
-				double point_x = convex_contour_poly[j].x*req.map_resolution+req.map_origin_x;
-				double point_y = convex_contour_poly[j].y*req.map_resolution+req.map_origin_y;
+			cv::convexHull(contour_poly,convex_contour_poly_P,false,true);
+			std::cout << "convex_contour_poly_P_size:" << convex_contour_poly_P.size() << std::endl;
+			cv::convexHull(contour_poly,convex_contour_poly_I,false,false);
+			std::cout << "convex_contour_poly_I_size:" << convex_contour_poly_I.size() << std::endl;
+			
+			std::cout << "convex_contour_poly_P:" << cv::Mat(convex_contour_poly_P) << std::endl;
+			std::cout << "convex_contour_poly_I:" << cv::Mat(convex_contour_poly_I) << std::endl;
+
+			cv::convexityDefects(contour_poly,convex_contour_poly_I,convex_defects);
+			std::cout << "convex_defects_size:" << convex_defects.size() << std::endl;
+			std::cout << "convex_defects:" << cv::Mat(convex_defects) << std::endl;
+
+			std::deque<int> final_point_index;
+			int mid_index = -1;
+			for(int i = convex_contour_poly_I.size()-1;i >= 0;i--){
+				if(final_point_index.size() == 0){
+					final_point_index.push_front(convex_contour_poly_I[i]);
+
+					if(hasConvexDefects(convex_defects,convex_contour_poly_I[i],convex_contour_poly_I[i-1],mid_index)){
+							final_point_index.push_front(mid_index);
+					}
+
+					final_point_index.push_front(convex_contour_poly_I[i-1]);
+					i = i-1;
+				}
+				else{
+					if(hasConvexDefects(convex_defects,convex_contour_poly_I[i+1],convex_contour_poly_I[i],mid_index)){
+						final_point_index.push_front(mid_index);
+					}
+
+					final_point_index.push_front(convex_contour_poly_I[i]);
+				}
+			}
+
+			if(hasConvexDefects(convex_defects,\
+								convex_contour_poly_I[0],\
+								convex_contour_poly_I[convex_contour_poly_I.size()-1],\
+								mid_index)){
+				final_point_index.push_back(mid_index);
+			}
+			
+			for(int i = 0;i < final_point_index.size();i++){
+				std::cout << "final_point_index:" << final_point_index[i] << std::endl;
+			}
+
+			for(int j = 0;j < convex_contour_poly_P.size();j++){
+				double point_x = convex_contour_poly_P[j].x*req.map_resolution+req.map_origin_x;
+				double point_y = convex_contour_poly_P[j].y*req.map_resolution+req.map_origin_y;
 				
 				geometry_msgs::Pose pose_;
 				pose_.position.x = point_x;
