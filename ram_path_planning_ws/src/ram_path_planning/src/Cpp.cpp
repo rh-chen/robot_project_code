@@ -15,6 +15,7 @@
 #include <opencv2/core/matx.hpp>
 #include <deque>
 
+#define DEFECT_LIMIT 32
 typedef vtkSmartPointer<vtkPolyData> Polygon;
 typedef std::vector<Polygon> PolygonVector;
 typedef std::vector<PolygonVector> Layer;
@@ -26,8 +27,10 @@ namespace Cpp{
 bool hasConvexDefects(std::vector<cv::Vec4i>& defects_,int start_,int end_,int& mid_){
 	for(int i = 0;i < defects_.size();i++){
 		if((defects_[i][0] == start_) && (defects_[i][1] == end_)){
-			mid_ = defects_[i][2];
-			return true;
+			if(defects_[i][3]/256 > DEFECT_LIMIT){
+				mid_ = defects_[i][2];
+				return true;
+			}
 		}
 	}
 	return false;
@@ -133,19 +136,19 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
 			std::vector<cv::Vec4i> convex_defects;
 
 			cv::approxPolyDP(cv::Mat(valid_contours[i]), contour_poly,epsilon_approx_poly,true);			
-			std::cout << "contour_poly_size:" << contour_poly.size() << std::endl;
+			//std::cout << "contour_poly_size:" << contour_poly.size() << std::endl;
 
 			cv::convexHull(contour_poly,convex_contour_poly_P,false,true);
-			std::cout << "convex_contour_poly_P_size:" << convex_contour_poly_P.size() << std::endl;
+			//std::cout << "convex_contour_poly_P_size:" << convex_contour_poly_P.size() << std::endl;
 			cv::convexHull(contour_poly,convex_contour_poly_I,false,false);
-			std::cout << "convex_contour_poly_I_size:" << convex_contour_poly_I.size() << std::endl;
+			//std::cout << "convex_contour_poly_I_size:" << convex_contour_poly_I.size() << std::endl;
 			
-			std::cout << "convex_contour_poly_P:" << cv::Mat(convex_contour_poly_P) << std::endl;
-			std::cout << "convex_contour_poly_I:" << cv::Mat(convex_contour_poly_I) << std::endl;
+			//std::cout << "convex_contour_poly_P:" << cv::Mat(convex_contour_poly_P) << std::endl;
+			//std::cout << "convex_contour_poly_I:" << cv::Mat(convex_contour_poly_I) << std::endl;
 
 			cv::convexityDefects(contour_poly,convex_contour_poly_I,convex_defects);
-			std::cout << "convex_defects_size:" << convex_defects.size() << std::endl;
-			std::cout << "convex_defects:" << cv::Mat(convex_defects) << std::endl;
+			//std::cout << "convex_defects_size:" << convex_defects.size() << std::endl;
+			//std::cout << "convex_defects:" << cv::Mat(convex_defects) << std::endl;
 
 			std::deque<int> final_point_index;
 			int mid_index = -1;
@@ -176,13 +179,19 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
 				final_point_index.push_back(mid_index);
 			}
 			
-			for(int i = 0;i < final_point_index.size();i++){
+			/*for(int i = 0;i < final_point_index.size();i++){
 				std::cout << "final_point_index:" << final_point_index[i] << std::endl;
+			}*/
+			
+			std::vector<cv::Point> final_point;
+			for(int i = 0;i < final_point_index.size();i++){
+				final_point.push_back(contour_poly[final_point_index[i]]);
 			}
+			std::cout << "final_point:" << cv::Mat(final_point) << std::endl;
 
-			for(int j = 0;j < convex_contour_poly_P.size();j++){
-				double point_x = convex_contour_poly_P[j].x*req.map_resolution+req.map_origin_x;
-				double point_y = convex_contour_poly_P[j].y*req.map_resolution+req.map_origin_y;
+			for(int j = 0;j < final_point.size();j++){
+				double point_x = final_point[j].x*req.map_resolution+req.map_origin_x;
+				double point_y = final_point[j].y*req.map_resolution+req.map_origin_y;
 				
 				geometry_msgs::Pose pose_;
 				pose_.position.x = point_x;
@@ -222,7 +231,7 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
 
 	polygon_vector_.push_back(polygonPolyData);
 	current_layer_.push_back(polygon_vector_);
-
+#if 1
   	// Generate trajectory
   	if (valid_contours.size() > 0)
   	{
@@ -263,6 +272,7 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
 
 		res.path.poses.push_back(current_pose);
 	}
+#endif
 #endif
 	return true;
 }

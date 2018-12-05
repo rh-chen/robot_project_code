@@ -5,6 +5,4 @@
     </node>
     <node name="ram_path_planning_node" pkg="ram_path_planning" type="ram_path_planning_node" output="screen">
     </node>
-    <node name="scale_map_node" pkg="ram_path_planning" type="scale_map_node" output="screen">
-    </node>
 </launch>

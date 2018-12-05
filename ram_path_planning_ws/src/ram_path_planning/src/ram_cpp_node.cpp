@@ -36,7 +36,6 @@
 #include "ram_path_planning/ModifyMap.h"
 #include "ram_path_planning/MapRotate.h"
 #include "ram_path_planning/Cpp.h"
-#include "ram_path_planning/ScaleMapData.h"
 
 
 class cpp_test{
@@ -147,7 +146,7 @@ public:
 					srv_zigzag.request.start_position_x = msg->point.x;
 					srv_zigzag.request.start_position_y = msg->point.y;
 					srv_zigzag.request.height_between_layers = 1;
-					srv_zigzag.request.deposited_material_width = 0.1;
+					srv_zigzag.request.deposited_material_width = 0.2;
 					srv_zigzag.request.contours_filtering_tolerance = 0.3;
 					srv_zigzag.request.transform = map_rotate_srv.response.transform;
 					srv_zigzag.request.map = map_rotate_srv.response.map;
