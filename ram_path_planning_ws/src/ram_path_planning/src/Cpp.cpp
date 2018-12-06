@@ -446,7 +446,7 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
 	cv::threshold(map,bin,req.occupancy_threshold,255,cv::THRESH_BINARY);
 
 #if 1
-	double delta_point = 10;
+	double delta_point = 12;
 	std::vector<cv::Point2i> vertices_point;
 
 	vertices_point = makeOIP(bin,delta_point);	
