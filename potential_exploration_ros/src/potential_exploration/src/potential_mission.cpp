@@ -97,7 +97,6 @@ class MissionHandle{
         boost::mutex mtx5;
 
         bool needs_new_frontier;
-        bool next_frontier_random;
         bool fresh_frontiers;
 
         geometry_msgs::Pose2D current_wp;
@@ -393,7 +392,6 @@ void MissionHandle::proposeWaypoints(){
     }
 #endif    
     fresh_frontiers = false;
-    next_frontier_random = false; 
     mtx3.unlock();
 }
 
