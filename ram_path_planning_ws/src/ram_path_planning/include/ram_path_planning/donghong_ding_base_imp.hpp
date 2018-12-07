@@ -82,6 +82,7 @@ namespace Cpp
       for (auto polygon : polygon_vector)
       {
         vtkIdType n_points = polygon->GetNumberOfPoints();
+		ROS_INFO("n_points:%d",polygon->GetNumberOfPoints());
         for (vtkIdType layer_id(0); layer_id < number_of_layers; ++layer_id)
         {
           double offset_vector[3];

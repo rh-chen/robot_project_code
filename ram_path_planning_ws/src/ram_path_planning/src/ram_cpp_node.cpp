@@ -168,7 +168,7 @@ public:
 									pub_map_rotate.publish(map_rotate_srv.response.map);
 								
 									visualization_msgs::MarkerArray markerArray;
-#if 1
+#if 0
 								//external contour
 								{
 									geometry_msgs::Pose startPose = srv_zigzag.response.pose[0];
@@ -314,7 +314,7 @@ public:
 
 
 
-#if 0
+#if 1
 								//coverage_path
 								{
 									geometry_msgs::PoseStamped startPose = srv_zigzag.response.path.poses[0];

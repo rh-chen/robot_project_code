@@ -444,12 +444,27 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
 
 	cv::Mat bin;
 	cv::threshold(map,bin,req.occupancy_threshold,255,cv::THRESH_BINARY);
-
+	
 #if 1
-	double delta_point = 12;
-	std::vector<cv::Point2i> vertices_point;
+	double delta_point = 15;
+	cv::Mat element_erode = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(delta_point, delta_point));
+	cv::Mat element_dilate = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(delta_point+6, delta_point+6));
+	cv::Mat bin_out_erode;
+	cv::erode(bin,bin_out_erode,element_erode);
+	bin_out_erode.copyTo(bin);
+	cv::Mat bin_out_dilate; 
+	cv::dilate(bin,bin_out_dilate, element_dilate);
+ 	bin_out_dilate.copyTo(bin);
 
-	vertices_point = makeOIP(bin,delta_point);	
+
+	std::vector<cv::Point2i> vertices_point;
+	vertices_point = makeOIP(bin,delta_point);
+
+	vtkSmartPointer<vtkPolyData> polygonPolyData = vtkSmartPointer<vtkPolyData>::New();
+	vtkSmartPointer<vtkPoints> pts = vtkSmartPointer<vtkPoints>::New();
+	vtkSmartPointer<vtkCellArray> cells = vtkSmartPointer<vtkCellArray>::New();
+
+	vtkSmartPointer<vtkPolygon> polygon = vtkSmartPointer<vtkPolygon>::New();
 
 	for(int j = 0;j < vertices_point.size();j++){
 		double point_x = vertices_point[j].x*req.map_resolution+req.map_origin_x;
@@ -460,7 +475,65 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
 		pose_.position.y = point_y;
 
 		res.pose.push_back(pose_);	
+
+		polygon->GetPointIds()->InsertNextId(pts->GetNumberOfPoints());
+		pts->InsertNextPoint(point_x,point_y,0.0);
 	}
+
+	cells->InsertNextCell(polygon);
+	polygonPolyData->SetPoints(pts);
+	polygonPolyData->SetPolys(cells);
+	
+	PolygonVector polygon_vector_;
+  	Layer current_layer_;
+
+	polygon_vector_.push_back(polygonPolyData);
+	current_layer_.push_back(polygon_vector_);
+#if 1
+  	ram_path_planning::AdditiveManufacturingTrajectory msg;
+  	DonghongDing dhd;
+	// Generate trajectory
+  	if (current_layer_.size() > 0)
+  	{
+    	std::string error_message;
+    	error_message = dhd.generateOneLayerTrajectory(
+													10, 50,polygonPolyData,current_layer_,
+                                                    req.deposited_material_width,
+                                                    req.contours_filtering_tolerance, M_PI / 6,
+                                                    false,
+                                                    use_gui);
+
+
+    	if (error_message.empty())
+    	{
+      		dhd.connectYamlLayers( 50,90,current_layer_, msg,req.number_of_layers,req.height_between_layers);
+    	}
+    	else
+    	{
+      		ROS_ERROR_STREAM(error_message);
+      		return false;
+    	}
+  	}
+
+  	// Trajectory is now complete
+  	if (msg.poses.size() <= 0)
+  	{
+   	  	ROS_ERROR_STREAM("Trajectory is empty");
+      	return false;
+  	}
+	
+	ROS_INFO("Trajectory size:%d",(int)msg.poses.size());
+
+	for(int i = 0;i < msg.poses.size();i++){
+		geometry_msgs::PoseStamped current_pose;
+		current_pose.pose.position.x = msg.poses[i].pose.position.x;
+		current_pose.pose.position.y = msg.poses[i].pose.position.y;
+		current_pose.pose.position.z = msg.poses[i].pose.position.z;
+
+		res.path.poses.push_back(current_pose);
+	}
+
+#endif
 #endif
 
 #if 0
