@@ -256,7 +256,7 @@ cv::Point2i getTopLeftPoint(cv::Mat& image) {
   for (int i = 0; i < nRows; ++i) {
     p = image.ptr(i);
     for (int j = 0; j < nCols; ++j) {
-      if (p[j] == 0) {
+      if (p[j] == 255) {
         if (image.isContinuous()) {
           nCols = image.cols;
           cv::Point2i P(j % nCols, j / nCols);
@@ -312,7 +312,7 @@ bool objectInUGB(cv::Mat& img, cv::Point2i q, int ugb, int gsize) {
   for (int i = pt.y; i <= pt.y + gsize; i++) {
     p = img.ptr(i);
     for (int j = pt.x; j <= pt.x + gsize; ++j) {
-      if (p[j] == 0) {
+      if (p[j] == 255) {
         return true;
       }
     }
@@ -443,7 +443,7 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
 	cv::Mat map(req.map.info.height, req.map.info.width, CV_8UC1, req.map.data.data());
 
 	cv::Mat bin;
-	cv::threshold(map,bin,req.occupancy_threshold,255,cv::THRESH_BINARY);
+	cv::threshold(map,bin,req.occupancy_threshold,255,cv::THRESH_BINARY_INV);
 	
 #if 1
 	double delta_point = 15;
@@ -456,7 +456,16 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
 	cv::dilate(bin,bin_out_dilate, element_dilate);
  	bin_out_dilate.copyTo(bin);
 
+	/*cv::Mat element_erode_ = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(delta_point, delta_point));
+	cv::Mat element_dilate_ = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(delta_point+6, delta_point+6));
+	cv::Mat bin_out_erode_;
+	cv::erode(bin_,bin_out_erode_,element_erode_);
+	bin_out_erode_.copyTo(bin_);
+	cv::Mat bin_out_dilate_; 
+	cv::dilate(bin_,bin_out_dilate_, element_dilate_);
+ 	bin_out_dilate_.copyTo(bin_);*/
 
+	//rectlinear polygon
 	std::vector<cv::Point2i> vertices_point;
 	vertices_point = makeOIP(bin,delta_point);
 
@@ -481,9 +490,73 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
 	}
 
 	cells->InsertNextCell(polygon);
+	//polygonPolyData->SetPoints(pts);
+	//polygonPolyData->SetPolys(cells);
+
+	//Find  contour
+	std::vector<std::vector<cv::Point> > contours;
+	std::vector<cv::Vec4i> hierarchy;
+	std::vector<std::vector<cv::Point> > valid_external_contours;
+	std::vector<std::vector<cv::Point> > valid_internal_contours;
+	std::vector<std::vector<cv::Point> > valid_contours;
+
+	cv::findContours(bin,contours,hierarchy,CV_RETR_TREE,CV_CHAIN_APPROX_NONE,cv::Point());
+
+	ROS_INFO("find contours:%d",(int)contours.size());
+	int external_contour_id;
+	int max_external_contour = 0;
+
+	//find external contour and has subcontour 
+	for(int i = 0;i < contours.size();i++){
+		ROS_INFO("contours[%d]:%d",i,contours[i].size());
+		if(contours[i].size() > max_external_contour){
+			max_external_contour = contours[i].size();
+			external_contour_id = i;
+		}
+	}
+
+	valid_external_contours.push_back(contours[external_contour_id]);
+	valid_contours.push_back(contours[external_contour_id]);
+	ROS_INFO("valid_external_contour_size:%d",contours[external_contour_id].size());
+	//find subcontour
+	for(int i = 0;i < contours.size();i++){
+		if(hierarchy[i][3] == external_contour_id){
+			if(contours[i].size() > req.external_contour_threshold){
+				valid_internal_contours.push_back(contours[i]);
+				valid_contours.push_back(contours[i]);
+				ROS_INFO("valid_internal_contour_size:%d",contours[i].size());
+			}
+		}
+	}
+
+	ROS_INFO("valid_external_contour_number:%d",valid_external_contours.size());
+	ROS_INFO("valid_internal_contour_number:%d",valid_internal_contours.size());
+	
+	//add external contour data
+	for(int i = 0;i < valid_contours.size();i++){
+
+		vtkSmartPointer<vtkPolygon> polygon_ = vtkSmartPointer<vtkPolygon>::New();
+		if(i == 0)
+			continue;
+		else{
+			cv::RotatedRect rRect = cv::minAreaRect(valid_contours[i]);
+			cv::Point2f vertices[4];
+			rRect.points(vertices);
+
+			for(int i = 0;i < 4;i++){
+				double point_x = vertices[i].x*req.map_resolution+req.map_origin_x;
+				double point_y = vertices[i].y*req.map_resolution+req.map_origin_y;
+
+				polygon_->GetPointIds()->InsertNextId(pts->GetNumberOfPoints());
+				pts->InsertNextPoint(point_x,point_y,0.0);
+			}
+			cells->InsertNextCell(polygon_);
+		}
+	}
+
 	polygonPolyData->SetPoints(pts);
 	polygonPolyData->SetPolys(cells);
-	
+
 	PolygonVector polygon_vector_;
   	Layer current_layer_;
 
