@@ -184,7 +184,7 @@ bool MapModifyService(
     cv::Mat bin_step2_out;
     bin_step2.copyTo(bin_step2_out);
 #if 1
-iterate_num = 1;
+iterate_num = 9;
 int count_step_2;
 for(int l = 0;l < iterate_num;l++){
     count_step_2 = 0;
@@ -205,7 +205,7 @@ for(int l = 0;l < iterate_num;l++){
                         count_value_255_h++;
                 }
 
-                if(count_value_255_h >= 3){
+                if(count_value_255_h > 3){
                     map.at<unsigned char>(i,j) = 0;
                     bin_step2_out.at<unsigned char>(i,j) = 255;
                     count_step_2 ++;
@@ -221,7 +221,7 @@ for(int l = 0;l < iterate_num;l++){
                         count_value_255_v++;
 
 
-                    if(count_value_255_v >= 3){
+                    if(count_value_255_v > 3){
                         map.at<unsigned char>(i,j) = 0;
                         bin_step2_out.at<unsigned char>(i,j) = 255;
                         count_step_2 ++;
@@ -243,7 +243,7 @@ for(int l = 0;l < iterate_num;l++){
                         count_value_0_h++;
                 }
 
-                if(count_value_0_h >= 3){
+                if(count_value_0_h > 3){
                     map.at<unsigned char>(i,j) = 100;
                     bin_step2_out.at<unsigned char>(i,j) = 0;
                     count_step_2 ++;
@@ -258,7 +258,7 @@ for(int l = 0;l < iterate_num;l++){
                     if(bin_step2_out.at<unsigned char>(i,j+1) == 0)
                         count_value_0_v++;
 
-                    if(count_value_0_v >= 3){
+                    if(count_value_0_v > 3){
                         map.at<unsigned char>(i,j) = 100;
                         bin_step2_out.at<unsigned char>(i,j) = 0;
                         count_step_2 ++;
