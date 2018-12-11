@@ -255,6 +255,7 @@ namespace Cpp
         vtkMath::Subtract(p2, p1, v2);
 
         angle = this->angleBetweenVectors(v1, v2);
+		ROS_INFO("notch_angle:%f",angle);
         if (angle < 0) // Found notch
         {
           cell_id = i;

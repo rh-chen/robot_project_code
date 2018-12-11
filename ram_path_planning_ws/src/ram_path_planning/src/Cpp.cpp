@@ -539,13 +539,23 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
 		if(i == 0)
 			continue;
 		else{
-			cv::RotatedRect rRect = cv::minAreaRect(valid_contours[i]);
-			cv::Point2f vertices[4];
-			rRect.points(vertices);
+			//cv::RotatedRect rRect = cv::minAreaRect(valid_contours[i]);
+			//cv::Point2f vertices[4];
+			//rRect.points(vertices);
 
-			for(int i = 0;i < 4;i++){
+			std::vector<cv::Point> convex_contour_poly_P;
+			cv::convexHull(valid_contours[i],convex_contour_poly_P,false,true);
+
+			/*for(int i = 0;i < 4;i++){
 				double point_x = vertices[i].x*req.map_resolution+req.map_origin_x;
 				double point_y = vertices[i].y*req.map_resolution+req.map_origin_y;
+
+				polygon_->GetPointIds()->InsertNextId(pts->GetNumberOfPoints());
+				pts->InsertNextPoint(point_x,point_y,0.0);
+			}*/
+			for(int i = 0;i < convex_contour_poly_P.size();i++){
+				double point_x = convex_contour_poly_P[i].x*req.map_resolution+req.map_origin_x;
+				double point_y = convex_contour_poly_P[i].y*req.map_resolution+req.map_origin_y;
 
 				polygon_->GetPointIds()->InsertNextId(pts->GetNumberOfPoints());
 				pts->InsertNextPoint(point_x,point_y,0.0);
