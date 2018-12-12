@@ -91,10 +91,10 @@ public:
 	void clickCallBack(const geometry_msgs::PointStamped::ConstPtr &msg)
 	{
             ros::Publisher pub_map_modify = n.advertise<nav_msgs::OccupancyGrid>("/modify_static_map",1);
-			ros::Publisher pub_map_rotate = n.advertise<nav_msgs::OccupancyGrid>("/map_rotate_map",1);
+			ros::Publisher pub_map_cpp = n.advertise<nav_msgs::OccupancyGrid>("/map_cpp_map",1);
 
             ros::ServiceClient map_modify_client = n.serviceClient<ram_path_planning::ModifyMap>("/sweeper/map_modify_srv");
-			ros::ServiceClient map_rotate_client = n.serviceClient<ram_path_planning::MapRotate>("/sweeper/map_rotate_srv");
+			//ros::ServiceClient map_rotate_client = n.serviceClient<ram_path_planning::MapRotate>("/sweeper/map_rotate_srv");
 			ros::ServiceClient mapClient = n.serviceClient<nav_msgs::GetMap>("/static_map");
 
 			ram_path_planning::MapRotate map_rotate_srv;
@@ -116,23 +116,23 @@ public:
 			}
 
             ros::Time begin2 = ros::Time::now();
-            bool res_srv_map_modify = map_modify_client.call(map_modify_srv);
+            bool res_map_modify = map_modify_client.call(map_modify_srv);
             ros::Time end2 = ros::Time::now();
 	        std::cout << "call map_modify_srv time cost:" << (end2-begin2).toSec() << std::endl;
 
-            if(res_srv_map_modify){
+            /*if(res_map_modify){
                 map_rotate_srv.request.map = map_modify_srv.response.map;
             }else{
                 ROS_ERROR("Failed to call map_modify_srv service.");
 				return;
-            }
+            }*/
 
-			ros::Time begin3 = ros::Time::now();
+			/*ros::Time begin3 = ros::Time::now();
 			bool res_map_rotate = map_rotate_client.call(map_rotate_srv);
             ros::Time end3 = ros::Time::now();
             std::cout << "map rotate cost time:" << (end3-begin3).toSec() << std::endl;
-            
-			if (res_map_rotate) {
+            */
+			if (res_map_modify) {
 					ros::ServiceClient client_zigzag = \
                                        n.serviceClient<ram_path_planning::Cpp>("/sweeper/zigzag_cpp_srv");
 
@@ -140,16 +140,15 @@ public:
 
 					srv_zigzag.request.occupancy_threshold = 95;
 					srv_zigzag.request.number_of_layers = 1;
-					srv_zigzag.request.map_origin_x = map_rotate_srv.response.map_origin_x;
-					srv_zigzag.request.map_origin_y = map_rotate_srv.response.map_origin_y;
-					srv_zigzag.request.map_resolution = map_rotate_srv.response.map_resolution;
+					srv_zigzag.request.map_origin_x = map_modify_srv.response.map.info.origin.position.x;
+					srv_zigzag.request.map_origin_y = map_modify_srv.response.map.info.origin.position.y;
+					srv_zigzag.request.map_resolution = map_modify_srv.response.map.info.resolution;
 					srv_zigzag.request.start_position_x = msg->point.x;
 					srv_zigzag.request.start_position_y = msg->point.y;
 					srv_zigzag.request.height_between_layers = 1;
 					srv_zigzag.request.deposited_material_width = 0.2;
 					srv_zigzag.request.contours_filtering_tolerance = 0.3;
-					srv_zigzag.request.transform = map_rotate_srv.response.transform;
-					srv_zigzag.request.map = map_rotate_srv.response.map;
+					srv_zigzag.request.map = map_modify_srv.response.map;
 					srv_zigzag.request.external_contour_threshold = 48;
 
 					ros::Time begin = ros::Time::now();
@@ -157,7 +156,7 @@ public:
 					ros::Time end = ros::Time::now();
 
 					std::cout << "call srv_zigzag time cost:" << (end-begin).toSec() << std::endl;
-					if(true){
+					if(res_srv_zigzag){
 							ROS_INFO("call /sweeper/zigzag_cpp service success...");
 
 							ros::Publisher marker_pub = n.advertise<visualization_msgs::MarkerArray>("/cleanner_planner", 1);
@@ -165,8 +164,8 @@ public:
 							while(ros::ok()){
 
                                     pub_map_modify.publish(map_modify_srv.response.map);
-									pub_map_rotate.publish(map_rotate_srv.response.map);
-								
+									pub_map_cpp.publish(srv_zigzag.response.map);
+
 									visualization_msgs::MarkerArray markerArray;
 #if 0
 								//external contour

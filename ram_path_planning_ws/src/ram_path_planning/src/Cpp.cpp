@@ -15,7 +15,7 @@
 #include <opencv2/core/matx.hpp>
 #include <deque>
 
-#define DEFECT_LIMIT 32
+#define DEFECT_LIMIT 12
 typedef vtkSmartPointer<vtkPolyData> Polygon;
 typedef std::vector<Polygon> PolygonVector;
 typedef std::vector<PolygonVector> Layer;
@@ -241,7 +241,7 @@ void getContours(cv::Mat& arr_,bool clockwise,std::vector<std::vector<cv::Point>
 }
 #endif
 
-#if 1
+#if 0
 cv::Point2i getTopLeftPoint(cv::Mat& image) {
   int nRows = image.rows;
   int nCols = image.cols;
@@ -365,7 +365,9 @@ std::vector<cv::Point2i> makeOIP(cv::Mat& img, int gsize) {
   std::vector<cv::Point2i> vertices;
 
   cv::Point2i topleftpoint = getTopLeftPoint(img);
+  ROS_INFO("topleftpoint:%d,%d",topleftpoint.x,topleftpoint.y);
   cv::Point2i startpoint = getStartPoint(img, topleftpoint, gsize);
+  ROS_INFO("startpoint:%d,%d",startpoint.x,startpoint.y);
   cv::Point2i q = startpoint;
   int type = getPointType(img, q, gsize);
 
@@ -390,6 +392,10 @@ std::vector<cv::Point2i> makeOIP(cv::Mat& img, int gsize) {
 
 #endif
 bool hasConvexDefects(std::vector<cv::Vec4i>& defects_,int start_,int end_,int& mid_){
+
+	for(int i = 0;i < defects_.size();i++){
+		std::cout << "defects:" << defects_[i][3] << std::endl;
+	}
 	for(int i = 0;i < defects_.size();i++){
 		if((defects_[i][0] == start_) && (defects_[i][1] == end_)){
 			if(defects_[i][3]/256 > DEFECT_LIMIT){
@@ -426,10 +432,10 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
 		return false;
 	}
 
-	if(req.transform.size() != 3*3){
+	/*if(req.transform.size() != 3*3){
 		ROS_ERROR_STREAM("Bad transform matrix...");
 		return false;
-	}
+	}*/
 
 	if(req.external_contour_threshold <= 0){
 		ROS_ERROR_STREAM("external contour threshold cannot be <=0");
@@ -445,10 +451,10 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
 	cv::Mat bin;
 	cv::threshold(map,bin,req.occupancy_threshold,255,cv::THRESH_BINARY_INV);
 	
-#if 1
+#if 0
 	double delta_point = 15;
-	cv::Mat element_erode = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(delta_point, delta_point));
-	cv::Mat element_dilate = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(delta_point+6, delta_point+6));
+	cv::Mat element_erode = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(7, 7));
+	cv::Mat element_dilate = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(7, 7));
 	cv::Mat bin_out_erode;
 	cv::erode(bin,bin_out_erode,element_erode);
 	bin_out_erode.copyTo(bin);
@@ -542,10 +548,8 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
 			//cv::RotatedRect rRect = cv::minAreaRect(valid_contours[i]);
 			//cv::Point2f vertices[4];
 			//rRect.points(vertices);
-
 			std::vector<cv::Point> convex_contour_poly_P;
 			cv::convexHull(valid_contours[i],convex_contour_poly_P,false,true);
-
 			/*for(int i = 0;i < 4;i++){
 				double point_x = vertices[i].x*req.map_resolution+req.map_origin_x;
 				double point_y = vertices[i].y*req.map_resolution+req.map_origin_y;
@@ -553,6 +557,7 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
 				polygon_->GetPointIds()->InsertNextId(pts->GetNumberOfPoints());
 				pts->InsertNextPoint(point_x,point_y,0.0);
 			}*/
+
 			for(int i = 0;i < convex_contour_poly_P.size();i++){
 				double point_x = convex_contour_poly_P[i].x*req.map_resolution+req.map_origin_x;
 				double point_y = convex_contour_poly_P[i].y*req.map_resolution+req.map_origin_y;
@@ -582,7 +587,7 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
     	error_message = dhd.generateOneLayerTrajectory(
 													10, 50,polygonPolyData,current_layer_,
                                                     req.deposited_material_width,
-                                                    req.contours_filtering_tolerance, M_PI / 6,
+                                                    req.contours_filtering_tolerance, M_PI / 3,
                                                     false,
                                                     use_gui);
 
@@ -619,7 +624,32 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
 #endif
 #endif
 
-#if 0
+#if 1
+	cv::Mat element_erode = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(7, 7));
+	cv::Mat element_dilate = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(7, 7));
+	cv::Mat bin_out_erode;
+	cv::erode(bin,bin_out_erode,element_erode);
+	bin_out_erode.copyTo(bin);
+	cv::Mat bin_out_dilate; 
+	cv::dilate(bin,bin_out_dilate, element_dilate);
+ 	bin_out_dilate.copyTo(bin);
+
+    std::vector<int8_t> map_data; 
+	for(int i = 0;i < bin.rows;i++){
+        for(int j = 0;j < bin.cols;j++){
+           char value = bin.at<char>(i,j);
+           map_data.push_back(value); 
+        }
+     }
+
+    res.map.info.height = req.map.info.height;
+    res.map.info.width = req.map.info.width;
+    res.map.info.resolution = req.map.info.resolution;
+    res.map.data = map_data;
+    res.map.header.frame_id = req.map.header.frame_id;
+    res.map.info.origin.position.x = req.map.info.origin.position.x;
+    res.map.info.origin.position.y = req.map.info.origin.position.y;
+
 	std::vector<std::vector<cv::Point> > contours;
 	std::vector<cv::Vec4i> hierarchy;
 	std::vector<std::vector<cv::Point> > valid_external_contours;
@@ -662,52 +692,55 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
 	vtkSmartPointer<vtkPoints> pts = vtkSmartPointer<vtkPoints>::New();
 	vtkSmartPointer<vtkCellArray> cells = vtkSmartPointer<vtkCellArray>::New();
 	
-	double epsilon_approx_poly = 3.0;	
+	//double epsilon_approx_poly = 3.0;	
 	//add external contour data
 	for(int i = 0;i < valid_contours.size();i++){
 
 		vtkSmartPointer<vtkPolygon> polygon = vtkSmartPointer<vtkPolygon>::New();
 
 		if(i == 0){
-			std::vector<cv::Point> contour_poly;
+			//std::vector<cv::Point> contour_poly;
 			std::vector<cv::Point> convex_contour_poly_P;
  			std::vector<int> convex_contour_poly_I;
 			std::vector<cv::Vec4i> convex_defects;
 
-			cv::approxPolyDP(cv::Mat(valid_contours[i]), contour_poly,epsilon_approx_poly,true);			
+			//cv::approxPolyDP(cv::Mat(valid_contours[i]), contour_poly,epsilon_approx_poly,true);			
 			//std::cout << "contour_poly_size:" << contour_poly.size() << std::endl;
 
-			cv::convexHull(contour_poly,convex_contour_poly_P,false,true);
+			//cv::convexHull(contour_poly,convex_contour_poly_P,false,true);
+			cv::convexHull(valid_contours[i],convex_contour_poly_P,false,true);
 			//std::cout << "convex_contour_poly_P_size:" << convex_contour_poly_P.size() << std::endl;
-			cv::convexHull(contour_poly,convex_contour_poly_I,false,false);
+			//cv::convexHull(contour_poly,convex_contour_poly_I,false,false);
+			cv::convexHull(valid_contours[i],convex_contour_poly_I,false,false);
 			//std::cout << "convex_contour_poly_I_size:" << convex_contour_poly_I.size() << std::endl;
 			
 			//std::cout << "convex_contour_poly_P:" << cv::Mat(convex_contour_poly_P) << std::endl;
 			//std::cout << "convex_contour_poly_I:" << cv::Mat(convex_contour_poly_I) << std::endl;
 
-			cv::convexityDefects(contour_poly,convex_contour_poly_I,convex_defects);
+			//cv::convexityDefects(contour_poly,convex_contour_poly_I,convex_defects);
+			cv::convexityDefects(valid_contours[i],convex_contour_poly_I,convex_defects);
 			//std::cout << "convex_defects_size:" << convex_defects.size() << std::endl;
 			//std::cout << "convex_defects:" << cv::Mat(convex_defects) << std::endl;
 
 			std::deque<int> final_point_index;
 			int mid_index = -1;
-			for(int i = convex_contour_poly_I.size()-1;i >= 0;i--){
+			for(int k = convex_contour_poly_I.size()-1;k >= 0;k--){
 				if(final_point_index.size() == 0){
-					final_point_index.push_front(convex_contour_poly_I[i]);
+					final_point_index.push_front(convex_contour_poly_I[k]);
 
-					if(hasConvexDefects(convex_defects,convex_contour_poly_I[i],convex_contour_poly_I[i-1],mid_index)){
+					if(hasConvexDefects(convex_defects,convex_contour_poly_I[k],convex_contour_poly_I[k-1],mid_index)){
 							final_point_index.push_front(mid_index);
 					}
 
-					final_point_index.push_front(convex_contour_poly_I[i-1]);
-					i = i-1;
+					final_point_index.push_front(convex_contour_poly_I[k-1]);
+					k = k-1;
 				}
 				else{
-					if(hasConvexDefects(convex_defects,convex_contour_poly_I[i+1],convex_contour_poly_I[i],mid_index)){
+					if(hasConvexDefects(convex_defects,convex_contour_poly_I[k+1],convex_contour_poly_I[k],mid_index)){
 						final_point_index.push_front(mid_index);
 					}
 
-					final_point_index.push_front(convex_contour_poly_I[i]);
+					final_point_index.push_front(convex_contour_poly_I[k]);
 				}
 			}
 
@@ -723,8 +756,9 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
 			}*/
 			
 			std::vector<cv::Point> final_point;
-			for(int i = 0;i < final_point_index.size();i++){
-				final_point.push_back(contour_poly[final_point_index[i]]);
+			for(int k = 0;k < final_point_index.size();k++){
+				//final_point.push_back(contour_poly[final_point_index[i]]);
+				final_point.push_back(valid_contours[i][final_point_index[k]]);
 			}
 			std::cout << "final_point:" << cv::Mat(final_point) << std::endl;
 
@@ -748,9 +782,9 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
 			cv::Point2f vertices[4];
 			rRect.points(vertices);
 
-			for(int i = 0;i < 4;i++){
-				double point_x = vertices[i].x*req.map_resolution+req.map_origin_x;
-				double point_y = vertices[i].y*req.map_resolution+req.map_origin_y;
+			for(int k = 0;k < 4;k++){
+				double point_x = vertices[k].x*req.map_resolution+req.map_origin_x;
+				double point_y = vertices[k].y*req.map_resolution+req.map_origin_y;
 
 				polygon->GetPointIds()->InsertNextId(pts->GetNumberOfPoints());
 				pts->InsertNextPoint(point_x,point_y,0.0);
@@ -770,7 +804,7 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
 
 	polygon_vector_.push_back(polygonPolyData);
 	current_layer_.push_back(polygon_vector_);
-#if 0
+#if 1
   	// Generate trajectory
   	if (valid_contours.size() > 0)
   	{

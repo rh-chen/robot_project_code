@@ -298,8 +298,8 @@ if(contours.size() > 1){
 			contour_center_x /= (contours[i].size()*1.0);
 			contour_center_y /= (contours[i].size()*1.0);
 			
-			ROS_INFO("contour_center_x:%f",contour_center_x);
-			ROS_INFO("contour_center_y:%f",contour_center_y);
+			//ROS_INFO("contour_center_x:%f",contour_center_x);
+			//ROS_INFO("contour_center_y:%f",contour_center_y);
 			cv::floodFill(map,
 						  cv::Point(std::floor(contour_center_x),std::floor(contour_center_y)),
 						  cv::Scalar(100), 0, 0, 0, 8 | cv::FLOODFILL_FIXED_RANGE);
@@ -315,7 +315,7 @@ std::vector<std::vector<cv::Point> > contours_step4;
 std::vector<cv::Vec4i> hierarchy_step4;
 cv::findContours(bin_step4,contours_step4,hierarchy_step4,CV_RETR_TREE,CV_CHAIN_APPROX_NONE,cv::Point());
 
-int limit_contour_point = 9;
+int limit_contour_point = 36;
 for(int i = 0;i < contours_step4.size();i++){
 	if(contours_step4[i].size() < limit_contour_point){
 		cv::Rect boundRect = cv::boundingRect(cv::Mat(contours_step4[i]));

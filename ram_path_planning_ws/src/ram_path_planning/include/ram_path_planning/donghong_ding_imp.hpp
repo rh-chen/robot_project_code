@@ -9,11 +9,11 @@ namespace Cpp
                                        "cpp/path_planning/generate_trajectory/DonghongDing"),
           semaphore_(4)
   {
-    this->deposited_material_width_ = 0.3; // 2 millimeters
+    this->deposited_material_width_ = 0.2; // 2 millimeters
 
-    contours_filtering_tolerance_ = 0.25; // 2.5 millimeters
+    contours_filtering_tolerance_ = 0.3; // 2.5 millimeters
     polygon_division_tolerance_ = M_PI / 6; // 30 degrees
-    closest_to_bisector_ = false;
+    closest_to_bisector_ = true;
   }
 
   std::string DonghongDing::generateOneLayerTrajectory(
