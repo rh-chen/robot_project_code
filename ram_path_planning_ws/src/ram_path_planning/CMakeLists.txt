@@ -114,14 +114,27 @@ target_link_libraries(
   ${catkin_LIBRARIES}
   ${VTK_LIBRARIES}
   ${OpenCV_LIBS}
-  #${PROJECT_NAME}_mesh_slicer
 )
 add_dependencies(
   ${PROJECT_NAME}_node
   ${PROJECT_NAME}_generate_messages_cpp
   ${catkin_EXPORTED_TARGETS}
 )
-
+add_executable(
+  ${PROJECT_NAME}_convex_node
+  src/Cpp_Convex.cpp
+)
+target_link_libraries(
+  ${PROJECT_NAME}_convex_node
+  ${catkin_LIBRARIES}
+  ${VTK_LIBRARIES}
+  ${OpenCV_LIBS}
+)
+add_dependencies(
+  ${PROJECT_NAME}_convex_node
+  ${PROJECT_NAME}_generate_messages_cpp
+  ${catkin_EXPORTED_TARGETS}
+)
 add_executable(map_modify_node src/map_modify_node.cpp src/lsd.cpp)
 
 target_link_libraries(map_modify_node

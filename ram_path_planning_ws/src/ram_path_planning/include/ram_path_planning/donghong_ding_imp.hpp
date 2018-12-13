@@ -126,13 +126,12 @@ namespace Cpp
 		ROS_INFO("layer_polygons_polydata_size:%d",(size_t)layer[0][i]->GetNumberOfCells());
 	}*/
     // Path generation in convex polygons
-    /*std::vector<std::future<bool> > futures;
+    std::vector<std::future<bool> > futures;
     for (auto polygons : layer)
       for (auto poly_data : polygons)
         futures.push_back(std::async(&DonghongDing::generateTrajectoryInConvexPolygon, this, poly_data));
-	*/
 
-	std::vector<bool> futures;
+	/*std::vector<bool> futures;
 	for(int i = 0;i < layer.size();i++){
 		for(int j = 0;j < layer[i].size();j++){
 			bool res = generateTrajectoryInConvexPolygon(layer[i][j]);
@@ -140,13 +139,13 @@ namespace Cpp
 			if(res)
 				futures.push_back(res);
 		}
-	}
+	}*/
 
     bool global_return = true;
-    /*for (auto &t : futures)
-      global_return &= t.get();*/
-	 for(int i = 0;i < futures.size();i++)
-	 	global_return &= futures[i];
+    for (auto &t : futures)
+      global_return &= t.get();
+	 /*for(int i = 0;i < futures.size();i++)
+	 	global_return &= futures[i];*/
     if (!global_return)
       return "Failed to generate trajectory in one of the convex polygons";
 
@@ -1428,11 +1427,11 @@ namespace Cpp
     vtkIdType opposite_point_id;
     double h;
     h = identifyZigzagDirection(poly_data, edge_id, opposite_point_id);
-	double d_m_w = this->deposited_material_width_;
+	//double d_m_w = this->deposited_material_width_;
 
     if (std::floor(h / this->deposited_material_width_) <= 4){
       	ROS_WARN_STREAM("warning: h/d <= 4 | h/d = " << h / this->deposited_material_width_);
-		this->deposited_material_width_ = 0.1f;
+		//this->deposited_material_width_ = 0.1f;
 	}
 	
     if (!this->offsetPolygonContour(poly_data, this->deposited_material_width_ / 2.0))
@@ -1484,7 +1483,7 @@ namespace Cpp
     this->removeDuplicatePoints(poly_data);
     this->mergeColinearEdges(poly_data);
     semaphore_.signal();
-	this->deposited_material_width_ = d_m_w;
+	//this->deposited_material_width_ = d_m_w;
     return true;
   }
 

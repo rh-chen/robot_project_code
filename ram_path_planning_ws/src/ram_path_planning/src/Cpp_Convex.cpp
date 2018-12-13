@@ -15,7 +15,7 @@
 #include <opencv2/core/matx.hpp>
 #include <deque>
 
-#define DEFECT_LIMIT 12
+#define DEFECT_LIMIT 40
 typedef vtkSmartPointer<vtkPolyData> Polygon;
 typedef std::vector<Polygon> PolygonVector;
 typedef std::vector<PolygonVector> Layer;
@@ -241,7 +241,7 @@ void getContours(cv::Mat& arr_,bool clockwise,std::vector<std::vector<cv::Point>
 }
 #endif
 
-#if 1
+#if 0
 cv::Point2i getTopLeftPoint(cv::Mat& image) {
   int nRows = image.rows;
   int nCols = image.cols;
@@ -394,7 +394,7 @@ std::vector<cv::Point2i> makeOIP(cv::Mat& img, int gsize) {
 bool hasConvexDefects(std::vector<cv::Vec4i>& defects_,int start_,int end_,int& mid_){
 
 	/*for(int i = 0;i < defects_.size();i++){
-		std::cout << "defects:" << defects_[i][3] << std::endl;
+		std::cout << "defects:" << defects_[i][3]/256.0 << std::endl;
 	}*/
 	for(int i = 0;i < defects_.size();i++){
 		if((defects_[i][0] == start_) && (defects_[i][1] == end_)){
@@ -406,7 +406,128 @@ bool hasConvexDefects(std::vector<cv::Vec4i>& defects_,int start_,int end_,int& 
 	}
 	return false;
 }
+typedef struct convex_point{
+	int start_index;
+	int end_index;
+	bool change_value;
+	int current_index;
 
+	convex_point(int start_index_,int end_index_,bool change_value_,int current_index_){
+		start_index = start_index_;
+		end_index = end_index_;
+		change_value = change_value_;
+		current_index = current_index_;
+	}
+}con_p;
+
+void fitLine(std::vector<cv::Point>& vec,\
+			 int start_ind,\
+			 int end_ind,\
+			 int current_ind,\
+			 double resolution_,\
+			 double origin_x_,\
+			 double origin_y_,\
+			 cv::Point& p){
+	std::vector<cv::Point2f> line_1;
+	std::vector<cv::Point2f> line_2;
+	cv::Vec4f line_para_1;
+	cv::Vec4f line_para_2;
+	cv::Point2f point_1;
+	cv::Point2f point_2;
+	double k1;
+	double k2;
+	double b1;
+	double b2;
+
+	double A1,B1,C1;
+	double A2,B2,C2;
+
+	if((start_ind < end_ind) && (start_ind < current_ind) && (current_ind < end_ind)){
+		for(int i = start_ind;i <= current_ind;i++){
+			line_1.push_back(cv::Point2f(vec[i].x*resolution_+origin_x_,vec[i].y*resolution_+origin_y_));
+		}
+		for(int i = current_ind;i <= end_ind;i++){
+			line_2.push_back(cv::Point2f(vec[i].x*resolution_+origin_x_,vec[i].y*resolution_+origin_y_));
+		}
+		
+		cv::fitLine(line_1, line_para_1, cv::DIST_HUBER, 0, 1e-2, 1e-2);
+		cv::fitLine(line_2, line_para_2, cv::DIST_HUBER, 0, 1e-2, 1e-2);
+		
+		point_1.x = line_para_1[2];
+		point_1.y = line_para_1[3];
+		k1 = line_para_1[1]/line_para_1[0];
+		
+		//ROS_INFO("point_1.x:%f",point_1.x);
+		//ROS_INFO("point_1.y:%f",point_1.y);
+		//ROS_INFO("k1:%f",k1);
+
+		point_2.x = line_para_2[2];
+		point_2.y = line_para_2[3];
+		k2 = line_para_2[1]/line_para_2[0];
+		
+		//ROS_INFO("point_2.x:%f",point_2.x);
+		//ROS_INFO("point_2.y:%f",point_2.y);
+		//ROS_INFO("k2:%f",k2);
+
+		b1 = -k1*point_1.x+point_1.y;
+		b2 = -k2*point_2.x+point_2.y;
+		
+		//ROS_INFO("b1:%f",b1);
+		//ROS_INFO("b2:%f",b2);
+
+		A1 = -k1;
+		B1 = 1;
+		C1 = -b1;
+
+		A2 = -k2;
+		B2 = 1;
+		C2 = -b2;
+
+		double M = A1*B2-A2*B1;
+		double x = (C2*B1-C1*B2) / M;
+		double y = (C1*A2-C2*A1) / M;
+
+		p.x = std::floor((x-origin_x_)/resolution_);
+		p.y = std::floor((y-origin_y_)/resolution_);
+	}
+	else{
+		for(int i = start_ind;i <= current_ind;i++){
+			line_1.push_back(cv::Point2f(vec[i].x*resolution_+origin_x_,vec[i].y*resolution_+origin_y_));
+		}
+		for(int i = current_ind;i < vec.size();i++){
+			line_2.push_back(cv::Point2f(vec[i].x*resolution_+origin_x_,vec[i].y*resolution_+origin_y_));
+		}
+		
+		cv::fitLine(line_1, line_para_1, cv::DIST_HUBER, 0, 1e-2, 1e-2);
+		cv::fitLine(line_2, line_para_2, cv::DIST_HUBER, 0, 1e-2, 1e-2);
+		
+		point_1.x = line_para_1[2];
+		point_1.y = line_para_1[3];
+		k1 = line_para_1[1]/line_para_1[0];
+
+		point_2.x = line_para_2[2];
+		point_2.y = line_para_2[3];
+		k2 = line_para_2[1]/line_para_2[0];
+
+		b1 = -k1*point_1.x+point_1.y;
+		b2 = -k2*point_2.x+point_2.y;
+	
+		A1 = -k1;
+		B1 = 1;
+		C1 = -b1;
+
+		A2 = -k2;
+		B2 = 1;
+		C2 = -b2;
+
+		double M = A1*B2-A2*B1;
+		double x = (C2*B1-C1*B2) / M;
+		double y = (C1*A2-C2*A1) / M;
+
+		p.x = std::floor((x-origin_x_)/resolution_);
+		p.y = std::floor((y-origin_y_)/resolution_);
+	}
+}
 bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
 			   ram_path_planning::Cpp::Response& res){
   	if (req.height_between_layers <= 0)
@@ -451,7 +572,7 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
 	cv::Mat bin;
 	cv::threshold(map,bin,req.occupancy_threshold,255,cv::THRESH_BINARY_INV);
 	
-#if 1
+#if 0
 	double delta_point = 15;
 	cv::Mat element_erode = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(7, 7));
 	cv::Mat element_dilate = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(7, 7));
@@ -624,15 +745,19 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
 #endif
 #endif
 
-#if 0
+#if 1
 	cv::Mat element_erode = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(7, 7));
 	cv::Mat element_dilate = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(7, 7));
 	cv::Mat bin_out_erode;
-	cv::erode(bin,bin_out_erode,element_erode);
-	bin_out_erode.copyTo(bin);
-	cv::Mat bin_out_dilate; 
-	cv::dilate(bin,bin_out_dilate, element_dilate);
- 	bin_out_dilate.copyTo(bin);
+	cv::Mat bin_out_dilate;
+	for(int i = 0;i < 1;i++){
+		cv::dilate(bin,bin_out_dilate, element_dilate);
+ 		bin_out_dilate.copyTo(bin);
+	}
+	for(int i = 0;i < 2;i++){
+		cv::erode(bin,bin_out_erode,element_erode);
+		bin_out_erode.copyTo(bin);
+	}
 
     std::vector<int8_t> map_data; 
 	for(int i = 0;i < bin.rows;i++){
@@ -665,6 +790,7 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
 
 	//find external contour and has subcontour 
 	for(int i = 0;i < contours.size();i++){
+		ROS_INFO("contours[%d]_size:%d",i,contours[i].size());
 		if(contours[i].size() > max_external_contour){
 			max_external_contour = contours[i].size();
 			external_contour_id = i;
@@ -722,25 +848,25 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
 			//std::cout << "convex_defects_size:" << convex_defects.size() << std::endl;
 			//std::cout << "convex_defects:" << cv::Mat(convex_defects) << std::endl;
 
-			std::deque<int> final_point_index;
+			std::deque<con_p> final_point_index;
 			int mid_index = -1;
 			for(int k = convex_contour_poly_I.size()-1;k >= 0;k--){
 				if(final_point_index.size() == 0){
-					final_point_index.push_front(convex_contour_poly_I[k]);
+					final_point_index.push_front(con_p(-1,-1,false,convex_contour_poly_I[k]));
 
 					if(hasConvexDefects(convex_defects,convex_contour_poly_I[k],convex_contour_poly_I[k-1],mid_index)){
-							final_point_index.push_front(mid_index);
+							final_point_index.push_front(con_p(convex_contour_poly_I[k],convex_contour_poly_I[k-1],true,mid_index));
 					}
 
-					final_point_index.push_front(convex_contour_poly_I[k-1]);
+					final_point_index.push_front(con_p(-1,-1,false,convex_contour_poly_I[k-1]));
 					k = k-1;
 				}
 				else{
 					if(hasConvexDefects(convex_defects,convex_contour_poly_I[k+1],convex_contour_poly_I[k],mid_index)){
-						final_point_index.push_front(mid_index);
+						final_point_index.push_front(con_p(convex_contour_poly_I[k+1],convex_contour_poly_I[k],true,mid_index));
 					}
 
-					final_point_index.push_front(convex_contour_poly_I[k]);
+					final_point_index.push_front(con_p(-1,-1,false,convex_contour_poly_I[k]));
 				}
 			}
 
@@ -748,7 +874,10 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
 								convex_contour_poly_I[0],\
 								convex_contour_poly_I[convex_contour_poly_I.size()-1],\
 								mid_index)){
-				final_point_index.push_back(mid_index);
+				final_point_index.push_back(con_p(convex_contour_poly_I[0],\
+												  convex_contour_poly_I[convex_contour_poly_I.size()-1],\
+												  true,\
+												  mid_index));
 			}
 			
 			/*for(int i = 0;i < final_point_index.size();i++){
@@ -757,10 +886,22 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
 			
 			std::vector<cv::Point> final_point;
 			for(int k = 0;k < final_point_index.size();k++){
-				//final_point.push_back(contour_poly[final_point_index[i]]);
-				final_point.push_back(valid_contours[i][final_point_index[k]]);
+				if(!final_point_index[k].change_value)
+					final_point.push_back(valid_contours[i][final_point_index[k].current_index]);
+				else{
+					cv::Point alterPoint;
+					fitLine(valid_contours[i],\
+							final_point_index[k].start_index,\
+							final_point_index[k].end_index,\
+							final_point_index[k].current_index,\
+							req.map_resolution,
+							req.map_origin_x,
+							req.map_origin_y,
+							alterPoint);
+					final_point.push_back(alterPoint);
+				}	
 			}
-			std::cout << "final_point:" << cv::Mat(final_point) << std::endl;
+			//std::cout << "final_point:" << cv::Mat(final_point) << std::endl;
 
 			for(int j = 0;j < final_point.size();j++){
 				double point_x = final_point[j].x*req.map_resolution+req.map_origin_x;
