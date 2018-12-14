@@ -268,7 +268,7 @@ for(int l = 0;l < iterate_num;l++){
             }
         }
     }
-    ROS_INFO("count_step2:%d",count_step_2);
+    //ROS_INFO("count_step2:%d",count_step_2);
 }
 
 cv::Mat bin_step3;

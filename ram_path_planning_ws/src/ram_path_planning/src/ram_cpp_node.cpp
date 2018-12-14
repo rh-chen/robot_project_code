@@ -167,7 +167,7 @@ public:
 									pub_map_cpp.publish(srv_zigzag.response.map);
 
 									visualization_msgs::MarkerArray markerArray;
-#if 0
+#if 1
 								//external contour
 								{
 									geometry_msgs::Pose startPose = srv_zigzag.response.pose[0];

@@ -371,11 +371,11 @@ namespace Cpp
           double v; // Parametric coordinate of the line 2
           int intersection = vtkLine::Intersection3D(p_i, new_p_i, p_j, new_p_j, u, v);
 
-          if (intersection == 2)
+          /*if (intersection == 2)
           {
             ROS_ERROR_STREAM("offsetPolygonContour: one or multiple edges are too short! Lines: " << i << " and " << j);
             return false;
-          }
+          }*/
         }
       }
       polygon_array->InsertNextCell(polygon);

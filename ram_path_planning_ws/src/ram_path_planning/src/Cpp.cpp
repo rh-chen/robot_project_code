@@ -452,7 +452,7 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
 	cv::threshold(map,bin,req.occupancy_threshold,255,cv::THRESH_BINARY_INV);
 	
 #if 1
-	double delta_point = 15;
+	double delta_point = 18;
 	cv::Mat element_erode = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(7, 7));
 	cv::Mat element_dilate = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(7, 7));
 	cv::Mat bin_out_erode;
