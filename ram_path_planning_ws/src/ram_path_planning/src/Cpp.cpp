@@ -365,9 +365,9 @@ std::vector<cv::Point2i> makeOIP(cv::Mat& img, int gsize) {
   std::vector<cv::Point2i> vertices;
 
   cv::Point2i topleftpoint = getTopLeftPoint(img);
-  ROS_INFO("topleftpoint:%d,%d",topleftpoint.x,topleftpoint.y);
+  //ROS_INFO("topleftpoint:%d,%d",topleftpoint.x,topleftpoint.y);
   cv::Point2i startpoint = getStartPoint(img, topleftpoint, gsize);
-  ROS_INFO("startpoint:%d,%d",startpoint.x,startpoint.y);
+  //ROS_INFO("startpoint:%d,%d",startpoint.x,startpoint.y);
   cv::Point2i q = startpoint;
   int type = getPointType(img, q, gsize);
 
@@ -392,10 +392,6 @@ std::vector<cv::Point2i> makeOIP(cv::Mat& img, int gsize) {
 
 #endif
 bool hasConvexDefects(std::vector<cv::Vec4i>& defects_,int start_,int end_,int& mid_){
-
-	/*for(int i = 0;i < defects_.size();i++){
-		std::cout << "defects:" << defects_[i][3] << std::endl;
-	}*/
 	for(int i = 0;i < defects_.size();i++){
 		if((defects_[i][0] == start_) && (defects_[i][1] == end_)){
 			if(defects_[i][3]/256 > DEFECT_LIMIT){
@@ -452,9 +448,9 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
 	cv::threshold(map,bin,req.occupancy_threshold,255,cv::THRESH_BINARY_INV);
 	
 #if 1
-	double delta_point = 18;
-	cv::Mat element_erode = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(7, 7));
-	cv::Mat element_dilate = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(7, 7));
+	double delta_point = 3;
+	cv::Mat element_erode = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(3, 3));
+	cv::Mat element_dilate = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(3, 3));
 	cv::Mat bin_out_erode;
 	cv::erode(bin,bin_out_erode,element_erode);
 	bin_out_erode.copyTo(bin);
@@ -462,14 +458,22 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
 	cv::dilate(bin,bin_out_dilate, element_dilate);
  	bin_out_dilate.copyTo(bin);
 
-	/*cv::Mat element_erode_ = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(delta_point, delta_point));
-	cv::Mat element_dilate_ = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(delta_point+6, delta_point+6));
-	cv::Mat bin_out_erode_;
-	cv::erode(bin_,bin_out_erode_,element_erode_);
-	bin_out_erode_.copyTo(bin_);
-	cv::Mat bin_out_dilate_; 
-	cv::dilate(bin_,bin_out_dilate_, element_dilate_);
- 	bin_out_dilate_.copyTo(bin_);*/
+	//output the bin map data
+	std::vector<int8_t> map_data; 
+	for(int i = 0;i < bin.rows;i++){
+        for(int j = 0;j < bin.cols;j++){
+           char value = bin.at<char>(i,j);
+           map_data.push_back(value); 
+        }
+     }
+
+    res.map.info.height = req.map.info.height;
+    res.map.info.width = req.map.info.width;
+    res.map.info.resolution = req.map.info.resolution;
+    res.map.data = map_data;
+    res.map.header.frame_id = req.map.header.frame_id;
+    res.map.info.origin.position.x = req.map.info.origin.position.x;
+    res.map.info.origin.position.y = req.map.info.origin.position.y;
 
 	//rectlinear polygon
 	std::vector<cv::Point2i> vertices_point;
@@ -496,9 +500,7 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
 	}
 
 	cells->InsertNextCell(polygon);
-	//polygonPolyData->SetPoints(pts);
-	//polygonPolyData->SetPolys(cells);
-
+#if 0
 	//Find  contour
 	std::vector<std::vector<cv::Point> > contours;
 	std::vector<cv::Vec4i> hierarchy;
@@ -568,7 +570,7 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
 			cells->InsertNextCell(polygon_);
 		}
 	}
-
+#endif
 	polygonPolyData->SetPoints(pts);
 	polygonPolyData->SetPolys(cells);
 
@@ -585,14 +587,36 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
   	{
     	std::string error_message;
     	error_message = dhd.generateOneLayerTrajectory(
-													10, 50,polygonPolyData,current_layer_,
+													0, 0,polygonPolyData,current_layer_,
                                                     req.deposited_material_width,
-                                                    req.contours_filtering_tolerance, M_PI / 3,
+                                                    req.contours_filtering_tolerance, M_PI / 6,
                                                     false,
                                                     use_gui);
 
+		ROS_INFO("current_layer_size:%d",current_layer_[0].size());
 
-    	if (error_message.empty())
+		for(int i = 0;i < current_layer_[0].size();i++){
+			vtkSmartPointer<vtkIdList> cellPointIds = vtkSmartPointer<vtkIdList>::New();
+			vtkIdType cellId = 0;
+
+			vtkPolyData* pData = current_layer_[0][i];
+			pData->GetCellPoints(cellId,cellPointIds);
+			ROS_INFO("cell_number_id:%d",cellPointIds->GetNumberOfIds());
+			geometry_msgs::Polygon polygon_divide;
+			for(vtkIdType j = 0;j < cellPointIds->GetNumberOfIds();j++){
+				double point_[3];
+				vtkIdType point_id_ = cellPointIds->GetId(j);
+				pData->GetPoints()->GetPoint(point_id_,point_);
+				geometry_msgs::Point32 point_divide;
+
+				point_divide.x = point_[0];
+				point_divide.y = point_[1];
+				point_divide.z = point_[2];
+				polygon_divide.points.push_back(point_divide);
+			}
+			res.polygon.push_back(polygon_divide);
+		}
+    	/*if (error_message.empty())
     	{
       		dhd.connectYamlLayers( 50,90,current_layer_, msg,req.number_of_layers,req.height_between_layers);
     	}
@@ -600,11 +624,11 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
     	{
       		ROS_ERROR_STREAM(error_message);
       		return false;
-    	}
+    	}*/
   	}
 
   	// Trajectory is now complete
-  	if (msg.poses.size() <= 0)
+  	/*if (msg.poses.size() <= 0)
   	{
    	  	ROS_ERROR_STREAM("Trajectory is empty");
       	return false;
@@ -619,7 +643,7 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
 		current_pose.pose.position.z = msg.poses[i].pose.position.z;
 
 		res.path.poses.push_back(current_pose);
-	}
+	}*/
 
 #endif
 #endif

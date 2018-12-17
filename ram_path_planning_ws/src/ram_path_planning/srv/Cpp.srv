@@ -27,3 +27,4 @@ nav_msgs/OccupancyGrid map
 nav_msgs/Path path
 geometry_msgs/Pose[] pose
 nav_msgs/OccupancyGrid map
+geometry_msgs/Polygon[] polygon

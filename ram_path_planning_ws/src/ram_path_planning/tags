@@ -65,20 +65,25 @@ angleBetweenVectors	include/ram_path_planning/donghong_ding_base_imp.hpp	/^  dou
 angle_diff	src/lsd.cpp	/^static double angle_diff(double a, double b)$/;"	f	file:
 angle_diff_signed	src/lsd.cpp	/^static double angle_diff_signed(double a, double b)$/;"	f	file:
 calculation_tol_	include/ram_path_planning/donghong_ding_base.hpp	/^    const double calculation_tol_ = 1e-6; \/\/ In meters$/;"	m	class:Cpp::DonghongDingBase
+change_value	src/Cpp_Convex.cpp	/^	bool change_value;$/;"	m	struct:Cpp::convex_point	file:
 clickCallBack	src/ram_cpp_node.cpp	/^	void clickCallBack(const geometry_msgs::PointStamped::ConstPtr &msg)$/;"	f	class:cpp_test
 closest_to_bisector_	include/ram_path_planning/donghong_ding.hpp	/^    bool closest_to_bisector_;$/;"	m	class:Cpp::DonghongDing
 computeNormal	include/ram_path_planning/donghong_ding_base_imp.hpp	/^  void DonghongDingBase::computeNormal(vtkPoints *p,$/;"	f	class:Cpp::DonghongDingBase
+con_p	src/Cpp_Convex.cpp	/^}con_p;$/;"	t	namespace:Cpp	typeref:struct:Cpp::convex_point	file:
 condition_	include/ram_path_planning/shemaphore.hpp	/^  std::condition_variable condition_;$/;"	m	class:Cpp::Semaphore
 connectLayersWithOnePolygon	include/ram_path_planning/donghong_ding_base_imp.hpp	/^  void DonghongDingBase::connectLayersWithOnePolygon($/;"	f	class:Cpp::DonghongDingBase
 connectMeshLayers	include/ram_path_planning/donghong_ding_base_imp.hpp	/^  std::string DonghongDingBase::connectMeshLayers(const int current_progrress_value,$/;"	f	class:Cpp::DonghongDingBase
 connectYamlLayers	include/ram_path_planning/donghong_ding_base_imp.hpp	/^  void DonghongDingBase::connectYamlLayers($/;"	f	class:Cpp::DonghongDingBase
 contours_filtering_tolerance_	include/ram_path_planning/donghong_ding.hpp	/^    double contours_filtering_tolerance_; \/\/ In meters$/;"	m	class:Cpp::DonghongDing
 contours_filtering_tolerance_	include/ram_path_planning/donghong_ding_base.hpp	/^	double contours_filtering_tolerance_;$/;"	m	class:Cpp::DonghongDingBase
+convex_point	src/Cpp_Convex.cpp	/^	convex_point(int start_index_,int end_index_,bool change_value_,int current_index_){$/;"	f	struct:Cpp::convex_point
+convex_point	src/Cpp_Convex.cpp	/^typedef struct convex_point{$/;"	s	namespace:Cpp	file:
 coorlist	src/lsd.cpp	/^struct coorlist$/;"	s	file:
 counter_	include/ram_path_planning/shemaphore.hpp	/^  unsigned int counter_;$/;"	m	class:Cpp::Semaphore
 cpp_test	src/ram_cpp_node.cpp	/^	cpp_test(ros::NodeHandle n_):n(n_){$/;"	f	class:cpp_test
 cpp_test	src/ram_cpp_node.cpp	/^class cpp_test{$/;"	c	file:
 createMarker	src/ram_cpp_node.cpp	/^	visualization_msgs::Marker createMarker(const std::string markerName,$/;"	f	class:cpp_test
+current_index	src/Cpp_Convex.cpp	/^	int current_index;$/;"	m	struct:Cpp::convex_point	file:
 data	include/ram_path_planning/lsd.h	/^    double *data;$/;"	m	struct:image_double_s
 data	include/ram_path_planning/lsd.h	/^    int *data;$/;"	m	struct:image_int_s
 data	include/ram_path_planning/lsd.h	/^    unsigned char *data;$/;"	m	struct:image_char_s
@@ -91,11 +96,13 @@ divideInConvexPolygons	include/ram_path_planning/donghong_ding_imp.hpp	/^  bool 
 double_equal	src/lsd.cpp	/^static int double_equal(double a, double b)$/;"	f	file:
 dx	src/lsd.cpp	/^    double dx, dy;       \/* vector with the line segment angle *\/$/;"	m	struct:rect	file:
 dy	src/lsd.cpp	/^    double dx, dy;       \/* vector with the line segment angle *\/$/;"	m	struct:rect	file:
+end_index	src/Cpp_Convex.cpp	/^	int end_index;$/;"	m	struct:Cpp::convex_point	file:
 enlarge_ntuple_list	src/lsd.cpp	/^void enlarge_ntuple_list(ntuple_list n_tuple)$/;"	f
 error	src/lsd.cpp	/^static void error(char *msg)$/;"	f	file:
 findIntersectWithBisector	include/ram_path_planning/donghong_ding_imp.hpp	/^  bool DonghongDing::findIntersectWithBisector(const Polygon poly_data,$/;"	f	class:Cpp::DonghongDing
 findNotch	include/ram_path_planning/donghong_ding_imp.hpp	/^  bool DonghongDing::findNotch(const Polygon poly_data,$/;"	f	class:Cpp::DonghongDing
 findVertex	include/ram_path_planning/donghong_ding_imp.hpp	/^  bool DonghongDing::findVertex(const Polygon poly_data,$/;"	f	class:Cpp::DonghongDing
+fitLine	src/Cpp_Convex.cpp	/^void fitLine(std::vector<cv::Point>& vec,\\$/;"	f	namespace:Cpp
 free_image_char	src/lsd.cpp	/^void free_image_char(image_char i)$/;"	f
 free_image_double	src/lsd.cpp	/^void free_image_double(image_double i)$/;"	f
 free_image_int	src/lsd.cpp	/^void free_image_int(image_int i)$/;"	f
@@ -196,6 +203,7 @@ semaphore_	include/ram_path_planning/donghong_ding.hpp	/^    Semaphore semaphore
 service_name_	include/ram_path_planning/donghong_ding_base.hpp	/^	std::string service_name_;$/;"	m	class:Cpp::DonghongDingBase
 signal	include/ram_path_planning/shemaphore.hpp	/^  inline void signal()$/;"	f	class:Cpp::Semaphore
 size	include/ram_path_planning/lsd.h	/^    unsigned int size;$/;"	m	struct:ntuple_list_s
+start_index	src/Cpp_Convex.cpp	/^	int start_index;$/;"	m	struct:Cpp::convex_point	file:
 sub	src/ram_cpp_node.cpp	/^	ros::Subscriber sub;$/;"	m	class:cpp_test	file:
 sub_	src/ram_cpp_node.cpp	/^	ros::Subscriber sub_;$/;"	m	class:cpp_test	file:
 theta	src/lsd.cpp	/^    double theta;        \/* angle *\/$/;"	m	struct:rect	file:

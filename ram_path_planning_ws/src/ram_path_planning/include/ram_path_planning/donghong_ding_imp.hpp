@@ -75,7 +75,7 @@ namespace Cpp
     if (!this->organizePolygonContoursInLayer(poly_data, level, father, layer))
       return "Failed to organize polygon contours in layer";
 	
-	ROS_INFO("layer.size:%d",layer.size());
+	//ROS_INFO("layer.size:%d",layer.size());
     // Divide in convex polygons
     vtkSmartPointer<vtkPoints> split_points = vtkSmartPointer<vtkPoints>::New();
     for (unsigned i(0); i < layer.size(); ++i)
@@ -84,8 +84,8 @@ namespace Cpp
       while (j < layer[i].size())
       {
 		
-	    ROS_INFO("layer[%d].size:%d",i,layer[i].size());
-	    ROS_INFO("J:%d",j);
+	    //ROS_INFO("layer[%d].size:%d",i,layer[i].size());
+	    //ROS_INFO("J:%d",j);
 
         if (use_gui)
         {
@@ -104,8 +104,8 @@ namespace Cpp
           return "Error dividing the polygons";
       }
       // Action feedback
-      v = 0.5 * (i + 1) / layer.size();
-      progress_value = (int)(current_progrress_value + v * (next_progress_value - current_progrress_value));
+      //v = 0.5 * (i + 1) / layer.size();
+      //progress_value = (int)(current_progrress_value + v * (next_progress_value - current_progrress_value));
       /*if (!this->publishStatusPercentageDone("Dividing concave polygon " + std::to_string(i) + " in convex polygons",
                                              progress_value,
                                              gh))
@@ -113,18 +113,19 @@ namespace Cpp
 	  */
     }
 
-    if (use_gui)
+    /*if (use_gui)
     {
       std::string s;
       std::getline(std::cin, s);
       ROS_INFO_STREAM("Enter was pressed: zigzag in convex polygons");
-    }
+    }*/
 
 	/*ROS_INFO("layer_size:%d",(size_t)layer.size());
 	ROS_INFO("layer_polygons_size:%d",(size_t)layer[0].size());
 	for(int i = 0;i < (size_t)layer[0].size();i++){
 		ROS_INFO("layer_polygons_polydata_size:%d",(size_t)layer[0][i]->GetNumberOfCells());
 	}*/
+#if 0
     // Path generation in convex polygons
     std::vector<std::future<bool> > futures;
     for (auto polygons : layer)
@@ -191,6 +192,7 @@ namespace Cpp
       ROS_INFO_STREAM("Path generated on one layer");
       std::getline(std::cin, s);
     }
+#endif
     return "";
   }
 
@@ -254,7 +256,7 @@ namespace Cpp
         vtkMath::Subtract(p2, p1, v2);
 
         angle = this->angleBetweenVectors(v1, v2);
-		ROS_INFO("notch_angle:%f",angle);
+		//ROS_INFO("notch_angle:%f",angle);
         if (angle < 0) // Found notch
         {
           cell_id = i;

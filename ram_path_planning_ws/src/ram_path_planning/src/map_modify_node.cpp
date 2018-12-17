@@ -283,7 +283,7 @@ for(int i = 0;i < contours.size();i++){
 		max_contour_point = contours[i].size();
 	}
 }
-ROS_INFO("max_contour_poit:%d",max_contour_point);
+ROS_INFO("max_contour_point:%d",max_contour_point);
 ROS_INFO("contours_size:%d",contours.size());
 
 if(contours.size() > 1){
