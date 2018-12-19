@@ -3,6 +3,7 @@
 
 #include <ram_path_planning/donghong_ding_base.hpp>
 #include <ram_path_planning/shemaphore.hpp>
+
 namespace Cpp
 {
   class DonghongDing:public DonghongDingBase

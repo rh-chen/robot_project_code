@@ -59,7 +59,10 @@ namespace Cpp
     contours_filtering_tolerance_ = contours_filtering_tolerance;
     closest_to_bisector_ = closest_to_bisector;
 
-    if (!this->removeDuplicatePoints(poly_data, this->deposited_material_width_ / 2)) // tolerance default
+    /*if (!this->removeDuplicatePoints(poly_data, this->deposited_material_width_ / 2)) // tolerance default
+      return "Failed to remove duplicate points";*/
+
+    if (!this->removeDuplicatePoints(poly_data, contours_filtering_tolerance_)) // tolerance default
       return "Failed to remove duplicate points";
 
     if (!this->mergeColinearEdges(poly_data, contours_filtering_tolerance_))
@@ -125,31 +128,34 @@ namespace Cpp
 	for(int i = 0;i < (size_t)layer[0].size();i++){
 		ROS_INFO("layer_polygons_polydata_size:%d",(size_t)layer[0][i]->GetNumberOfCells());
 	}*/
-#if 0
     // Path generation in convex polygons
-    std::vector<std::future<bool> > futures;
+    /*std::vector<std::future<bool> > futures;
     for (auto polygons : layer)
       for (auto poly_data : polygons)
         futures.push_back(std::async(&DonghongDing::generateTrajectoryInConvexPolygon, this, poly_data));
-
-	/*std::vector<bool> futures;
+	*/
+#if 0
+	std::vector<bool> futures;
 	for(int i = 0;i < layer.size();i++){
 		for(int j = 0;j < layer[i].size();j++){
 			bool res = generateTrajectoryInConvexPolygon(layer[i][j]);
-			ROS_INFO("res:%d",res);
+			ROS_INFO("futures_generate_res:%d",res);
 			if(res)
 				futures.push_back(res);
 		}
-	}*/
+	}
 
     bool global_return = true;
-    for (auto &t : futures)
-      global_return &= t.get();
-	 /*for(int i = 0;i < futures.size();i++)
-	 	global_return &= futures[i];*/
+    /*for (auto &t : futures){
+		ROS_INFO("futures_generate_res:%d",t.get());
+      	global_return |= t.get();
+	}*/
+	for(int i = 0;i < futures.size();i++)
+	 	global_return |= futures[i];
     if (!global_return)
       return "Failed to generate trajectory in one of the convex polygons";
-
+#endif
+#if 0
     // Merge convex polygons. First method
     vtkIdType n_lines = split_points->GetNumberOfPoints() / 2;
     int current_line = 0;
@@ -514,7 +520,8 @@ namespace Cpp
 
     if (find_intersection == false)
     {
-      ROS_ERROR_STREAM("findIntersectWithBisector: Intersection not found");
+      //ROS_ERROR_STREAM("findIntersectWithBisector: Intersection not found");
+      ROS_WARN_STREAM("findIntersectWithBisector: Intersection not found");
       return false;
     }
 
@@ -968,7 +975,8 @@ namespace Cpp
           new_point[k] = p1[k] + this->deposited_material_width_ / sin(angle) * v1[k];
         if (sqrt(vtkMath::Distance2BetweenPoints(p1, new_point)) > sqrt(vtkMath::Distance2BetweenPoints(p1, p0)))
         {
-          ROS_ERROR_STREAM("offsetLeftChain: error modifying the first point in the left chain");
+          //ROS_ERROR_STREAM("offsetLeftChain: error modifying the first point in the left chain");
+		  ROS_WARN_STREAM("offsetLeftChain: error modifying the first point in the left chain");
           return false;
         }
       }
@@ -978,7 +986,8 @@ namespace Cpp
           new_point[k] = p1[k] + this->deposited_material_width_ / sin(angle) * v2[k];
         if (sqrt(vtkMath::Distance2BetweenPoints(p1, new_point)) > sqrt(vtkMath::Distance2BetweenPoints(p1, p2)))
         {
-          ROS_ERROR_STREAM("offsetLeftChain: error modifying the last point in the left chain");
+          //ROS_ERROR_STREAM("offsetLeftChain: error modifying the last point in the left chain");
+		  ROS_WARN_STREAM("offsetLeftChain: error modifying the first point in the left chain");
           return false;
         }
       }
@@ -1013,7 +1022,8 @@ namespace Cpp
 
         if (intersection == 2)
         {
-          ROS_ERROR_STREAM("offsetLeftChain: edge is too short");
+          //ROS_ERROR_STREAM("offsetLeftChain: edge is too short");
+          ROS_WARN_STREAM("offsetLeftChain: edge is too short");
           return false;
         }
       }
@@ -1040,7 +1050,8 @@ namespace Cpp
 
     if (vtkMath::Distance2BetweenPoints(p0, p1) >= vtkMath::Distance2BetweenPoints(p1, p2))
     {
-      ROS_ERROR_STREAM("offsetLeftChain: Error modifying the point between the zigzag path and the right chain");
+      //ROS_ERROR_STREAM("offsetLeftChain: Error modifying the point between the zigzag path and the right chain");
+      ROS_WARN_STREAM("offsetLeftChain: Error modifying the point between the zigzag path and the right chain");
       return false;
     }
 
@@ -1065,7 +1076,8 @@ namespace Cpp
     vtkMath::Normalize(v);
     if (sqrt(vtkMath::Distance2BetweenPoints(p0, p1)) < this->deposited_material_width_ / (sin(angle_first_point)))
     {
-      ROS_ERROR_STREAM("offsetLeftChain: Error modifying the point between the left chain and the zigzag path");
+      //ROS_ERROR_STREAM("offsetLeftChain: Error modifying the point between the left chain and the zigzag path");
+      ROS_WARN_STREAM("offsetLeftChain: Error modifying the point between the left chain and the zigzag path");
       return false;
     }
     for (int k = 0; k < 3; ++k)
@@ -1135,9 +1147,10 @@ namespace Cpp
 
       if (intersection_points->GetNumberOfPoints() != 2)
       {
-        ROS_ERROR_STREAM(
+        /*ROS_ERROR_STREAM(
                          "zigzagGeneration: " << intersection_points->GetNumberOfPoints()
-                             << " intersections. 2 expected intersections.");
+                             << " intersections. 2 expected intersections.");*/
+        ROS_WARN_STREAM("zigzagGeneration: intersections. 2 expected intersections.");
         return false;
       }
 
@@ -1429,17 +1442,15 @@ namespace Cpp
     vtkIdType opposite_point_id;
     double h;
     h = identifyZigzagDirection(poly_data, edge_id, opposite_point_id);
-	//double d_m_w = this->deposited_material_width_;
 
     if (std::floor(h / this->deposited_material_width_) <= 4){
       	ROS_WARN_STREAM("warning: h/d <= 4 | h/d = " << h / this->deposited_material_width_);
-		//this->deposited_material_width_ = 0.1f;
 	}
 	
     if (!this->offsetPolygonContour(poly_data, this->deposited_material_width_ / 2.0))
     {
       semaphore_.signal();
-	  ROS_INFO("error 1");
+	  ROS_WARN_STREAM("offsetPolygonContour,deposited_material_width_ / 2.0");
       return false;
     };
 
@@ -1461,7 +1472,7 @@ namespace Cpp
     {
       semaphore_.signal();
 
-	  ROS_INFO("error 2");
+	  ROS_WARN_STREAM("offsetLeftChain error 2");
       return false;
     }
 
@@ -1469,7 +1480,7 @@ namespace Cpp
     {
       semaphore_.signal();
 
-	  ROS_INFO("error 3");
+	  ROS_WARN_STREAM("offsetPolygonContou rerror 3");
       return false;
     }
 
@@ -1477,7 +1488,7 @@ namespace Cpp
     {
       semaphore_.signal();
 
-	  ROS_INFO("error 4");
+	  ROS_WARN_STREAM("zigzagGeneratio nerror 4");
       return false;
     }
 
@@ -1485,7 +1496,6 @@ namespace Cpp
     this->removeDuplicatePoints(poly_data);
     this->mergeColinearEdges(poly_data);
     semaphore_.signal();
-	//this->deposited_material_width_ = d_m_w;
     return true;
   }
 

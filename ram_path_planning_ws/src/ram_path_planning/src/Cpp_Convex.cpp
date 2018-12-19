@@ -991,15 +991,16 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
   	}
 	
 	ROS_INFO("Trajectory size:%d",(int)msg.poses.size());
-
+	nav_msgs::Path path_convex;
 	for(int i = 0;i < msg.poses.size();i++){
 		geometry_msgs::PoseStamped current_pose;
 		current_pose.pose.position.x = msg.poses[i].pose.position.x;
 		current_pose.pose.position.y = msg.poses[i].pose.position.y;
 		current_pose.pose.position.z = msg.poses[i].pose.position.z;
 
-		res.path.poses.push_back(current_pose);
+		path_convex.poses.push_back(current_pose);
 	}
+	res.path.push_back(path_convex);
 #endif
 #endif
 	return true;

@@ -147,7 +147,7 @@ public:
 					srv_zigzag.request.start_position_y = msg->point.y;
 					srv_zigzag.request.height_between_layers = 1;
 					srv_zigzag.request.deposited_material_width = 0.3;
-					srv_zigzag.request.contours_filtering_tolerance = 0.15;
+					srv_zigzag.request.contours_filtering_tolerance = 0.6;
 					srv_zigzag.request.map = map_modify_srv.response.map;
 					srv_zigzag.request.external_contour_threshold = 48;
 
@@ -172,7 +172,7 @@ public:
 #if 1
 								//divide polygon
 							{
-								ROS_INFO("srv_zigzag.response.polygon.size:%d",srv_zigzag.response.polygon.size());
+								//ROS_INFO("srv_zigzag.response.polygon.size:%d",srv_zigzag.response.polygon.size());
 								for(int j = 0;j < srv_zigzag.response.polygon.size();j++){
 									geometry_msgs::Polygon polygon_ = srv_zigzag.response.polygon[j];
 									geometry_msgs::Pose startPose;
@@ -209,14 +209,14 @@ public:
 									geometry_msgs::Point last_point;
 									last_point.x = startPose.position.x;
 									last_point.y = startPose.position.y;
-									ROS_INFO("polygon__points_size:%d",polygon_.points.size());
+									//ROS_INFO("polygon__points_size:%d",polygon_.points.size());
 									for(int i = 1; i < polygon_.points.size(); ++i) {
 
 											geometry_msgs::Pose pose;
 											pose.position.x = polygon_.points[i].x;
 											pose.position.y = polygon_.points[i].y;
 											pose.position.z = polygon_.points[i].z;
-											ROS_INFO_STREAM(pose);
+											//ROS_INFO_STREAM(pose);
 
 											//marker planner pose
 											geometry_msgs::Pose  markerArrowPose;
@@ -295,7 +295,7 @@ public:
 																			markerArrowColor,
 																			plannerStartId,
 																			srv_zigzag.request.map.header.frame_id);
-
+										plannerStartId++;
 											//arrowHead, arrowEnd
 										geometry_msgs::Point p;
 										p.x = startPose.position.x;
@@ -467,10 +467,11 @@ public:
 
 
 
-#if 0
+#if 1 
 								//coverage_path
 								{
-									geometry_msgs::PoseStamped startPose = srv_zigzag.response.path.poses[0];
+								for(int index = 0;index < srv_zigzag.response.path.size();index++){
+									geometry_msgs::PoseStamped startPose = srv_zigzag.response.path[index].poses[0];
 									//marker start pose
 									geometry_msgs::Pose  plannerStartPose;
 									plannerStartPose.position.x = startPose.pose.position.x;
@@ -494,16 +495,16 @@ public:
 																	plannerStartColor,
 																	plannerStartId,
 																	srv_zigzag.request.map.header.frame_id);
-									plannerStartId++
+									plannerStartId++;
 									markerArray.markers.push_back(markerSphereStart);
 
 									geometry_msgs::Point last_point;
 									last_point.x = startPose.pose.position.x;
 									last_point.y = startPose.pose.position.y;
 
-									for(int i = 1; i < srv_zigzag.response.path.poses.size(); ++i) {
+									for(int i = 1; i < srv_zigzag.response.path[index].poses.size(); ++i) {
 
-											geometry_msgs::PoseStamped pose = srv_zigzag.response.path.poses[i];
+											geometry_msgs::PoseStamped pose = srv_zigzag.response.path[index].poses[i];
 											
 											geometry_msgs::Pose  markerArrowPose;
 											markerArrowPose.position.x = last_point.x;
@@ -527,7 +528,7 @@ public:
 																			markerArrowColor,
 																			plannerStartId,
 																			srv_zigzag.request.map.header.frame_id);
-
+											plannerStartId++;
 											//arrowHead, arrowEnd
 											geometry_msgs::Point p;
 											p.x = pose.pose.position.x;
@@ -553,6 +554,7 @@ public:
 											last_point = p;
 
 									}
+									}
 								}
 
 #endif 
@@ -562,9 +564,9 @@ public:
 							}
 					}
 					else
-							ROS_ERROR("Failed to call service /sweeper/zigzag_cpp_srv");
+							ROS_ERROR("Failed to call service /sweeper/zigzag_cpp");
 			} else {
-							ROS_ERROR("Failed to call service /sweeper/map_rotate_srv");
+							ROS_ERROR("Failed to call service /sweeper/map_modify_srv");
 			}
 	}
 };

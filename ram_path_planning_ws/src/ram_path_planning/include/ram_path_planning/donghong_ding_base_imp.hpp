@@ -371,11 +371,12 @@ namespace Cpp
           double v; // Parametric coordinate of the line 2
           int intersection = vtkLine::Intersection3D(p_i, new_p_i, p_j, new_p_j, u, v);
 
-          /*if (intersection == 2)
+          if (intersection == 2)
           {
-            ROS_ERROR_STREAM("offsetPolygonContour: one or multiple edges are too short! Lines: " << i << " and " << j);
+            //ROS_ERROR_STREAM("offsetPolygonContour: one or multiple edges are too short! Lines: " << i << " and " << j);
+			ROS_WARN_STREAM("offsetPolygonContour:one or multiple edges are too short!");
             return false;
-          }*/
+          }
         }
       }
       polygon_array->InsertNextCell(polygon);
@@ -673,7 +674,11 @@ namespace Cpp
     cleaner->Update();
     if (cleaner->GetOutput()->GetNumberOfPoints() < 3)
     {
-      ROS_ERROR_STREAM(
+      /*ROS_ERROR_STREAM(
+                       "removeDuplicatePoints: Not enough points" << std::endl <<
+                           "vtkPolyData contains " << cleaner->GetOutput()->GetNumberOfPoints() << " points");*/
+
+      ROS_WARN_STREAM(
                        "removeDuplicatePoints: Not enough points" << std::endl <<
                            "vtkPolyData contains " << cleaner->GetOutput()->GetNumberOfPoints() << " points");
       return false;
@@ -719,9 +724,11 @@ namespace Cpp
       }
       if (contour->GetPointIds()->GetNumberOfIds() < 3)
       {
-        ROS_ERROR_STREAM(
-            "mergeColinearEdges: Cell " << cell_id << " must have at least 3 points outside the region of tolerance");
+        /*ROS_ERROR_STREAM(
+            "mergeColinearEdges: Cell " << cell_id << " must have at least 3 points outside the region of tolerance");*/
 
+        ROS_WARN_STREAM(
+            "mergeColinearEdges: Cell " << cell_id << " must have at least 3 points outside the region of tolerance");
         return false;
       }
       polygon_array->InsertNextCell(contour);

@@ -3,6 +3,8 @@
 #include <eigen_conversions/eigen_msg.h>
 #include <ram_path_planning/donghong_ding.hpp>
 #include <ram_path_planning/AdditiveManufacturingTrajectory.h>
+#include <ram_path_planning/cgutil.hpp>
+#include <ram_path_planning/cpp_uav.hpp>
 #include <ros/ros.h>
 #include <unique_id/unique_id.h>
 #include <visualization_msgs/Marker.h>
@@ -403,6 +405,18 @@ bool hasConvexDefects(std::vector<cv::Vec4i>& defects_,int start_,int end_,int& 
 	return false;
 }
 
+double polygonArea(PointVector& pv_,int n){
+	if(n < 3)
+		return 0;
+
+	double sum = pv_[0].y * (pv_[n-1].x - pv_[1].x);
+	for(int i = 1;i < n;i++)
+		sum += pv_[i].y * (pv_[i-1].x - pv_[(i+1) % n].x);
+	
+	sum = fabs(sum)/2.0;
+
+	return sum;
+}
 bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
 			   ram_path_planning::Cpp::Response& res){
   	if (req.height_between_layers <= 0)
@@ -448,7 +462,7 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
 	cv::threshold(map,bin,req.occupancy_threshold,255,cv::THRESH_BINARY_INV);
 	
 #if 1
-	double delta_point = 3;
+	double delta_point = 6;
 	cv::Mat element_erode = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(3, 3));
 	cv::Mat element_dilate = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(3, 3));
 	cv::Mat bin_out_erode;
@@ -582,6 +596,7 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
 #if 1
   	ram_path_planning::AdditiveManufacturingTrajectory msg;
   	DonghongDing dhd;
+	std::vector<PointVector> final_path;
 	// Generate trajectory
   	if (current_layer_.size() > 0)
   	{
@@ -589,13 +604,20 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
     	error_message = dhd.generateOneLayerTrajectory(
 													0, 0,polygonPolyData,current_layer_,
                                                     req.deposited_material_width,
-                                                    req.contours_filtering_tolerance, M_PI / 6,
+                                                    req.contours_filtering_tolerance, M_PI/3,
                                                     false,
                                                     use_gui);
 
 		ROS_INFO("current_layer_size:%d",current_layer_[0].size());
 
-		for(int i = 0;i < current_layer_[0].size();i++){
+		std_msgs::Float64 footprintLength, footprintWidth, horizontalOverwrap, verticalOverwrap;
+		footprintLength.data = 0.3;
+		footprintWidth.data = 0.3;
+		horizontalOverwrap.data = 0.1;
+		verticalOverwrap.data = 0.1;
+
+		for(int i = 0;i < current_layer_[0].size();i++)
+		{
 			vtkSmartPointer<vtkIdList> cellPointIds = vtkSmartPointer<vtkIdList>::New();
 			vtkIdType cellId = 0;
 
@@ -603,18 +625,44 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
 			pData->GetCellPoints(cellId,cellPointIds);
 			ROS_INFO("cell_number_id:%d",cellPointIds->GetNumberOfIds());
 			geometry_msgs::Polygon polygon_divide;
+			PointVector polygon_bcd,candidatePath;
+
 			for(vtkIdType j = 0;j < cellPointIds->GetNumberOfIds();j++){
 				double point_[3];
 				vtkIdType point_id_ = cellPointIds->GetId(j);
 				pData->GetPoints()->GetPoint(point_id_,point_);
 				geometry_msgs::Point32 point_divide;
+				geometry_msgs::Point point_divide_bcd;
 
 				point_divide.x = point_[0];
 				point_divide.y = point_[1];
 				point_divide.z = point_[2];
+
+				point_divide_bcd.x = point_[0];
+				point_divide_bcd.y = point_[1];
+				point_divide_bcd.z = point_[2];
+
 				polygon_divide.points.push_back(point_divide);
+				polygon_bcd.push_back(point_divide_bcd);
 			}
 			res.polygon.push_back(polygon_divide);
+			double polygon_area = polygonArea(polygon_bcd,polygon_bcd.size());
+			ROS_INFO("polygon_area:%f",polygon_area);
+			
+			bool isOptimal = computeConvexCoverage(polygon_bcd, footprintWidth.data, horizontalOverwrap.data, candidatePath);
+			
+			ROS_INFO("isOptimal:%d",isOptimal);
+			if(isOptimal){
+				geometry_msgs::Point start = polygon_bcd[0];
+				PointVector optimal_path = identifyOptimalAlternative(polygon_bcd, candidatePath, start);
+				//optimal_path.insert(optimal_path.begin(),start);
+				//final_path.push_back(optimal_path);
+				final_path.push_back(candidatePath);
+			}
+			else{
+				ROS_INFO("zigzag path plannning fail...");
+				//return false;
+			}
 		}
     	/*if (error_message.empty())
     	{
@@ -828,7 +876,7 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
 
 	polygon_vector_.push_back(polygonPolyData);
 	current_layer_.push_back(polygon_vector_);
-#if 1
+#if 0
   	// Generate trajectory
   	if (valid_contours.size() > 0)
   	{
@@ -841,7 +889,7 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
                                                     use_gui);
 
 
-    	if (error_message.empty())
+    	/*if (error_message.empty())
     	{
       		dhd.connectYamlLayers( 50,90,current_layer_, msg,req.number_of_layers,req.height_between_layers);
     	}
@@ -849,11 +897,11 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
     	{
       		ROS_ERROR_STREAM(error_message);
       		return false;
-    	}
+    	}*/
   	}
 
   	// Trajectory is now complete
-  	if (msg.poses.size() <= 0)
+  	/*if (msg.poses.size() <= 0)
   	{
    	  	ROS_ERROR_STREAM("Trajectory is empty");
       	return false;
@@ -868,9 +916,22 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
 		current_pose.pose.position.z = msg.poses[i].pose.position.z;
 
 		res.path.poses.push_back(current_pose);
+	}*/
+#endif
+#endif
+	for(int index_i = 0;index_i < final_path.size();index_i++){
+		nav_msgs::Path path_bcd;
+
+		for(int index_j = 0;index_j < final_path[index_i].size();index_j++){
+			geometry_msgs::PoseStamped current_pose;
+			current_pose.pose.position.x = final_path[index_i][index_j].x;
+			current_pose.pose.position.y = final_path[index_i][index_j].y;
+			current_pose.pose.position.z = final_path[index_i][index_j].z;
+
+			path_bcd.poses.push_back(current_pose);
+		}
+		res.path.push_back(path_bcd);
 	}
-#endif
-#endif
 	return true;
 }
 

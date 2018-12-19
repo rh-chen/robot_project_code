@@ -19,6 +19,8 @@ find_package(catkin REQUIRED COMPONENTS
 )
 find_package(OpenCV REQUIRED)
 
+find_package(CGAL REQUIRED COMPONENTS Core)
+
 find_package(VTK 7.1.0 QUIET)
 if (NOT VTK_FOUND)
   find_package(VTK 8.0.0 REQUIRED)
@@ -82,6 +84,9 @@ generate_messages(
 ###########
 ## Build ##
 ###########
+
+include( ${CGAL_USE_FILE} )
+include( CGAL_CreateSingleSourceCGALProgram)
 
 include_directories(
   include

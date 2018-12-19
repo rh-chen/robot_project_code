@@ -14,6 +14,7 @@ Cpp	src/Cpp.cpp	/^namespace Cpp{$/;"	n	file:
 Cpp	src/Cpp_Convex.cpp	/^namespace Cpp{$/;"	n	file:
 DEFECT_LIMIT	src/Cpp.cpp	18;"	d	file:
 DEFECT_LIMIT	src/Cpp_Convex.cpp	18;"	d	file:
+Direction	include/ram_path_planning/cpp_uav.hpp	/^struct Direction$/;"	s
 DonghongDing	include/ram_path_planning/donghong_ding.hpp	/^  class DonghongDing:public DonghongDingBase$/;"	c	namespace:Cpp
 DonghongDing	include/ram_path_planning/donghong_ding_imp.hpp	/^  DonghongDing::DonghongDing() :$/;"	f	class:Cpp::DonghongDing
 DonghongDingBase	include/ram_path_planning/donghong_ding_base.hpp	/^  class DonghongDingBase$/;"	c	namespace:Cpp
@@ -21,6 +22,8 @@ DonghongDingBase	include/ram_path_planning/donghong_ding_base_imp.hpp	/^  Dongho
 FALSE	src/lsd.cpp	89;"	d	file:
 Histogram	include/ram_path_planning/histogram.h	/^	Histogram(const T lower_bound, const T upper_bound, const size_t histogram_bins)$/;"	f	class:Histogram
 Histogram	include/ram_path_planning/histogram.h	/^class Histogram$/;"	c
+INCLUDED_cgutil_hpp_	include/ram_path_planning/cgutil.hpp	2;"	d
+INCLUDED_cpp_uav_hpp_	include/ram_path_planning/cpp_uav.hpp	2;"	d
 ImgRotate	src/line_detection_and_rotation.cpp	/^	bool ImgRotate(cv::Mat& src_,cv::Mat& dst_,int direction,double angle,vector<double>& rot_mat)$/;"	f	namespace:line_detection_and_rotation
 LSD_HEADER	include/ram_path_planning/lsd.h	29;"	d
 Layer	include/ram_path_planning/donghong_ding.hpp	/^    typedef std::vector<PolygonVector> Layer;$/;"	t	class:Cpp::DonghongDing
@@ -64,11 +67,23 @@ add_5tuple	src/lsd.cpp	/^void add_5tuple( ntuple_list out, double v1, double v2,
 angleBetweenVectors	include/ram_path_planning/donghong_ding_base_imp.hpp	/^  double DonghongDingBase::angleBetweenVectors(const double v1[3],$/;"	f	class:Cpp::DonghongDingBase
 angle_diff	src/lsd.cpp	/^static double angle_diff(double a, double b)$/;"	f	file:
 angle_diff_signed	src/lsd.cpp	/^static double angle_diff_signed(double a, double b)$/;"	f	file:
+baseEdge	include/ram_path_planning/cpp_uav.hpp	/^  LineSegment baseEdge;$/;"	m	struct:Direction
+calculateDistance	include/ram_path_planning/cgutil.hpp	/^double calculateDistance(const LineSegment& edge, const geometry_msgs::Point& vertex)$/;"	f
+calculateDistance	include/ram_path_planning/cgutil.hpp	/^inline double calculateDistance(const geometry_msgs::Point& p1, const geometry_msgs::Point& p2)$/;"	f
+calculateHorizontalAngle	include/ram_path_planning/cgutil.hpp	/^double calculateHorizontalAngle(const geometry_msgs::Point& p1, const geometry_msgs::Point& p2)$/;"	f
+calculatePathLength	include/ram_path_planning/cpp_uav.hpp	/^double calculatePathLength(const PointVector& path)$/;"	f
+calculateSignedArea	include/ram_path_planning/cgutil.hpp	/^inline double calculateSignedArea(const geometry_msgs::Point& p1, const geometry_msgs::Point& p2,$/;"	f
+calculateVertexAngle	include/ram_path_planning/cgutil.hpp	/^double calculateVertexAngle(const geometry_msgs::Point& p1, const geometry_msgs::Point& p2,$/;"	f
 calculation_tol_	include/ram_path_planning/donghong_ding_base.hpp	/^    const double calculation_tol_ = 1e-6; \/\/ In meters$/;"	m	class:Cpp::DonghongDingBase
 change_value	src/Cpp_Convex.cpp	/^	bool change_value;$/;"	m	struct:Cpp::convex_point	file:
 clickCallBack	src/ram_cpp_node.cpp	/^	void clickCallBack(const geometry_msgs::PointStamped::ConstPtr &msg)$/;"	f	class:cpp_test
 closest_to_bisector_	include/ram_path_planning/donghong_ding.hpp	/^    bool closest_to_bisector_;$/;"	m	class:Cpp::DonghongDing
+computeCCWPath	include/ram_path_planning/cpp_uav.hpp	/^PointVector computeCCWPath(PointVector path)$/;"	f
+computeConvexCoverage	include/ram_path_planning/cpp_uav.hpp	/^bool computeConvexCoverage(const PointVector& polygon, double footprintWidth, double horizontalOverwrap,$/;"	f
+computeConvexHull	include/ram_path_planning/cgutil.hpp	/^PointVector computeConvexHull(PointVector points)$/;"	f
+computeMultiplePolygonCoverage	include/ram_path_planning/cpp_uav.hpp	/^PointVector computeMultiplePolygonCoverage(std::vector<PointVector> subPolygons, double footprintWidth,$/;"	f
 computeNormal	include/ram_path_planning/donghong_ding_base_imp.hpp	/^  void DonghongDingBase::computeNormal(vtkPoints *p,$/;"	f	class:Cpp::DonghongDingBase
+computeOppositePath	include/ram_path_planning/cpp_uav.hpp	/^PointVector computeOppositePath(const PointVector& path)$/;"	f
 con_p	src/Cpp_Convex.cpp	/^}con_p;$/;"	t	namespace:Cpp	typeref:struct:Cpp::convex_point	file:
 condition_	include/ram_path_planning/shemaphore.hpp	/^  std::condition_variable condition_;$/;"	m	class:Cpp::Semaphore
 connectLayersWithOnePolygon	include/ram_path_planning/donghong_ding_base_imp.hpp	/^  void DonghongDingBase::connectLayersWithOnePolygon($/;"	f	class:Cpp::DonghongDingBase
@@ -88,6 +103,7 @@ data	include/ram_path_planning/lsd.h	/^    double *data;$/;"	m	struct:image_doub
 data	include/ram_path_planning/lsd.h	/^    int *data;$/;"	m	struct:image_int_s
 data	include/ram_path_planning/lsd.h	/^    unsigned char *data;$/;"	m	struct:image_char_s
 data_	include/ram_path_planning/histogram.h	/^	std::vector<double> data_;	\/\/ stores the histogram$/;"	m	class:Histogram
+decomposePolygon	include/ram_path_planning/cgutil.hpp	/^std::vector<PointVector> decomposePolygon(const PointVector& polygon)$/;"	f
 deposited_material_width_	include/ram_path_planning/donghong_ding_base.hpp	/^    double deposited_material_width_; \/\/ In meters$/;"	m	class:Cpp::DonghongDingBase
 description_	include/ram_path_planning/donghong_ding_base.hpp	/^	std::string description_;$/;"	m	class:Cpp::DonghongDingBase
 dim	include/ram_path_planning/lsd.h	/^    unsigned int dim;$/;"	m	struct:ntuple_list_s
@@ -101,6 +117,7 @@ enlarge_ntuple_list	src/lsd.cpp	/^void enlarge_ntuple_list(ntuple_list n_tuple)$
 error	src/lsd.cpp	/^static void error(char *msg)$/;"	f	file:
 findIntersectWithBisector	include/ram_path_planning/donghong_ding_imp.hpp	/^  bool DonghongDing::findIntersectWithBisector(const Polygon poly_data,$/;"	f	class:Cpp::DonghongDing
 findNotch	include/ram_path_planning/donghong_ding_imp.hpp	/^  bool DonghongDing::findNotch(const Polygon poly_data,$/;"	f	class:Cpp::DonghongDing
+findSecondOptimalPath	include/ram_path_planning/cpp_uav.hpp	/^bool findSecondOptimalPath(const PointVector& polygon, double footprintWidth, double horizontalOverwrap,$/;"	f
 findVertex	include/ram_path_planning/donghong_ding_imp.hpp	/^  bool DonghongDing::findVertex(const Polygon poly_data,$/;"	f	class:Cpp::DonghongDing
 fitLine	src/Cpp_Convex.cpp	/^void fitLine(std::vector<cv::Point>& vec,\\$/;"	f	namespace:Cpp
 free_image_char	src/lsd.cpp	/^void free_image_char(image_char i)$/;"	f
@@ -109,6 +126,7 @@ free_image_int	src/lsd.cpp	/^void free_image_int(image_int i)$/;"	f
 free_ntuple_list	src/lsd.cpp	/^void free_ntuple_list(ntuple_list in)$/;"	f
 gaussian_kernel	src/lsd.cpp	/^static void gaussian_kernel(ntuple_list kernel, double sigma, double mean)$/;"	f	file:
 gaussian_sampler	src/lsd.cpp	/^static image_double gaussian_sampler( image_double in, double scale,$/;"	f	file:
+generateEdgeVector	include/ram_path_planning/cgutil.hpp	/^LineSegmentVector generateEdgeVector(const PointVector& vec, bool isClosed)$/;"	f
 generateOneLayerTrajectory	include/ram_path_planning/donghong_ding_imp.hpp	/^  std::string DonghongDing::generateOneLayerTrajectory($/;"	f	class:Cpp::DonghongDing
 generateTrajectoryInConvexPolygon	include/ram_path_planning/donghong_ding_imp.hpp	/^  bool DonghongDing::generateTrajectoryInConvexPolygon(const Polygon poly_data)$/;"	f	class:Cpp::DonghongDing
 getMaxBin	include/ram_path_planning/histogram.h	/^	size_t getMaxBin()$/;"	f	class:Histogram
@@ -120,8 +138,12 @@ getTopLeftPoint	src/Cpp.cpp	/^cv::Point2i getTopLeftPoint(cv::Mat& image) {$/;"	
 get_theta	src/lsd.cpp	/^static double get_theta( struct point *reg, int reg_size, double x, double y,$/;"	f	file:
 hasConvexDefects	src/Cpp.cpp	/^bool hasConvexDefects(std::vector<cv::Vec4i>& defects_,int start_,int end_,int& mid_){$/;"	f	namespace:Cpp
 hasConvexDefects	src/Cpp_Convex.cpp	/^bool hasConvexDefects(std::vector<cv::Vec4i>& defects_,int start_,int end_,int& mid_){$/;"	f	namespace:Cpp
+hasIntersection	include/ram_path_planning/cgutil.hpp	/^bool hasIntersection(const LineSegment& edge1, const LineSegment& edge2)$/;"	f
+hasIntersection	include/ram_path_planning/cgutil.hpp	/^bool hasIntersection(const LineSegmentVector& vec1, const LineSegmentVector& vec2)$/;"	f
 histogram_bins_	include/ram_path_planning/histogram.h	/^	size_t histogram_bins_;		\/\/ number of histogram bins$/;"	m	class:Histogram
 identifyLeftChain	include/ram_path_planning/donghong_ding_imp.hpp	/^  void DonghongDing::identifyLeftChain(const Polygon poly_data,$/;"	f	class:Cpp::DonghongDing
+identifyOptimalAlternative	include/ram_path_planning/cpp_uav.hpp	/^PointVector identifyOptimalAlternative(const PointVector& polygon, const PointVector& path,$/;"	f
+identifyOptimalSweepDir	include/ram_path_planning/cpp_uav.hpp	/^Direction identifyOptimalSweepDir(const PointVector& polygon)$/;"	f
 identifyRelationships	include/ram_path_planning/donghong_ding_base_imp.hpp	/^  void DonghongDingBase::identifyRelationships(const Polygon poly_data,$/;"	f	class:Cpp::DonghongDingBase
 identifyZigzagDirection	include/ram_path_planning/donghong_ding_imp.hpp	/^  double DonghongDing::identifyZigzagDirection(const Polygon poly_data,$/;"	f	class:Cpp::DonghongDing
 image_char	include/ram_path_planning/lsd.h	/^} *image_char;$/;"	t	typeref:struct:image_char_s
@@ -134,10 +156,14 @@ inter_hi	src/lsd.cpp	/^static double inter_hi(double x, double x1, double y1, do
 inter_low	src/lsd.cpp	/^static double inter_low(double x, double x1, double y1, double x2, double y2)$/;"	f	file:
 intersectLineWithContours	include/ram_path_planning/donghong_ding_imp.hpp	/^  bool DonghongDing::intersectLineWithContours($/;"	f	class:Cpp::DonghongDing
 intersectionBetweenContours	include/ram_path_planning/donghong_ding_base_imp.hpp	/^  bool DonghongDingBase::intersectionBetweenContours(const Polygon poly_data)$/;"	f	class:Cpp::DonghongDingBase
+isAdjacent	include/ram_path_planning/cpp_uav.hpp	/^bool isAdjacent(const PointVector& polygon1, const PointVector& polygon2)$/;"	f
+isClockWise	include/ram_path_planning/cpp_uav.hpp	/^inline bool isClockWise(const PointVector& path)$/;"	f
+isConvex	include/ram_path_planning/cgutil.hpp	/^inline bool isConvex(PointVector points)$/;"	f
 isaligned	src/lsd.cpp	/^static int isaligned( int x, int y, image_double angles, double theta,$/;"	f	file:
 lineLsdTransform	src/line_detection_and_rotation.cpp	/^	bool lineLsdTransform(cv::Mat& bin_,double& angle)$/;"	f	namespace:line_detection_and_rotation
 line_detection_and_rotation	src/line_detection_and_rotation.cpp	/^namespace line_detection_and_rotation {$/;"	n	file:
 ll_angle	src/lsd.cpp	/^static image_double ll_angle( image_double in, double threshold,$/;"	f	file:
+localizeIntersection	include/ram_path_planning/cgutil.hpp	/^geometry_msgs::Point localizeIntersection(const LineSegment& edge1, const LineSegment& edge2)$/;"	f
 log_gamma	src/lsd.cpp	917;"	d	file:
 log_gamma_lanczos	src/lsd.cpp	/^static double log_gamma_lanczos(double x)$/;"	f	file:
 log_gamma_windschitl	src/lsd.cpp	/^static double log_gamma_windschitl(double x)$/;"	f	file:
@@ -178,6 +204,9 @@ ntuple_list_s	include/ram_path_planning/lsd.h	/^typedef struct ntuple_list_s$/;"
 objectInUGB	src/Cpp.cpp	/^bool objectInUGB(cv::Mat& img, cv::Point2i q, int ugb, int gsize) {$/;"	f	namespace:Cpp
 offsetLeftChain	include/ram_path_planning/donghong_ding_imp.hpp	/^  bool DonghongDing::offsetLeftChain(const Polygon poly_data,$/;"	f	class:Cpp::DonghongDing
 offsetPolygonContour	include/ram_path_planning/donghong_ding_base_imp.hpp	/^  bool DonghongDingBase::offsetPolygonContour(const Polygon poly_data,$/;"	f	class:Cpp::DonghongDingBase
+operator !=	include/ram_path_planning/cgutil.hpp	/^bool operator!=(const geometry_msgs::Point& p1, const geometry_msgs::Point& p2)$/;"	f
+operator ==	include/ram_path_planning/cgutil.hpp	/^bool operator==(const geometry_msgs::Point& p1, const geometry_msgs::Point& p2)$/;"	f
+opposedVertex	include/ram_path_planning/cpp_uav.hpp	/^  geometry_msgs::Point opposedVertex;$/;"	m	struct:Direction
 organizePolygonContoursInLayer	include/ram_path_planning/donghong_ding_base_imp.hpp	/^  bool DonghongDingBase::organizePolygonContoursInLayer(const Polygon poly_data,$/;"	f	class:Cpp::DonghongDingBase
 p	src/lsd.cpp	/^    double p;            \/* probability of a point with angle within 'prec' *\/$/;"	m	struct:rect	file:
 point	src/lsd.cpp	/^struct point$/;"	s	file:
@@ -195,10 +224,12 @@ refine	src/lsd.cpp	/^static int refine( struct point *reg, int *reg_size, image_
 region2rect	src/lsd.cpp	/^static void region2rect( struct point *reg, int reg_size,$/;"	f	file:
 region_grow	src/lsd.cpp	/^static void region_grow( int x, int y, image_double angles, struct point *reg,$/;"	f	file:
 removeDuplicatePoints	include/ram_path_planning/donghong_ding_base_imp.hpp	/^  bool DonghongDingBase::removeDuplicatePoints(const Polygon poly_data,$/;"	f	class:Cpp::DonghongDingBase
+reshapePath	include/ram_path_planning/cpp_uav.hpp	/^PointVector reshapePath(const PointVector& path, double padding)$/;"	f
 ri_del	src/lsd.cpp	/^static void ri_del(rect_iter *iter)$/;"	f	file:
 ri_end	src/lsd.cpp	/^static int ri_end(rect_iter *i)$/;"	f	file:
 ri_inc	src/lsd.cpp	/^static void ri_inc(rect_iter *i)$/;"	f	file:
 ri_ini	src/lsd.cpp	/^static rect_iter *ri_ini(struct rect *r)$/;"	f	file:
+rotatePoints	include/ram_path_planning/cgutil.hpp	/^PointVector rotatePoints(const PointVector& points, double angle_rad)$/;"	f
 semaphore_	include/ram_path_planning/donghong_ding.hpp	/^    Semaphore semaphore_;$/;"	m	class:Cpp::DonghongDing
 service_name_	include/ram_path_planning/donghong_ding_base.hpp	/^	std::string service_name_;$/;"	m	class:Cpp::DonghongDingBase
 signal	include/ram_path_planning/shemaphore.hpp	/^  inline void signal()$/;"	f	class:Cpp::Semaphore
