@@ -413,7 +413,7 @@ double polygonArea(PointVector& pv_,int n){
 	for(int i = 1;i < n;i++)
 		sum += pv_[i].y * (pv_[i-1].x - pv_[(i+1) % n].x);
 	
-	sum = fabs(sum)/2.0;
+	sum *= 0.5;
 
 	return sum;
 }
@@ -656,12 +656,11 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
 				geometry_msgs::Point start = polygon_bcd[0];
 				PointVector optimal_path = identifyOptimalAlternative(polygon_bcd, candidatePath, start);
 				//optimal_path.insert(optimal_path.begin(),start);
-				//final_path.push_back(optimal_path);
-				final_path.push_back(candidatePath);
+				final_path.push_back(optimal_path);
 			}
 			else{
 				ROS_INFO("zigzag path plannning fail...");
-				//return false;
+				return false;
 			}
 		}
     	/*if (error_message.empty())

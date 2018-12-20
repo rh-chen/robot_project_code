@@ -147,7 +147,7 @@ Direction identifyOptimalSweepDir(const PointVector& polygon)
 PointVector reshapePath(const PointVector& path, double padding)
 {
   PointVector zigzagPath;
-  std::cout << "path_size:" << path.size() << std::endl;
+  ROS_INFO("path_size:%d",path.size());
   // reshape every traverse
   for (int i = 0; i < std::round(path.size() / 2); ++i)
   {
@@ -292,8 +292,10 @@ bool computeConvexCoverage(const PointVector& polygon, double footprintWidth, do
 	//std::cout << "rotatedPolygon_size:" << rotatedPolygon.size() << std::endl;
 	//std::cout << "rotationAngle:" << rotationAngle << std::endl;
   // find x coordinate of most left and most right point
-  double minX(DBL_MAX), maxX(DBL_MIN);
-  double minY(DBL_MAX), maxY(DBL_MIN);
+  double minX = rotatedPolygon[0].x;
+  double maxX = rotatedPolygon[0].x;
+  double minY = rotatedPolygon[0].y;
+  double maxY = rotatedPolygon[0].y;
   for (const auto& vertex : rotatedPolygon)
   {
     if (vertex.x < minX)
@@ -333,7 +335,7 @@ ROS_INFO("rotatedDir.baseEdge.at(1).y:%f",rotatedDir.baseEdge.at(1).y);
 
   int stepNum = std::ceil(calculateDistance(rotatedDir.baseEdge, rotatedDir.opposedVertex) / stepWidth);
 	
-	std::cout << "stepNum:" << stepNum << std::endl;
+	ROS_INFO("stepNum:%d",stepNum);
   LineSegmentVector sweepLines;
 
   // generate list of sweep lines which is horizontal against the base edge
@@ -342,9 +344,9 @@ ROS_INFO("rotatedDir.baseEdge.at(1).y:%f",rotatedDir.baseEdge.at(1).y);
     LineSegment ar;
     geometry_msgs::Point p1, p2;
     p1.x = minX-padding;
-    p1.y = rotatedDir.baseEdge.at(0).y - (i * stepWidth);
+    p1.y = rotatedDir.baseEdge.at(0).y - (i * stepWidth)-padding;
     p2.x = maxX+padding;
-    p2.y = rotatedDir.baseEdge.at(1).y - (i * stepWidth);
+    p2.y = rotatedDir.baseEdge.at(1).y - (i * stepWidth)-padding;
 
     ar.at(0) = p1;
     ar.at(1) = p2;
@@ -385,10 +387,10 @@ ROS_INFO("rotatedDir.baseEdge.at(1).y:%f",rotatedDir.baseEdge.at(1).y);
   // sort points by y coordinate in ascending order
   std::stable_sort(intersections.begin(), intersections.end(),
                    [](const geometry_msgs::Point& p1, const geometry_msgs::Point& p2) { return p1.y < p2.y; });
-	std::cout << "intersections_size:" << intersections.size() << std::endl;
+	ROS_INFO("intersections_size:%d",intersections.size());
   PointVector rotatedPath = reshapePath(intersections, padding);
 	
-	std::cout << "rotatedPath.size:" << rotatedPath.size() << std::endl;
+	//std::cout << "rotatedPath.size:" << rotatedPath.size() << std::endl;
   path = rotatePoints(rotatedPath, rotationAngle);
 
   /*if (hasIntersection(generateEdgeVector(polygon, true), generateEdgeVector(path, false)) == true)
@@ -535,7 +537,7 @@ PointVector identifyOptimalAlternative(const PointVector& polygon, const PointVe
     double distance = calculateDistance(coverage.value().second.at("SP"), start) +
                       calculateDistance(end, coverage.value().second.at("EP"));
 
-    if (distance < minDistance || coverage.index() == 0)
+    if ((distance < minDistance) || (coverage.index() == 0))
     {
       minDistance = distance;
       optimalPath = coverage.value().first;
