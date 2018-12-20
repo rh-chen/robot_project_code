@@ -147,7 +147,7 @@ public:
 					srv_zigzag.request.start_position_y = msg->point.y;
 					srv_zigzag.request.height_between_layers = 1;
 					srv_zigzag.request.deposited_material_width = 0.3;
-					srv_zigzag.request.contours_filtering_tolerance = 0.6;
+					srv_zigzag.request.contours_filtering_tolerance = 0.4;
 					srv_zigzag.request.map = map_modify_srv.response.map;
 					srv_zigzag.request.external_contour_threshold = 48;
 

@@ -3,7 +3,11 @@
 
 // cgutil
 #include <ram_path_planning/cgutil.hpp>
-
+#include <opencv2/core/core.hpp>
+#include <opencv2/highgui/highgui.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
+#include <opencv2/opencv.hpp>
+#include <opencv2/core/matx.hpp>
 // cpp standard libraries
 #include <algorithm>
 #include <array>
@@ -56,36 +60,51 @@ inline bool isClockWise(const PointVector& path)
  * @param polygon Line sweep direction is calculated on this region
  * @return direction Struct containing edge and vertex
  */
-Direction identifyOptimalSweepDir(const PointVector& polygon)
+Direction identifyOptimalSweepDir(const PointVector& polygon,PointVector& polygon_convex_hull)
 {
   Direction sweepDirection;
 	
-	/*for(int i = 0;i < polygon.size();i++){
+	std::vector<cv::Point2f> polygon_convex;
+	for(int i = 0;i < polygon.size();i++){
 		ROS_INFO("polygon[%d].x:%f,polygon[%d].y:%f",i,i,polygon[i].x,polygon[i].y);
-	}*/
+		polygon_convex.push_back(cv::Point2f(polygon[i].x,polygon[i].y));
+	}
   //PointVector convexHull = computeConvexHull(polygon);
+	std::vector<cv::Point2f> convexHull;
 
+	cv::convexHull(polygon_convex,convexHull,false,true);
+	PointVector convex_hull;
+
+	for(int i = 0;i < convexHull.size();i++){
+		geometry_msgs::Point p;
+		p.x = convexHull[i].x;
+		p.y = convexHull[i].y;
+		p.z = 0;
+
+		convex_hull.push_back(p);
+		polygon_convex_hull.push_back(p);
+	}
   // Edges of polygon
   LineSegmentVector edges;
 
-//ROS_INFO("convexHull_size:%d",convexHull.size());
+	ROS_INFO("convex_hull_size:%d",convex_hull.size());
 
   // Make a list of edges of polygon
-  for (std::size_t i = 0; i < polygon.size(); ++i)
+  for (std::size_t i = 0; i < convex_hull.size(); ++i)
   {
     LineSegment ar;
 
-    ar.at(0) = polygon.at(i);
-	ROS_INFO("polygon[%d].x:%f,polygon[%d].y:%f",i,i,polygon[i].x,polygon[i].y);
+    ar.at(0) = convex_hull.at(i);
+	ROS_INFO("convex_hull[%d].x:%f,convex_hull[%d].y:%f",i,i,convex_hull[i].x,convex_hull[i].y);
     // if vertex is the last one,
     // that vertex makes an edge whose end is the first vertex
-    if (i == polygon.size() - 1)
+    if (i == convex_hull.size() - 1)
     {
-      ar.at(1) = polygon.at(0);
+      ar.at(1) = convex_hull.at(0);
     }
     else
     {
-      ar.at(1) = polygon.at(i + 1);
+      ar.at(1) = convex_hull.at(i + 1);
     }
     edges.push_back(ar);
   }
@@ -106,7 +125,7 @@ Direction identifyOptimalSweepDir(const PointVector& polygon)
     double edgeMaxDistance = 0;
     geometry_msgs::Point opposedVertex;
 
-    for (const geometry_msgs::Point& vertex : polygon)
+    for (const geometry_msgs::Point& vertex : convex_hull)
     {
       // calculateDistance() function returns distance
       // between given edge and vertex
@@ -280,7 +299,7 @@ bool computeConvexCoverage(const PointVector& polygon, double footprintWidth, do
   }
 
   // TODO: Change to configurable
-  const double padding = 0.01;
+  //const double padding = 0.2;
 
   // rotate input polygon so that baseEdge become horizontal
   double rotationAngle = calculateHorizontalAngle(sweepDirection.baseEdge.front(), sweepDirection.baseEdge.back());
@@ -321,7 +340,7 @@ bool computeConvexCoverage(const PointVector& polygon, double footprintWidth, do
 ROS_INFO("minX:%f,maxX:%f",minX,maxX);
 ROS_INFO("minY:%f,maxY:%f",minY,maxY);
   double stepWidth = footprintWidth * (1 - horizontalOverwrap);
-
+  const double padding = stepWidth;
   // calculate sweep direction of rotated polygon
   PointVector dir{ sweepDirection.opposedVertex, sweepDirection.baseEdge.front(), sweepDirection.baseEdge.back() };
   dir = rotatePoints(dir, -rotationAngle);
@@ -344,9 +363,9 @@ ROS_INFO("rotatedDir.baseEdge.at(1).y:%f",rotatedDir.baseEdge.at(1).y);
     LineSegment ar;
     geometry_msgs::Point p1, p2;
     p1.x = minX-padding;
-    p1.y = rotatedDir.baseEdge.at(0).y - (i * stepWidth)-padding;
+    p1.y = rotatedDir.baseEdge.at(0).y + (i * stepWidth) + padding;
     p2.x = maxX+padding;
-    p2.y = rotatedDir.baseEdge.at(1).y - (i * stepWidth)-padding;
+    p2.y = rotatedDir.baseEdge.at(1).y + (i * stepWidth) + padding;
 
     ar.at(0) = p1;
     ar.at(1) = p2;
@@ -412,9 +431,10 @@ ROS_INFO("rotatedDir.baseEdge.at(1).y:%f",rotatedDir.baseEdge.at(1).y);
 bool computeConvexCoverage(const PointVector& polygon, double footprintWidth, double horizontalOverwrap,
                            PointVector& path)
 {
-  Direction sweepDirection = identifyOptimalSweepDir(polygon);
-	//std::cout << "sweepDirection:" << sweepDirection.opposedVertex.x << "---" << sweepDirection.opposedVertex.y << std::endl; 
-  return computeConvexCoverage(polygon, footprintWidth, horizontalOverwrap, sweepDirection, path);
+  PointVector polygon_convex_hull;
+  Direction sweepDirection = identifyOptimalSweepDir(polygon,polygon_convex_hull);
+  ROS_INFO("polygon_convex_hull:%d",polygon_convex_hull.size());
+  return computeConvexCoverage(polygon_convex_hull, footprintWidth, horizontalOverwrap, sweepDirection, path);
 }
 
 /**
