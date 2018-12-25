@@ -116,16 +116,14 @@ class calculate_global_pose{
 				ros::shutdown();
     		}
 
-
-			tf::Transform CToM = localPoseTransform.inverse();
-	
+			//tf::Transform CToM = localPoseTransform.inverse();
 			
-			double marker_x_ = CToM.getOrigin().x();
-			double marker_y_ = CToM.getOrigin().y();
-			double marker_z_ = CToM.getOrigin().z();
+			double marker_x_ = localPoseTransform.getOrigin().x();
+			double marker_y_ = localPoseTransform.getOrigin().y();
+			double marker_z_ = localPoseTransform.getOrigin().z();
 
 			double roll_,pitch_,yaw_;
-			CToM.getBasis().getRPY(roll_,pitch_,yaw_);
+			localPoseTransform.getBasis().getRPY(roll_,pitch_,yaw_);
 
 			ROS_INFO_STREAM("marker_x_:" << marker_x_);
 			ROS_INFO_STREAM("marker_y_:" << marker_y_);
@@ -135,7 +133,7 @@ class calculate_global_pose{
 			ROS_INFO_STREAM("marker_yaw_:" << yaw_);
 					
 			if(temp_marker_pose.size() < N_MP){
-				temp_marker_pose.push_back(marker_pose(marker_x_,marker_y_,marker_z_,CToM));
+				temp_marker_pose.push_back(marker_pose(marker_x_,marker_y_,marker_z_,localPoseTransform));
 				ROS_INFO_STREAM("store marker pose");
 				mtx.unlock();
 				return;
