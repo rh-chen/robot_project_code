@@ -29,13 +29,16 @@
 #include <ar_track_alvar_msgs/AlvarMarkers.h>
 #include <Eigen/Core>
 #include <Eigen/Geometry>
+#include <visualization_msgs/Marker.h>
+#include <visualization_msgs/MarkerArray.h>
 
-#define N_MP 20
+#define N_MP 10
 
 using namespace tf;
 using namespace std;
 
 tf::TransformListener *tf_listener;
+tf::TransformBroadcaster *tf_broadcaster;
 
 typedef struct mp{
 	double x;
@@ -57,8 +60,44 @@ double vx_ = 0.12;
 Eigen::Matrix3d R;
 Eigen::Vector3d t;
 
-std::string world_frame = "/base_link";
+//std::string world_frame = "/base_link";
+std::string world_frame = "/mynteye_left_frame";
 std::string marker_msg_frame_id = "ar_marker";
+
+visualization_msgs::Marker createMarker(const std::string markerName,
+									uint32_t type, 
+									geometry_msgs::Pose pose, 
+									geometry_msgs::Vector3 scale, 
+									std_msgs::ColorRGBA color,
+									int32_t id, 
+									std::string frame_id = std::string("s_map"))
+	{
+
+			//marker start point
+			visualization_msgs::Marker marker;
+			marker.header.frame_id = frame_id;
+			marker.header.stamp = ros::Time();
+			marker.ns = "marker_" + markerName;
+			marker.id = id;
+			marker.type = type;
+			marker.action = visualization_msgs::Marker::ADD;
+			marker.pose.position.x = pose.position.x;
+			marker.pose.position.y = pose.position.y;
+			marker.pose.position.z = pose.position.z;
+			marker.pose.orientation.x = pose.orientation.x;
+			marker.pose.orientation.y = pose.orientation.y;
+			marker.pose.orientation.z = pose.orientation.z;
+			marker.pose.orientation.w = pose.orientation.w;
+			marker.scale.x = scale.x;
+			marker.scale.y = scale.y;
+			marker.scale.z = scale.z;
+			marker.color.a = color.a;
+			marker.color.r = color.r;
+			marker.color.g = color.g;
+			marker.color.b = color.b;
+
+			return marker;
+	}
 
 class calculate_global_pose{
 	public:
@@ -67,23 +106,26 @@ class calculate_global_pose{
 	ros::Subscriber sub_marker_msg_;
 	ros::Publisher pub_marker_global_pose_;
 	ros::Publisher pub_vel_;
+	ros::Publisher marker_pub;
 
+	std::vector<marker_pose> temp_marker_pose;
     boost::mutex mtx;
 
 	calculate_global_pose(ros::NodeHandle n):nh(n)
 	{
 		sub_marker_msg_ = nh.subscribe("/ar_pose_marker", 30,&calculate_global_pose::getMarkerMsgCallback,this);
-        sub_robot_global_pose_ = nh.subscribe("/odom",30,&calculate_global_pose::getRobotGlobalPoseCallback,this);
+        //sub_robot_global_pose_ = nh.subscribe("/odom",30,&calculate_global_pose::getRobotGlobalPoseCallback,this);
 		pub_marker_global_pose_ = nh.advertise<geometry_msgs::Pose>("/marker_global_pose",30);
 		pub_vel_ = nh.advertise<geometry_msgs::Twist>("/mynt_cmd_vel_mux/input/keyop",30);
+		marker_pub = n.advertise<visualization_msgs::Marker>("/forward_marker_pose", 30);
 	}
 
 	void getMarkerMsgCallback(const ar_track_alvar_msgs::AlvarMarkers::ConstPtr &msg);
-    void getRobotGlobalPoseCallback(const nav_msgs::Odometry& msg);
+    //void getRobotGlobalPoseCallback(const nav_msgs::Odometry& msg);
 };
 
 
-	void calculate_global_pose::getRobotGlobalPoseCallback(const nav_msgs::Odometry& msg ){
+	/*void calculate_global_pose::getRobotGlobalPoseCallback(const nav_msgs::Odometry& msg ){
 		Eigen::Quaterniond q(msg.pose.pose.orientation.x,\
 							 msg.pose.pose.orientation.y,\
 							 msg.pose.pose.orientation.z,\
@@ -94,21 +136,22 @@ class calculate_global_pose{
 		t(0,0) = msg.pose.pose.position.x;
 		t(1,0) = msg.pose.pose.position.y;
 		t(2,0) = msg.pose.pose.position.z;
-	}
+	}*/
 
 	void calculate_global_pose::getMarkerMsgCallback(const ar_track_alvar_msgs::AlvarMarkers::ConstPtr &msg)
 	{	
         mtx.lock();
-		
+		static int id  = 0;
+		std::string marker_frame;
 		if((msg->header.frame_id == marker_msg_frame_id) && (msg->markers.size() > 0)){
 			ar_track_alvar_msgs::AlvarMarker marker = msg->markers[0];
 
-			std::string marker_frame = marker.pose.header.frame_id;
+			marker_frame = marker.pose.header.frame_id;
 			ROS_INFO_STREAM("marker_frame_id:" << marker_frame);
 			tf::StampedTransform localPoseTransform;;
     		try{
-					tf_listener->waitForTransform(world_frame,marker_frame, ros::Time(0), ros::Duration(1.0));
-					tf_listener->lookupTransform(world_frame,marker_frame, ros::Time(0), localPoseTransform);	
+					tf_listener->waitForTransform(world_frame,marker_frame+"_forward", ros::Time(0), ros::Duration(1.0));
+					tf_listener->lookupTransform(world_frame,marker_frame+"_forward", ros::Time(0), localPoseTransform);	
    			}
     		catch (tf::TransformException ex){
 				ROS_ERROR("%s",ex.what());
@@ -125,13 +168,14 @@ class calculate_global_pose{
 			double roll_,pitch_,yaw_;
 			localPoseTransform.getBasis().getRPY(roll_,pitch_,yaw_);
 
-			ROS_INFO_STREAM("marker_x_:" << marker_x_);
+			/*ROS_INFO_STREAM("marker_x_:" << marker_x_);
 			ROS_INFO_STREAM("marker_y_:" << marker_y_);
 			ROS_INFO_STREAM("marker_z_:" << marker_z_);
 			ROS_INFO_STREAM("marker_roll_:" << roll_);
 			ROS_INFO_STREAM("marker_pitch_:" << pitch_);
 			ROS_INFO_STREAM("marker_yaw_:" << yaw_);
-					
+			*/
+
 			if(temp_marker_pose.size() < N_MP){
 				temp_marker_pose.push_back(marker_pose(marker_x_,marker_y_,marker_z_,localPoseTransform));
 				ROS_INFO_STREAM("store marker pose");
@@ -139,42 +183,86 @@ class calculate_global_pose{
 				return;
 			}
 			else{
-				Eigen::Matrix3d R_res;
-				Eigen::Vector3d t_res;
+				tf::Vector3 marker_position(0,0,0);
+				tf::Vector3 marker_rpy(0,0,0);
 
 				for(int i = 0;i < temp_marker_pose.size();i++){
-					t_res(0,0) += temp_marker_pose[i].t.getOrigin().x();
-					t_res(1,0) += temp_marker_pose[i].t.getOrigin().y();
-					t_res(2,0) += temp_marker_pose[i].t.getOrigin().z();
+					double marker_roll = 0;
+					double marker_pitch = 0;
+					double marker_yaw = 0;
 
-					tf::Matrix3x3 rotation_matrix = temp_marker_pose[i].t.getBasis();
-					R_res(0,0) += rotation_matrix[0][0];
-					R_res(0,1) += rotation_matrix[0][1];
-					R_res(0,2) += rotation_matrix[0][2];
-					R_res(1,0) += rotation_matrix[1][0];
-					R_res(1,1) += rotation_matrix[1][1];
-					R_res(1,2) += rotation_matrix[1][2];
-					R_res(2,0) += rotation_matrix[2][0];
-					R_res(2,1) += rotation_matrix[2][1];
-					R_res(2,2) += rotation_matrix[2][2];
+					marker_position[0] += temp_marker_pose[i].t.getOrigin().x();
+					marker_position[1] += temp_marker_pose[i].t.getOrigin().y();
+					marker_position[2] += temp_marker_pose[i].t.getOrigin().z();
+
+					temp_marker_pose[i].t.getBasis().getRPY(marker_roll,marker_pitch,marker_yaw);
+					marker_rpy[0] += marker_roll;
+					marker_rpy[1] += marker_pitch;
+					marker_rpy[2] += marker_yaw;
 				}
+			
+				int marker_count = temp_marker_pose.size();
+				ROS_INFO_STREAM("marker_count:" << marker_count);
+
+				marker_position[0] /= marker_count;
+				marker_position[1] /= marker_count;
+				marker_position[2] /= marker_count;
+				ROS_INFO_STREAM("marker_position[0]:" << marker_position[0]);
+				ROS_INFO_STREAM("marker_position[1]:" << marker_position[1]);
+				ROS_INFO_STREAM("marker_position[2]:" << marker_position[2]);
+
+				marker_rpy[0] /= marker_count;
+				marker_rpy[1] /= marker_count;
+				marker_rpy[2] /= marker_count;
+				ROS_INFO_STREAM("marker_rpy[0]:" << marker_rpy[0]);
+				ROS_INFO_STREAM("marker_rpy[1]:" << marker_rpy[1]);
+				ROS_INFO_STREAM("marker_rpy[2]:" << marker_rpy[2]);
+
+				tf::Quaternion q;
+				q.setRPY(marker_rpy[0],marker_rpy[1],marker_rpy[2]);
+				tf::Transform t(q,marker_position);
 				
-				t_res *= (1.0/N_MP);
-				R_res *= (1.0/N_MP);
-				
-				Eigen::Matrix3d Rwc(R*R_res);
-				Eigen::Vector3d twc(R*t_res+t);
-				ROS_INFO_STREAM("Rwc:" << Rwc);
-				ROS_INFO_STREAM("twc:" << twc);
+				/*
+				tf::StampedTransform markerForwardToWorld(t, msg->header.stamp, world_frame, marker_frame);
+				tf_broadcaster->sendTransform(markerForwardToWorld);
+				*/
+
+				geometry_msgs::Pose  pose;
+				pose.position.x = t.getOrigin().x();
+				pose.position.y = t.getOrigin().y();
+				pose.position.z = t.getOrigin().z();
+
+				pose.orientation.w = 1.0;
+
+				geometry_msgs::Vector3 scale;
+				scale.x = 0.05;
+				scale.y = 0.05;
+				scale.z = 0.05;
+
+				std_msgs::ColorRGBA color;
+				color.a = 1.0;
+				color.r = 1.0;
+
+				ROS_INFO_STREAM("marker_id:" << id);
+				visualization_msgs::Marker markerSphere = createMarker("markerSphere",
+																	visualization_msgs::Marker::SPHERE,
+																	pose,
+																	scale,
+																	color,
+																	id,
+																	marker.pose.header.frame_id);
+				marker_pub.publish(markerSphere);
+				id++;
+				mtx.unlock();
 			}
-			mtx.unlock();
+			std::vector<marker_pose>().swap(temp_marker_pose);
 		}
 		else{
 			geometry_msgs::Twist velocity;
 			velocity.angular.z = wz_;
 
 			pub_vel_.publish(velocity);
-		mtx.unlock();
+			mtx.unlock();
 		}
 	}
 
@@ -185,7 +273,8 @@ int main(int argc, char** argv)
 
 	calculate_global_pose cgp(n);
 	tf_listener = new tf::TransformListener(n);
-	
+	tf_broadcaster = new tf::TransformBroadcaster();
+
 	ros::spin();
   	return 0;
 }
