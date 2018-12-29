@@ -1,0 +1,6 @@
+bool start
+---
+int8 state
+geometry_msgs/PoseStamped goal
+geometry_msgs/PoseStamped pre_goal
+

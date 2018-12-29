@@ -1,0 +1,8 @@
+<launch>
+	<node name="calcalate_global_marker_client" pkg="calcalate_global_marker" type="calcalate_global_marker_client" respawn="false" output="screen">
+	</node>
+<!--
+	<node pkg="rviz" type="rviz" name="rviz" args="-d $(find calcalate_global_marker)/rviz/axis.rviz">
+	</node>
+	-->
+</launch>

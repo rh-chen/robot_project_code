@@ -68,11 +68,10 @@ include_directories(${EIGEN3_INCLUDE_DIR})
 # )
 
 ## Generate services in the 'srv' folder
-# add_service_files(
-#   FILES
-#   Service1.srv
-#   Service2.srv
-# )
+add_service_files(
+   FILES
+   GetMarkerGlobalPose.srv
+ )
 
 ## Generate actions in the 'action' folder
 # add_action_files(
@@ -82,10 +81,13 @@ include_directories(${EIGEN3_INCLUDE_DIR})
 # )
 
 ## Generate added messages and services with any dependencies listed here
-# generate_messages(
-#   DEPENDENCIES
-#   geometry_msgs#   nav_msgs#   sensor_msgs#   std_msgs
-# )
+generate_messages(
+   DEPENDENCIES
+   geometry_msgs
+   nav_msgs
+   sensor_msgs
+   std_msgs
+ )
 
 ################################################
 ## Declare ROS dynamic reconfigure parameters ##
@@ -150,7 +152,7 @@ include_directories(
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
  add_executable(${PROJECT_NAME}_node src/calcalate_global_marker_node.cpp)
-
+ add_executable(${PROJECT_NAME}_client src/calcalate_global_marker_client.cpp)
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
 ## target back to the shorter version for ease of user use
@@ -166,6 +168,9 @@ include_directories(
    ${catkin_LIBRARIES}
  )
 
+ target_link_libraries(${PROJECT_NAME}_client
+   ${catkin_LIBRARIES}
+ )
 #############
 ## Install ##
 #############
