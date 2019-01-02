@@ -33,7 +33,7 @@
 #include <visualization_msgs/MarkerArray.h>
 #include <calcalate_global_marker/GetMarkerGlobalPose.h>
 
-#define N_MP 1
+#define N_MP 3
 
 
 using namespace tf;
@@ -65,7 +65,7 @@ Eigen::Vector3d t;
 std::string world_frame = "map";
 std::string marker_msg_frame_id = "ar_marker";
 
-visualization_msgs::Marker createMarker(const std::string markerName,
+/*visualization_msgs::Marker createMarker(const std::string markerName,
 									uint32_t type, 
 									geometry_msgs::Pose pose, 
 									geometry_msgs::Vector3 scale, 
@@ -99,31 +99,32 @@ visualization_msgs::Marker createMarker(const std::string markerName,
 
 			return marker;
 	}
-
+*/
 class calculate_global_pose{
 	public:
 	ros::NodeHandle nh;
 	ros::Subscriber sub_robot_global_pose_;
 	ros::Subscriber sub_marker_msg_;
-	ros::Publisher pub_marker_global_pose_;
+	//ros::Publisher pub_marker_global_pose_;
 	ros::Publisher pub_vel_;
-	ros::Publisher marker_pub;
+	//ros::Publisher marker_pub;
 	bool markerVisible;
-	visualization_msgs::Marker markerSphere;
+	//visualization_msgs::Marker markerSphere;
 
 	geometry_msgs::PoseStamped goal;
 	geometry_msgs::PoseStamped pre_goal;
 
 	std::vector<marker_pose> temp_marker_pose;
+	std::vector<marker_pose> pre_temp_marker_pose;
     boost::mutex mtx;
 
 	calculate_global_pose(ros::NodeHandle n):nh(n)
 	{
 		markerVisible = false;
 		sub_marker_msg_ = nh.subscribe("/ar_pose_marker", 30,&calculate_global_pose::getMarkerMsgCallback,this);
-		pub_marker_global_pose_ = nh.advertise<geometry_msgs::Pose>("/marker_global_pose",30);
+		//pub_marker_global_pose_ = nh.advertise<geometry_msgs::Pose>("/marker_global_pose",30);
 		pub_vel_ = nh.advertise<geometry_msgs::Twist>("/mynt_cmd_vel_mux/input/keyop",30);
-		marker_pub = n.advertise<visualization_msgs::Marker>("/forward_marker_pose", 30);
+		//marker_pub = n.advertise<visualization_msgs::Marker>("/forward_marker_pose", 30);
 	}
 
 	void getMarkerMsgCallback(const ar_track_alvar_msgs::AlvarMarkers::ConstPtr &msg);
@@ -192,9 +193,15 @@ class calculate_global_pose{
 			double marker_y_ = localPoseTransform.getOrigin().y();
 			double marker_z_ = localPoseTransform.getOrigin().z();
 
+			double pre_marker_x_ = preLocalPoseTransform.getOrigin().x();
+			double pre_marker_y_ = preLocalPoseTransform.getOrigin().y();
+			double pre_marker_z_ = preLocalPoseTransform.getOrigin().z();
+
 			double roll_,pitch_,yaw_;
 			localPoseTransform.getBasis().getRPY(roll_,pitch_,yaw_);
 
+			double pre_roll_,pre_pitch_,pre_yaw_;
+			preLocalPoseTransform.getBasis().getRPY(pre_roll_,pre_pitch_,pre_yaw_);
 			//ROS_INFO_STREAM("be_marker_x_:" << marker.pose.pose.position.x);
 			//ROS_INFO_STREAM("be_marker_y_:" << marker.pose.pose.position.y);
 			//ROS_INFO_STREAM("be_marker_z_:" << marker.pose.pose.position.z);
@@ -202,7 +209,8 @@ class calculate_global_pose{
 
 			if(temp_marker_pose.size() < N_MP){
 				temp_marker_pose.push_back(marker_pose(marker_x_,marker_y_,marker_z_,localPoseTransform));
-				ROS_INFO_STREAM("store marker pose");
+				pre_temp_marker_pose.push_back(marker_pose(pre_marker_x_,pre_marker_y_,pre_marker_z_,preLocalPoseTransform));
+				ROS_INFO_STREAM("Store Marker Pose...");
 				mtx.unlock();
 				return;
 			}
@@ -210,19 +218,37 @@ class calculate_global_pose{
 				tf::Vector3 marker_position(0,0,0);
 				tf::Vector3 marker_rpy(0,0,0);
 
+				tf::Vector3 pre_marker_position(0,0,0);
+				tf::Vector3 pre_marker_rpy(0,0,0);
+
 				for(int i = 0;i < temp_marker_pose.size();i++){
 					double marker_roll = 0;
 					double marker_pitch = 0;
 					double marker_yaw = 0;
 
+					double pre_marker_roll = 0;
+					double pre_marker_pitch = 0;
+					double pre_marker_yaw = 0;
+
 					marker_position[0] += temp_marker_pose[i].t.getOrigin().x();
 					marker_position[1] += temp_marker_pose[i].t.getOrigin().y();
 					marker_position[2] += temp_marker_pose[i].t.getOrigin().z();
 
+					pre_marker_position[0] += pre_temp_marker_pose[i].t.getOrigin().x();
+					pre_marker_position[1] += pre_temp_marker_pose[i].t.getOrigin().y();
+					pre_marker_position[2] += pre_temp_marker_pose[i].t.getOrigin().z();
+
 					temp_marker_pose[i].t.getBasis().getRPY(marker_roll,marker_pitch,marker_yaw);
+					pre_temp_marker_pose[i].t.getBasis().getRPY(pre_marker_roll,pre_marker_pitch,pre_marker_yaw);
+
 					marker_rpy[0] += marker_roll;
 					marker_rpy[1] += marker_pitch;
 					marker_rpy[2] += marker_yaw;
+
+					pre_marker_rpy[0] += pre_marker_roll;
+					pre_marker_rpy[1] += pre_marker_pitch;
+					pre_marker_rpy[2] += pre_marker_yaw;
+
 				}
 			
 				int marker_count = temp_marker_pose.size();
@@ -235,6 +261,13 @@ class calculate_global_pose{
 				ROS_INFO_STREAM("marker_position[1]:" << marker_position[1]);
 				ROS_INFO_STREAM("marker_position[2]:" << marker_position[2]);
 
+				pre_marker_position[0] /= marker_count;
+				pre_marker_position[1] /= marker_count;
+				pre_marker_position[2] /= marker_count;
+				ROS_INFO_STREAM("pre_marker_position[0]:" << pre_marker_position[0]);
+				ROS_INFO_STREAM("pre_marker_position[1]:" << pre_marker_position[1]);
+				ROS_INFO_STREAM("pre_marker_position[2]:" << pre_marker_position[2]);
+
 				marker_rpy[0] /= marker_count;
 				marker_rpy[1] /= marker_count;
 				marker_rpy[2] /= marker_count;
@@ -242,9 +275,20 @@ class calculate_global_pose{
 				ROS_INFO_STREAM("marker_rpy[1]:" << marker_rpy[1]);
 				ROS_INFO_STREAM("marker_rpy[2]:" << marker_rpy[2]);
 
+				pre_marker_rpy[0] /= marker_count;
+				pre_marker_rpy[1] /= marker_count;
+				pre_marker_rpy[2] /= marker_count;
+				ROS_INFO_STREAM("pre_marker_rpy[0]:" << pre_marker_rpy[0]);
+				ROS_INFO_STREAM("pre_marker_rpy[1]:" << pre_marker_rpy[1]);
+				ROS_INFO_STREAM("pre_marker_rpy[2]:" << pre_marker_rpy[2]);
+
 				tf::Quaternion q;
 				q.setRPY(marker_rpy[0],marker_rpy[1],marker_rpy[2]);
 				tf::Transform t(q,marker_position);
+
+				tf::Quaternion pre_q;
+				pre_q.setRPY(pre_marker_rpy[0],pre_marker_rpy[1],pre_marker_rpy[2]);
+				tf::Transform pre_t(pre_q,pre_marker_position);
 
 				/*tf::Quaternion qq(marker.pose.pose.orientation.x,\
 								  marker.pose.pose.orientation.y,\
@@ -255,6 +299,7 @@ class calculate_global_pose{
 				*/
 
 				tf::Transform p = t;
+				tf::Transform pre_p = pre_t;
 				/*
 				tf::StampedTransform markerForwardToWorld(t, msg->header.stamp, world_frame, marker_frame);
 				tf_broadcaster->sendTransform(markerForwardToWorld);
@@ -298,21 +343,25 @@ class calculate_global_pose{
 				goal.pose.orientation.z = p.getRotation().getZ();
 				goal.pose.orientation.w = p.getRotation().getW();
 
+				/*
 				ROS_INFO_STREAM("marker_x_:" << p.getOrigin().x());
 				ROS_INFO_STREAM("marker_y_:" << p.getOrigin().y());
 				ROS_INFO_STREAM("marker_z_:" << p.getOrigin().z());
+				*/
+
 				pre_goal.header.stamp = marker.pose.header.stamp;
 				pre_goal.header.frame_id = "map";
-				pre_goal.pose.position.x = preLocalPoseTransform.getOrigin().x();
-				pre_goal.pose.position.y = preLocalPoseTransform.getOrigin().y();
-				pre_goal.pose.position.z = preLocalPoseTransform.getOrigin().z();
-				pre_goal.pose.orientation.x = preLocalPoseTransform.getRotation().getX();
-				pre_goal.pose.orientation.y = preLocalPoseTransform.getRotation().getY();
-				pre_goal.pose.orientation.z = preLocalPoseTransform.getRotation().getZ();
-				pre_goal.pose.orientation.w = preLocalPoseTransform.getRotation().getW();
+				pre_goal.pose.position.x = pre_p.getOrigin().x();
+				pre_goal.pose.position.y = pre_p.getOrigin().y();
+				pre_goal.pose.position.z = pre_p.getOrigin().z();
+				pre_goal.pose.orientation.x = pre_p.getRotation().getX();
+				pre_goal.pose.orientation.y = pre_p.getRotation().getY();
+				pre_goal.pose.orientation.z = pre_p.getRotation().getZ();
+				pre_goal.pose.orientation.w = pre_p.getRotation().getW();
 				mtx.unlock();
 			}
 			std::vector<marker_pose>().swap(temp_marker_pose);
+			std::vector<marker_pose>().swap(pre_temp_marker_pose);
 		}
 		else{
 			geometry_msgs::Twist velocity;
