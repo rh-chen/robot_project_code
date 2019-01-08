@@ -1,0 +1,7 @@
+<library path="lib/libarucoMarkerDetection">
+  <class name="aruco_marker_detection/ArucoMarkerDetectionNodelet"
+         type="aruco_marker_detection_ws::ArucoMarkerDetectionNodelet"
+         base_class_type="nodelet::Nodelet">
+    <description>This is the nodelet of ROS interface for mynteye.</description>
+  </class>
+</library>
