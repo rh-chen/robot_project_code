@@ -24,7 +24,7 @@ else()
 #    set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_INSTALL_PREFIX}/lib/cmake/ /usr/lib/cmake)
 endif()
 
-option(USE_OWN_EIGEN3	"Set to OFF to use a standard eigen3 version" ON)
+option(USE_OWN_EIGEN3	"Set to OFF to use a standard eigen3 version" OFF)
 option(USE_DOUBLE_PRECISION_PNP "Set Double/float precision for posetracker" ON)
 option(BUILD_UTILS	"Set to OFF to not compile utils " ON)
 option(BUILD_TESTS	"Set to OFF to not compile utils " OFF)
