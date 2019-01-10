@@ -183,7 +183,7 @@ public:
 
   void image_callback(const sensor_msgs::ImageConstPtr& msg)
   {
-    if ((image_pub.getNumSubscribers() == 0) &&
+    /*if ((image_pub.getNumSubscribers() == 0) &&
         (debug_pub.getNumSubscribers() == 0) &&
         (pose_pub.getNumSubscribers() == 0) &&
         (transform_pub.getNumSubscribers() == 0) &&
@@ -193,7 +193,7 @@ public:
     {
       ROS_DEBUG("No subscribers, not looking for aruco markers");
       return;
-    }
+    }*/
 
     static tf::TransformBroadcaster br;
     if(cam_info_received)
