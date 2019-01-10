@@ -1,0 +1,312 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.9~svn20110310	//
+ADPT_THRES	aruco/include/aruco/markerdetector.h	/^    enum ThresholdMethods {FIXED_THRES,ADPT_THRES,CANNY};$/;"	e	enum:aruco::MarkerDetector::ThresholdMethods
+ARUCO_EXPORTS	aruco/include/aruco/exports.h	40;"	d
+ARUCO_EXPORTS	aruco/include/aruco/exports.h	42;"	d
+ARUCO_ROS_UTILS_H	aruco_ros/include/aruco_ros/aruco_ros_utils.h	2;"	d
+ArucoFiducicalMarkerDetector_H	aruco/include/aruco/arucofidmarkers.h	30;"	d
+ArucoMarkerPublisher	aruco_ros/src/marker_publish.cpp	/^  ArucoMarkerPublisher()$/;"	f	class:ArucoMarkerPublisher
+ArucoMarkerPublisher	aruco_ros/src/marker_publish.cpp	/^class ArucoMarkerPublisher$/;"	c	file:
+ArucoSimple	aruco_ros/src/simple_single.cpp	/^  ArucoSimple()$/;"	f	class:ArucoSimple
+ArucoSimple	aruco_ros/src/simple_single.cpp	/^class ArucoSimple$/;"	c	file:
+Board	aruco/include/aruco/board.h	/^    Board()$/;"	f	class:aruco::Board
+Board	aruco/include/aruco/board.h	/^class ARUCO_EXPORTS Board:public vector<Marker>$/;"	c	namespace:aruco
+BoardConfiguration	aruco/include/aruco/board.h	/^class ARUCO_EXPORTS  BoardConfiguration: public vector<MarkerInfo>$/;"	c	namespace:aruco
+BoardConfiguration	aruco/src/aruco/board.cpp	/^BoardConfiguration::BoardConfiguration ( const BoardConfiguration  &T ): vector<MarkerInfo>(T)$/;"	f	class:aruco::BoardConfiguration
+BoardConfiguration	aruco/src/aruco/board.cpp	/^BoardConfiguration::BoardConfiguration()$/;"	f	class:aruco::BoardConfiguration
+BoardDetector	aruco/include/aruco/boarddetector.h	/^class ARUCO_EXPORTS  BoardDetector$/;"	c	namespace:aruco
+BoardDetector	aruco/src/aruco/boarddetector.cpp	/^  BoardDetector::BoardDetector(bool setYPerpendicular)$/;"	f	class:aruco::BoardDetector
+CANNY	aruco/include/aruco/markerdetector.h	/^    enum ThresholdMethods {FIXED_THRES,ADPT_THRES,CANNY};$/;"	e	enum:aruco::MarkerDetector::ThresholdMethods
+CamSize	aruco/include/aruco/cameraparameters.h	/^    cv::Size CamSize;$/;"	m	class:aruco::CameraParameters
+CameraMatrix	aruco/include/aruco/cameraparameters.h	/^    cv::Mat  CameraMatrix;$/;"	m	class:aruco::CameraParameters
+CameraParameters	aruco/include/aruco/cameraparameters.h	/^class ARUCO_EXPORTS  CameraParameters$/;"	c	namespace:aruco
+CameraParameters	aruco/src/aruco/cameraparameters.cpp	/^CameraParameters::CameraParameters() {$/;"	f	class:aruco::CameraParameters
+CameraParameters	aruco/src/aruco/cameraparameters.cpp	/^CameraParameters::CameraParameters(const CameraParameters &CI) {$/;"	f	class:aruco::CameraParameters
+CameraParameters	aruco/src/aruco/cameraparameters.cpp	/^CameraParameters::CameraParameters(cv::Mat cameraMatrix,cv::Mat distorsionCoeff,cv::Size size) throw(cv::Exception) {$/;"	f	class:aruco::CameraParameters
+CornerRefinementMethod	aruco/include/aruco/markerdetector.h	/^    enum CornerRefinementMethod {NONE,HARRIS,SUBPIX,LINES};$/;"	g	class:aruco::MarkerDetector
+CvDrawingUtils	aruco/include/aruco/cvdrawingutils.h	/^  class  ARUCO_EXPORTS CvDrawingUtils$/;"	c	namespace:aruco
+Distorsion	aruco/include/aruco/cameraparameters.h	/^    cv::Mat  Distorsion;$/;"	m	class:aruco::CameraParameters
+FIXED_THRES	aruco/include/aruco/markerdetector.h	/^    enum ThresholdMethods {FIXED_THRES,ADPT_THRES,CANNY};$/;"	e	enum:aruco::MarkerDetector::ThresholdMethods
+FiducidalMarkers	aruco/include/aruco/arucofidmarkers.h	/^class ARUCO_EXPORTS FiducidalMarkers {$/;"	c	namespace:aruco
+HARRIS	aruco/include/aruco/markerdetector.h	/^    enum CornerRefinementMethod {NONE,HARRIS,SUBPIX,LINES};$/;"	e	enum:aruco::MarkerDetector::CornerRefinementMethod
+HammDist	aruco/src/aruco/aruco_selectoptimalmarkers.cpp	/^int HammDist(const cv::Mat &m1,const cv::Mat & m2)$/;"	f
+HammDist_	aruco/src/aruco/aruco_selectoptimalmarkers.cpp	/^int HammDist_(const cv::Mat &m1,const cv::Mat & m2)$/;"	f
+LINES	aruco/include/aruco/markerdetector.h	/^    enum CornerRefinementMethod {NONE,HARRIS,SUBPIX,LINES};$/;"	e	enum:aruco::MarkerDetector::CornerRefinementMethod
+METERS	aruco/include/aruco/board.h	/^    enum MarkerInfoType {NONE=-1,PIX=0,METERS=1};\/\/indicates if the data in MakersInfo is expressed in meters or in pixels so as to do conversion internally$/;"	e	enum:aruco::BoardConfiguration::MarkerInfoType
+Marker	aruco/include/aruco/marker.h	/^class  ARUCO_EXPORTS Marker: public std::vector<cv::Point2f>$/;"	c	namespace:aruco
+Marker	aruco/src/aruco/marker.cpp	/^  Marker::Marker()$/;"	f	class:aruco::Marker
+Marker	aruco/src/aruco/marker.cpp	/^  Marker::Marker(const  std::vector<cv::Point2f> &corners,int _id):std::vector<cv::Point2f>(corners)$/;"	f	class:aruco::Marker
+Marker	aruco/src/aruco/marker.cpp	/^  Marker::Marker(const Marker &M):std::vector<cv::Point2f>(M)$/;"	f	class:aruco::Marker
+MarkerCandidate	aruco/include/aruco/markerdetector.h	/^    MarkerCandidate(): idx(-1) {}$/;"	f	class:aruco::MarkerDetector::MarkerCandidate
+MarkerCandidate	aruco/include/aruco/markerdetector.h	/^    MarkerCandidate(const  MarkerCandidate &M): Marker(M), contour(M.contour), idx(M.idx) {}$/;"	f	class:aruco::MarkerDetector::MarkerCandidate
+MarkerCandidate	aruco/include/aruco/markerdetector.h	/^    MarkerCandidate(const Marker &M): Marker(M), idx(-1) {}$/;"	f	class:aruco::MarkerDetector::MarkerCandidate
+MarkerCandidate	aruco/include/aruco/markerdetector.h	/^  class MarkerCandidate: public Marker{$/;"	c	class:aruco::MarkerDetector
+MarkerDetector	aruco/include/aruco/markerdetector.h	/^class ARUCO_EXPORTS  MarkerDetector$/;"	c	namespace:aruco
+MarkerDetector	aruco/src/aruco/markerdetector.cpp	/^  MarkerDetector::MarkerDetector()$/;"	f	class:aruco::MarkerDetector
+MarkerInfo	aruco/include/aruco/board.h	/^    MarkerInfo() : id(-1) {}$/;"	f	struct:aruco::MarkerInfo
+MarkerInfo	aruco/include/aruco/board.h	/^    MarkerInfo(const MarkerInfo&MI): vector<cv::Point3f>(MI){id=MI.id; }$/;"	f	struct:aruco::MarkerInfo
+MarkerInfo	aruco/include/aruco/board.h	/^    MarkerInfo(int _id) : id(_id) {}$/;"	f	struct:aruco::MarkerInfo
+MarkerInfo	aruco/include/aruco/board.h	/^struct ARUCO_EXPORTS MarkerInfo:public vector<cv::Point3f> {$/;"	s	namespace:aruco
+MarkerInfoType	aruco/include/aruco/board.h	/^    enum MarkerInfoType {NONE=-1,PIX=0,METERS=1};\/\/indicates if the data in MakersInfo is expressed in meters or in pixels so as to do conversion internally$/;"	g	class:aruco::BoardConfiguration
+NONE	aruco/include/aruco/board.h	/^    enum MarkerInfoType {NONE=-1,PIX=0,METERS=1};\/\/indicates if the data in MakersInfo is expressed in meters or in pixels so as to do conversion internally$/;"	e	enum:aruco::BoardConfiguration::MarkerInfoType
+NONE	aruco/include/aruco/markerdetector.h	/^    enum CornerRefinementMethod {NONE,HARRIS,SUBPIX,LINES};$/;"	e	enum:aruco::MarkerDetector::CornerRefinementMethod
+OgreGetPoseParameters	aruco/src/aruco/board.cpp	/^void Board::OgreGetPoseParameters ( double position[3], double orientation[4] ) throw ( cv::Exception )$/;"	f	class:aruco::Board
+OgreGetPoseParameters	aruco/src/aruco/marker.cpp	/^  void Marker::OgreGetPoseParameters(double position[3], double orientation[4]) throw(cv::Exception)$/;"	f	class:aruco::Marker
+OgreGetProjectionMatrix	aruco/src/aruco/cameraparameters.cpp	/^void CameraParameters::OgreGetProjectionMatrix(cv::Size orgImgSize, cv::Size size, double proj_matrix[16], double gnear, double gfar, bool invert) throw(cv::Exception)$/;"	f	class:aruco::CameraParameters
+PACKAGE	aruco/cfg/ArucoThreshold.cfg	/^PACKAGE = "aruco_ros"$/;"	v
+PACKAGE	aruco_ros/cfg/ArucoThreshold.cfg	/^PACKAGE = "aruco_ros"$/;"	v
+PIX	aruco/include/aruco/board.h	/^    enum MarkerInfoType {NONE=-1,PIX=0,METERS=1};\/\/indicates if the data in MakersInfo is expressed in meters or in pixels so as to do conversion internally$/;"	e	enum:aruco::BoardConfiguration::MarkerInfoType
+Rvec	aruco/include/aruco/board.h	/^    cv::Mat Rvec,Tvec;$/;"	m	class:aruco::Board
+Rvec	aruco/include/aruco/marker.h	/^    cv::Mat Rvec,Tvec;$/;"	m	class:aruco::Marker
+SUBPIX	aruco/include/aruco/markerdetector.h	/^    enum CornerRefinementMethod {NONE,HARRIS,SUBPIX,LINES};$/;"	e	enum:aruco::MarkerDetector::CornerRefinementMethod
+ThresholdMethods	aruco/include/aruco/markerdetector.h	/^    enum ThresholdMethods {FIXED_THRES,ADPT_THRES,CANNY};$/;"	g	class:aruco::MarkerDetector
+Tvec	aruco/include/aruco/board.h	/^    cv::Mat Rvec,Tvec;$/;"	m	class:aruco::Board
+Tvec	aruco/include/aruco/marker.h	/^    cv::Mat Rvec,Tvec;$/;"	m	class:aruco::Marker
+_ARUCO_MarkerDetector_H	aruco/include/aruco/markerdetector.h	29;"	d
+_ArUco_DrawUtils_H_	aruco/include/aruco/cvdrawingutils.h	29;"	d
+_Aruco_BoardDetector_H	aruco/include/aruco/boarddetector.h	29;"	d
+_Aruco_CameraParameters_H	aruco/include/aruco/cameraparameters.h	29;"	d
+_Aruco_Marker_H	aruco/include/aruco/marker.h	29;"	d
+_Aruco_board_h	aruco/include/aruco/board.h	29;"	d
+_CRT_SECURE_NO_DEPRECATE	aruco/include/aruco/exports.h	35;"	d
+_USE_MATH_DEFINES	aruco/src/aruco/boarddetector.cpp	30;"	d	file:
+_USE_MATH_DEFINES	aruco/src/aruco/marker.cpp	29;"	d	file:
+__OPENARUCO_CORE_TYPES_H__	aruco/include/aruco/exports.h	32;"	d
+_areParamsSet	aruco/include/aruco/boarddetector.h	/^    bool _areParamsSet;$/;"	m	class:aruco::BoardDetector
+_bconf	aruco/include/aruco/boarddetector.h	/^    BoardConfiguration _bconf;$/;"	m	class:aruco::BoardDetector
+_boardDetected	aruco/include/aruco/boarddetector.h	/^    Board _boardDetected;$/;"	m	class:aruco::BoardDetector
+_camParams	aruco/include/aruco/boarddetector.h	/^    CameraParameters _camParams;$/;"	m	class:aruco::BoardDetector
+_candidates	aruco/include/aruco/markerdetector.h	/^    vector<std::vector<cv::Point2f> > _candidates;$/;"	m	class:aruco::MarkerDetector
+_cornerMethod	aruco/include/aruco/markerdetector.h	/^    CornerRefinementMethod _cornerMethod;$/;"	m	class:aruco::MarkerDetector
+_doErosion	aruco/include/aruco/markerdetector.h	/^    bool _doErosion;$/;"	m	class:aruco::MarkerDetector
+_enableCylinderWarp	aruco/include/aruco/markerdetector.h	/^    bool _enableCylinderWarp;$/;"	m	class:aruco::MarkerDetector
+_markerSize	aruco/include/aruco/boarddetector.h	/^    float _markerSize;$/;"	m	class:aruco::BoardDetector
+_markerWarpSize	aruco/include/aruco/markerdetector.h	/^    int _markerWarpSize;$/;"	m	class:aruco::MarkerDetector
+_maxSize	aruco/include/aruco/markerdetector.h	/^    float _minSize,_maxSize;$/;"	m	class:aruco::MarkerDetector
+_mdetector	aruco/include/aruco/boarddetector.h	/^    MarkerDetector _mdetector;\/\/internal markerdetector$/;"	m	class:aruco::BoardDetector
+_minSize	aruco/include/aruco/markerdetector.h	/^    float _minSize,_maxSize;$/;"	m	class:aruco::MarkerDetector
+_setYPerpendicular	aruco/include/aruco/boarddetector.h	/^    bool _setYPerpendicular;$/;"	m	class:aruco::BoardDetector
+_speed	aruco/include/aruco/markerdetector.h	/^    int _speed;$/;"	m	class:aruco::MarkerDetector
+_tfListener	aruco_ros/src/simple_single.cpp	/^  tf::TransformListener _tfListener;$/;"	m	class:ArucoSimple	file:
+_thresMethod	aruco/include/aruco/markerdetector.h	/^    ThresholdMethods _thresMethod;$/;"	m	class:aruco::MarkerDetector
+_thresParam1	aruco/include/aruco/markerdetector.h	/^    double _thresParam1,_thresParam2;$/;"	m	class:aruco::MarkerDetector
+_thresParam2	aruco/include/aruco/markerdetector.h	/^    double _thresParam1,_thresParam2;$/;"	m	class:aruco::MarkerDetector
+_vmarkers	aruco/include/aruco/boarddetector.h	/^    vector<Marker> _vmarkers;\/\/markers detected in the call to : float  detect(const cv::Mat &im);$/;"	m	class:aruco::BoardDetector
+analyzeMarkerImage	aruco/src/aruco/arucofidmarkers.cpp	/^  int FiducidalMarkers::analyzeMarkerImage(Mat &grey,int &nRotations)$/;"	f	class:aruco::FiducidalMarkers
+arParamDecompMat	aruco/src/aruco/cameraparameters.cpp	/^int CameraParameters::arParamDecompMat( double source[3][4], double cpara[3][4], double trans[3][4] )throw(cv::Exception)$/;"	f	class:aruco::CameraParameters
+argConvGLcpara2	aruco/src/aruco/cameraparameters.cpp	/^void CameraParameters::argConvGLcpara2( double cparam[3][4], int width, int height, double gnear, double gfar, double m[16], bool invert )throw(cv::Exception)$/;"	f	class:aruco::CameraParameters
+aruco	aruco/include/aruco/arucofidmarkers.h	/^namespace aruco {$/;"	n
+aruco	aruco/include/aruco/board.h	/^namespace aruco {$/;"	n
+aruco	aruco/include/aruco/boarddetector.h	/^namespace aruco$/;"	n
+aruco	aruco/include/aruco/cameraparameters.h	/^namespace aruco$/;"	n
+aruco	aruco/include/aruco/cvdrawingutils.h	/^namespace aruco$/;"	n
+aruco	aruco/include/aruco/marker.h	/^namespace aruco {$/;"	n
+aruco	aruco/include/aruco/markerdetector.h	/^namespace aruco$/;"	n
+aruco	aruco/src/aruco/arucofidmarkers.cpp	/^namespace aruco {$/;"	n	file:
+aruco	aruco/src/aruco/board.cpp	/^namespace aruco$/;"	n	file:
+aruco	aruco/src/aruco/boarddetector.cpp	/^namespace aruco$/;"	n	file:
+aruco	aruco/src/aruco/cameraparameters.cpp	/^namespace aruco$/;"	n	file:
+aruco	aruco/src/aruco/cvdrawingutils.cpp	/^namespace aruco {$/;"	n	file:
+aruco	aruco/src/aruco/marker.cpp	/^namespace aruco {$/;"	n	file:
+aruco	aruco/src/aruco/markerdetector.cpp	/^namespace aruco$/;"	n	file:
+arucoMarker2Tf	aruco_ros/src/aruco_ros_utils.cpp	/^tf::Transform aruco_ros::arucoMarker2Tf(const aruco::Marker &marker)$/;"	f	class:aruco_ros
+aruco_ros	aruco_ros/include/aruco_ros/aruco_ros_utils.h	/^namespace aruco_ros$/;"	n
+calculateExtrinsics	aruco/src/aruco/marker.cpp	/^  void Marker::calculateExtrinsics(float markerSize,const CameraParameters &CP,bool setYPerpendicular)throw(cv::Exception)$/;"	f	class:aruco::Marker
+calculateExtrinsics	aruco/src/aruco/marker.cpp	/^  void Marker::calculateExtrinsics(float markerSizeMeters, cv::Mat  camMatrix, cv::Mat distCoeff , bool setYPerpendicular)throw(cv::Exception)$/;"	f	class:aruco::Marker
+camParam	aruco_ros/src/simple_double.cpp	/^aruco::CameraParameters camParam;$/;"	v
+camParam	aruco_ros/src/simple_single.cpp	/^  aruco::CameraParameters camParam;$/;"	m	class:ArucoSimple	file:
+camParam_	aruco_ros/src/marker_publish.cpp	/^  aruco::CameraParameters camParam_;$/;"	m	class:ArucoMarkerPublisher	file:
+cam_info_callback	aruco_ros/src/simple_double.cpp	/^void cam_info_callback(const sensor_msgs::CameraInfo &msg)$/;"	f
+cam_info_callback	aruco_ros/src/simple_single.cpp	/^  void cam_info_callback(const sensor_msgs::CameraInfo &msg)$/;"	f	class:ArucoSimple
+cam_info_received	aruco_ros/src/simple_double.cpp	/^bool cam_info_received;$/;"	v
+cam_info_received	aruco_ros/src/simple_single.cpp	/^  bool cam_info_received;$/;"	m	class:ArucoSimple	file:
+cam_info_sub	aruco_ros/src/simple_double.cpp	/^ros::Subscriber cam_info_sub;$/;"	v
+cam_info_sub	aruco_ros/src/simple_single.cpp	/^  ros::Subscriber cam_info_sub;$/;"	m	class:ArucoSimple	file:
+cam_info_sub_	aruco_ros/src/marker_publish.cpp	/^  ros::Subscriber cam_info_sub_;$/;"	m	class:ArucoMarkerPublisher	file:
+camera_frame	aruco_ros/src/simple_single.cpp	/^  std::string camera_frame;$/;"	m	class:ArucoSimple	file:
+camera_frame_	aruco_ros/src/marker_publish.cpp	/^  std::string camera_frame_;$/;"	m	class:ArucoMarkerPublisher	file:
+child_name1	aruco_ros/src/simple_double.cpp	/^std::string child_name1;$/;"	v
+child_name2	aruco_ros/src/simple_double.cpp	/^std::string child_name2;$/;"	v
+conf	aruco/include/aruco/board.h	/^    BoardConfiguration conf;$/;"	m	class:aruco::Board
+contour	aruco/include/aruco/markerdetector.h	/^    vector<cv::Point> contour;\/\/all the points of its contour$/;"	m	class:aruco::MarkerDetector::MarkerCandidate
+createBoardImage	aruco/src/aruco/arucofidmarkers.cpp	/^  cv::Mat  FiducidalMarkers::createBoardImage( Size gridSize,int MarkerSize,int MarkerDistance,  BoardConfiguration& TInfo  ,vector<int> *excludedIds) throw (cv::Exception)$/;"	f	class:aruco::FiducidalMarkers
+createBoardImage_ChessBoard	aruco/src/aruco/arucofidmarkers.cpp	/^  cv::Mat  FiducidalMarkers::createBoardImage_ChessBoard( Size gridSize,int MarkerSize,  BoardConfiguration& TInfo ,bool centerData ,vector<int> *excludedIds) throw (cv::Exception)$/;"	f	class:aruco::FiducidalMarkers
+createBoardImage_Frame	aruco/src/aruco/arucofidmarkers.cpp	/^  cv::Mat  FiducidalMarkers::createBoardImage_Frame( Size gridSize,int MarkerSize,int MarkerDistance, BoardConfiguration& TInfo ,bool centerData,vector<int> *excludedIds ) throw (cv::Exception)$/;"	f	class:aruco::FiducidalMarkers
+createMarkerImage	aruco/src/aruco/arucofidmarkers.cpp	/^  Mat FiducidalMarkers::createMarkerImage(int id,int size) throw (cv::Exception)$/;"	f	class:aruco::FiducidalMarkers
+dctComponentsToRemove	aruco_ros/src/simple_double.cpp	/^int dctComponentsToRemove;$/;"	v
+debug_pub	aruco_ros/src/simple_double.cpp	/^image_transport::Publisher debug_pub;$/;"	v
+debug_pub	aruco_ros/src/simple_single.cpp	/^  image_transport::Publisher debug_pub;$/;"	m	class:ArucoSimple	file:
+debug_pub_	aruco_ros/src/marker_publish.cpp	/^  image_transport::Publisher debug_pub_;$/;"	m	class:ArucoMarkerPublisher	file:
+detect	aruco/src/aruco/arucofidmarkers.cpp	/^  int FiducidalMarkers::detect(const Mat &in,int &nRotations)$/;"	f	class:aruco::FiducidalMarkers
+detect	aruco/src/aruco/boarddetector.cpp	/^  float  BoardDetector::detect(const cv::Mat &im)throw (cv::Exception)$/;"	f	class:aruco::BoardDetector
+detect	aruco/src/aruco/boarddetector.cpp	/^  float BoardDetector::detect ( const vector<Marker> &detectedMarkers,const  BoardConfiguration &BConf, Board &Bdetected, Mat camMatrix,Mat distCoeff,float markerSizeMeters ) throw ( cv::Exception )$/;"	f	class:aruco::BoardDetector
+detect	aruco/src/aruco/boarddetector.cpp	/^  float BoardDetector::detect ( const vector<Marker> &detectedMarkers,const  BoardConfiguration &BConf, Board &Bdetected,const CameraParameters &cp, float markerSizeMeters ) throw ( cv::Exception )$/;"	f	class:aruco::BoardDetector
+detect	aruco/src/aruco/markerdetector.cpp	/^  void MarkerDetector::detect ( const  cv::Mat &input,std::vector<Marker> &detectedMarkers, CameraParameters camParams ,float markerSizeMeters ,bool setYPerpendicular) throw ( cv::Exception )$/;"	f	class:aruco::MarkerDetector
+detect	aruco/src/aruco/markerdetector.cpp	/^  void MarkerDetector::detect ( const  cv::Mat &input,vector<Marker> &detectedMarkers,Mat camMatrix ,Mat distCoeff ,float markerSizeMeters ,bool setYPerpendicular) throw ( cv::Exception )$/;"	f	class:aruco::MarkerDetector
+detectRectangles	aruco/src/aruco/markerdetector.cpp	/^  void  MarkerDetector::detectRectangles ( const cv::Mat &thres,vector<std::vector<cv::Point2f> > &MarkerCanditates )$/;"	f	class:aruco::MarkerDetector
+detectRectangles	aruco/src/aruco/markerdetector.cpp	/^  void MarkerDetector::detectRectangles(const cv::Mat &thresImg,vector<MarkerCandidate> & OutMarkerCanditates)$/;"	f	class:aruco::MarkerDetector
+dot	aruco/src/aruco/cameraparameters.cpp	/^double CameraParameters::dot( double a1, double a2, double a3,$/;"	f	class:aruco::CameraParameters
+draw	aruco/src/aruco/marker.cpp	/^  void Marker::draw(Mat &in, Scalar color, int lineWidth ,bool writeId)const$/;"	f	class:aruco::Marker
+draw	aruco/src/aruco/markerdetector.cpp	/^  void MarkerDetector::draw ( Mat out,const vector<Marker> &markers )$/;"	f	class:aruco::MarkerDetector
+draw3dAxis	aruco/src/aruco/cvdrawingutils.cpp	/^    void CvDrawingUtils::draw3dAxis(cv::Mat &Image,Board &B,const CameraParameters &CP)$/;"	f	class:aruco::CvDrawingUtils
+draw3dAxis	aruco/src/aruco/cvdrawingutils.cpp	/^    void CvDrawingUtils::draw3dAxis(cv::Mat &Image,Marker &m,const CameraParameters &CP)$/;"	f	class:aruco::CvDrawingUtils
+draw3dCube	aruco/src/aruco/cvdrawingutils.cpp	/^    void CvDrawingUtils::draw3dCube(cv::Mat &Image,Board &B,const CameraParameters &CP)$/;"	f	class:aruco::CvDrawingUtils
+draw3dCube	aruco/src/aruco/cvdrawingutils.cpp	/^    void CvDrawingUtils::draw3dCube(cv::Mat &Image,Marker &m,const CameraParameters &CP)$/;"	f	class:aruco::CvDrawingUtils
+drawAllContours	aruco/src/aruco/markerdetector.cpp	/^  void MarkerDetector::drawAllContours ( Mat input, std::vector<std::vector<cv::Point> > &contours )$/;"	f	class:aruco::MarkerDetector
+drawApproxCurve	aruco/src/aruco/markerdetector.cpp	/^  void  MarkerDetector:: drawApproxCurve ( Mat &in,vector<Point>  &contour,Scalar color )$/;"	f	class:aruco::MarkerDetector
+drawContour	aruco/src/aruco/markerdetector.cpp	/^  void MarkerDetector:: drawContour ( Mat &in,vector<Point>  &contour,Scalar color )$/;"	f	class:aruco::MarkerDetector
+dyn_rec_server	aruco_ros/src/simple_single.cpp	/^  dynamic_reconfigure::Server<aruco_ros::ArucoThresholdConfig> dyn_rec_server;$/;"	m	class:ArucoSimple	file:
+enableErosion	aruco/include/aruco/markerdetector.h	/^    void enableErosion(bool enable){_doErosion=enable;}$/;"	f	class:aruco::MarkerDetector
+entropy	aruco/src/aruco/aruco_selectoptimalmarkers.cpp	/^int entropy(const cv::Mat &marker)$/;"	f
+findBestCornerInRegion_harris	aruco/src/aruco/markerdetector.cpp	/^  void MarkerDetector::findBestCornerInRegion_harris ( const cv::Mat  & grey,vector<cv::Point2f> &  Corners,int blockSize )$/;"	f	class:aruco::MarkerDetector
+findCornerPointsInContour	aruco/src/aruco/markerdetector.cpp	/^  void findCornerPointsInContour(const vector<cv::Point2f>& points,const vector<cv::Point> &contour,vector<int> &idxs)$/;"	f	namespace:aruco
+findDeformedSidesIdx	aruco/src/aruco/markerdetector.cpp	/^  int findDeformedSidesIdx(const vector<cv::Point> &contour,const vector<int> &idxSegments)$/;"	f	namespace:aruco
+gen	aruco/cfg/ArucoThreshold.cfg	/^gen = ParameterGenerator()$/;"	v
+gen	aruco_ros/cfg/ArucoThreshold.cfg	/^gen = ParameterGenerator()$/;"	v
+getArea	aruco/src/aruco/marker.cpp	/^  float Marker::getArea()const$/;"	f	class:aruco::Marker
+getCameraLocation	aruco/src/aruco/cameraparameters.cpp	/^cv::Point3f CameraParameters::getCameraLocation(cv::Mat Rvec,cv::Mat Tvec)$/;"	f	class:aruco::CameraParameters
+getCandidates	aruco/include/aruco/markerdetector.h	/^    const vector<std::vector<cv::Point2f> > &getCandidates() {$/;"	f	class:aruco::MarkerDetector
+getCenter	aruco/src/aruco/marker.cpp	/^  cv::Point2f Marker::getCenter()const$/;"	f	class:aruco::Marker
+getCornerRefinementMethod	aruco/include/aruco/markerdetector.h	/^    CornerRefinementMethod getCornerRefinementMethod()const {$/;"	f	class:aruco::MarkerDetector
+getCrossPoint	aruco/src/aruco/markerdetector.cpp	/^  Point2f MarkerDetector::getCrossPoint(const cv::Point3f& line1, const cv::Point3f& line2)$/;"	f	class:aruco::MarkerDetector
+getDesiredSpeed	aruco/include/aruco/markerdetector.h	/^    int getDesiredSpeed()const {$/;"	f	class:aruco::MarkerDetector
+getDetectedBoard	aruco/include/aruco/boarddetector.h	/^    Board & getDetectedBoard(){return _boardDetected;}$/;"	f	class:aruco::BoardDetector
+getDetectedMarkers	aruco/include/aruco/boarddetector.h	/^    vector<Marker> &getDetectedMarkers(){return _vmarkers;}$/;"	f	class:aruco::BoardDetector
+getIdList	aruco/src/aruco/board.cpp	/^void BoardConfiguration::getIdList(std::vector< int >& ids, bool append) const$/;"	f	class:aruco::BoardConfiguration
+getIndexOfMarkerId	aruco/src/aruco/board.cpp	/^int BoardConfiguration::getIndexOfMarkerId(int id)const$/;"	f	class:aruco::BoardConfiguration
+getListOfValidMarkersIds_random	aruco/src/aruco/arucofidmarkers.cpp	/^  vector<int> FiducidalMarkers::getListOfValidMarkersIds_random(int nMarkers,vector<int> *excluded) throw (cv::Exception)$/;"	f	class:aruco::FiducidalMarkers
+getMarkerDetector	aruco/include/aruco/boarddetector.h	/^    MarkerDetector &getMarkerDetector(){return _mdetector;}$/;"	f	class:aruco::BoardDetector
+getMarkerInfo	aruco/src/aruco/board.cpp	/^const MarkerInfo& BoardConfiguration::getMarkerInfo(int id)const throw (cv::Exception)$/;"	f	class:aruco::BoardConfiguration
+getMarkerMat	aruco/src/aruco/arucofidmarkers.cpp	/^  cv::Mat FiducidalMarkers::getMarkerMat(int id) throw (cv::Exception)$/;"	f	class:aruco::FiducidalMarkers
+getMinMaxSize	aruco/include/aruco/markerdetector.h	/^    void getMinMaxSize(float &min,float &max){min=_minSize;max=_maxSize;}$/;"	f	class:aruco::MarkerDetector
+getPerimeter	aruco/src/aruco/marker.cpp	/^  float Marker::getPerimeter()const$/;"	f	class:aruco::Marker
+getThresholdMethod	aruco/include/aruco/markerdetector.h	/^    ThresholdMethods getThresholdMethod()const {$/;"	f	class:aruco::MarkerDetector
+getThresholdParams	aruco/include/aruco/markerdetector.h	/^    void getThresholdParams(double &param1,double &param2)const {$/;"	f	class:aruco::MarkerDetector
+getThresholdedImage	aruco/include/aruco/markerdetector.h	/^    const cv::Mat & getThresholdedImage() {$/;"	f	class:aruco::MarkerDetector
+getTransform	aruco_ros/src/marker_publish.cpp	/^  bool getTransform(const std::string& refFrame,$/;"	f	class:ArucoMarkerPublisher
+getTransform	aruco_ros/src/simple_single.cpp	/^  bool getTransform(const std::string& refFrame,$/;"	f	class:ArucoSimple
+glGetModelViewMatrix	aruco/src/aruco/board.cpp	/^void Board::glGetModelViewMatrix ( double modelview_matrix[16] ) throw ( cv::Exception )$/;"	f	class:aruco::Board
+glGetModelViewMatrix	aruco/src/aruco/marker.cpp	/^  void Marker::glGetModelViewMatrix(   double modelview_matrix[16])throw(cv::Exception)$/;"	f	class:aruco::Marker
+glGetProjectionMatrix	aruco/src/aruco/cameraparameters.cpp	/^void CameraParameters::glGetProjectionMatrix( cv::Size orgImgSize, cv::Size size,double proj_matrix[16],double gnear,double gfar,bool invert   )throw(cv::Exception)$/;"	f	class:aruco::CameraParameters
+glGetProjectionMatrix	aruco/src/aruco/markerdetector.cpp	/^  void MarkerDetector::glGetProjectionMatrix ( CameraParameters &  CamMatrix,cv::Size orgImgSize, cv::Size size,double proj_matrix[16],double gnear,double gfar,bool invert )$/;"	f	class:aruco::MarkerDetector
+grey	aruco/include/aruco/markerdetector.h	/^    cv::Mat grey,thres,thres2,reduced;$/;"	m	class:aruco::MarkerDetector
+hammDistMarker	aruco/src/aruco/arucofidmarkers.cpp	/^  int FiducidalMarkers::hammDistMarker(Mat  bits)$/;"	f	class:aruco::FiducidalMarkers
+id	aruco/include/aruco/board.h	/^    int id;\/\/maker id$/;"	m	struct:aruco::MarkerInfo
+id	aruco/include/aruco/marker.h	/^    int id;$/;"	m	class:aruco::Marker
+idx	aruco/include/aruco/markerdetector.h	/^    int idx;\/\/index position in the global contour list$/;"	m	class:aruco::MarkerDetector::MarkerCandidate
+image_callback	aruco_ros/src/marker_publish.cpp	/^  void image_callback(const sensor_msgs::ImageConstPtr& msg)$/;"	f	class:ArucoMarkerPublisher
+image_callback	aruco_ros/src/simple_double.cpp	/^void image_callback(const sensor_msgs::ImageConstPtr& msg)$/;"	f
+image_callback	aruco_ros/src/simple_single.cpp	/^  void image_callback(const sensor_msgs::ImageConstPtr& msg)$/;"	f	class:ArucoSimple
+image_pub	aruco_ros/src/simple_double.cpp	/^image_transport::Publisher image_pub;$/;"	v
+image_pub	aruco_ros/src/simple_single.cpp	/^  image_transport::Publisher image_pub;$/;"	m	class:ArucoSimple	file:
+image_pub_	aruco_ros/src/marker_publish.cpp	/^  image_transport::Publisher image_pub_;$/;"	m	class:ArucoMarkerPublisher	file:
+image_sub	aruco_ros/src/simple_single.cpp	/^  image_transport::Subscriber image_sub;$/;"	m	class:ArucoSimple	file:
+image_sub_	aruco_ros/src/marker_publish.cpp	/^  image_transport::Subscriber image_sub_;$/;"	m	class:ArucoMarkerPublisher	file:
+inImage	aruco_ros/src/simple_single.cpp	/^  cv::Mat inImage;$/;"	m	class:ArucoSimple	file:
+inImage_	aruco_ros/src/marker_publish.cpp	/^  cv::Mat inImage_;$/;"	m	class:ArucoMarkerPublisher	file:
+interpolate2Dline	aruco/src/aruco/markerdetector.cpp	/^  void MarkerDetector::interpolate2Dline( const std::vector< Point >& inPoints, Point3f& outLine)$/;"	f	class:aruco::MarkerDetector
+isExpressedInMeters	aruco/include/aruco/board.h	/^    bool isExpressedInMeters()const {$/;"	f	class:aruco::BoardConfiguration
+isExpressedInPixels	aruco/include/aruco/board.h	/^    bool isExpressedInPixels()const {$/;"	f	class:aruco::BoardConfiguration
+isInto	aruco/src/aruco/markerdetector.cpp	/^  bool MarkerDetector::isInto ( Mat &contour,vector<Point2f> &b )$/;"	f	class:aruco::MarkerDetector
+isValid	aruco/include/aruco/cameraparameters.h	/^    bool isValid()const {$/;"	f	class:aruco::CameraParameters
+isValid	aruco/include/aruco/marker.h	/^    bool isValid()const{return id!=-1 && size()==4;}$/;"	f	class:aruco::Marker
+it	aruco_ros/src/simple_single.cpp	/^  image_transport::ImageTransport it;$/;"	m	class:ArucoSimple	file:
+it_	aruco_ros/src/marker_publish.cpp	/^  image_transport::ImageTransport it_;$/;"	m	class:ArucoMarkerPublisher	file:
+mDetector	aruco_ros/src/simple_double.cpp	/^MarkerDetector mDetector;$/;"	v
+mDetector	aruco_ros/src/simple_single.cpp	/^  MarkerDetector mDetector;$/;"	m	class:ArucoSimple	file:
+mDetector_	aruco_ros/src/marker_publish.cpp	/^  aruco::MarkerDetector mDetector_;$/;"	m	class:ArucoMarkerPublisher	file:
+mInfoType	aruco/include/aruco/board.h	/^    int mInfoType;$/;"	m	class:aruco::BoardConfiguration
+main	aruco/src/aruco/aruco_selectoptimalmarkers.cpp	/^int main(int argc,char **argv)$/;"	f
+main	aruco_ros/src/marker_publish.cpp	/^int main(int argc,char **argv)$/;"	f
+main	aruco_ros/src/simple_double.cpp	/^int main(int argc,char **argv)$/;"	f
+main	aruco_ros/src/simple_single.cpp	/^int main(int argc,char **argv)$/;"	f
+markerIdDetector_ptrfunc	aruco/include/aruco/markerdetector.h	/^    int (* markerIdDetector_ptrfunc)(const cv::Mat &in,int &nRotations);$/;"	m	class:aruco::MarkerDetector
+marker_frame	aruco_ros/src/simple_single.cpp	/^  std::string marker_frame;$/;"	m	class:ArucoSimple	file:
+marker_frame_	aruco_ros/src/marker_publish.cpp	/^  std::string marker_frame_;$/;"	m	class:ArucoMarkerPublisher	file:
+marker_id	aruco_ros/src/simple_single.cpp	/^  int marker_id;$/;"	m	class:ArucoSimple	file:
+marker_id1	aruco_ros/src/simple_double.cpp	/^int marker_id1;$/;"	v
+marker_id2	aruco_ros/src/simple_double.cpp	/^int marker_id2;$/;"	v
+marker_list_msg_	aruco_ros/src/marker_publish.cpp	/^  std_msgs::UInt32MultiArray marker_list_msg_;$/;"	m	class:ArucoMarkerPublisher	file:
+marker_list_pub_	aruco_ros/src/marker_publish.cpp	/^  ros::Publisher marker_list_pub_;$/;"	m	class:ArucoMarkerPublisher	file:
+marker_msg_	aruco_ros/src/marker_publish.cpp	/^  aruco_msgs::MarkerArray::Ptr marker_msg_;$/;"	m	class:ArucoMarkerPublisher	file:
+marker_pub	aruco_ros/src/simple_single.cpp	/^  ros::Publisher marker_pub; \/\/rviz visualization marker$/;"	m	class:ArucoSimple	file:
+marker_pub_	aruco_ros/src/marker_publish.cpp	/^  ros::Publisher marker_pub_;$/;"	m	class:ArucoMarkerPublisher	file:
+marker_size	aruco_ros/src/simple_double.cpp	/^double marker_size;$/;"	v
+marker_size	aruco_ros/src/simple_single.cpp	/^  double marker_size;$/;"	m	class:ArucoSimple	file:
+marker_size_	aruco_ros/src/marker_publish.cpp	/^  double marker_size_;$/;"	m	class:ArucoMarkerPublisher	file:
+markers	aruco_ros/src/simple_double.cpp	/^vector<Marker> markers;$/;"	v
+markers	aruco_ros/src/simple_single.cpp	/^  vector<Marker> markers;$/;"	m	class:ArucoSimple	file:
+markers_	aruco_ros/src/marker_publish.cpp	/^  vector<aruco::Marker> markers_;$/;"	m	class:ArucoMarkerPublisher	file:
+nh	aruco_ros/src/simple_single.cpp	/^  ros::NodeHandle nh;$/;"	m	class:ArucoSimple	file:
+nh_	aruco_ros/src/marker_publish.cpp	/^  ros::NodeHandle nh_;$/;"	m	class:ArucoMarkerPublisher	file:
+norm	aruco/src/aruco/cameraparameters.cpp	/^double CameraParameters::norm( double a, double b, double c )$/;"	f	class:aruco::CameraParameters
+normalizeImageIllumination	aruco_ros/src/simple_double.cpp	/^bool useRectifiedImages, normalizeImageIllumination;$/;"	v
+operator <	aruco/include/aruco/marker.h	/^    friend bool operator<(const Marker &M1,const Marker&M2)$/;"	f	class:aruco::Marker
+operator <<	aruco/include/aruco/marker.h	/^    friend ostream & operator<<(ostream &str,const Marker &M)$/;"	f	class:aruco::Marker
+operator =	aruco/include/aruco/board.h	/^    MarkerInfo & operator=(const MarkerInfo&MI){$/;"	f	struct:aruco::MarkerInfo
+operator =	aruco/include/aruco/markerdetector.h	/^    MarkerCandidate & operator=(const MarkerCandidate &M){$/;"	f	class:aruco::MarkerDetector::MarkerCandidate
+operator =	aruco/src/aruco/board.cpp	/^BoardConfiguration & BoardConfiguration ::operator=(const BoardConfiguration  &T) {$/;"	f	class:aruco::BoardConfiguration
+operator =	aruco/src/aruco/cameraparameters.cpp	/^CameraParameters & CameraParameters::operator=(const CameraParameters &CI) {$/;"	f	class:aruco::CameraParameters
+parent_name	aruco_ros/src/simple_double.cpp	/^std::string parent_name;$/;"	v
+perimeter	aruco/src/aruco/markerdetector.cpp	/^  int MarkerDetector:: perimeter ( vector<Point2f> &a )$/;"	f	class:aruco::MarkerDetector
+pixel_pub	aruco_ros/src/simple_single.cpp	/^  ros::Publisher pixel_pub;$/;"	m	class:ArucoSimple	file:
+pose_pub	aruco_ros/src/simple_single.cpp	/^  ros::Publisher pose_pub;$/;"	m	class:ArucoSimple	file:
+pose_pub1	aruco_ros/src/simple_double.cpp	/^ros::Publisher pose_pub1;$/;"	v
+pose_pub2	aruco_ros/src/simple_double.cpp	/^ros::Publisher pose_pub2;$/;"	v
+position_pub	aruco_ros/src/simple_single.cpp	/^  ros::Publisher position_pub;$/;"	m	class:ArucoSimple	file:
+print	aruco/src/aruco/marker.cpp	/^  void print(cv::Point3f p,string cad)$/;"	f	namespace:aruco
+pyrDown	aruco/include/aruco/markerdetector.h	/^    void pyrDown(unsigned int level){pyrdown_level=level;}$/;"	f	class:aruco::MarkerDetector
+pyrdown_level	aruco/include/aruco/markerdetector.h	/^    int pyrdown_level;$/;"	m	class:aruco::MarkerDetector
+readFromFile	aruco/src/aruco/board.cpp	/^void Board::readFromFile(string filePath)throw(cv::Exception)$/;"	f	class:aruco::Board
+readFromFile	aruco/src/aruco/board.cpp	/^void BoardConfiguration::readFromFile ( string sfile ) throw ( cv::Exception )$/;"	f	class:aruco::BoardConfiguration
+readFromFile	aruco/src/aruco/board.cpp	/^void BoardConfiguration::readFromFile(cv::FileStorage &fs)throw (cv::Exception)$/;"	f	class:aruco::BoardConfiguration
+readFromFile	aruco/src/aruco/cameraparameters.cpp	/^void CameraParameters::readFromFile(string path)throw(cv::Exception)$/;"	f	class:aruco::CameraParameters
+readFromXMLFile	aruco/src/aruco/cameraparameters.cpp	/^void CameraParameters::readFromXMLFile(string filePath)throw(cv::Exception)$/;"	f	class:aruco::CameraParameters
+reconf_callback	aruco_ros/src/simple_double.cpp	/^void reconf_callback(aruco_ros::ArucoThresholdConfig &config, uint32_t level)$/;"	f
+reconf_callback	aruco_ros/src/simple_single.cpp	/^  void reconf_callback(aruco_ros::ArucoThresholdConfig &config, uint32_t level)$/;"	f	class:ArucoSimple
+reduced	aruco/include/aruco/markerdetector.h	/^    cv::Mat grey,thres,thres2,reduced;$/;"	m	class:aruco::MarkerDetector
+reference_frame	aruco_ros/src/simple_single.cpp	/^  std::string reference_frame;$/;"	m	class:ArucoSimple	file:
+reference_frame_	aruco_ros/src/marker_publish.cpp	/^  std::string reference_frame_;$/;"	m	class:ArucoMarkerPublisher	file:
+refineCandidateLines	aruco/src/aruco/markerdetector.cpp	/^  void MarkerDetector::refineCandidateLines(MarkerDetector::MarkerCandidate& candidate)$/;"	f	class:aruco::MarkerDetector
+removeElements	aruco/include/aruco/markerdetector.h	/^    void removeElements(vector<T> & vinout,const vector<bool> &toRemove)$/;"	f	class:aruco::MarkerDetector
+resize	aruco/src/aruco/cameraparameters.cpp	/^void CameraParameters::resize(cv::Size size)throw(cv::Exception)$/;"	f	class:aruco::CameraParameters
+rightToLeft	aruco_ros/src/simple_single.cpp	/^  tf::StampedTransform rightToLeft;$/;"	m	class:ArucoSimple	file:
+rosCameraInfo2ArucoCamParams	aruco_ros/src/aruco_ros_utils.cpp	/^aruco::CameraParameters aruco_ros::rosCameraInfo2ArucoCamParams(const sensor_msgs::CameraInfo& cam_info,$/;"	f	class:aruco_ros
+rotate	aruco/src/aruco/aruco_selectoptimalmarkers.cpp	/^Mat rotate(Mat  in)$/;"	f
+rotate	aruco/src/aruco/arucofidmarkers.cpp	/^  Mat FiducidalMarkers::rotate(const Mat  &in)$/;"	f	class:aruco::FiducidalMarkers
+rotateXAxis	aruco/src/aruco/boarddetector.cpp	/^  void BoardDetector::rotateXAxis ( Mat &rotation )$/;"	f	class:aruco::BoardDetector
+rotateXAxis	aruco/src/aruco/marker.cpp	/^  void Marker::rotateXAxis(Mat &rotation)$/;"	f	class:aruco::Marker
+saveToFile	aruco/src/aruco/board.cpp	/^void Board::saveToFile(string filePath)throw(cv::Exception)$/;"	f	class:aruco::Board
+saveToFile	aruco/src/aruco/board.cpp	/^void BoardConfiguration::saveToFile ( string sfile ) throw ( cv::Exception )$/;"	f	class:aruco::BoardConfiguration
+saveToFile	aruco/src/aruco/board.cpp	/^void BoardConfiguration::saveToFile(cv::FileStorage &fs)throw (cv::Exception) {$/;"	f	class:aruco::BoardConfiguration
+saveToFile	aruco/src/aruco/cameraparameters.cpp	/^void CameraParameters::saveToFile(string path,bool inXML)throw(cv::Exception)$/;"	f	class:aruco::CameraParameters
+setCornerRefinementMethod	aruco/include/aruco/markerdetector.h	/^    void setCornerRefinementMethod(CornerRefinementMethod method) {$/;"	f	class:aruco::MarkerDetector
+setDesiredSpeed	aruco/src/aruco/markerdetector.cpp	/^  void MarkerDetector::setDesiredSpeed ( int val )$/;"	f	class:aruco::MarkerDetector
+setMakerDetectorFunction	aruco/include/aruco/markerdetector.h	/^    void setMakerDetectorFunction(int (* markerdetector_func)(const cv::Mat &in,int &nRotations) ) {$/;"	f	class:aruco::MarkerDetector
+setMinMaxSize	aruco/src/aruco/markerdetector.cpp	/^  void MarkerDetector::setMinMaxSize(float min ,float max )throw(cv::Exception)$/;"	f	class:aruco::MarkerDetector
+setParams	aruco/src/aruco/boarddetector.cpp	/^  void BoardDetector::setParams(const BoardConfiguration &bc)$/;"	f	class:aruco::BoardDetector
+setParams	aruco/src/aruco/boarddetector.cpp	/^  void BoardDetector::setParams(const BoardConfiguration &bc,const CameraParameters &cp, float markerSizeMeters)$/;"	f	class:aruco::BoardDetector
+setParams	aruco/src/aruco/cameraparameters.cpp	/^void CameraParameters::setParams(cv::Mat cameraMatrix,cv::Mat distorsionCoeff,cv::Size size) throw(cv::Exception)$/;"	f	class:aruco::CameraParameters
+setPointIntoImage	aruco/src/aruco/markerdetector.cpp	/^  void setPointIntoImage(cv::Point  &p,cv::Size s) {$/;"	f	namespace:aruco
+setPointIntoImage	aruco/src/aruco/markerdetector.cpp	/^  void setPointIntoImage(cv::Point2f &p,cv::Size s) {$/;"	f	namespace:aruco
+setThresholdMethod	aruco/include/aruco/markerdetector.h	/^    void setThresholdMethod(ThresholdMethods m) {$/;"	f	class:aruco::MarkerDetector
+setThresholdParams	aruco/include/aruco/markerdetector.h	/^    void setThresholdParams(double param1,double param2) {$/;"	f	class:aruco::MarkerDetector
+setYPerpendicular	aruco/include/aruco/boarddetector.h	/^    void setYPerpendicular(bool enable){_setYPerpendicular=enable;}$/;"	f	class:aruco::BoardDetector
+ssize	aruco/include/aruco/marker.h	/^    float ssize;$/;"	m	class:aruco::Marker
+tfListener_	aruco_ros/src/marker_publish.cpp	/^  tf::TransformListener tfListener_;$/;"	m	class:ArucoMarkerPublisher	file:
+thres	aruco/include/aruco/markerdetector.h	/^    cv::Mat grey,thres,thres2,reduced;$/;"	m	class:aruco::MarkerDetector
+thres2	aruco/include/aruco/markerdetector.h	/^    cv::Mat grey,thres,thres2,reduced;$/;"	m	class:aruco::MarkerDetector
+thresHold	aruco/src/aruco/markerdetector.cpp	/^  void MarkerDetector::thresHold ( int method,const Mat &grey,Mat &out,double param1,double param2 ) throw ( cv::Exception )$/;"	f	class:aruco::MarkerDetector
+transform_pub	aruco_ros/src/simple_single.cpp	/^  ros::Publisher transform_pub; $/;"	m	class:ArucoSimple	file:
+useCamInfo_	aruco_ros/src/marker_publish.cpp	/^  bool useCamInfo_;$/;"	m	class:ArucoMarkerPublisher	file:
+useRectifiedImages	aruco_ros/src/simple_double.cpp	/^bool useRectifiedImages, normalizeImageIllumination;$/;"	v
+useRectifiedImages	aruco_ros/src/simple_single.cpp	/^  bool useRectifiedImages;$/;"	m	class:ArucoSimple	file:
+useRectifiedImages_	aruco_ros/src/marker_publish.cpp	/^  bool useRectifiedImages_;$/;"	m	class:ArucoMarkerPublisher	file:
+warp	aruco/src/aruco/markerdetector.cpp	/^  bool MarkerDetector::warp ( Mat &in,Mat &out,Size size, vector<Point2f> points ) throw ( cv::Exception )$/;"	f	class:aruco::MarkerDetector
+warp_cylinder	aruco/src/aruco/markerdetector.cpp	/^  bool MarkerDetector::warp_cylinder ( Mat &in,Mat &out,Size size, MarkerCandidate& mcand ) throw ( cv::Exception )$/;"	f	class:aruco::MarkerDetector
+~Marker	aruco/include/aruco/marker.h	/^    ~Marker() {}$/;"	f	class:aruco::Marker
+~MarkerDetector	aruco/src/aruco/markerdetector.cpp	/^  MarkerDetector::~MarkerDetector()$/;"	f	class:aruco::MarkerDetector
