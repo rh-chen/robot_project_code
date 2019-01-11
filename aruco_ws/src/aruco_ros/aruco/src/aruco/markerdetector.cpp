@@ -48,14 +48,14 @@ namespace aruco
     _doErosion=false;
     _enableCylinderWarp=false;
     _thresMethod=ADPT_THRES;
-    _thresParam1=_thresParam2=7;
+    _thresParam1=_thresParam2=7;;
     _cornerMethod=LINES;
     _markerWarpSize=56;
     _speed=0;
     markerIdDetector_ptrfunc=aruco::FiducidalMarkers::detect;
     pyrdown_level=0; // no image reduction
-    _minSize=0.04;
-    _maxSize=0.5;
+    _minSize=0.01;
+    _maxSize=0.9;
   }
   /************************************
  *
@@ -152,7 +152,6 @@ namespace aruco
     ///Do threshold the image and detect contours
     thresHold ( _thresMethod,imgToBeThresHolded,thres,ThresParam1,ThresParam2 );
     //an erosion might be required to detect chessboard like boards
-
     if ( _doErosion )
     {
       erode ( thres,thres2,cv::Mat() );
@@ -271,6 +270,7 @@ namespace aruco
   void MarkerDetector::detectRectangles(const cv::Mat &thresImg,vector<MarkerCandidate> & OutMarkerCanditates)
   {
     vector<MarkerCandidate>  MarkerCanditates;
+
     //calcualte the min_max contour sizes
     unsigned int minSize=_minSize*std::max(thresImg.cols,thresImg.rows)*4;
     unsigned int maxSize=_maxSize*std::max(thresImg.cols,thresImg.rows)*4;
@@ -281,7 +281,6 @@ namespace aruco
     cv::findContours ( thres2 , contours2, hierarchy2,CV_RETR_TREE, CV_CHAIN_APPROX_NONE );
     vector<Point>  approxCurve;
     ///for each contour, analyze if it is a paralelepiped likely to be the marker
-
     for ( unsigned int i=0;i<contours2.size();i++ )
     {
 

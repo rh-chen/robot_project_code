@@ -18,7 +18,7 @@ find_package(catkin REQUIRED COMPONENTS
 )
 
 generate_dynamic_reconfigure_options(
-  cfg/ArucoThreshold.cfg
+  cfg/ArucoThresholdConfig.cfg
 )
 
 catkin_package(
