@@ -83,7 +83,6 @@ namespace aruco {
       }
     }
     else throw cv::Exception (9189,"Invalid marker id","aruco::fiducidal::createMarkerMat",__FILE__,__LINE__);
-	std::cout << "marker:" << marker << std::endl;
     return marker;
   }
   /************************************
