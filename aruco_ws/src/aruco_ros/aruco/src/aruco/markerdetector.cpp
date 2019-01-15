@@ -289,7 +289,7 @@ namespace aruco
       if ( minSize< contours2[i].size() &&contours2[i].size()<maxSize  )
       {
         //approximate to a poligon
-        approxPolyDP (  contours2[i]  ,approxCurve , double ( contours2[i].size() ) *0.05 , true );
+        approxPolyDP (  contours2[i]  ,approxCurve , double ( contours2[i].size() ) *0.03 , true );
         // 				drawApproxCurve(copy,approxCurve,Scalar(0,0,255));
         //check that the poligon has 4 points
         if ( approxCurve.size() ==4 )

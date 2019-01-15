@@ -336,6 +336,8 @@ public:
 
   void reconf_callback(aruco_ros::ArucoThresholdConfig &config, uint32_t level)
   {
+  	ROS_INFO_STREAM("config.param1:" << config.param1);
+	ROS_INFO_STREAM("config.param2:" << config.param2);
     mDetector.setThresholdParams(config.param1,config.param2);
     if (config.normalizeImage)
     {
