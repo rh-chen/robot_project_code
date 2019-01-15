@@ -1,4 +1,3 @@
-INCLUDE_DIRECTORIES(include/aruco_marker_detection)
 add_executable(aruco_calibration aruco_calibration.cpp calibrator.h calibrator.cpp )
 add_executable(aruco_calibration_fromimages aruco_calibration_fromimages.cpp dirreader.h)
 

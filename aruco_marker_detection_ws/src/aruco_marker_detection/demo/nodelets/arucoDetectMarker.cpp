@@ -52,8 +52,8 @@ void ArucoMarkerDetectionNodelet::onInit()
   private_nh.param("exact_sync", use_exact_sync, false);
 
 
-  std::string img_topic = "/mynteye/left/image_raw";
-  std::string camera_info_topic = "/mynteye/left/camera_info";
+  std::string img_topic = "/stereo/left/image_rect";
+  std::string camera_info_topic = "/stereo/left/rect/camera_info";
  
   sub_img_ = new message_filters::Subscriber<sensor_msgs::Image>(nh,img_topic,1);
   sub_info_ = new message_filters::Subscriber<sensor_msgs::CameraInfo>(nh,camera_info_topic,1);
@@ -105,21 +105,17 @@ void ArucoMarkerDetectionNodelet::imageCb(const sensor_msgs::ImageConstPtr& img_
 
 	cv::Mat img_mat(cv_ptr->image);
 	
-	float markerSize = 0.119;
+	float markerSize = 0.114;
 	
 	MarkerDetector MDetector;
 	MDetector.setDictionary("TAG25h9",0.f);
 	std::vector<Marker> Markers = MDetector.detect(img_mat, CamParam, markerSize);
-
+	
+	ROS_INFO_STREAM("Markers_Size:" << Markers.size());
 	for(unsigned int i = 0;i < Markers.size();i++){
 		ROS_INFO_STREAM("Marker:" << Markers[i]);
-		Markers[i].draw(img_mat, cv::Scalar(0, 0, 255), 2);
+		//Markers[i].draw(img_mat, cv::Scalar(0, 0, 255), 2);
 	}
-
-	cv::namedWindow("InImage", 1);
-	cv::imshow("InImage",img_mat);
-	while (char(cv::waitKey(0)) != 27)
-		;
 }
 }
 

@@ -1,4 +1,3 @@
-INCLUDE_DIRECTORIES(include/aruco_marker_detection)
 add_executable(aruco_test_gl aruco_test_gl.cpp)
 add_executable(aruco_test_markermap_gl aruco_test_markermap_gl.cpp)
 

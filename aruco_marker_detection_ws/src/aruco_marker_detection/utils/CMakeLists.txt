@@ -1,4 +1,3 @@
-INCLUDE_DIRECTORIES(include/aruco_marker_detection)
 add_executable(aruco_print_dictionary aruco_print_dictionary.cpp)
 add_executable(aruco_print_marker aruco_print_marker.cpp)
 add_executable(aruco_simple aruco_simple.cpp)

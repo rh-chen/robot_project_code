@@ -1,4 +1,3 @@
-INCLUDE_DIRECTORIES(include/aruco_marker_detection)
 add_executable(aruco_create_markermap aruco_create_markermap.cpp)
 add_executable(aruco_simple_markermap aruco_simple_markermap.cpp)
 add_executable(aruco_test_markermap aruco_test_markermap.cpp pcdwriter.cpp sglviewer.h sgl.h)

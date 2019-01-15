@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.0)
 project(aruco_marker_detection VERSION "3.0.13" LANGUAGES CXX)
-
+SET(CMAKE_BUILD_TYPE Release)
 ## Compile as C++11, supported in ROS Kinetic and newer
 add_compile_options(-std=c++11)
 
@@ -146,6 +146,8 @@ catkin_package(
 include_directories(
   include/aruco_marker_detection
   ${catkin_INCLUDE_DIRS}
+  src/
+  src/markerlabelers
 )
 include_directories(${Boost_INCLUDE_DIR})
 

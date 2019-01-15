@@ -227,6 +227,7 @@ ArrayXr	3rdparty/eigen3/Eigen/src/SVD/BDCSVD.h	/^  typedef Array<RealScalar, Dyn
 ArucoCalibrator_H	utils_calibration/calibrator.h	30;"	d
 ArucoDictionaryBasedMarkerDetector_H	include/aruco_marker_detection/dictionary_based.h	30;"	d
 ArucoDictionaryBasedMarkerDetector_H	src/markerlabelers/dictionary_based.h	30;"	d
+ArucoMarkerDetectionNodelet	demo/nodelets/arucoDetectMarker.cpp	/^class ArucoMarkerDetectionNodelet : public nodelet::Nodelet$/;"	c	namespace:aruco_marker_detection_ws	file:
 AsinReturnType	3rdparty/eigen3/Eigen/src/plugins/ArrayCwiseUnaryOps.h	/^typedef CwiseUnaryOp<internal::scalar_asin_op<Scalar>, const Derived> AsinReturnType;$/;"	t
 AssignOpType	3rdparty/eigen3/Eigen/src/SparseCore/SparseSelfAdjointView.h	/^  typedef internal::assign_op<typename DstXprType::Scalar,typename SrcXprType::Scalar> AssignOpType;$/;"	t	struct:Eigen::internal::Assignment
 Assignment	3rdparty/eigen3/Eigen/src/Core/AssignEvaluator.h	/^struct Assignment<DstXprType, SrcXprType, Functor, Dense2Dense, Weak>$/;"	s	namespace:Eigen::internal
@@ -7965,6 +7966,7 @@ aruco	tests/highlyreliablemarkers.h	/^namespace aruco$/;"	n
 aruco	utils_calibration/calibrator.cpp	/^namespace aruco{$/;"	n	file:
 aruco	utils_calibration/calibrator.h	/^namespace  aruco {$/;"	n
 aruco	utils_markermap/sglviewer.h	/^ namespace aruco{$/;"	n
+aruco_marker_detection_ws	demo/nodelets/arucoDetectMarker.cpp	/^namespace aruco_marker_detection_ws{$/;"	n	file:
 aruco_minerrratio_valid	include/aruco_marker_detection/posetracker.h	/^        float aruco_minerrratio_valid;\/*tau_e in paper*\/$/;"	m	class:aruco::MarkerMapPoseTracker
 aruco_minerrratio_valid	src/posetracker.h	/^        float aruco_minerrratio_valid;\/*tau_e in paper*\/$/;"	m	class:aruco::MarkerMapPoseTracker
 aruco_private	src/posetracker.cpp	/^namespace aruco_private {$/;"	n	namespace:aruco	file:
@@ -10061,6 +10063,7 @@ imag_ref_impl	3rdparty/eigen3/Eigen/src/Core/MathFunctions.h	/^struct imag_ref_i
 imag_ref_retval	3rdparty/eigen3/Eigen/src/Core/MathFunctions.h	/^struct imag_ref_retval$/;"	s	namespace:Eigen::internal
 imag_retval	3rdparty/eigen3/Eigen/src/Core/MathFunctions.h	/^struct imag_retval$/;"	s	namespace:Eigen::internal
 image	3rdparty/eigen3/Eigen/src/LU/FullPivLU.h	/^      image(const MatrixType& originalMatrix) const$/;"	f	class:Eigen::FullPivLU
+imageCb	demo/nodelets/arucoDetectMarker.cpp	/^void ArucoMarkerDetectionNodelet::imageCb(const sensor_msgs::ImageConstPtr& img_msg_,$/;"	f	class:aruco_marker_detection_ws::ArucoMarkerDetectionNodelet
 imagePyramid	include/aruco_marker_detection/markerdetector.h	/^         std::vector<cv::Mat> imagePyramid;$/;"	m	class:aruco::MarkerDetector
 imagePyramid	src/markerdetector.h	/^         std::vector<cv::Mat> imagePyramid;$/;"	m	class:aruco::MarkerDetector
 image_retval	3rdparty/eigen3/Eigen/src/LU/FullPivLU.h	/^struct image_retval<FullPivLU<_MatrixType> >$/;"	s	namespace:Eigen::internal
@@ -11575,6 +11578,7 @@ madd	3rdparty/eigen3/Eigen/src/Core/products/GeneralBlockPanelKernel.h	/^  EIGEN
 madd	3rdparty/eigen3/Eigen/src/Core/products/GeneralBlockPanelKernel.h	/^  EIGEN_STRONG_INLINE void madd(const LhsPacketType& a, const RhsPacketType& b, AccPacketType& c, AccPacketType& tmp) const$/;"	f	class:Eigen::internal::gebp_traits
 madd_impl	3rdparty/eigen3/Eigen/src/Core/products/GeneralBlockPanelKernel.h	/^  EIGEN_STRONG_INLINE void madd_impl(const LhsPacket& a, const RhsPacket& b, AccPacket& c, RhsPacket& tmp, const true_type&) const$/;"	f	class:Eigen::internal::gebp_traits
 madd_impl	3rdparty/eigen3/Eigen/src/Core/products/GeneralBlockPanelKernel.h	/^  EIGEN_STRONG_INLINE void madd_impl(const LhsScalar& a, const RhsScalar& b, ResScalar& c, RhsScalar& \/*tmp*\/, const false_type&) const$/;"	f	class:Eigen::internal::gebp_traits
+main	demo/node/arucoDetectMarkerNode.cpp	/^int main(int argc, char* argv[])$/;"	f
 main	tests/compute_dist_distance.cpp	/^int main(int argc, char** argv)$/;"	f
 main	tests/create_artag_hrm_dict.cpp	/^int main(int argc, char** argv)$/;"	f
 main	tests/create_aruco_dict.cpp	/^int main(int argc, char** argv)$/;"	f
@@ -11884,6 +11888,7 @@ nestedExpression	3rdparty/eigen3/Eigen/src/SparseCore/SparseBlock.h	/^    inline
 nestedExpression	3rdparty/eigen3/Eigen/src/SparseCore/SparseView.h	/^  nestedExpression() const { return m_matrix; }$/;"	f	class:Eigen::SparseView
 nested_eval	3rdparty/eigen3/Eigen/src/Core/ReturnByValue.h	/^struct nested_eval<ReturnByValue<Derived>, n, PlainObject>$/;"	s	namespace:Eigen::internal
 next	3rdparty/eigen3/Eigen/src/SparseCore/AmbiVector.h	/^      StorageIndex next;$/;"	m	struct:Eigen::internal::AmbiVector::ListEl
+nh	demo/nodelets/arucoDetectMarker.cpp	/^  ros::NodeHandle nh;$/;"	m	class:aruco_marker_detection_ws::ArucoMarkerDetectionNodelet	file:
 nnz	3rdparty/eigen3/Eigen/src/SuperLUSupport/SuperLUSupport.h	/^    union {int nnz;int lda;};$/;"	m	union:Eigen::SluMatrix::__anon166::__anon167
 no	3rdparty/eigen3/Eigen/src/Core/util/Meta.h	/^  struct no  {int a[2];};$/;"	s	struct:Eigen::internal::is_convertible_impl
 no	3rdparty/eigen3/Eigen/src/IterativeLinearSolvers/IterativeSolverBase.h	/^  struct no  {int a[2];};$/;"	s	struct:Eigen::internal::is_ref_compatible_impl
@@ -11966,6 +11971,7 @@ nzlumax	3rdparty/eigen3/Eigen/src/SparseLU/SparseLU_Structs.h	/^  Index   nzluma
 nzumax	3rdparty/eigen3/Eigen/src/SparseLU/SparseLU_Structs.h	/^  Index   nzumax; \/\/ Current max size of ucol$/;"	m	struct:Eigen::internal::LU_GlobalLU_t
 offset	3rdparty/eigen3/Eigen/src/Geometry/Hyperplane.h	/^  EIGEN_DEVICE_FUNC inline Scalar& offset() { return m_coeffs(dim()); }$/;"	f	class:Eigen::Hyperplane
 offset	3rdparty/eigen3/Eigen/src/Geometry/Hyperplane.h	/^  EIGEN_DEVICE_FUNC inline const Scalar& offset() const { return m_coeffs.coeff(dim()); }$/;"	f	class:Eigen::Hyperplane
+onInit	demo/nodelets/arucoDetectMarker.cpp	/^void ArucoMarkerDetectionNodelet::onInit()$/;"	f	class:aruco_marker_detection_ws::ArucoMarkerDetectionNodelet
 opencv	tests/sgl.h	/^namespace opencv{$/;"	n	namespace:sgl
 opendir	utils/win_dirent.h	/^opendir($/;"	f
 opendir	utils_calibration/dirreader.h	/^opendir($/;"	f
@@ -15503,6 +15509,8 @@ subTo	3rdparty/eigen3/Eigen/src/SparseCore/SparseProduct.h	/^  static void subTo
 subVector	3rdparty/eigen3/Eigen/src/Core/VectorwiseOp.h	/^    SubVector subVector(Index i)$/;"	f	class:Eigen::VectorwiseOp
 subVectors	3rdparty/eigen3/Eigen/src/Core/VectorwiseOp.h	/^    Index subVectors() const$/;"	f	class:Eigen::VectorwiseOp
 sub_assign_op	3rdparty/eigen3/Eigen/src/Core/functors/AssignmentFunctors.h	/^template<typename DstScalar,typename SrcScalar> struct sub_assign_op {$/;"	s	namespace:Eigen::internal
+sub_img_	demo/nodelets/arucoDetectMarker.cpp	/^  message_filters::Subscriber<sensor_msgs::Image>* sub_img_;$/;"	m	class:aruco_marker_detection_ws::ArucoMarkerDetectionNodelet	file:
+sub_info_	demo/nodelets/arucoDetectMarker.cpp	/^  message_filters::Subscriber<sensor_msgs::CameraInfo>* sub_info_;$/;"	m	class:aruco_marker_detection_ws::ArucoMarkerDetectionNodelet	file:
 subdiagonalEntryIsNeglegible	3rdparty/eigen3/Eigen/src/Eigenvalues/ComplexSchur.h	/^inline bool ComplexSchur<MatrixType>::subdiagonalEntryIsNeglegible(Index i)$/;"	f	class:Eigen::ComplexSchur
 subs	3rdparty/eigen3/Eigen/src/Core/BandMatrix.h	/^    inline Index subs() const { return derived().subs(); }$/;"	f	class:Eigen::internal::BandMatrixBase
 subs	3rdparty/eigen3/Eigen/src/Core/BandMatrix.h	/^    inline Index subs() const { return m_subs.value(); }$/;"	f	class:Eigen::internal::BandMatrix
@@ -15548,6 +15556,8 @@ swap_assign_op	3rdparty/eigen3/Eigen/src/Core/functors/AssignmentFunctors.h	/^te
 symm_pack_lhs	3rdparty/eigen3/Eigen/src/Core/products/SelfadjointMatrixMatrix.h	/^struct symm_pack_lhs$/;"	s	namespace:Eigen::internal
 symm_pack_rhs	3rdparty/eigen3/Eigen/src/Core/products/SelfadjointMatrixMatrix.h	/^struct symm_pack_rhs$/;"	s	namespace:Eigen::internal
 sync	3rdparty/eigen3/Eigen/src/Core/products/Parallelizer.h	/^  Index volatile sync;$/;"	m	struct:Eigen::internal::GemmParallelInfo
+sync	demo/nodelets/arucoDetectMarker.cpp	/^  message_filters::Synchronizer<sync_pol>* sync;$/;"	m	class:aruco_marker_detection_ws::ArucoMarkerDetectionNodelet	file:
+sync_pol	demo/nodelets/arucoDetectMarker.cpp	/^typedef message_filters::sync_policies::ApproximateTime<sensor_msgs::Image,sensor_msgs::CameraInfo> sync_pol;$/;"	t	namespace:aruco_marker_detection_ws	file:
 tail	3rdparty/eigen3/Eigen/src/plugins/BlockMethods.h	/^inline ConstSegmentReturnType tail(Index n) const$/;"	f
 tail	3rdparty/eigen3/Eigen/src/plugins/BlockMethods.h	/^inline SegmentReturnType tail(Index n)$/;"	f
 tail	3rdparty/eigen3/Eigen/src/plugins/BlockMethods.h	/^inline typename ConstFixedSegmentReturnType<N>::Type tail(Index n = N) const$/;"	f

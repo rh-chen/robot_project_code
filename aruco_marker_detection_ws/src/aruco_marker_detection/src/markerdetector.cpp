@@ -440,7 +440,7 @@ vector< MarkerDetector::MarkerCandidate> MarkerDetector::thresholdAndDetectRecta
      cv::Mat simage;
      cv::cvtColor(input,simage,CV_GRAY2BGR);
 #endif
-
+	std::cout << "contours_size:" << contours.size() << std::endl;
     /// for each contour, analyze if it is a paralelepiped likely to be the marker
     for (unsigned int i = 0; i < contours.size(); i++)
     {
@@ -451,8 +451,9 @@ vector< MarkerDetector::MarkerCandidate> MarkerDetector::thresholdAndDetectRecta
         if (thisImageMinSize < int(contours[i].size())  )
         {
             // can approximate to a convex rect?
-            cv::approxPolyDP(contours[i], approxCurve, double(contours[i].size()) * 0.05, true);
-
+            cv::approxPolyDP(contours[i], approxCurve, double(contours[i].size()) * 0.03, true);
+			std::cout << "approxCurve:" << approxCurve.size() << std::endl;
+			std::cout << "isContourConvex:" << cv::isContourConvex(approxCurve) << std::endl;
             if (approxCurve.size() == 4 && cv::isContourConvex(approxCurve))
             {
 #ifdef _aruco_debug_detectrectangles
@@ -488,6 +489,8 @@ vector< MarkerDetector::MarkerCandidate> MarkerDetector::thresholdAndDetectRecta
 #ifdef _aruco_debug_detectrectangles
     cv::imshow("contours",simage);
 #endif
+
+	std::cout << "MarkerCanditatesSize:" << MarkerCanditates.size() << std::endl;
     return MarkerCanditates;
 }
 
