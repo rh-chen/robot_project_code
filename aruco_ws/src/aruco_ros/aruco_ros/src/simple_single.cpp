@@ -48,6 +48,9 @@ or implied, of Rafael Muñoz Salinas.
 
 #include <dynamic_reconfigure/server.h>
 #include <aruco_ros/ArucoThresholdConfig.h>
+#include <aruco_msgs/MarkerArray.h>
+#include <aruco_msgs/Marker.h>
+
 using namespace aruco;
 
 class ArucoSimple
@@ -68,9 +71,14 @@ private:
   ros::Publisher position_pub;
   ros::Publisher marker_pub; //rviz visualization marker
   ros::Publisher pixel_pub;
+
+  ros::Publisher aruco_marker_pub;
+
   std::string marker_frame;
   std::string camera_frame;
   std::string reference_frame;
+
+  aruco_msgs::MarkerArray arucoMarkers;
 
   double marker_size;
   int marker_id;
@@ -111,8 +119,6 @@ public:
     mDetector.getMinMaxSize(mins, maxs);
     ROS_INFO_STREAM("Marker size min: " << mins << "  max: " << maxs);
     ROS_INFO_STREAM("Desired speed: " << mDetector.getDesiredSpeed());
-    
-
 
     image_sub = it.subscribe("/image", 1, &ArucoSimple::image_callback, this);
     cam_info_sub = nh.subscribe("/camera_info", 1, &ArucoSimple::cam_info_callback, this);
@@ -124,6 +130,7 @@ public:
     position_pub = nh.advertise<geometry_msgs::Vector3Stamped>("position", 100);
     marker_pub = nh.advertise<visualization_msgs::Marker>("marker", 10);
     pixel_pub = nh.advertise<geometry_msgs::PointStamped>("pixel", 10);
+	aruco_marker_pub = nh.advertise<aruco_msgs::MarkerArray> ("aruco_marker", 100);
 
     nh.param<double>("marker_size", marker_size, 0.05);
     nh.param<int>("marker_id", marker_id, 300);
@@ -134,6 +141,7 @@ public:
 
     ROS_ASSERT(camera_frame != "" && marker_frame != "");
 
+	 
     if ( reference_frame.empty() )
       reference_frame = camera_frame;
 
@@ -183,23 +191,30 @@ public:
 
   void image_callback(const sensor_msgs::ImageConstPtr& msg)
   {
-    /*if ((image_pub.getNumSubscribers() == 0) &&
+    if ((image_pub.getNumSubscribers() == 0) &&
         (debug_pub.getNumSubscribers() == 0) &&
         (pose_pub.getNumSubscribers() == 0) &&
         (transform_pub.getNumSubscribers() == 0) &&
         (position_pub.getNumSubscribers() == 0) &&
         (marker_pub.getNumSubscribers() == 0) &&
-        (pixel_pub.getNumSubscribers() == 0))
+        (pixel_pub.getNumSubscribers() == 0) && 
+		(aruco_marker_pub.getNumSubscribers() == 0))
     {
       ROS_DEBUG("No subscribers, not looking for aruco markers");
       return;
-    }*/
-
+    }
+	
+	
     static tf::TransformBroadcaster br;
     if(cam_info_received)
     {
       ros::Time curr_stamp(ros::Time::now());
       cv_bridge::CvImagePtr cv_ptr;
+
+	  arucoMarkers.header.frame_id = camera_frame;
+	  arucoMarkers.header.stamp = curr_stamp;
+	  arucoMarkers.markers.clear();
+
       try
       {
         cv_ptr = cv_bridge::toCvCopy(msg, sensor_msgs::image_encodings::RGB8);
@@ -234,6 +249,16 @@ public:
             tf::StampedTransform stampedTransform(transform, curr_stamp,
                                                   reference_frame, marker_frame);
             br.sendTransform(stampedTransform);
+
+			
+			aruco_msgs::Marker aruco_marker;
+			tf::poseTFToMsg(transform, aruco_marker.pose.pose);
+			aruco_marker.header.frame_id = camera_frame;
+			aruco_marker.header.stamp = curr_stamp;
+			aruco_marker.id = marker_id;
+			aruco_marker.confidence = 1.0;
+
+
             geometry_msgs::PoseStamped poseMsg;
             tf::poseTFToMsg(transform, poseMsg.pose);
             poseMsg.header.frame_id = reference_frame;
@@ -273,10 +298,15 @@ public:
             visMarker.lifetime = ros::Duration(3.0);
             marker_pub.publish(visMarker);
 
+			arucoMarkers.markers.push_back(aruco_marker);
           }
           // but drawing all the detected markers
           markers[i].draw(inImage,cv::Scalar(0,0,255),2);
         }
+
+		if(aruco_marker_pub.getNumSubscribers() > 0){
+			aruco_marker_pub.publish(arucoMarkers);
+		}
 
         //draw a 3d cube in each marker if there is 3d info
         if(camParam.isValid() && marker_size!=-1)
