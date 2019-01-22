@@ -250,13 +250,12 @@ public:
                                                   reference_frame, marker_frame);
             br.sendTransform(stampedTransform);
 
-			
-			aruco_msgs::Marker aruco_marker;
-			tf::poseTFToMsg(transform, aruco_marker.pose.pose);
-			aruco_marker.header.frame_id = camera_frame;
-			aruco_marker.header.stamp = curr_stamp;
-			aruco_marker.id = marker_id;
-			aruco_marker.confidence = 1.0;
+            aruco_msgs::Marker aruco_marker;
+            tf::poseTFToMsg(transform, aruco_marker.pose.pose);
+            aruco_marker.header.frame_id = camera_frame;
+            aruco_marker.header.stamp = curr_stamp;
+            aruco_marker.id = marker_id;
+            aruco_marker.confidence = 1.0;
 
 
             geometry_msgs::PoseStamped poseMsg;
