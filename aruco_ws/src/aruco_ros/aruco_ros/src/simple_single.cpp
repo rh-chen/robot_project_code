@@ -75,6 +75,7 @@ private:
   ros::Publisher aruco_marker_pub;
 
   std::string marker_frame;
+  std::string marker_frame_forward;
   std::string camera_frame;
   std::string reference_frame;
 
@@ -137,6 +138,7 @@ public:
     nh.param<std::string>("reference_frame", reference_frame, "");
     nh.param<std::string>("camera_frame", camera_frame, "");
     nh.param<std::string>("marker_frame", marker_frame, "");
+    nh.param<std::string>("marker_frame_forward", marker_frame_forward, "");
     nh.param<bool>("image_is_rectified", useRectifiedImages, true);
 
     ROS_ASSERT(camera_frame != "" && marker_frame != "");
@@ -249,6 +251,12 @@ public:
             tf::StampedTransform stampedTransform(transform, curr_stamp,
                                                   reference_frame, marker_frame);
             br.sendTransform(stampedTransform);
+
+            tf::Vector3 origin_forward(0,0,1.0);
+            tf::Transform t_forward(tf::Quaternion::getIdentity (), origin_forward);
+            tf::StampedTransform stampedTransformForward(t_forward, curr_stamp, marker_frame, marker_frame_forward);
+
+            br.sendTransform(stampedTransformForward);
 
             aruco_msgs::Marker aruco_marker;
             tf::poseTFToMsg(transform, aruco_marker.pose.pose);
