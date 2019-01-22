@@ -198,22 +198,22 @@ public:
         (position_pub.getNumSubscribers() == 0) &&
         (marker_pub.getNumSubscribers() == 0) &&
         (pixel_pub.getNumSubscribers() == 0) && 
-		(aruco_marker_pub.getNumSubscribers() == 0))
+        (aruco_marker_pub.getNumSubscribers() == 0))
     {
       ROS_DEBUG("No subscribers, not looking for aruco markers");
       return;
     }
-	
-	
+
+
     static tf::TransformBroadcaster br;
     if(cam_info_received)
     {
       ros::Time curr_stamp(ros::Time::now());
       cv_bridge::CvImagePtr cv_ptr;
 
-	  arucoMarkers.header.frame_id = camera_frame;
-	  arucoMarkers.header.stamp = curr_stamp;
-	  arucoMarkers.markers.clear();
+      arucoMarkers.header.frame_id = camera_frame;
+      arucoMarkers.header.stamp = curr_stamp;
+      arucoMarkers.markers.clear();
 
       try
       {
@@ -297,15 +297,15 @@ public:
             visMarker.lifetime = ros::Duration(3.0);
             marker_pub.publish(visMarker);
 
-			arucoMarkers.markers.push_back(aruco_marker);
+            arucoMarkers.markers.push_back(aruco_marker);
           }
           // but drawing all the detected markers
           markers[i].draw(inImage,cv::Scalar(0,0,255),2);
         }
 
-		if(aruco_marker_pub.getNumSubscribers() > 0){
-			aruco_marker_pub.publish(arucoMarkers);
-		}
+        if(aruco_marker_pub.getNumSubscribers() > 0){
+            aruco_marker_pub.publish(arucoMarkers);
+        }
 
         //draw a 3d cube in each marker if there is 3d info
         if(camParam.isValid() && marker_size!=-1)
