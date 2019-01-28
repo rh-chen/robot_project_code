@@ -1,0 +1,12 @@
+<launch>
+<!--
+<node name="baselink_to_cameralink" pkg="tf" type="static_transform_publisher" args="0.142 0 0.431 0 0 0 base_link aruco_camera_link 50">
+</node>
+-->
+<!--
+<node name="cameralink_to_lcameralink" pkg="tf" type="static_transform_publisher" args="0 0.06 0 -1.5707963 0 -1.5707963 aruco_camera_link aruco_left_camera_link 50">
+</node>
+-->
+	<node name="calculate_global_marker_node" pkg="calculate_global_marker" type="calculate_global_marker_node" respawn="false" output="screen">
+	</node>
+</launch>

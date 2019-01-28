@@ -1,0 +1,17 @@
+#yes or no to calculate the marker global pose,true/false
+bool start
+
+#marker global pose according to map
+geometry_msgs/PoseStamped marker_pose
+---
+#0:calculate success
+#1:calculate fail
+int8 status
+
+#0:"success"
+#1:"fail"
+std_msgs/String text
+
+#pre_goal used test
+geometry_msgs/PoseStamped robot_pose
+
