@@ -1,0 +1,6 @@
+<launch>
+    <arg name="resave_marker_pose_path"       default="/home/wzm/tmp/marker_pose_param.txt"/>
+	<node name="resave_marker_pose_node" pkg="resave_marker_pose" type="resave_marker_pose_node" respawn="false" output="screen">
+        <param name="resave_marker_pose_path"       value="$(arg resave_marker_pose_path)" />
+	</node>
+</launch>
