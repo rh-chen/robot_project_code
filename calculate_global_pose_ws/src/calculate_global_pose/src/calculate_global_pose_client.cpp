@@ -78,7 +78,7 @@ int main(int argc, char** argv)
 	ros::NodeHandle n;
 	ros::Publisher pre_marker_pub = n.advertise<visualization_msgs::Marker>("/cgp/marker_pose", 30);
 	ros::Publisher marker_pub = n.advertise<visualization_msgs::Marker>("/cgp/robot_pose", 30);
-	ros::ServiceClient cgp_client = n.serviceClient<calculate_global_marker::GetMarkerGlobalPose>("/calculate_robot_global_pose");
+	ros::ServiceClient cgp_client = n.serviceClient<calculate_global_pose::GetRobotGlobalPose>("/calculate_robot_global_pose");
 
 	ros::Rate loop_rate(20);
 //while(ros::ok())
@@ -140,7 +140,7 @@ int main(int argc, char** argv)
 											scale,
 											color,
 											0,
-											cgp_srv.response.goal.header.frame_id);
+											cgp_srv.response.robot_pose.header.frame_id);
 
 
 		geometry_msgs::Pose  pre_pose;
@@ -159,7 +159,7 @@ int main(int argc, char** argv)
 											scale,
 											color,
 											0,
-											cgp_srv.response.goal.header.frame_id);
+											cgp_srv.request.marker_pose.header.frame_id);
 		//ros::Rate loop_rate(20);
 		while(ros::ok()){
 			marker_pub.publish(markerSphere);
