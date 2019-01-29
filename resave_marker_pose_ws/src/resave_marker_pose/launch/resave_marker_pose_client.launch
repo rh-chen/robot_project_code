@@ -1,8 +1,4 @@
 <launch>
-	<node name="calculate_global_marker_client" pkg="calculate_global_marker" type="calculate_global_marker_client" respawn="false" output="screen">
+	<node name="resave_marker_pose_client" pkg="resave_marker_pose" type="resave_marker_pose_client" respawn="false" output="screen">
 	</node>
-<!--
-	<node pkg="rviz" type="rviz" name="rviz" args="-d $(find calcalate_global_marker)/rviz/axis.rviz">
-	</node>
-	-->
 </launch>
