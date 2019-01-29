@@ -1,0 +1,4 @@
+<launch>
+	<node name="calculate_global_pose_client" pkg="calculate_global_pose" type="calculate_global_pose_client" respawn="false" output="screen">
+	</node>
+</launch>

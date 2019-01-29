@@ -25,8 +25,6 @@
 #include <iostream>
 #include <algorithm> 
 
-#include <ar_track_alvar_msgs/AlvarMarker.h>
-#include <ar_track_alvar_msgs/AlvarMarkers.h>
 #include <visualization_msgs/Marker.h>
 #include <visualization_msgs/MarkerArray.h>
 #include <calculate_global_pose/GetRobotGlobalPose.h>
@@ -76,8 +74,8 @@ int main(int argc, char** argv)
 {
     ros::init(argc, argv, "calculate_global_pose_client");
 	ros::NodeHandle n;
-	ros::Publisher pre_marker_pub = n.advertise<visualization_msgs::Marker>("/cgp/marker_pose", 30);
-	ros::Publisher marker_pub = n.advertise<visualization_msgs::Marker>("/cgp/robot_pose", 30);
+	ros::Publisher pre_pub_ = n.advertise<visualization_msgs::Marker>("/cgp/marker_pose", 30);
+	ros::Publisher pub_ = n.advertise<visualization_msgs::Marker>("/cgp/robot_pose", 30);
 	ros::ServiceClient cgp_client = n.serviceClient<calculate_global_pose::GetRobotGlobalPose>("/calculate_robot_global_pose");
 
 	ros::Rate loop_rate(20);
@@ -162,8 +160,8 @@ int main(int argc, char** argv)
 											cgp_srv.request.marker_pose.header.frame_id);
 		//ros::Rate loop_rate(20);
 		while(ros::ok()){
-			marker_pub.publish(markerSphere);
-			pre_marker_pub.publish(preMarkerSphere);
+			pub_.publish(markerSphere);
+			pre_pub_.publish(preMarkerSphere);
 			ros::spinOnce();
 			loop_rate.sleep();
 		}

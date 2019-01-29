@@ -681,6 +681,7 @@ int main(int argc, char** argv)
 	tf_broadcaster = new tf::TransformBroadcaster();
 
 	ros::ServiceServer cgp_srv = private_nh.advertiseService("/calculate_robot_global_pose",&Calculate_Global_Pose::Loop,&cgp);
+    ROS_INFO("server /calculate_robot_global_pose active...");
 	ros::spin();
   	return 0;
 }
