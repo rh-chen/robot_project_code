@@ -84,7 +84,6 @@ int main(int argc, char** argv)
 	calculate_global_pose::GetRobotGlobalPose cgp_srv;
 
 	cgp_srv.request.start = true;
-    cgp_srv.request.marker_pose = geometry_msgs::PoseStamped();
 	ros::Duration(0.5).sleep();	
 
 	bool res_cgp_srv = cgp_client.call(cgp_srv);
@@ -140,28 +139,9 @@ int main(int argc, char** argv)
 											0,
 											cgp_srv.response.robot_pose.header.frame_id);
 
-
-		geometry_msgs::Pose  pre_pose;
-		pre_pose.position.x = cgp_srv.request.marker_pose.pose.position.x;
-		pre_pose.position.y = cgp_srv.request.marker_pose.pose.position.y;
-		pre_pose.position.z = cgp_srv.request.marker_pose.pose.position.z;
-		ROS_INFO_STREAM("pre_pose.position.x:" << pre_pose.position.x);
-		ROS_INFO_STREAM("pre_pose.position.y:" << pre_pose.position.y);
-		ROS_INFO_STREAM("pre_pose.position.z:" << pre_pose.position.z);
-		pre_pose.orientation.w = 1.0;
-
-
-		visualization_msgs::Marker preMarkerSphere = createMarker("markerSphere",
-											visualization_msgs::Marker::SPHERE,
-											pre_pose,
-											scale,
-											color,
-											0,
-											cgp_srv.request.marker_pose.header.frame_id);
 		//ros::Rate loop_rate(20);
 		while(ros::ok()){
 			pub_.publish(markerSphere);
-			pre_pub_.publish(preMarkerSphere);
 			ros::spinOnce();
 			loop_rate.sleep();
 		}

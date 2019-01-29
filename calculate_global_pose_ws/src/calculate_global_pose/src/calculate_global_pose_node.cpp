@@ -24,6 +24,7 @@
 
 #include <string>
 #include <iostream>
+#include <fstream>
 #include <algorithm> 
 #include <cmath>
 
@@ -157,13 +158,14 @@ class Calculate_Global_Pose{
     double marker_pose_q_y;
     double marker_pose_q_z;
     double marker_pose_q_w;
-
+    
+    std::string to_read_path;
 	//std::vector<marker_pose> temp_marker_pose;
 	std::vector<marker_pose> pre_temp_marker_pose;
     boost::mutex mtx;
 	bool start_move;
 
-	Calculate_Global_Pose(ros::NodeHandle n):nh(n)
+	Calculate_Global_Pose(std::string& to_read_path_,ros::NodeHandle n):to_read_path(to_read_path_),nh(n)
 	{
 		markerVisible = false;
 		start_move = false;
@@ -623,14 +625,46 @@ class Calculate_Global_Pose{
 			tf_listener = new tf::TransformListener(private_nh);
 			tf_broadcaster = new tf::TransformBroadcaster();
 			*/
-		    	
-            marker_pose_x = req.marker_pose.pose.position.x;
-            marker_pose_y = req.marker_pose.pose.position.y;
-            marker_pose_z = req.marker_pose.pose.position.z;
-            marker_pose_q_x = req.marker_pose.pose.orientation.x;
-            marker_pose_q_y = req.marker_pose.pose.orientation.y;
-            marker_pose_q_z = req.marker_pose.pose.orientation.z;
-            marker_pose_q_w = req.marker_pose.pose.orientation.w;
+            std::ifstream infile(to_read_path,ios::in);
+            std::vector<std::vector<double> > pose_vec;
+            if(infile.is_open()){
+                std::string lenStr;
+                while(getline(infile,lenStr)){
+                    int found = 0;
+                    int pos = 0;
+                    std::vector<double> temp_vec;
+                    for(unsigned int i = 0;;i++){
+                        found = lenStr.find(",",pos);
+                        if(found == std::string::npos){
+                            std::string tempData = lenStr.substr(pos,lenStr.size()-pos);
+                            temp_vec.push_back(atof(tempData.c_str()));
+                            break;
+                        }
+                        std::string tempData = lenStr.substr(pos,found-pos);
+                        temp_vec.push_back(atof(tempData.c_str()));
+                        pos = found +1;
+                    }
+                    pose_vec.push_back(temp_vec);
+                }
+                
+                ROS_INFO_STREAM("position_x:" << pose_vec[0][0]);
+                ROS_INFO_STREAM("position_y:" << pose_vec[0][1]);
+                ROS_INFO_STREAM("position_z:" << pose_vec[0][2]);
+                ROS_INFO_STREAM("orientation_x:" << pose_vec[0][3]);
+                ROS_INFO_STREAM("orientation_y:" << pose_vec[0][4]);
+                ROS_INFO_STREAM("orientation_z:" << pose_vec[0][5]);
+                ROS_INFO_STREAM("orientation_w:" << pose_vec[0][6]);
+            }
+            else
+                ROS_INFO("Open pose_list file fail...");
+
+            marker_pose_x = pose_vec[0][0];
+            marker_pose_y = pose_vec[0][1];
+            marker_pose_z = pose_vec[0][2];
+            marker_pose_q_x = pose_vec[0][3];
+            marker_pose_q_y = pose_vec[0][4];
+            marker_pose_q_z = pose_vec[0][5];
+            marker_pose_q_w = pose_vec[0][6];
 
 
 			start_move = req.start;
@@ -676,7 +710,12 @@ int main(int argc, char** argv)
 {
     ros::init(argc, argv, "calculate_robot_global_pose_node");
 	ros::NodeHandle private_nh("~");
-	Calculate_Global_Pose cgp(private_nh);
+
+    std::string read_marker_pose_path;
+    private_nh.param<std::string>("read_marker_pose_path",read_marker_pose_path, "");
+    ROS_INFO_STREAM("read_marker_pose_path:" << read_marker_pose_path);
+
+	Calculate_Global_Pose cgp(read_marker_pose_path,private_nh);
 	tf_listener = new tf::TransformListener(private_nh);
 	tf_broadcaster = new tf::TransformBroadcaster();
 

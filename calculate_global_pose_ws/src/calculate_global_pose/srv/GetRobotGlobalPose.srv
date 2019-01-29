@@ -1,8 +1,5 @@
 #yes or no to calculate the marker global pose,true/false
 bool start
-
-#marker global pose according to map
-geometry_msgs/PoseStamped marker_pose
 ---
 #0:calculate success
 #1:calculate fail

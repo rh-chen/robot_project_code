@@ -1,4 +1,6 @@
 <launch>
+    <arg name="read_marker_pose_path"       default="/home/wzm/tmp/marker_pose_param.txt"/>
 	<node name="calculate_global_pose_node" pkg="calculate_global_pose" type="calculate_global_pose_node" respawn="false" output="screen">
+        <param name="read_marker_pose_path"       value="$(arg read_marker_pose_path)" />
 	</node>
 </launch>
