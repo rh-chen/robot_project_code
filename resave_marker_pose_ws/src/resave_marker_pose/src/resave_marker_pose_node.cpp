@@ -576,8 +576,7 @@ class Resave_Marker_Pose{
 				pre_goal.pose.orientation.w = pre_p.getRotation().getW();
                
 
-                ofstream outfile;
-                outfile.open(to_save_path,ios::app);
+                ofstream outfile(to_save_path);
 
                 if(!outfile.is_open())
                     ROS_ERROR("Open marker_pose_param.txt failure...");
@@ -671,6 +670,7 @@ int main(int argc, char** argv)
 	tf_broadcaster = new tf::TransformBroadcaster();
 
 	ros::ServiceServer cgp_srv = private_nh.advertiseService("/resave_marker_pose",&Resave_Marker_Pose::Loop,&obj);
+    ROS_INFO("server /resave_marker_pose active...");
 	ros::spin();
   	return 0;
 }

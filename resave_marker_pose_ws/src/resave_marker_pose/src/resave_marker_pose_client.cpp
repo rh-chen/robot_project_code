@@ -117,13 +117,13 @@ int main(int argc, char** argv)
 											0,
 											rmp_srv.response.marker_pose.header.frame_id);
 		//ros::Rate loop_rate(20);
-		while(ros::ok()){
+		/*while(ros::ok()){
 			marker_pub.publish(markerSphere);
 			ros::spinOnce();
 			loop_rate.sleep();
-		}
+		}*/
 
-		
+		ROS_INFO_STREAM("Call resave_marker_pose success...");
 	}
 	else{
 		ROS_INFO_STREAM("Call resave_marker_pose fail...");
