@@ -637,7 +637,7 @@ class Calculate_Global_Pose{
                         found = lenStr.find(",",pos);
                         if(found == std::string::npos){
                             std::string tempData = lenStr.substr(pos,lenStr.size()-pos);
-                            temp_vec.push_back(atof(tempData.c_str()));
+                            temp_vec.push_back(std::atof(tempData.c_str()));
                             break;
                         }
                         std::string tempData = lenStr.substr(pos,found-pos);
@@ -656,7 +656,7 @@ class Calculate_Global_Pose{
                 ROS_INFO_STREAM("orientation_w:" << pose_vec[0][6]);
             }
             else
-                ROS_INFO("Open pose_list file fail...");
+                ROS_INFO("Open to_read_path file fail...");
 
             marker_pose_x = pose_vec[0][0];
             marker_pose_y = pose_vec[0][1];
