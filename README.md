@@ -2,3 +2,4 @@
 ## coverage path planning
 ## wall follow
 ## aruco_ros
+## rectilinear_polygon
