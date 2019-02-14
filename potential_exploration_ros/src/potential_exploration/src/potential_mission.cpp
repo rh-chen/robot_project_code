@@ -98,6 +98,7 @@ class MissionHandle{
 
         bool needs_new_frontier;
         bool fresh_frontiers;
+        bool next_frontier_random;
 
         geometry_msgs::Pose2D current_wp;
         double robot_x,robot_y,robot_theta;

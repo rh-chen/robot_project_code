@@ -68,6 +68,7 @@
   <build_export_depend>tf</build_export_depend>
   <exec_depend>geometry_msgs</exec_depend>
   <exec_depend>nav_core</exec_depend>
+  <exec_depend>message_runtime</exec_depend>
   <exec_depend>nav_msgs</exec_depend>
   <exec_depend>nodelet</exec_depend>
   <exec_depend>pluginlib</exec_depend>

@@ -41,9 +41,7 @@ using namespace std;
 
 typedef struct Pixel{
     int x, y;
-    Pixel(int x_in, int y_in){
-			x = x_in; y = y_in; 
-    }
+    Pixel(int x_in, int y_in){x = x_in; y = y_in;}
 }strPixel;
 
 class potential_map{
@@ -113,16 +111,13 @@ potential_map::potential_map()
 
     last_potential_map = nav_msgs::OccupancyGrid();
 
-    robot_pos_sub = node_handle.subscribe("/odom", 10, &potential_map::odometryCallback, this);
-
-    projected_map_sub = node_handle.subscribe("/map", 1, &potential_map::projectedMapCallback, this);
+    robot_pos_sub = node_handle.subscribe("/odom", 1000, &potential_map::odometryCallback, this);
+    projected_map_sub = node_handle.subscribe("/map", 1000, &potential_map::projectedMapCallback, this);
 
     potential_map_pub = node_handle.advertise<nav_msgs::OccupancyGrid>("/potential_map", 1);
-
-    planning_srv = node_handle.advertiseService("/sweeper/PotentialPlanner", &potential_map::planPathTo, this);
+    online_traj_pub = node_handle.advertise<visualization_msgs::Marker> ("/sweeper/solution_path", 1, true);
     
-    online_traj_pub = node_handle.advertise<visualization_msgs::Marker> ("/sweeper/solution_path", 3, true);
-
+    planning_srv = node_handle.advertiseService("/sweeper/PotentialPlanner", &potential_map::planPathTo, this);
     collision_srv = node_handle.advertiseService("/sweeper/CollisionChecker", &potential_map::checkIfCollisionFree, this);
 
     //potential_frontier_srv = node_handle.advertiseService("/sweeper/potential_frontier",&potential_map::GetNextFrontier,this);
