@@ -1,0 +1,18 @@
+#yes or no to calculate the marker global pose,true/false
+bool start
+---
+#0:calculate success
+#1:calculate fail
+int8 status
+
+#0:"success"
+#1:"fail"
+std_msgs/String text
+
+#0:goal is the calculated pose
+#1:goal is inited NULL
+geometry_msgs/PoseStamped goal
+
+#pre_goal used test
+geometry_msgs/PoseStamped pre_goal
+
