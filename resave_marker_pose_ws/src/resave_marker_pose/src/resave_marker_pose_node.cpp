@@ -635,14 +635,26 @@ class Resave_Marker_Pose{
 				}
 				if(markerVisible){
 					if(enoughMarker){
-						res.status = 0;
-						res.text.data = "success"; 
-                        res.marker_pose = pre_goal;
+                        if(std::isnan(pre_goal.pose.position.x) \
+                           || std::isnan(pre_goal.pose.position.y) \
+                           || std::isnan(pre_goal.pose.position.z)){
+                            res.status = 1;
+					        res.text.data = "fail";
+					        res.marker_pose = geometry_msgs::PoseStamped();
 
-						markerVisible = false;
-						start_move = false;
-						enoughMarker = false;
-						return true;
+                            return false;
+                        }
+                        else{
+						    res.status = 0;
+						    res.text.data = "success"; 
+						    res.marker_pose = pre_goal;
+
+						    markerVisible = false;
+						    start_move = false;
+						    enoughMarker = false;
+
+						    return true;
+                       }
 					}
 					else
 					    ROS_INFO_STREAM("Storing Marker Pose...");

@@ -19,6 +19,7 @@ find_package(catkin REQUIRED COMPONENTS
   std_srvs
   tf
   aruco_msgs
+  message_runtime
 )
 
 ## System dependencies are found with CMake's conventions
