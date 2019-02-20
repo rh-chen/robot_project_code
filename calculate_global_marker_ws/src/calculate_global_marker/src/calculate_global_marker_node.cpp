@@ -622,6 +622,9 @@ class calculate_global_pose{
 					res.text.data = "fail";
 					res.goal = geometry_msgs::PoseStamped();
 					res.pre_goal = geometry_msgs::PoseStamped();
+                    markerVisible = false;
+				    start_move = false;
+				    enoughMarker = false;
 
 					return false;
 				}
@@ -632,6 +635,9 @@ class calculate_global_pose{
 					        res.text.data = "fail";
 					        res.goal = geometry_msgs::PoseStamped();
 					        res.pre_goal = geometry_msgs::PoseStamped();
+                            markerVisible = false;
+						    start_move = false;
+						    enoughMarker = false;
 
                             return false;
                         }

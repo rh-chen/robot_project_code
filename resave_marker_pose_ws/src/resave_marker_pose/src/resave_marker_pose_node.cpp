@@ -424,7 +424,7 @@ class Resave_Marker_Pose{
 				//std::vector<marker_pose> sel_marker_pose;
 				//bool sel_res = selectMarkerPose(temp_marker_pose,sel_marker_pose,0.05,3,0.1,1);
 				std::vector<marker_pose> sel_pre_marker_pose;
-				bool sel_pre_res = selectMarkerPose(pre_temp_marker_pose,sel_pre_marker_pose,0.05,3,0.1,1);
+				bool sel_pre_res = selectMarkerPose(pre_temp_marker_pose,sel_pre_marker_pose,0.08,3,0.15,1);
 				//ROS_INFO_STREAM("sel_res:" << sel_res);	
 				ROS_INFO_STREAM("sel_pre_res:" << sel_pre_res);
 	
@@ -630,6 +630,9 @@ class Resave_Marker_Pose{
 					res.status = 1;
 					res.text.data = "fail";
 					res.marker_pose = geometry_msgs::PoseStamped();
+                    markerVisible = false;
+				    start_move = false;
+				    enoughMarker = false;
 
 					return false;
 				}
@@ -641,6 +644,9 @@ class Resave_Marker_Pose{
                             res.status = 1;
 					        res.text.data = "fail";
 					        res.marker_pose = geometry_msgs::PoseStamped();
+                            markerVisible = false;
+						    start_move = false;
+						    enoughMarker = false;
 
                             return false;
                         }
