@@ -558,7 +558,7 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
 		return false;
 	}*/
 
-	if(req.external_contour_threshold <= 0){
+	if(req.internal_contour_threshold <= 0){
 		ROS_ERROR_STREAM("external contour threshold cannot be <=0");
 	}
 	
@@ -806,7 +806,7 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
 	//find subcontour
 	for(int i = 0;i < contours.size();i++){
 		if(hierarchy[i][3] == external_contour_id){
-			if(contours[i].size() > req.external_contour_threshold){
+			if(contours[i].size() > req.internal_contour_threshold){
 				valid_internal_contours.push_back(contours[i]);
 				valid_contours.push_back(contours[i]);
 				ROS_INFO("valid_internal_contour_size:%d",contours[i].size());

@@ -1,6 +1,6 @@
 int32 occupancy_threshold
 
-int32 external_contour_threshold
+int32 internal_contour_threshold
 
 int8 number_of_layers
 
