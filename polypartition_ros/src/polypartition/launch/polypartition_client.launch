@@ -1,0 +1,12 @@
+<launch>
+	<arg name="map_file" default="$(find polypartition)/maps/a.yaml"/>
+
+    <node name="map_server_for_test" pkg="map_server" type="map_server" args="$(arg map_file)">
+    </node>
+
+    <node name="polypartition_client_node" pkg="polypartition" type="polypartition_client_node" output="screen">
+    </node>
+
+	<node pkg="rviz" type="rviz" name="rviz" args="-d $(find polypartition)/rviz/view.rviz" />
+
+</launch>

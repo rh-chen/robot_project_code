@@ -1,0 +1,4 @@
+<launch>
+    <node name="polypartition_server_node" pkg="polypartition" type="polypartition_server_node" output="screen">
+    </node>
+</launch>
