@@ -245,7 +245,7 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
 	cv::threshold(map,bin,req.occupancy_threshold,255,cv::THRESH_BINARY_INV);
 	
 #if 1
-	double delta_point = 8;
+	double delta_point = 6;
 	cv::Mat element_erode = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(3, 3));
 	cv::Mat element_dilate = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(3, 3));
 	cv::Mat bin_out_erode;
@@ -390,8 +390,8 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
 		std_msgs::Float64 footprintLength, footprintWidth, horizontalOverwrap, verticalOverwrap;
 		footprintLength.data = 0.3;
 		footprintWidth.data = 0.3;
-		horizontalOverwrap.data = 0.1;
-		verticalOverwrap.data = 0.1;
+		horizontalOverwrap.data = 0.05;
+		verticalOverwrap.data = 0.05;
 
 		for(int i = 0;i < current_layer_[0].size();i++)
 		{
@@ -425,7 +425,10 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
 			res.polygon.push_back(polygon_divide);
 			double polygon_area = polygonArea(polygon_bcd,polygon_bcd.size());
 			ROS_INFO("polygon_area:%f",polygon_area);
-			
+		    
+            if(fabs(polygon_area) < 0.2)
+                continue;
+
 			bool isOptimal = computeConvexCoverage(polygon_bcd, footprintWidth.data, horizontalOverwrap.data, candidatePath);
 			
 			ROS_INFO("isOptimal:%d",isOptimal);

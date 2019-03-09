@@ -12,7 +12,7 @@ Cpp	include/ram_path_planning/donghong_ding_imp.hpp	/^namespace Cpp$/;"	n
 Cpp	include/ram_path_planning/shemaphore.hpp	/^namespace Cpp$/;"	n
 Cpp	src/Cpp.cpp	/^namespace Cpp{$/;"	n	file:
 Cpp	src/Cpp_Convex.cpp	/^namespace Cpp{$/;"	n	file:
-DEFECT_LIMIT	src/Cpp.cpp	18;"	d	file:
+DEFECT_LIMIT	src/Cpp.cpp	20;"	d	file:
 DEFECT_LIMIT	src/Cpp_Convex.cpp	18;"	d	file:
 Direction	include/ram_path_planning/cpp_uav.hpp	/^struct Direction$/;"	s
 DonghongDing	include/ram_path_planning/donghong_ding.hpp	/^  class DonghongDing:public DonghongDingBase$/;"	c	namespace:Cpp
@@ -143,7 +143,7 @@ hasIntersection	include/ram_path_planning/cgutil.hpp	/^bool hasIntersection(cons
 histogram_bins_	include/ram_path_planning/histogram.h	/^	size_t histogram_bins_;		\/\/ number of histogram bins$/;"	m	class:Histogram
 identifyLeftChain	include/ram_path_planning/donghong_ding_imp.hpp	/^  void DonghongDing::identifyLeftChain(const Polygon poly_data,$/;"	f	class:Cpp::DonghongDing
 identifyOptimalAlternative	include/ram_path_planning/cpp_uav.hpp	/^PointVector identifyOptimalAlternative(const PointVector& polygon, const PointVector& path,$/;"	f
-identifyOptimalSweepDir	include/ram_path_planning/cpp_uav.hpp	/^Direction identifyOptimalSweepDir(const PointVector& polygon)$/;"	f
+identifyOptimalSweepDir	include/ram_path_planning/cpp_uav.hpp	/^Direction identifyOptimalSweepDir(const PointVector& polygon,PointVector& polygon_convex_hull)$/;"	f
 identifyRelationships	include/ram_path_planning/donghong_ding_base_imp.hpp	/^  void DonghongDingBase::identifyRelationships(const Polygon poly_data,$/;"	f	class:Cpp::DonghongDingBase
 identifyZigzagDirection	include/ram_path_planning/donghong_ding_imp.hpp	/^  double DonghongDing::identifyZigzagDirection(const Polygon poly_data,$/;"	f	class:Cpp::DonghongDing
 image_char	include/ram_path_planning/lsd.h	/^} *image_char;$/;"	t	typeref:struct:image_char_s
@@ -210,6 +210,7 @@ opposedVertex	include/ram_path_planning/cpp_uav.hpp	/^  geometry_msgs::Point opp
 organizePolygonContoursInLayer	include/ram_path_planning/donghong_ding_base_imp.hpp	/^  bool DonghongDingBase::organizePolygonContoursInLayer(const Polygon poly_data,$/;"	f	class:Cpp::DonghongDingBase
 p	src/lsd.cpp	/^    double p;            \/* probability of a point with angle within 'prec' *\/$/;"	m	struct:rect	file:
 point	src/lsd.cpp	/^struct point$/;"	s	file:
+polygonArea	src/Cpp.cpp	/^double polygonArea(PointVector& pv_,int n){$/;"	f	namespace:Cpp
 polygon_division_tolerance_	include/ram_path_planning/donghong_ding.hpp	/^    double polygon_division_tolerance_; \/\/ In radians$/;"	m	class:Cpp::DonghongDing
 prec	src/lsd.cpp	/^    double prec;         \/* tolerance angle *\/$/;"	m	struct:rect	file:
 range_inverse_	include/ram_path_planning/histogram.h	/^	T range_inverse_;	\/\/ = 1.0\/(upper_bound_-lower_bound_)$/;"	m	class:Histogram
