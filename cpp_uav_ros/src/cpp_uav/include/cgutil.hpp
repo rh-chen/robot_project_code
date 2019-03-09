@@ -472,9 +472,16 @@ std::vector<PointVector> decomposePolygon(const PointVector& polygon)
   // but apptox_convex_partition_2 generates more polygons
   //CGAL::optimal_convex_partition_2(cgalPolygon.vertices_begin(), cgalPolygon.vertices_end(),
   //                                 std::back_inserter(partialCGALPolygons), partitionTraits);
-	CGAL::approx_convex_partition_2(cgalPolygon.vertices_begin(), cgalPolygon.vertices_end(),
+	CGAL::optimal_convex_partition_2(cgalPolygon.vertices_begin(), cgalPolygon.vertices_end(),
                                    std::back_inserter(partialCGALPolygons), partitionTraits);
+    
+    assert(CGAL::partition_is_valid_2(cgalPolygon.vertices_begin(),
+                                      cgalPolygon.vertices_end(),
+                                      partialCGALPolygons.begin(),
+                                      partialCGALPolygons.end(),
+                                      validity_traits));
 
+   std::cout << "partialCGALPolygons_size:" << partialCGALPolygons.size() << std::endl;
   // generate std::vector<PointVector> from polygon of CGAL
   for (const auto& partialCGALPolygon : partialCGALPolygons)
   {

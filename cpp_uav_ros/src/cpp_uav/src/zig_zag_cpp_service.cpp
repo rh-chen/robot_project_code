@@ -225,6 +225,156 @@ std::vector<geometry_msgs::Polygon> generatePolygonVector(const std::vector<Poin
   return subPolygonsRet;
 }
 
+#if 1
+cv::Point2i getTopLeftPoint(cv::Mat& image) {
+  int nRows = image.rows;
+  int nCols = image.cols;
+
+  if (image.isContinuous()) {
+    nCols *= nRows;
+    nRows = 1;
+  }
+
+  unsigned char* p;
+
+  for (int i = 0; i < nRows; ++i) {
+    p = image.ptr(i);
+    for (int j = 0; j < nCols; ++j) {
+      if (p[j] == 255) {
+        if (image.isContinuous()) {
+          nCols = image.cols;
+          cv::Point2i P(j % nCols, j / nCols);
+          return P;
+        } else {
+          cv::Point2i P(j, i);
+          return P;
+        }
+      }
+    }
+  }
+
+  cv::Point2i P(-1, -1);
+  return P;
+}
+
+cv::Point2i getStartPoint(cv::Mat& img, cv::Point2i p, int gsize) {
+  int qx, qy;
+  qx = (ceil(float(p.x) / gsize) - 1) * gsize;
+  qy = (ceil(float(p.y) / gsize) - 1) * gsize;
+  cv::Point2i q(qx, qy);
+  return q;
+}
+
+bool objectInUGB(cv::Mat& img, cv::Point2i q, int ugb, int gsize) {
+  cv::Point2i pt;
+  switch (ugb) {
+    case 1:
+      pt.x = q.x;
+      pt.y = q.y - gsize;
+      break;
+    case 2:
+      pt.x = q.x - gsize;
+      pt.y = q.y - gsize;
+      break;
+    case 3:
+      pt.x = q.x - gsize;
+      pt.y = q.y;
+      break;
+    case 4:
+      pt.x = q.x;
+      pt.y = q.y;
+      break;
+    default:
+      break;
+  }
+
+  if (pt.x < 0 || pt.y < 0 || pt.x >= img.cols || pt.y >= img.rows) {
+    return false;
+  }
+
+  unsigned char* p;
+  for (int i = pt.y; i <= pt.y + gsize; i++) {
+    p = img.ptr(i);
+    for (int j = pt.x; j <= pt.x + gsize; ++j) {
+      if (p[j] == 255) {
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
+int getPointType(cv::Mat& img, cv::Point2i q, int gsize) {
+  int m = 0, r = 0, t = 10;
+  for (int k = 1; k < 5; k++) {
+    if (objectInUGB(img, q, k, gsize)) {
+      m++;
+      r += k;
+    }
+  }
+  if (m == 2 && (r == 4 || r == 6)) {
+    t = -2;
+  } else if (m == 0 || m == 4) {
+    t = 0;
+  } else {
+    t = 2 - m;
+  }
+  return t;
+}
+
+cv::Point2i getNextPoint(cv::Point2i currentpoint, int d, int gsize) {
+  cv::Point2i nextpoint;
+  switch (d) {
+    case 0:
+      nextpoint.x = currentpoint.x + gsize;
+      nextpoint.y = currentpoint.y;
+      break;
+    case 1:
+      nextpoint.x = currentpoint.x;
+      nextpoint.y = currentpoint.y - gsize;
+      break;
+    case 2:
+      nextpoint.x = currentpoint.x - gsize;
+      nextpoint.y = currentpoint.y;
+      break;
+    case 3:
+      nextpoint.x = currentpoint.x;
+      nextpoint.y = currentpoint.y + gsize;
+      break;
+  }
+  return nextpoint;
+}
+
+std::vector<cv::Point2i> makeOIP(cv::Mat& img, int gsize) {
+  std::vector<cv::Point2i> vertices;
+
+  cv::Point2i topleftpoint = getTopLeftPoint(img);
+  //ROS_INFO("topleftpoint:%d,%d",topleftpoint.x,topleftpoint.y);
+  cv::Point2i startpoint = getStartPoint(img, topleftpoint, gsize);
+  //ROS_INFO("startpoint:%d,%d",startpoint.x,startpoint.y);
+  cv::Point2i q = startpoint;
+  int type = getPointType(img, q, gsize);
+
+  int d = (2 + type) % 4;
+  do {
+    if (type == 1 || type == -1) {
+      vertices.push_back(q);
+    }
+    q = getNextPoint(q, d, gsize);
+    type = getPointType(img, q, gsize);
+    if (type == -2) {
+      type = -1;
+    }
+    d = (d + type) % 4;
+    if (d < 0) {
+      d += 4;
+    }
+  } while (q != startpoint);
+
+  return vertices;
+}
+
+#endif
 /**
  * @brief Plans coverage path
  * @param req[in] Contains values neccesary to plan a path
@@ -287,145 +437,42 @@ bool plan(cpp_uav::Torres16::Request& req, cpp_uav::Torres16::Response& res)
 
   std::cout << __FILE__ << __LINE__ << std::endl;
   //  binarization
-  cv::Mat binarization;
+  cv::Mat bin;
   cv::threshold(
-      map, binarization, req.occupancy_threshold, 255, cv::THRESH_BINARY_INV);
+      map, bin, req.occupancy_threshold, 255, cv::THRESH_BINARY_INV);
 
-	/*save image*/
-	//imwrite("map_binary.jpg",binarization);
+     PointVector polygon;
 
-  //  erosion
-  cv::Mat erosion, element;
-  element = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(3, 3));
-  cv::erode(
-      binarization, erosion, element, cv::Point(-1, -1),
-      (req.erosion_radius + req.map.info.resolution - 0.01) /
-          req.map.info.resolution);
+    //rectilinear polygon
+ 	double delta_point = 8;
+	std::vector<cv::Point2i> vertices_point;
+	vertices_point = makeOIP(bin,delta_point);
 
-	std::cout << "image_width:" << erosion.cols << "image_height:" << erosion.rows << std::endl;
-  std::cout << __FILE__ << __LINE__ << std::endl;
-	
-	//find corners
-	PointVector map_contour_point;
-	std::vector<cv::Point> roi_point_approx;
-	//Gaussian 
-	cv::Mat erosion_filter;
-	GaussianBlur(erosion,erosion_filter,cv::Size(3,3),0,0);
-	cornerDetection(erosion_filter,roi_point_approx);
-		
-	std::cout << "roi_point_appros_size:" << roi_point_approx.size() << std::endl;
-  std::cout << __FILE__ << __LINE__ << std::endl;
-	if(roi_point_approx.size() > 3){
-			//fitting polygon
-			//approxPolyDP(map_contours[0],roi_point_approx,2,true);
-			geometry_msgs::Point local_point;
-			for(int i = 0;i < roi_point_approx.size();i++){
-				MapToWorld(req.map.info.resolution,
-									 req.map.info.origin.position.x,
-									 req.map.info.origin.position.y,
-									 roi_point_approx.at(i).x,
-									 roi_point_approx.at(i).y,
-									 &local_point.x,
-									 &local_point.y);
-				map_contour_point.push_back(local_point);
-			}
+	for(int j = 0;j < vertices_point.size();j++){
+		//double point_x = vertices_point[j].x*req.map.info.resolution + req.map.info.origin.position.x;
+		//double point_y = vertices_point[j].y*req.map.info.resolution + req.map.info.origin.position.y;
+        double point_x = vertices_point[j].x;
+        double point_y = vertices_point[j].y;
+
+		geometry_msgs::Point point_;
+        
+        point_.x = point_x;
+        point_.y = point_y;
+        point_.z = 0;
+        ROS_INFO_STREAM("point_:" << point_);
+        polygon.push_back(point_);
 	}
-  std::cout << __FILE__ << __LINE__ << std::endl;
-  // polygon from request and path for response
-  PointVector polygon, candidatePath;
-  // start point of coverage path
-  geometry_msgs::Point start;
-  // parameters of coverage path
-  std_msgs::Float64 footprintLength, footprintWidth, horizontalOverwrap, verticalOverwrap;
 
-  polygon = map_contour_point;//req.polygon;
-  start = req.start;
+    std::cout << "polygon_point_size:" << polygon.size() << std::endl;
 
-  footprintLength = req.footprint_length;
-  footprintWidth = req.footprint_width;
-  horizontalOverwrap = req.horizontal_overwrap;
-  verticalOverwrap = req.vertical_overwrap;
-
-  // isOptimal is true if computed path is optimal
-  bool isOptimal = computeConvexCoverage(polygon, footprintWidth.data, horizontalOverwrap.data, candidatePath);
-
-	std::cout << "candidatePath_size:" << candidatePath.size() << std::endl;
-  std::cout << __FILE__ << __LINE__ << std::endl;
-	std::cout << "isOptimal:" << isOptimal << std::endl;
-#if 1
-  if (isOptimal == true)
-  {
-    // fill "subpolygon" field of response so that polygon is visualized
-    res.subpolygons = generatePolygonVector(polygon);
-
-  	std::cout << __FILE__ << __LINE__ << std::endl;
-    // set optimal alternative as optimal path
-		PointVector optimal_path = identifyOptimalAlternative(polygon, candidatePath, start);
-		optimal_path.insert(optimal_path.begin(),req.start);
-    res.path = optimal_path;
-  	std::cout << __FILE__ << __LINE__ << std::endl;
-  }
-  else
-  {
     std::vector<PointVector> subPolygons = decomposePolygon(polygon);
 
-		std::cout << "subPolygons_size:" << subPolygons.size() << std::endl;
-    // sum of length of all coverage path
-    double pathLengthSum = 0;
-
-    // compute length of coverage path of each subpolygon
-    for (const auto& polygon : subPolygons)
-    {
-      PointVector partialPath;
-      computeConvexCoverage(polygon, footprintWidth.data, horizontalOverwrap.data, partialPath);
-      pathLengthSum += calculatePathLength(partialPath);
-    }
-
-    // existsSecondOptimalPath is true if there is at least one coverage that has no intersection with polygon
-    // second optimal path is the path that has second shortest sweep direction without any intersection with polygon
-    PointVector secondOptimalPath;
-    bool existsSecondOptimalPath =
-        findSecondOptimalPath(polygon, footprintWidth.data, horizontalOverwrap.data, candidatePath);
-
-    if (existsSecondOptimalPath == true)
-    {
-			
-		   // compute optimal alternative for second optimal path
-      secondOptimalPath = identifyOptimalAlternative(polygon, candidatePath, start);
-
-      // if the length of second optimal path is shorter than the sum of coverage path of subpolygons,
-      // set second optimal path as the path
-      if (pathLengthSum > calculatePathLength(secondOptimalPath))
-      {
-        // fill "subpolygon" field of response so that polygon is visualized
-        res.subpolygons = generatePolygonVector(polygon);
-				secondOptimalPath.insert(secondOptimalPath.begin(),req.start);
-
-        res.path = secondOptimalPath;
-        return true;
-      }
-    }
-    else if (subPolygons.size() < 2)
-    {
-      // if number of subpolygon is smaller than 2,
-      // it means no valid path can be computed
-      ROS_ERROR("Unable to generate path.");
-      return true;
-    }
-
-    // fill "subpolygon" field of response so that polygon is visualized
+    std::cout << "subPolygons_size:" << subPolygons.size() << std::endl;
+    
     res.subpolygons = generatePolygonVector(subPolygons);
-
-    // compute coverage path of subpolygons
-    PointVector multipleCoveragePath =
-        computeMultiplePolygonCoverage(subPolygons, footprintWidth.data, horizontalOverwrap.data);
-
-		multipleCoveragePath.insert(multipleCoveragePath.begin(),req.start);
-
-    res.path = multipleCoveragePath;
-  }
-#endif
-  return true;
+    
+    //res.subpolygons = generatePolygonVector(polygon);
+    return true;
 }
 
 int main(int argc, char** argv)

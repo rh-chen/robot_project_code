@@ -1,5 +1,5 @@
 <launch>
 
-    <node name="cpp_uav_node" pkg="cpp_uav" type="zig_zag_cpp_service" output="screen"/>
+    <node name="cpp_uav_service_node" pkg="cpp_uav" type="zig_zag_cpp_service" output="screen"/>
 
 </launch>

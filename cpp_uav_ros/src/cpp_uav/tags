@@ -4,9 +4,13 @@
 !_TAG_PROGRAM_NAME	Exuberant Ctags	//
 !_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
 !_TAG_PROGRAM_VERSION	5.9~svn20110310	//
+Direction	include/cpp_uav.hpp	/^struct Direction$/;"	s
 Direction	include/torres_etal_2016.hpp	/^struct Direction$/;"	s
-INCLUDED_cgutil_hpp_	include/cgutil.hpp	13;"	d
+INCLUDED_cgutil_hpp_	include/cgutil.hpp	2;"	d
+INCLUDED_cpp_uav_hpp_	include/cpp_uav.hpp	2;"	d
 INCLUDED_torres_etal_2016_hpp_	include/torres_etal_2016.hpp	13;"	d
+MapToWorld	src/zig_zag_cpp_service.cpp	/^void MapToWorld($/;"	f
+PI	src/zig_zag_cpp_service.cpp	20;"	d	file:
 PolygonBuilder	script/specify_rect.py	/^class PolygonBuilder(object):$/;"	c
 TEST	test/test_cgutil.cpp	/^TEST(CGUtilTest, CalcDistanceTest)$/;"	f
 TEST	test/test_cgutil.cpp	/^TEST(CGUtilTest, CalcHorizontalAngleTest)$/;"	f
@@ -19,58 +23,79 @@ TEST	test/test_cgutil.cpp	/^TEST(CGUtilTest, IntersectTest2)$/;"	f
 TEST	test/test_cgutil.cpp	/^TEST(CGUtilTest, IsConvexTest1)$/;"	f
 TEST	test/test_cgutil.cpp	/^TEST(CGUtilTest, IsConvexTest2)$/;"	f
 TEST	test/test_torres_etal_2016.cpp	/^TEST(Torres16Test, CalcSweepDirectionTest)$/;"	f
+WorldToMap	src/zig_zag_cpp_service.cpp	/^bool WorldToMap($/;"	f
 __call__	script/specify_rect.py	/^    def __call__(self, event):$/;"	m	class:PolygonBuilder	file:
 __init__	script/specify_rect.py	/^    def __init__(self):$/;"	m	class:PolygonBuilder
 angle_of_view_update	script/specify_rect.py	/^    def angle_of_view_update(self, event):$/;"	m	class:PolygonBuilder
+baseEdge	include/cpp_uav.hpp	/^  LineSegment baseEdge;$/;"	m	struct:Direction
 baseEdge	include/torres_etal_2016.hpp	/^  LineSegment baseEdge;$/;"	m	struct:Direction
 calculateDistance	include/cgutil.hpp	/^double calculateDistance(const LineSegment& edge, const geometry_msgs::Point& vertex)$/;"	f
 calculateDistance	include/cgutil.hpp	/^inline double calculateDistance(const geometry_msgs::Point& p1, const geometry_msgs::Point& p2)$/;"	f
 calculateHorizontalAngle	include/cgutil.hpp	/^double calculateHorizontalAngle(const geometry_msgs::Point& p1, const geometry_msgs::Point& p2)$/;"	f
+calculatePathLength	include/cpp_uav.hpp	/^double calculatePathLength(const PointVector& path)$/;"	f
 calculatePathLength	include/torres_etal_2016.hpp	/^double calculatePathLength(const PointVector& path)$/;"	f
 calculateSignedArea	include/cgutil.hpp	/^inline double calculateSignedArea(const geometry_msgs::Point& p1, const geometry_msgs::Point& p2,$/;"	f
 calculateVertexAngle	include/cgutil.hpp	/^double calculateVertexAngle(const geometry_msgs::Point& p1, const geometry_msgs::Point& p2,$/;"	f
 calculate_path	script/specify_rect.py	/^    def calculate_path(self, event):$/;"	m	class:PolygonBuilder
 clear_figure	script/specify_rect.py	/^    def clear_figure(self, event):$/;"	m	class:PolygonBuilder
+computeCCWPath	include/cpp_uav.hpp	/^PointVector computeCCWPath(PointVector path)$/;"	f
 computeCCWPath	include/torres_etal_2016.hpp	/^PointVector computeCCWPath(PointVector path)$/;"	f
+computeConvexCoverage	include/cpp_uav.hpp	/^bool computeConvexCoverage(const PointVector& polygon, double footprintWidth, double horizontalOverwrap,$/;"	f
 computeConvexCoverage	include/torres_etal_2016.hpp	/^bool computeConvexCoverage(const PointVector& polygon, double footprintWidth, double horizontalOverwrap,$/;"	f
 computeConvexHull	include/cgutil.hpp	/^PointVector computeConvexHull(PointVector points)$/;"	f
+computeMultiplePolygonCoverage	include/cpp_uav.hpp	/^PointVector computeMultiplePolygonCoverage(std::vector<PointVector> subPolygons, double footprintWidth,$/;"	f
 computeMultiplePolygonCoverage	include/torres_etal_2016.hpp	/^PointVector computeMultiplePolygonCoverage(std::vector<PointVector> subPolygons, double footprintWidth,$/;"	f
+computeOppositePath	include/cpp_uav.hpp	/^PointVector computeOppositePath(const PointVector& path)$/;"	f
 computeOppositePath	include/torres_etal_2016.hpp	/^PointVector computeOppositePath(const PointVector& path)$/;"	f
+cornerDetection	src/zig_zag_cpp_service.cpp	/^void cornerDetection(cv::Mat& binary,vector<cv::Point>& corner)$/;"	f
+createMarker	src/zig_zag_cpp_client.cpp	/^visualization_msgs::Marker createMarker(const std::string markerName,uint32_t type, geometry_msgs::Pose pose, geometry_msgs::Vector3 scale, std_msgs::ColorRGBA color,  int32_t id, std::string frame_id = std::string("s_map"))$/;"	f
 decomposePolygon	include/cgutil.hpp	/^std::vector<PointVector> decomposePolygon(const PointVector& polygon)$/;"	f
-draw_map	script/specify_rect.py	/^    def draw_map(self):$/;"	m	class:PolygonBuilder
 draw_polygon	script/specify_rect.py	/^    def draw_polygon(self, event):$/;"	m	class:PolygonBuilder
+findSecondOptimalPath	include/cpp_uav.hpp	/^bool findSecondOptimalPath(const PointVector& polygon, double footprintWidth, double horizontalOverwrap,$/;"	f
 findSecondOptimalPath	include/torres_etal_2016.hpp	/^bool findSecondOptimalPath(const PointVector& polygon, double footprintWidth, double horizontalOverwrap,$/;"	f
 generateEdgeVector	include/cgutil.hpp	/^LineSegmentVector generateEdgeVector(const PointVector& vec, bool isClosed)$/;"	f
 generatePolygonVector	src/torres_etal_2016.cpp	/^std::vector<geometry_msgs::Polygon> generatePolygonVector(const PointVector& polygon)$/;"	f
 generatePolygonVector	src/torres_etal_2016.cpp	/^std::vector<geometry_msgs::Polygon> generatePolygonVector(const std::vector<PointVector>& subPolygons)$/;"	f
-get_canvas_size	script/specify_rect.py	/^    def get_canvas_size(self):$/;"	m	class:PolygonBuilder
+generatePolygonVector	src/zig_zag_cpp_service.cpp	/^std::vector<geometry_msgs::Polygon> generatePolygonVector(const PointVector& polygon)$/;"	f
+generatePolygonVector	src/zig_zag_cpp_service.cpp	/^std::vector<geometry_msgs::Polygon> generatePolygonVector(const std::vector<PointVector>& subPolygons)$/;"	f
+getDistance	src/zig_zag_cpp_service.cpp	/^float getDistance(cv::Point& pa,cv::Point& pb)$/;"	f
+getNextPoint	src/zig_zag_cpp_service.cpp	/^cv::Point2i getNextPoint(cv::Point2i currentpoint, int d, int gsize) {$/;"	f
+getPointType	src/zig_zag_cpp_service.cpp	/^int getPointType(cv::Mat& img, cv::Point2i q, int gsize) {$/;"	f
+getStartPoint	src/zig_zag_cpp_service.cpp	/^cv::Point2i getStartPoint(cv::Mat& img, cv::Point2i p, int gsize) {$/;"	f
+getTopLeftPoint	src/zig_zag_cpp_service.cpp	/^cv::Point2i getTopLeftPoint(cv::Mat& image) {$/;"	f
 hasIntersection	include/cgutil.hpp	/^bool hasIntersection(const LineSegment& edge1, const LineSegment& edge2)$/;"	f
 hasIntersection	include/cgutil.hpp	/^bool hasIntersection(const LineSegmentVector& vec1, const LineSegmentVector& vec2)$/;"	f
 height_update	script/specify_rect.py	/^    def height_update(self, event):$/;"	m	class:PolygonBuilder
 horizontal_overwrap_update	script/specify_rect.py	/^    def horizontal_overwrap_update(self, event):$/;"	m	class:PolygonBuilder
+identifyOptimalAlternative	include/cpp_uav.hpp	/^PointVector identifyOptimalAlternative(const PointVector& polygon, const PointVector& path,$/;"	f
 identifyOptimalAlternative	include/torres_etal_2016.hpp	/^PointVector identifyOptimalAlternative(const PointVector& polygon, const PointVector& path,$/;"	f
+identifyOptimalSweepDir	include/cpp_uav.hpp	/^Direction identifyOptimalSweepDir(const PointVector& polygon)$/;"	f
 identifyOptimalSweepDir	include/torres_etal_2016.hpp	/^Direction identifyOptimalSweepDir(const PointVector& polygon)$/;"	f
 image_resolution_h_update	script/specify_rect.py	/^    def image_resolution_h_update(self, event):$/;"	m	class:PolygonBuilder
 image_resolution_w_update	script/specify_rect.py	/^    def image_resolution_w_update(self, event):$/;"	m	class:PolygonBuilder
 init_node	script/specify_rect.py	/^def init_node():$/;"	f
+isAdjacent	include/cpp_uav.hpp	/^bool isAdjacent(const PointVector& polygon1, const PointVector& polygon2)$/;"	f
 isAdjacent	include/torres_etal_2016.hpp	/^bool isAdjacent(const PointVector& polygon1, const PointVector& polygon2)$/;"	f
+isClockWise	include/cpp_uav.hpp	/^inline bool isClockWise(const PointVector& path)$/;"	f
 isClockWise	include/torres_etal_2016.hpp	/^inline bool isClockWise(const PointVector& path)$/;"	f
 isConvex	include/cgutil.hpp	/^inline bool isConvex(PointVector points)$/;"	f
-latitude_update	script/specify_rect.py	/^    def latitude_update(self, val):$/;"	m	class:PolygonBuilder
 localizeIntersection	include/cgutil.hpp	/^geometry_msgs::Point localizeIntersection(const LineSegment& edge1, const LineSegment& edge2)$/;"	f
-longitude_update	script/specify_rect.py	/^    def longitude_update(self, val):$/;"	m	class:PolygonBuilder
 main	src/torres_etal_2016.cpp	/^int main(int argc, char** argv)$/;"	f
+main	src/zig_zag_cpp_client.cpp	/^int main(int argc,char **argv){$/;"	f
+main	src/zig_zag_cpp_service.cpp	/^int main(int argc, char** argv)$/;"	f
 main	test/test_cgutil.cpp	/^int main(int argc, char** argv)$/;"	f
 main	test/test_torres_etal_2016.cpp	/^int main(int argc, char** argv)$/;"	f
-maptype_update	script/specify_rect.py	/^    def maptype_update(self, event):$/;"	m	class:PolygonBuilder
+makeOIP	src/zig_zag_cpp_service.cpp	/^std::vector<cv::Point2i> makeOIP(cv::Mat& img, int gsize) {$/;"	f
+objectInUGB	src/zig_zag_cpp_service.cpp	/^bool objectInUGB(cv::Mat& img, cv::Point2i q, int ugb, int gsize) {$/;"	f
 operator !=	include/cgutil.hpp	/^bool operator!=(const geometry_msgs::Point& p1, const geometry_msgs::Point& p2)$/;"	f
 operator ==	include/cgutil.hpp	/^bool operator==(const geometry_msgs::Point& p1, const geometry_msgs::Point& p2)$/;"	f
+opposedVertex	include/cpp_uav.hpp	/^  geometry_msgs::Point opposedVertex;$/;"	m	struct:Direction
 opposedVertex	include/torres_etal_2016.hpp	/^  geometry_msgs::Point opposedVertex;$/;"	m	struct:Direction
 plan	src/torres_etal_2016.cpp	/^bool plan(cpp_uav::Torres16::Request& req, cpp_uav::Torres16::Response& res)$/;"	f
+plan	src/zig_zag_cpp_service.cpp	/^bool plan(cpp_uav::Torres16::Request& req, cpp_uav::Torres16::Response& res)$/;"	f
+reshapePath	include/cpp_uav.hpp	/^PointVector reshapePath(const PointVector& path, double padding)$/;"	f
 reshapePath	include/torres_etal_2016.hpp	/^PointVector reshapePath(const PointVector& path, double padding)$/;"	f
 rotatePoints	include/cgutil.hpp	/^PointVector rotatePoints(const PointVector& points, double angle_rad)$/;"	f
 update_param_texts	script/specify_rect.py	/^    def update_param_texts(self):$/;"	m	class:PolygonBuilder
 update_params	script/specify_rect.py	/^    def update_params(self):$/;"	m	class:PolygonBuilder
 vertical_overwrap_update	script/specify_rect.py	/^    def vertical_overwrap_update(self, event):$/;"	m	class:PolygonBuilder
-zoom_in	script/specify_rect.py	/^    def zoom_in(self, event):$/;"	m	class:PolygonBuilder
-zoom_out	script/specify_rect.py	/^    def zoom_out(self, event):$/;"	m	class:PolygonBuilder

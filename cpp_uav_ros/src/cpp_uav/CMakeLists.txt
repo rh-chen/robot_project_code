@@ -36,7 +36,8 @@ catkin_package(
 )
 
 catkin_package()
-
+message(STATUS "OpenCV_INCLUDE_DIRS:" ${OpenCV_INCLUDE_DIRS})
+message(STATUS "CGAL_INCLUDE_DIRS:" ${CGAL_INCLUDE_DIRS})
 include_directories(
   include
   ${catkin_INCLUDE_DIRS}
@@ -61,9 +62,14 @@ add_dependencies(zig_zag_cpp_client ${PROJECT_NAME}_generate_messages_cpp)
 
 target_link_libraries(zig_zag_cpp_client ${catkin_LIBRARIES} ${OpenCV_LIBS})
 
-# Tests
-catkin_add_gtest(test_zig_zag_cpp_service test/test_zig_zag_cpp_service.cpp)
-catkin_add_gtest(test_cgutil test/test_cgutil.cpp)
+add_executable(zig_zag src/zig_zag.cpp)
 
-target_link_libraries(test_zig_zag_cpp_service ${catkin_LIBRARIES} ${OpenCV_LIBS})
-target_link_libraries(test_cgutil ${catkin_LIBRARIES} ${OpenCV_LIBS})
+add_dependencies(zig_zag ${PROJECT_NAME}_generate_messages_cpp)
+
+target_link_libraries(zig_zag ${catkin_LIBRARIES} ${OpenCV_LIBS} CGAL)
+# Tests
+#catkin_add_gtest(test_zig_zag_cpp_service test/test_zig_zag_cpp_service.cpp)
+#catkin_add_gtest(test_cgutil test/test_cgutil.cpp)
+
+#target_link_libraries(test_zig_zag_cpp_service ${catkin_LIBRARIES} ${OpenCV_LIBS})
+#target_link_libraries(test_cgutil ${catkin_LIBRARIES} ${OpenCV_LIBS})

@@ -69,6 +69,9 @@ int main(int argc,char **argv){
 
 	ros::ServiceClient mapClient = n.serviceClient<nav_msgs::GetMap>("/static_map");
   nav_msgs::GetMap getMapSrv;
+
+
+    ros::Duration(2).sleep();
   if (mapClient.call(getMapSrv)) {
     srv.request.map = getMapSrv.response.map;
     std::cout << "map frame_id: " << srv.request.map.header.frame_id
@@ -81,41 +84,22 @@ int main(int argc,char **argv){
 	if(client.call(srv)){
 		ros::Publisher marker_pub = n.advertise<visualization_msgs::MarkerArray>("/cleanner_planner",1);
 		ros::Rate loop_rate(10);
+        
+        int32_t markerArrowId = -1;
+        visualization_msgs::MarkerArray markerArray;
 
-	while(ros::ok()){
-		int path_size = srv.response.path.size();		
-		visualization_msgs::MarkerArray markerArray;
+    for(int j = 0;j < srv.response.subpolygons.size();j++){
 
-		geometry_msgs::Point lastPose = srv.response.path[0];
+        geometry_msgs::Point lastPoint;
+        lastPoint.x = srv.response.subpolygons[j].points[0].x;
+        lastPoint.y = srv.response.subpolygons[j].points[0].y;
 
-		geometry_msgs::Pose  plannerStartPose;
-		plannerStartPose.position.x = srv.request.start.x;
-		plannerStartPose.position.y = srv.request.start.y;
-		plannerStartPose.orientation.w = 1.0;
+		for(int i = 1; i < srv.response.subpolygons[j].points.size(); ++i) {
+			geometry_msgs::Point pose;
+            pose.x = srv.response.subpolygons[j].points[i].x;
+            pose.y = srv.response.subpolygons[j].points[i].y;
 
-		geometry_msgs::Vector3 plannerStartScale;
-		plannerStartScale.x = 0.2;
-		plannerStartScale.y = 0.2;
-		plannerStartScale.z = 0.2;
-
-		std_msgs::ColorRGBA plannerStartColor;
-		plannerStartColor.a = 1.0;
-		plannerStartColor.g = 1.0;
-
-		int32_t plannerStartId = 0;
-
-		visualization_msgs::Marker markerSphereStart = createMarker("PlannerStart",visualization_msgs::Marker::SPHERE,plannerStartPose,plannerStartScale,plannerStartColor,plannerStartId, srv.request.map.header.frame_id);
-
-		markerArray.markers.push_back(markerSphereStart);
-
-		geometry_msgs::Point lastPoint;
-		lastPoint.x = lastPose.x;
-		lastPoint.y = lastPose.y;
-		lastPoint.z = 0;
-
-		for(int i = 1; i < path_size; ++i) {
-			geometry_msgs::Point pose = srv.response.path[i];
-			ROS_INFO_STREAM("poses:%s" << pose);
+			//ROS_INFO_STREAM("poses:%s" << pose);
 
 			geometry_msgs::Pose  markerArrowPose;
 			markerArrowPose.position.x = lastPoint.x;
@@ -132,7 +116,7 @@ int main(int argc,char **argv){
 			markerArrowColor.a = 1.0;
 			markerArrowColor.r = 1.0;
 
-			int32_t markerArrowId = i;
+            markerArrowId++;
 
 			visualization_msgs::Marker markerArrow = createMarker("markerArrow",visualization_msgs::Marker::ARROW,markerArrowPose,markerArrowScale,markerArrowColor,markerArrowId, srv.request.map.header.frame_id); //make markerArrow in map plane
 
@@ -159,27 +143,48 @@ int main(int argc,char **argv){
 
 			lastPoint = p;
 		}
+            geometry_msgs::Pose  markerArrowPose;
+			markerArrowPose.position.x = lastPoint.x;
+			markerArrowPose.position.y = lastPoint.y;
+			markerArrowPose.position.z = 0;
+			markerArrowPose.orientation.w = 1.0;
 
-		geometry_msgs::Pose  plannerGoalPose;
-		plannerGoalPose.position.x = srv.request.start.x;
-		plannerGoalPose.position.y = srv.request.start.y;
-		plannerGoalPose.orientation.w = 1.0;
+			geometry_msgs::Vector3 markerArrowScale;
+			markerArrowScale.x = 0.05;
+			markerArrowScale.y = 0.1;
+			markerArrowScale.z = 0.1;
 
-		geometry_msgs::Vector3 plannerGoalScale;
-		plannerGoalScale.x = 0.2;
-		plannerGoalScale.y = 0.2;
-		plannerGoalScale.z = 0.2;
+			std_msgs::ColorRGBA markerArrowColor;
+			markerArrowColor.a = 1.0;
+			markerArrowColor.r = 1.0;
 
-		std_msgs::ColorRGBA plannerGoalColor;
-		plannerGoalColor.a = 1.0;
-		plannerGoalColor.b = 1.0;
+            markerArrowId++;
 
-		int32_t plannerGoalId = path_size + 1;
+			visualization_msgs::Marker markerArrow = createMarker("markerArrow",visualization_msgs::Marker::ARROW,markerArrowPose,markerArrowScale,markerArrowColor,markerArrowId, srv.request.map.header.frame_id); //make markerArrow in map plane
 
-		visualization_msgs::Marker markerSphereGoal = createMarker("PlannerGoal",visualization_msgs::Marker::SPHERE,plannerGoalPose,plannerGoalScale,plannerGoalColor,plannerGoalId, srv.request.map.header.frame_id);
+			geometry_msgs::Point p;
+			p.x = srv.response.subpolygons[j].points[0].x;
+			p.y = srv.response.subpolygons[j].points[0].y;
+			p.z = 0;
 
-		markerArray.markers.push_back(markerSphereGoal);
+			geometry_msgs::Point arrowHeadPoint;
+			arrowHeadPoint.x = p.x - lastPoint.x;
+			arrowHeadPoint.y = p.y - lastPoint.y;
+			arrowHeadPoint.z = 0;
 
+
+			geometry_msgs::Point arrowEndPoint;
+			arrowEndPoint.x = 0;
+			arrowEndPoint.y = 0;
+			arrowEndPoint.z = 0;
+
+			markerArrow.points.push_back(arrowEndPoint);
+			markerArrow.points.push_back(arrowHeadPoint);
+
+			markerArray.markers.push_back(markerArrow);
+    }
+
+	while(ros::ok()){
 		marker_pub.publish(markerArray);
 
 		ros::spinOnce();

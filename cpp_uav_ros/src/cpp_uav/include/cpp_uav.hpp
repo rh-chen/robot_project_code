@@ -127,7 +127,7 @@ Direction identifyOptimalSweepDir(const PointVector& polygon)
 PointVector reshapePath(const PointVector& path, double padding)
 {
   PointVector zigzagPath;
-	std::cout << "path_size:" << path.size() << std::endl;
+	//std::cout << "path_size:" << path.size() << std::endl;
   // reshape every traverse
   for (int i = 0; i < std::round(path.size() / 2); ++i)
   {
@@ -266,7 +266,7 @@ bool computeConvexCoverage(const PointVector& polygon, double footprintWidth, do
   double rotationAngle = calculateHorizontalAngle(sweepDirection.baseEdge.front(), sweepDirection.baseEdge.back());
   PointVector rotatedPolygon = rotatePoints(polygon, -rotationAngle);
 
-	std::cout << "rotatedPolygon_size:" << rotatedPolygon.size() << std::endl;
+	//std::cout << "rotatedPolygon_size:" << rotatedPolygon.size() << std::endl;
 	//std::cout << "rotationAngle:" << rotationAngle << std::endl;
   // find x coordinate of most left and most right point
   double minX(0), maxX(0);
@@ -294,7 +294,7 @@ bool computeConvexCoverage(const PointVector& polygon, double footprintWidth, do
 
   int stepNum = std::ceil(calculateDistance(rotatedDir.baseEdge, rotatedDir.opposedVertex) / stepWidth);
 	
-	std::cout << "stepNum:" << stepNum << std::endl;
+	//std::cout << "stepNum:" << stepNum << std::endl;
   LineSegmentVector sweepLines;
 
   // generate list of sweep lines which is horizontal against the base edge
@@ -369,7 +369,7 @@ bool computeConvexCoverage(const PointVector& polygon, double footprintWidth, do
                            PointVector& path)
 {
   Direction sweepDirection = identifyOptimalSweepDir(polygon);
-	//std::cout << "sweepDirection:" << sweepDirection.opposedVertex.x << "---" << sweepDirection.opposedVertex.y << std::endl; 
+  std::cout << "sweepDirection:" << sweepDirection.opposedVertex.x << "---" << sweepDirection.opposedVertex.y << std::endl; 
   return computeConvexCoverage(polygon, footprintWidth, horizontalOverwrap, sweepDirection, path);
 }
 
