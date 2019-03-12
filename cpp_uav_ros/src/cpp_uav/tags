@@ -4,14 +4,21 @@
 !_TAG_PROGRAM_NAME	Exuberant Ctags	//
 !_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
 !_TAG_PROGRAM_VERSION	5.9~svn20110310	//
+CGAL_PARTITION_BRUTE_FORCE_FIX	src/zig_zag.cpp	1;"	d	file:
+Creator	src/zig_zag.cpp	/^typedef CGAL::Creator_uniform_2<int, Point_2> Creator;$/;"	t	file:
 Direction	include/cpp_uav.hpp	/^struct Direction$/;"	s
 Direction	include/torres_etal_2016.hpp	/^struct Direction$/;"	s
 INCLUDED_cgutil_hpp_	include/cgutil.hpp	2;"	d
 INCLUDED_cpp_uav_hpp_	include/cpp_uav.hpp	2;"	d
 INCLUDED_torres_etal_2016_hpp_	include/torres_etal_2016.hpp	13;"	d
+K	src/zig_zag.cpp	/^typedef CGAL::Exact_predicates_inexact_constructions_kernel K;$/;"	t	file:
 MapToWorld	src/zig_zag_cpp_service.cpp	/^void MapToWorld($/;"	f
 PI	src/zig_zag_cpp_service.cpp	20;"	d	file:
+Point_2	src/zig_zag.cpp	/^typedef Traits::Point_2 Point_2;$/;"	t	file:
+Point_generator	src/zig_zag.cpp	/^typedef CGAL::Random_points_in_square_2< Point_2, Creator > Point_generator;$/;"	t	file:
 PolygonBuilder	script/specify_rect.py	/^class PolygonBuilder(object):$/;"	c
+Polygon_2	src/zig_zag.cpp	/^typedef Traits::Polygon_2 Polygon_2;$/;"	t	file:
+Polygon_list	src/zig_zag.cpp	/^typedef std::list<Polygon_2> Polygon_list;$/;"	t	file:
 TEST	test/test_cgutil.cpp	/^TEST(CGUtilTest, CalcDistanceTest)$/;"	f
 TEST	test/test_cgutil.cpp	/^TEST(CGUtilTest, CalcHorizontalAngleTest)$/;"	f
 TEST	test/test_cgutil.cpp	/^TEST(CGUtilTest, CalcVertexAngleTest)$/;"	f
@@ -23,6 +30,8 @@ TEST	test/test_cgutil.cpp	/^TEST(CGUtilTest, IntersectTest2)$/;"	f
 TEST	test/test_cgutil.cpp	/^TEST(CGUtilTest, IsConvexTest1)$/;"	f
 TEST	test/test_cgutil.cpp	/^TEST(CGUtilTest, IsConvexTest2)$/;"	f
 TEST	test/test_torres_etal_2016.cpp	/^TEST(Torres16Test, CalcSweepDirectionTest)$/;"	f
+Traits	src/zig_zag.cpp	/^typedef CGAL::Partition_traits_2<K> Traits;$/;"	t	file:
+Vertex_iterator	src/zig_zag.cpp	/^typedef Polygon_2::Vertex_iterator Vertex_iterator;$/;"	t	file:
 WorldToMap	src/zig_zag_cpp_service.cpp	/^bool WorldToMap($/;"	f
 __call__	script/specify_rect.py	/^    def __call__(self, event):$/;"	m	class:PolygonBuilder	file:
 __init__	script/specify_rect.py	/^    def __init__(self):$/;"	m	class:PolygonBuilder
@@ -81,11 +90,15 @@ isClockWise	include/torres_etal_2016.hpp	/^inline bool isClockWise(const PointVe
 isConvex	include/cgutil.hpp	/^inline bool isConvex(PointVector points)$/;"	f
 localizeIntersection	include/cgutil.hpp	/^geometry_msgs::Point localizeIntersection(const LineSegment& edge1, const LineSegment& edge2)$/;"	f
 main	src/torres_etal_2016.cpp	/^int main(int argc, char** argv)$/;"	f
+main	src/zig_zag.cpp	/^int main()$/;"	f
 main	src/zig_zag_cpp_client.cpp	/^int main(int argc,char **argv){$/;"	f
 main	src/zig_zag_cpp_service.cpp	/^int main(int argc, char** argv)$/;"	f
 main	test/test_cgutil.cpp	/^int main(int argc, char** argv)$/;"	f
 main	test/test_torres_etal_2016.cpp	/^int main(int argc, char** argv)$/;"	f
 makeOIP	src/zig_zag_cpp_service.cpp	/^std::vector<cv::Point2i> makeOIP(cv::Mat& img, int gsize) {$/;"	f
+make_polygon_1	src/zig_zag.cpp	/^void make_polygon_1(Polygon_2& polygon)$/;"	f
+make_polygon_2	src/zig_zag.cpp	/^void make_polygon_2(Polygon_2& polygon)$/;"	f
+make_polygon_3	src/zig_zag.cpp	/^void make_polygon_3(Polygon_2& polygon)$/;"	f
 objectInUGB	src/zig_zag_cpp_service.cpp	/^bool objectInUGB(cv::Mat& img, cv::Point2i q, int ugb, int gsize) {$/;"	f
 operator !=	include/cgutil.hpp	/^bool operator!=(const geometry_msgs::Point& p1, const geometry_msgs::Point& p2)$/;"	f
 operator ==	include/cgutil.hpp	/^bool operator==(const geometry_msgs::Point& p1, const geometry_msgs::Point& p2)$/;"	f

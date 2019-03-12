@@ -1,5 +1,5 @@
 <launch>
-	<arg name="map_file" default="$(find cpp_uav)/maps/a.yaml"/>
+	<arg name="map_file" default="$(find cpp_uav)/maps/map.yaml"/>
 
     <node name="map_server_for_test" pkg="map_server" type="map_server" args="$(arg map_file)">
     </node>

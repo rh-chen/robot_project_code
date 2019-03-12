@@ -96,12 +96,13 @@ int main()
   if(polygon.is_clockwise_oriented())
     polygon.reverse_orientation();
 
-  std::ofstream out("input_polygon.cgal");
+  /*std::ofstream out("input_polygon.cgal");
 
   out << polygon.size()+1 << "\n";
   for(const auto& pt : polygon.container())
     out << pt << " 0\n";
   out << polygon.container().front() << " 0\n";
+*/
 
   CGAL::optimal_convex_partition_2(polygon.vertices_begin(),
                                    polygon.vertices_end(),

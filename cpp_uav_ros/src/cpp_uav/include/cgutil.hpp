@@ -8,6 +8,7 @@
 #include <stack>
 #include <vector>
 
+#define CGAL_PARTITION_BRUTE_FORCE_FIX
 // CGAL
 #include <CGAL/Exact_predicates_inexact_constructions_kernel.h>
 #include <CGAL/Partition_is_valid_traits_2.h>
@@ -463,6 +464,10 @@ std::vector<PointVector> decomposePolygon(const PointVector& polygon)
   {
     cgalPolygon.push_back(Point_2(vertex.x, vertex.y));
   }
+
+
+  if(cgalPolygon.is_clockwise_oriented())
+        cgalPolygon.reverse_orientation();
 
   Polygon_list partialCGALPolygons;
   Traits partitionTraits;

@@ -449,10 +449,10 @@ bool plan(cpp_uav::Torres16::Request& req, cpp_uav::Torres16::Response& res)
 	vertices_point = makeOIP(bin,delta_point);
 
 	for(int j = 0;j < vertices_point.size();j++){
-		//double point_x = vertices_point[j].x*req.map.info.resolution + req.map.info.origin.position.x;
-		//double point_y = vertices_point[j].y*req.map.info.resolution + req.map.info.origin.position.y;
-        double point_x = vertices_point[j].x;
-        double point_y = vertices_point[j].y;
+		double point_x = vertices_point[j].x*req.map.info.resolution + req.map.info.origin.position.x;
+		double point_y = vertices_point[j].y*req.map.info.resolution + req.map.info.origin.position.y;
+        //double point_x = vertices_point[j].x;
+        //double point_y = vertices_point[j].y;
 
 		geometry_msgs::Point point_;
         
@@ -467,8 +467,6 @@ bool plan(cpp_uav::Torres16::Request& req, cpp_uav::Torres16::Response& res)
 
     std::vector<PointVector> subPolygons = decomposePolygon(polygon);
 
-    std::cout << "subPolygons_size:" << subPolygons.size() << std::endl;
-    
     res.subpolygons = generatePolygonVector(subPolygons);
     
     //res.subpolygons = generatePolygonVector(polygon);
