@@ -23,6 +23,9 @@ find_package(catkin REQUIRED COMPONENTS
 # find_package(Boost REQUIRED COMPONENTS system)
 
 find_package(OpenCV REQUIRED)
+find_package(CGAL REQUIRED COMPONENTS Core)
+include( ${CGAL_USE_FILE} )
+include( CGAL_CreateSingleSourceCGALProgram )
 
 ## Uncomment this if the package has a setup.py. This macro ensures
 ## modules and global scripts declared therein get installed
@@ -151,6 +154,7 @@ target_link_libraries(
   ${catkin_LIBRARIES}
   ${OpenCV_LIBS}
   ${PROJECT_NAME}
+  CGAL
 )
 add_dependencies(
   ${PROJECT_NAME}_server_node
@@ -163,6 +167,7 @@ target_link_libraries(
   ${catkin_LIBRARIES}
   ${OpenCV_LIBS}
   ${PROJECT_NAME}
+  CGAL
 )
 add_dependencies(
   ${PROJECT_NAME}_client_node

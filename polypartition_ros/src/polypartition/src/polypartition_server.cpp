@@ -12,6 +12,23 @@
 #include <opencv2/opencv.hpp>
 #include <opencv2/core/matx.hpp>
 #include <deque>
+#define CGAL_PARTITION_BRUTE_FORCE_FIX
+
+#include <CGAL/Exact_predicates_inexact_constructions_kernel.h>
+#include <CGAL/Partition_traits_2.h>
+#include <CGAL/partition_2.h>
+#include <CGAL/point_generators_2.h>
+#include <CGAL/random_polygon_2.h>
+
+typedef CGAL::Exact_predicates_inexact_constructions_kernel K;
+typedef CGAL::Partition_traits_2<K> Traits;
+typedef Traits::Point_2 Point_2;
+typedef Traits::Polygon_2 Polygon_2;
+typedef Polygon_2::Vertex_iterator Vertex_iterator;
+typedef std::list<Polygon_2> Polygon_list;
+typedef CGAL::Creator_uniform_2<int, Point_2> Creator;
+typedef CGAL::Random_points_in_square_2< Point_2, Creator > Point_generator;
+
 
 namespace Cpp{
 
@@ -254,102 +271,63 @@ bool PolyPartitionCallback(polypartition::PolyPartitionMsg::Request& req,
 	vertices_point = makeOIP(bin,delta_point);
     
     
+    Polygon_2 polygon;
+    for(int j = vertices_point.size()-1;j >= 0;j--)
+    {
+		double point_x = vertices_point[j].x*req.map_resolution+req.map_origin_x;
+		double point_y = vertices_point[j].y*req.map_resolution+req.map_origin_y;
+	    polygon.push_back(Point_2(point_x,point_y));			
+	}
+
+    if(polygon.is_clockwise_oriented())
+        polygon.reverse_orientation();
+
     TPPLPartition obj;
     std::list<TPPLPoly> polys;
     std::list<TPPLPoly> result;
 
     TPPLPoly poly;
-    poly.Init(vertices_point.size());
 
-	//for(int j = 0;j < vertices_point.size();j++)
-	for(int j = vertices_point.size()-1;j >= 0;j--)
-    {
-		double point_x = vertices_point[j].x*req.map_resolution+req.map_origin_x;
-		double point_y = vertices_point[j].y*req.map_resolution+req.map_origin_y;
-				
-		geometry_msgs::Pose pose_;
-		pose_.position.x = point_x;
-		pose_.position.y = point_y;
+    ROS_INFO("polygon.size:%d",polygon.size());
+    poly.Init(polygon.size());
 
-		res.pose.push_back(pose_);	
-        poly[j].x = point_x;
-        poly[j].y = point_y;
+    for( int i = 0;i < polygon.size();i++){
+        Point_2 p = polygon.vertex(i);
+        std::cout << "x():" << polygon[i].x() << std::endl;
+        std::cout << "y():" << polygon[i].y() << std::endl;
+        poly[i].x = p.x();
+        poly[i].y = p.y();
+        
+        geometry_msgs::Pose pose;
+        pose.position.x = p.x();
+        pose.position.y = p.y();
+        res.pose.push_back(pose);
 	}
 
-    //polys.push_back(poly);
-    
     bool res_polypartition = obj.ConvexPartition_OPT(&poly,&result);
     if(res_polypartition){
         ROS_INFO_STREAM("polypartition_size:" << result.size());
         ROS_INFO_STREAM("ConvexPartition success...");
+        std::list<TPPLPoly>::iterator iter;
+
+        for(iter = result.begin();iter != result.end();iter++){
+            geometry_msgs::Polygon partial_polygon;
+            
+            TPPLPoly tpp_poly = *iter;
+            for(int j = 0;j < tpp_poly.GetNumPoints();j++){
+                geometry_msgs::Point32 point_32;
+                point_32.x = tpp_poly.GetPoint(j).x;
+                point_32.y = tpp_poly.GetPoint(j).y;
+
+                partial_polygon.points.push_back(point_32);
+            }
+            res.polygon.push_back(partial_polygon);
+        }
+        
     }
     else
         ROS_INFO_STREAM("ConvexPartition failure...");
 
-#if 0
-	//Find  contour
-	std::vector<std::vector<cv::Point> > contours;
-	std::vector<cv::Vec4i> hierarchy;
-	std::vector<std::vector<cv::Point> > valid_internal_contours;
-
-	cv::findContours(bin,contours,hierarchy,CV_RETR_TREE,CV_CHAIN_APPROX_NONE,cv::Point());
-
-	ROS_INFO("find contours:%d",(int)contours.size());
-	int external_contour_id;
-	int max_external_contour = 0;
-
-	//find external contour and has subcontour 
-	for(int i = 0;i < contours.size();i++){
-		ROS_INFO("contours[%d]:%d",i,contours[i].size());
-		if(contours[i].size() > max_external_contour){
-			max_external_contour = contours[i].size();
-			external_contour_id = i;
-		}
-	}
-
-	ROS_INFO("valid_external_contour_size:%d",contours[external_contour_id].size());
-	//find subcontour
-	for(int i = 0;i < contours.size();i++){
-        if(i != external_contour_id)
-			if(contours[i].size() > req.internal_contour_threshold)
-            {
-				valid_internal_contours.push_back(contours[i]);
-				ROS_INFO("valid_internal_contour_size:%d",contours[i].size());
-			}
-	}
-
-	ROS_INFO("valid_internal_contour_number:%d",valid_internal_contours.size());
-	
-	//add external contour data
-	for(int i = 0;i < valid_internal_contours.size();i++){
-
-		vtkSmartPointer<vtkPolygon> polygon_ = vtkSmartPointer<vtkPolygon>::New();
-		
-        /*cv::RotatedRect rRect = cv::minAreaRect(valid_internal_contours[i]);
-		cv::Point2f vertices[4];
-		rRect.points(vertices);
-
-        for(int i = 0;i < 4;i++){
-			double point_x = vertices[i].x*req.map_resolution+req.map_origin_x;
-			double point_y = vertices[i].y*req.map_resolution+req.map_origin_y;
-
-			polygon_->GetPointIds()->InsertNextId(pts->GetNumberOfPoints());
-			pts->InsertNextPoint(point_x,point_y,0.0);
-		}*/
-
-		std::vector<cv::Point> convex_contour_poly_P;
-		cv::convexHull(valid_internal_contours[i],convex_contour_poly_P,false,true);
-
-		for(int i = 0;i < convex_contour_poly_P.size();i++){
-			double point_x = convex_contour_poly_P[i].x*req.map_resolution+req.map_origin_x;
-			double point_y = convex_contour_poly_P[i].y*req.map_resolution+req.map_origin_y;
-
-			polygon_->GetPointIds()->InsertNextId(pts->GetNumberOfPoints());
-			pts->InsertNextPoint(point_x,point_y,0.0);
-		}
-		cells->InsertNextCell(polygon_);
-	}
-#endif
 #endif
 	return true;
 }

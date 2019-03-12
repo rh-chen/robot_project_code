@@ -135,7 +135,7 @@ public:
 									visualization_msgs::MarkerArray markerArray;
 
 									int32_t plannerStartId = 0;
-#if 0
+#if 1
 								//divide polygon
 							{
 								for(int j = 0;j < srv_polypartition.response.polygon.size();j++){
