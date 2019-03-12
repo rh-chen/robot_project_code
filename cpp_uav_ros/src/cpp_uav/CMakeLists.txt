@@ -68,6 +68,11 @@ add_dependencies(zig_zag ${PROJECT_NAME}_generate_messages_cpp)
 
 target_link_libraries(zig_zag ${catkin_LIBRARIES} ${OpenCV_LIBS} CGAL)
 
+add_executable(zig_zag_poly src/zig_zag_poly.cpp)
+
+add_dependencies(zig_zag_poly ${PROJECT_NAME}_generate_messages_cpp)
+
+target_link_libraries(zig_zag_poly ${catkin_LIBRARIES} ${OpenCV_LIBS} CGAL)
 # Tests
 #catkin_add_gtest(test_zig_zag_cpp_service test/test_zig_zag_cpp_service.cpp)
 #catkin_add_gtest(test_cgutil test/test_cgutil.cpp)
