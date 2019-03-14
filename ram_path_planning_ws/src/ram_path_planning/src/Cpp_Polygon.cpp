@@ -17,10 +17,20 @@
 #include <opencv2/core/matx.hpp>
 #include <deque>
 
-#define DEFECT_LIMIT 12
-typedef vtkSmartPointer<vtkPolyData> Polygon;
-typedef std::vector<Polygon> PolygonVector;
-typedef std::vector<PolygonVector> Layer;
+#include <polypartition.h>
+
+#define CGAL_PARTITION_BRUTE_FORCE_FIX
+#include <CGAL/Exact_predicates_inexact_constructions_kernel.h>
+#include <CGAL/Partition_traits_2.h>
+#include <CGAL/partition_2.h>
+#include <CGAL/point_generators_2.h>
+#include <CGAL/random_polygon_2.h>
+
+typedef CGAL::Exact_predicates_inexact_constructions_kernel K;
+typedef CGAL::Partition_traits_2<K> Traits;
+typedef Traits::Point_2 Point_2;
+typedef Traits::Polygon_2 Polygon_2;
+typedef std::list<Polygon_2> Polygon_list;
 
 bool use_gui = false;
 
@@ -176,7 +186,7 @@ std::vector<cv::Point2i> makeOIP(cv::Mat& img, int gsize) {
 }
 
 #endif
-bool hasConvexDefects(std::vector<cv::Vec4i>& defects_,int start_,int end_,int& mid_){
+/*bool hasConvexDefects(std::vector<cv::Vec4i>& defects_,int start_,int end_,int& mid_){
 	for(int i = 0;i < defects_.size();i++){
 		if((defects_[i][0] == start_) && (defects_[i][1] == end_)){
 			if(defects_[i][3]/256 > DEFECT_LIMIT){
@@ -186,7 +196,7 @@ bool hasConvexDefects(std::vector<cv::Vec4i>& defects_,int start_,int end_,int& 
 		}
 	}
 	return false;
-}
+}*/
 
 double polygonArea(PointVector& pv_,int n){
 	if(n < 3)
@@ -244,19 +254,14 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
 	cv::Mat bin;
 	cv::threshold(map,bin,req.occupancy_threshold,255,cv::THRESH_BINARY_INV);
 	
-#if 1
-	double delta_point = 8;
+	double delta_point = 10;
 
 	//rectlinear polygon
 	std::vector<cv::Point2i> vertices_point;
 	vertices_point = makeOIP(bin,delta_point);
 
-	vtkSmartPointer<vtkPolyData> polygonPolyData = vtkSmartPointer<vtkPolyData>::New();
-	vtkSmartPointer<vtkPoints> pts = vtkSmartPointer<vtkPoints>::New();
-	vtkSmartPointer<vtkCellArray> cells = vtkSmartPointer<vtkCellArray>::New();
-
-	vtkSmartPointer<vtkPolygon> polygon = vtkSmartPointer<vtkPolygon>::New();
-
+    Polygon_2 polygon;
+    
 	for(int j = 0;j < vertices_point.size();j++){
 		double point_x = vertices_point[j].x*req.map_resolution+req.map_origin_x;
 		double point_y = vertices_point[j].y*req.map_resolution+req.map_origin_y;
@@ -266,14 +271,31 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
 		pose_.position.y = point_y;
 
 		res.pose.push_back(pose_);	
-
-		polygon->GetPointIds()->InsertNextId(pts->GetNumberOfPoints());
-		pts->InsertNextPoint(point_x,point_y,0.0);
+        polygon.push_back(Point_2(point_x,point_y));
 	}
 
-	cells->InsertNextCell(polygon);
+    if(polygon.is_clockwise_oriented())
+        polygon.reverse_orientation();
 
-#if 1
+
+    TPPLPartition obj;
+    std::list<TPPLPoly> polys;
+    std::list<TPPLPoly> result;
+
+    TPPLPoly poly;
+
+    ROS_INFO("polygon.size:%d",polygon.size());
+    poly.Init(polygon.size());
+    for( int i = 0;i < polygon.size();i++){
+        Point_2 p = polygon.vertex(i);
+        //ROS_INFO_STREAM("x():" << polygon[i].x());
+        //ROS_INFO_STREAM("y():" << polygon[i].y());
+        poly[i].x = p.x();
+        poly[i].y = p.y();
+    }
+
+    polys.push_back(poly);
+
 	//Find  contour
 	std::vector<std::vector<cv::Point> > contours;
 	std::vector<cv::Vec4i> hierarchy;
@@ -307,11 +329,10 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
 
 	ROS_INFO("valid_internal_contour_number:%d",valid_internal_contours.size());
 	
-	//add external contour data
+	//add internal contour data
 	for(int i = 0;i < valid_internal_contours.size();i++){
-
-		vtkSmartPointer<vtkPolygon> polygon_ = vtkSmartPointer<vtkPolygon>::New();
-		
+	    TPPLPoly poly_cell;
+        Polygon_2 polygon_cell;
         /*cv::RotatedRect rRect = cv::minAreaRect(valid_internal_contours[i]);
 		cv::Point2f vertices[4];
 		rRect.points(vertices);
@@ -324,101 +345,91 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
 			pts->InsertNextPoint(point_x,point_y,0.0);
 		}*/
 
-		std::vector<cv::Point> convex_contour_poly_P;
-		cv::convexHull(valid_internal_contours[i],convex_contour_poly_P,false,true);
+		std::vector<cv::Point> convex_contour_poly_p;
+		cv::convexHull(valid_internal_contours[i],convex_contour_poly_p,false,true);
 
-		for(int i = 0;i < convex_contour_poly_P.size();i++){
-			double point_x = convex_contour_poly_P[i].x*req.map_resolution+req.map_origin_x;
-			double point_y = convex_contour_poly_P[i].y*req.map_resolution+req.map_origin_y;
-
-			polygon_->GetPointIds()->InsertNextId(pts->GetNumberOfPoints());
-			pts->InsertNextPoint(point_x,point_y,0.0);
+		for(int i = 0;i < convex_contour_poly_p.size();i++){
+			double point_x = convex_contour_poly_p[i].x*req.map_resolution+req.map_origin_x;
+			double point_y = convex_contour_poly_p[i].y*req.map_resolution+req.map_origin_y;
+            
+            polygon_cell.push_back(Point_2(point_x,point_y));
 		}
-		cells->InsertNextCell(polygon_);
+
+        if(polygon_cell.is_counterclockwise_oriented())
+            polygon_cell.reverse_orientation();
+
+        ROS_INFO("polygon_cell.size:%d",polygon_cell.size());
+        poly_cell.Init(polygon_cell.size());
+
+        for( int i = 0;i < polygon_cell.size();i++){
+            Point_2 p_cell = polygon_cell.vertex(i);
+            //ROS_INFO_STREAM("x():" << polygon_cell[i].x());
+            //ROS_INFO_STREAM("y():" << polygon_cell[i].y());
+            poly_cell[i].x = p_cell.x();
+            poly_cell[i].y = p_cell.y();
+        }
+
+        polys.push_back(poly_cell);
 	}
-#endif
-	polygonPolyData->SetPoints(pts);
-	polygonPolyData->SetPolys(cells);
 
-	PolygonVector polygon_vector_;
-  	Layer current_layer_;
-
-	polygon_vector_.push_back(polygonPolyData);
-	current_layer_.push_back(polygon_vector_);
-#if 1
-  	ram_path_planning::AdditiveManufacturingTrajectory msg;
-  	DonghongDing dhd;
 	std::vector<PointVector> final_path;
 	// Generate trajectory
-  	if (current_layer_.size() > 0)
+  	if (polys.size() > 0)
   	{
-    	std::string error_message;
-    	error_message = dhd.generateOneLayerTrajectory(
-													0, 0,polygonPolyData,current_layer_,
-                                                    req.deposited_material_width,
-                                                    req.contours_filtering_tolerance, M_PI/3,
-                                                    false,
-                                                    use_gui);
 
-		ROS_INFO("current_layer_size:%d",current_layer_[0].size());
+        bool res_polypartition = obj.ConvexPartition_CGAL(&polys,&result); 
+        ROS_INFO_STREAM("res_polypartition:" << res_polypartition);
 
-		std_msgs::Float64 footprintLength, footprintWidth, horizontalOverwrap, verticalOverwrap;
-		footprintLength.data = 0.3;
-		footprintWidth.data = 0.3;
-		horizontalOverwrap.data = 0.1;
-		verticalOverwrap.data = 0.1;
+        if(!res_polypartition)
+            return false;
+        
+        ROS_INFO_STREAM("polypartition_size:" << result.size());
+		ROS_INFO_STREAM("ConvexPartition success...");
+        
+        std_msgs::Float64 footprintLength, footprintWidth, horizontalOverwrap, verticalOverwrap;
+        footprintLength.data = 0.3;
+        footprintWidth.data = 0.3; 
+        horizontalOverwrap.data = 0.1;
+        verticalOverwrap.data = 0.1;
 
-		for(int i = 0;i < current_layer_[0].size();i++)
-		{
-			vtkSmartPointer<vtkIdList> cellPointIds = vtkSmartPointer<vtkIdList>::New();
-			vtkIdType cellId = 0;
+        std::list<TPPLPoly>::iterator iter;
+        for(iter = result.begin();iter != result.end();iter++){
+            geometry_msgs::Polygon partial_polygon;
+            PointVector polygon_bcd,candidatePath;
 
-			vtkPolyData* pData = current_layer_[0][i];
-			pData->GetCellPoints(cellId,cellPointIds);
-			ROS_INFO("cell_number_id:%d",cellPointIds->GetNumberOfIds());
-			geometry_msgs::Polygon polygon_divide;
-			PointVector polygon_bcd,candidatePath;
+            TPPLPoly tpp_poly = *iter;
+            for(int j = 0;j < tpp_poly.GetNumPoints();j++){
+                geometry_msgs::Point32 point_32;
+                geometry_msgs::Point point_divide_bcd;
 
-			for(vtkIdType j = 0;j < cellPointIds->GetNumberOfIds();j++){
-				double point_[3];
-				vtkIdType point_id_ = cellPointIds->GetId(j);
-				pData->GetPoints()->GetPoint(point_id_,point_);
-				geometry_msgs::Point32 point_divide;
-				geometry_msgs::Point point_divide_bcd;
+                point_32.x = tpp_poly.GetPoint(j).x;
+                point_32.y = tpp_poly.GetPoint(j).y;
+                
+                point_divide_bcd.x = tpp_poly.GetPoint(j).x;
+                point_divide_bcd.y = tpp_poly.GetPoint(j).y;
 
-				point_divide.x = point_[0];
-				point_divide.y = point_[1];
-				point_divide.z = point_[2];
+                partial_polygon.points.push_back(point_32);
+                polygon_bcd.push_back(point_divide_bcd);
+             }
+             res.polygon.push_back(partial_polygon);
 
-				point_divide_bcd.x = point_[0];
-				point_divide_bcd.y = point_[1];
-				point_divide_bcd.z = point_[2];
+             bool isOptimal = computeConvexCoverage(polygon_bcd, footprintWidth.data, horizontalOverwrap.data, candidatePath);
+                
+             ROS_INFO_STREAM("isOptimal:" << isOptimal);
+			 if(isOptimal){
+		        geometry_msgs::Point start = polygon_bcd[0];
 
-				polygon_divide.points.push_back(point_divide);
-				polygon_bcd.push_back(point_divide_bcd);
-			}
-			res.polygon.push_back(polygon_divide);
-			double polygon_area = polygonArea(polygon_bcd,polygon_bcd.size());
-			ROS_INFO("polygon_area:%f",polygon_area);
-		    
-			bool isOptimal = computeConvexCoverage(polygon_bcd, footprintWidth.data, horizontalOverwrap.data, candidatePath);
-			
-			ROS_INFO("isOptimal:%d",isOptimal);
-			if(isOptimal){
-				geometry_msgs::Point start = polygon_bcd[0];
 				PointVector optimal_path = identifyOptimalAlternative(polygon_bcd, candidatePath, start);
-				//optimal_path.insert(optimal_path.begin(),start);
+				
+                optimal_path.insert(optimal_path.begin(),start);
 				final_path.push_back(optimal_path);
-			}
-			else{
-				ROS_INFO("zigzag path plannning fail...");
+			 }
+			 else{
+			    ROS_INFO("zigzag path plannning fail...");
 				return false;
-			}
-		}
+			 }
+        }
   	}
-
-#endif
-#endif
 
 	for(int index_i = 0;index_i < final_path.size();index_i++){
 		nav_msgs::Path path_bcd;

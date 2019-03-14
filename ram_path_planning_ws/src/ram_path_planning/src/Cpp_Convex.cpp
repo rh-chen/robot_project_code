@@ -746,7 +746,7 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
 #endif
 
 #if 1
-	cv::Mat element_erode = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(7, 7));
+	/*cv::Mat element_erode = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(7, 7));
 	cv::Mat element_dilate = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(7, 7));
 	cv::Mat bin_out_erode;
 	cv::Mat bin_out_dilate;
@@ -777,6 +777,7 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
     res.map.header.frame_id = req.map.header.frame_id;
     res.map.info.origin.position.x = req.map.info.origin.position.x;
     res.map.info.origin.position.y = req.map.info.origin.position.y;
+    */
 
 	std::vector<std::vector<cv::Point> > contours;
 	std::vector<cv::Vec4i> hierarchy;

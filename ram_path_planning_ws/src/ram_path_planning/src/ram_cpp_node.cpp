@@ -147,9 +147,9 @@ public:
 					srv_zigzag.request.start_position_y = msg->point.y;
 					srv_zigzag.request.height_between_layers = 1;
 					srv_zigzag.request.deposited_material_width = 0.3;
-					srv_zigzag.request.contours_filtering_tolerance = 0.1;
+					srv_zigzag.request.contours_filtering_tolerance = 0.2;
 					srv_zigzag.request.map = map_modify_srv.response.map;
-					srv_zigzag.request.internal_contour_threshold = 72;
+					srv_zigzag.request.internal_contour_threshold = 128;
 
 					ros::Time begin = ros::Time::now();
 					bool res_srv_zigzag = client_zigzag.call(srv_zigzag);
@@ -164,7 +164,7 @@ public:
 							while(ros::ok()){
 
                                     pub_map_modify.publish(map_modify_srv.response.map);
-									pub_map_cpp.publish(srv_zigzag.response.map);
+									//pub_map_cpp.publish(srv_zigzag.response.map);
 
 									visualization_msgs::MarkerArray markerArray;
 

@@ -18,8 +18,9 @@ find_package(catkin REQUIRED COMPONENTS
   nav_msgs
 )
 find_package(OpenCV REQUIRED)
-
 find_package(CGAL REQUIRED COMPONENTS Core)
+include( ${CGAL_USE_FILE} )
+include( CGAL_CreateSingleSourceCGALProgram )
 
 find_package(VTK 7.1.0 QUIET)
 if (NOT VTK_FOUND)
@@ -85,20 +86,19 @@ generate_messages(
 ## Build ##
 ###########
 
-include( ${CGAL_USE_FILE} )
-include( CGAL_CreateSingleSourceCGALProgram)
-
 include_directories(
   include
+  lib/
   ${catkin_INCLUDE_DIRS}
   ${OpenCV_INCLUDE_DIRS}
 )
 
 # Library (mostly VTK) that slices a mesh into layers
-#add_library(
-#  ${PROJECT_NAME}_mesh_slicer
-#  src/mesh_slicer.cpp
-#)
+add_library(polypartition SHARED
+    lib/polypartition.cpp
+    lib/polypartition.h
+)
+add_dependencies(polypartition ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 #target_link_libraries(
 #  ${PROJECT_NAME}_mesh_slicer
 #  ${catkin_LIBRARIES}
@@ -108,6 +108,41 @@ include_directories(
 #  ${PROJECT_NAME}_mesh_slicer
 #  ${catkin_EXPORTED_TARGETS}
 #)
+
+add_executable(
+  cpp_cgal_node
+  src/Cpp_Cgal.cpp
+)
+target_link_libraries(
+  cpp_cgal_node
+  ${catkin_LIBRARIES}
+  ${VTK_LIBRARIES}
+  ${OpenCV_LIBS}
+  polypartition
+  CGAL
+)
+add_dependencies(
+  cpp_cgal_node
+  ${PROJECT_NAME}_generate_messages_cpp
+  ${catkin_EXPORTED_TARGETS}
+)
+
+add_executable(
+  cpp_polygon_node
+  src/Cpp_Polygon.cpp
+)
+target_link_libraries(
+  cpp_polygon_node
+  ${catkin_LIBRARIES}
+  ${VTK_LIBRARIES}
+  ${OpenCV_LIBS}
+  polypartition
+)
+add_dependencies(
+  cpp_polygon_node
+  ${PROJECT_NAME}_generate_messages_cpp
+  ${catkin_EXPORTED_TARGETS}
+)
 
 # Service node
 add_executable(

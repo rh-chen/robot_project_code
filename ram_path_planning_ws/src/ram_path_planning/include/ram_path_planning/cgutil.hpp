@@ -8,6 +8,7 @@
 #include <stack>
 #include <vector>
 
+#define CGAL_PARTITION_BRUTE_FORCE_FIX
 // CGAL
 #include <CGAL/Exact_predicates_inexact_constructions_kernel.h>
 #include <CGAL/Partition_is_valid_traits_2.h>
@@ -16,6 +17,10 @@
 #include <CGAL/point_generators_2.h>
 #include <CGAL/polygon_function_objects.h>
 #include <CGAL/random_polygon_2.h>
+#include <CGAL/Polygon_with_holes_2.h>
+#include <CGAL/Polygon_vertical_decomposition_2.h>
+#include <CGAL/Boolean_set_operations_2.h>
+
 
 // roscpp
 #include <ros/ros.h>

@@ -638,8 +638,9 @@ namespace Cpp
 
   bool DonghongDingBase::removeDuplicatePoints(const Polygon poly_data,
                                                const double tolerance)
-  {/*
-   vtkSmartPointer<vtkCellArray> polygon_array = vtkSmartPointer<vtkCellArray>::New();
+  {
+
+   /*vtkSmartPointer<vtkCellArray> polygon_array = vtkSmartPointer<vtkCellArray>::New();
    vtkSmartPointer<vtkPoints> points = vtkSmartPointer<vtkPoints>::New();
    vtkSmartPointer<vtkPolyData> new_poly_data = vtkSmartPointer<vtkPolyData>::New();
    vtkIdType n_cells = poly_data->GetNumberOfCells();
@@ -674,9 +675,6 @@ namespace Cpp
     cleaner->Update();
     if (cleaner->GetOutput()->GetNumberOfPoints() < 3)
     {
-      /*ROS_ERROR_STREAM(
-                       "removeDuplicatePoints: Not enough points" << std::endl <<
-                           "vtkPolyData contains " << cleaner->GetOutput()->GetNumberOfPoints() << " points");*/
 
       ROS_WARN_STREAM(
                        "removeDuplicatePoints: Not enough points" << std::endl <<
@@ -684,6 +682,8 @@ namespace Cpp
       return false;
     }
     poly_data->ShallowCopy(cleaner->GetOutput());
+    
+
     return true;
 
   }
