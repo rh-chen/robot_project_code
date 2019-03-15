@@ -4,32 +4,75 @@
 !_TAG_PROGRAM_NAME	Exuberant Ctags	//
 !_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
 !_TAG_PROGRAM_VERSION	5.9~svn20110310	//
+AddDiagonal	lib/polypartition.cpp	/^void TPPLPartition::AddDiagonal(MonotoneVertex *vertices, long *numvertices, long index1, long index2, $/;"	f	class:TPPLPartition
+Below	lib/polypartition.cpp	/^bool TPPLPartition::Below(TPPLPoint &p1, TPPLPoint &p2) {$/;"	f	class:TPPLPartition
 BresenhamLine	src/map_modify_node.cpp	/^void BresenhamLine(cv::Point& start,cv::Point& end,vector<cv::Point>& v){$/;"	f	namespace:ns_map_modify
+CGAL_PARTITION_BRUTE_FORCE_FIX	include/ram_path_planning/cgutil.hpp	11;"	d
+CGAL_PARTITION_BRUTE_FORCE_FIX	lib/polypartition.cpp	32;"	d	file:
+CGAL_PARTITION_BRUTE_FORCE_FIX	src/Cpp_Polygon.cpp	22;"	d	file:
+Clear	lib/polypartition.cpp	/^void TPPLPoly::Clear() {$/;"	f	class:TPPLPoly
+ContainerCgal	src/Cpp_Cgal.cpp	/^typedef std::vector<PointCgal> ContainerCgal;$/;"	t	file:
+ConvexPartition_CGAL	lib/polypartition.cpp	/^int TPPLPartition::ConvexPartition_CGAL(TPPLPolyList *inpolys, TPPLPolyList *parts){$/;"	f	class:TPPLPartition
+ConvexPartition_HM	lib/polypartition.cpp	/^int TPPLPartition::ConvexPartition_HM(TPPLPoly *poly, TPPLPolyList *parts) {$/;"	f	class:TPPLPartition
+ConvexPartition_HM	lib/polypartition.cpp	/^int TPPLPartition::ConvexPartition_HM(TPPLPolyList *inpolys, TPPLPolyList *parts) {$/;"	f	class:TPPLPartition
+ConvexPartition_OPT	lib/polypartition.cpp	/^int TPPLPartition::ConvexPartition_OPT(TPPLPoly *poly, TPPLPolyList *parts) {$/;"	f	class:TPPLPartition
 Cpp	include/ram_path_planning/donghong_ding.hpp	/^namespace Cpp$/;"	n
 Cpp	include/ram_path_planning/donghong_ding_base.hpp	/^namespace Cpp$/;"	n
 Cpp	include/ram_path_planning/donghong_ding_base_imp.hpp	/^namespace Cpp$/;"	n
 Cpp	include/ram_path_planning/donghong_ding_imp.hpp	/^namespace Cpp$/;"	n
 Cpp	include/ram_path_planning/shemaphore.hpp	/^namespace Cpp$/;"	n
 Cpp	src/Cpp.cpp	/^namespace Cpp{$/;"	n	file:
+Cpp	src/Cpp_Cgal.cpp	/^namespace Cpp{$/;"	n	file:
 Cpp	src/Cpp_Convex.cpp	/^namespace Cpp{$/;"	n	file:
+Cpp	src/Cpp_Polygon.cpp	/^namespace Cpp{$/;"	n	file:
 DEFECT_LIMIT	src/Cpp.cpp	20;"	d	file:
 DEFECT_LIMIT	src/Cpp_Convex.cpp	18;"	d	file:
+DPState	lib/polypartition.h	/^        struct DPState {$/;"	s	class:TPPLPartition
+DPState2	lib/polypartition.h	/^        struct DPState2 {$/;"	s	class:TPPLPartition
+Diagonal	lib/polypartition.h	/^        struct Diagonal {$/;"	s	class:TPPLPartition
+DiagonalList	lib/polypartition.h	/^        typedef std::list<Diagonal, TPPL_ALLOCATOR(Diagonal)> DiagonalList;$/;"	t	class:TPPLPartition
+DiagonalList	lib/polypartition.h	/^        typedef std::list<Diagonal> DiagonalList;$/;"	t	class:TPPLPartition
 Direction	include/ram_path_planning/cpp_uav.hpp	/^struct Direction$/;"	s
+Direction	lib/polypartition.cpp	/^typedef Kernel::Direction_2 Direction;$/;"	t	file:
+DirectionCgal	src/Cpp_Cgal.cpp	/^typedef Kernel::Direction_2 DirectionCgal;$/;"	t	file:
+Distance	lib/polypartition.cpp	/^tppl_float TPPLPartition::Distance(const TPPLPoint &p1, const TPPLPoint &p2) {$/;"	f	class:TPPLPartition
 DonghongDing	include/ram_path_planning/donghong_ding.hpp	/^  class DonghongDing:public DonghongDingBase$/;"	c	namespace:Cpp
 DonghongDing	include/ram_path_planning/donghong_ding_imp.hpp	/^  DonghongDing::DonghongDing() :$/;"	f	class:Cpp::DonghongDing
 DonghongDingBase	include/ram_path_planning/donghong_ding_base.hpp	/^  class DonghongDingBase$/;"	c	namespace:Cpp
 DonghongDingBase	include/ram_path_planning/donghong_ding_base_imp.hpp	/^  DonghongDingBase::DonghongDingBase(const std::string name,$/;"	f	class:Cpp::DonghongDingBase
 FALSE	src/lsd.cpp	89;"	d	file:
+Ft	lib/polypartition.cpp	/^typedef Kernel::FT Ft;$/;"	t	file:
+Ft	src/Cpp_Cgal.cpp	/^typedef Kernel::FT Ft;$/;"	t	file:
+GetNumPoints	lib/polypartition.h	/^        long GetNumPoints() const {$/;"	f	class:TPPLPoly
+GetOrientation	lib/polypartition.cpp	/^int TPPLPoly::GetOrientation() const {$/;"	f	class:TPPLPoly
+GetPoint	lib/polypartition.h	/^        TPPLPoint &GetPoint(long i) {$/;"	f	class:TPPLPoly
+GetPoint	lib/polypartition.h	/^        const TPPLPoint &GetPoint(long i) const {$/;"	f	class:TPPLPoly
+GetPoints	lib/polypartition.h	/^        TPPLPoint *GetPoints() {$/;"	f	class:TPPLPoly
 Histogram	include/ram_path_planning/histogram.h	/^	Histogram(const T lower_bound, const T upper_bound, const size_t histogram_bins)$/;"	f	class:Histogram
 Histogram	include/ram_path_planning/histogram.h	/^class Histogram$/;"	c
 INCLUDED_cgutil_hpp_	include/ram_path_planning/cgutil.hpp	2;"	d
 INCLUDED_cpp_uav_hpp_	include/ram_path_planning/cpp_uav.hpp	2;"	d
 ImgRotate	src/line_detection_and_rotation.cpp	/^	bool ImgRotate(cv::Mat& src_,cv::Mat& dst_,int direction,double angle,vector<double>& rot_mat)$/;"	f	namespace:line_detection_and_rotation
+InCone	lib/polypartition.cpp	/^bool TPPLPartition::InCone(PartitionVertex *v, TPPLPoint &p) {$/;"	f	class:TPPLPartition
+InCone	lib/polypartition.cpp	/^bool TPPLPartition::InCone(TPPLPoint &p1, TPPLPoint &p2, TPPLPoint &p3, TPPLPoint &p) {$/;"	f	class:TPPLPartition
+Init	lib/polypartition.cpp	/^void TPPLPoly::Init(long numpoints) {$/;"	f	class:TPPLPoly
+Intersects	lib/polypartition.cpp	/^int TPPLPartition::Intersects(TPPLPoint &p11, TPPLPoint &p12, TPPLPoint &p21, TPPLPoint &p22) {$/;"	f	class:TPPLPartition
+Invert	lib/polypartition.cpp	/^void TPPLPoly::Invert() {$/;"	f	class:TPPLPoly
+IsConvex	lib/polypartition.cpp	/^bool TPPLPartition::IsConvex(TPPLPoint& p1, TPPLPoint& p2, TPPLPoint& p3) {$/;"	f	class:TPPLPartition
+IsConvex	lib/polypartition.cpp	/^bool TPPLPartition::ScanLineEdge::IsConvex(const TPPLPoint& p1, const TPPLPoint& p2, const TPPLPoint& p3) const {$/;"	f	class:TPPLPartition::ScanLineEdge
+IsHole	lib/polypartition.h	/^        bool IsHole() const {$/;"	f	class:TPPLPoly
+IsInside	lib/polypartition.cpp	/^bool TPPLPartition::IsInside(TPPLPoint& p1, TPPLPoint& p2, TPPLPoint& p3, TPPLPoint &p) {$/;"	f	class:TPPLPartition
+IsReflex	lib/polypartition.cpp	/^bool TPPLPartition::IsReflex(TPPLPoint& p1, TPPLPoint& p2, TPPLPoint& p3) {$/;"	f	class:TPPLPartition
+K	src/Cpp_Polygon.cpp	/^typedef CGAL::Exact_predicates_inexact_constructions_kernel K;$/;"	t	file:
+Kernel	lib/polypartition.cpp	/^typedef CGAL::Exact_predicates_inexact_constructions_kernel Kernel;$/;"	t	file:
+Kernel	src/Cpp_Cgal.cpp	/^typedef CGAL::Exact_predicates_inexact_constructions_kernel Kernel;$/;"	t	file:
 LSD_HEADER	include/ram_path_planning/lsd.h	29;"	d
 Layer	include/ram_path_planning/donghong_ding.hpp	/^    typedef std::vector<PolygonVector> Layer;$/;"	t	class:Cpp::DonghongDing
 Layer	include/ram_path_planning/donghong_ding_base.hpp	/^    typedef std::vector<PolygonVector> Layer;$/;"	t	class:Cpp::DonghongDingBase
 Layer	src/Cpp.cpp	/^typedef std::vector<PolygonVector> Layer;$/;"	t	file:
 Layer	src/Cpp_Convex.cpp	/^typedef std::vector<PolygonVector> Layer;$/;"	t	file:
+Line	lib/polypartition.cpp	/^typedef Kernel::Line_2 Line;$/;"	t	file:
+LineCgal	src/Cpp_Cgal.cpp	/^typedef Kernel::Line_2 LineCgal;$/;"	t	file:
 LineData	src/line_detection_and_rotation.cpp	/^	}LineData;$/;"	t	namespace:line_detection_and_rotation	typeref:struct:line_detection_and_rotation::__anon1	file:
 LineSegmentDetection	src/lsd.cpp	/^ntuple_list LineSegmentDetection( image_double image, double scale,$/;"	f
 M_2__PI	src/lsd.cpp	103;"	d	file:
@@ -38,16 +81,33 @@ M_LN10	src/lsd.cpp	80;"	d	file:
 M_PI	src/lsd.cpp	85;"	d	file:
 MapModifyService	src/map_modify_node.cpp	/^bool MapModifyService($/;"	f	namespace:ns_map_modify
 MapRotate	src/line_detection_and_rotation.cpp	/^	bool MapRotate(ram_path_planning::MapRotate::Request &req,     $/;"	f	namespace:line_detection_and_rotation
+MonotonePartition	lib/polypartition.cpp	/^int TPPLPartition::MonotonePartition(TPPLPolyList *inpolys, TPPLPolyList *monotonePolys) {$/;"	f	class:TPPLPartition
+MonotoneVertex	lib/polypartition.h	/^        struct MonotoneVertex {$/;"	s	class:TPPLPartition
 NOTDEF	src/lsd.cpp	97;"	d	file:
 NOTUSED	src/lsd.cpp	106;"	d	file:
+Normalize	lib/polypartition.cpp	/^TPPLPoint TPPLPartition::Normalize(const TPPLPoint &p) {$/;"	f	class:TPPLPartition
+POLYPARTITION_H	lib/polypartition.h	22;"	d
+PartitionVertex	lib/polypartition.cpp	/^TPPLPartition::PartitionVertex::PartitionVertex() : previous(NULL), next(NULL) {$/;"	f	class:TPPLPartition::PartitionVertex
+PartitionVertex	lib/polypartition.h	/^        struct PartitionVertex {$/;"	s	class:TPPLPartition
+Point	lib/polypartition.cpp	/^typedef Kernel::Point_2 Point;$/;"	t	file:
+PointCgal	src/Cpp_Cgal.cpp	/^typedef Kernel::Point_2 PointCgal;$/;"	t	file:
+Point_2	src/Cpp_Polygon.cpp	/^typedef Traits::Point_2 Point_2;$/;"	t	file:
 Polygon	include/ram_path_planning/donghong_ding.hpp	/^    typedef vtkSmartPointer<vtkPolyData> Polygon;$/;"	t	class:Cpp::DonghongDing
 Polygon	include/ram_path_planning/donghong_ding_base.hpp	/^    typedef vtkSmartPointer<vtkPolyData> Polygon;$/;"	t	class:Cpp::DonghongDingBase
+Polygon	lib/polypartition.cpp	/^typedef CGAL::Polygon_2<Kernel> Polygon;$/;"	t	file:
 Polygon	src/Cpp.cpp	/^typedef vtkSmartPointer<vtkPolyData> Polygon;$/;"	t	file:
 Polygon	src/Cpp_Convex.cpp	/^typedef vtkSmartPointer<vtkPolyData> Polygon;$/;"	t	file:
+PolygonCgal	src/Cpp_Cgal.cpp	/^typedef CGAL::Polygon_2<Kernel> PolygonCgal;$/;"	t	file:
+PolygonListCgal	src/Cpp_Cgal.cpp	/^typedef std::list<PolygonCgal> PolygonListCgal;$/;"	t	file:
 PolygonVector	include/ram_path_planning/donghong_ding.hpp	/^    typedef std::vector<Polygon> PolygonVector;$/;"	t	class:Cpp::DonghongDing
 PolygonVector	include/ram_path_planning/donghong_ding_base.hpp	/^    typedef std::vector<Polygon> PolygonVector;$/;"	t	class:Cpp::DonghongDingBase
 PolygonVector	src/Cpp.cpp	/^typedef std::vector<Polygon> PolygonVector;$/;"	t	file:
 PolygonVector	src/Cpp_Convex.cpp	/^typedef std::vector<Polygon> PolygonVector;$/;"	t	file:
+PolygonWithHoles	lib/polypartition.cpp	/^typedef CGAL::Polygon_with_holes_2<Kernel> PolygonWithHoles;$/;"	t	file:
+PolygonWithHolesCgal	src/Cpp_Cgal.cpp	/^typedef CGAL::Polygon_with_holes_2<Kernel> PolygonWithHolesCgal;$/;"	t	file:
+Polygon_2	src/Cpp_Polygon.cpp	/^typedef Traits::Polygon_2 Polygon_2;$/;"	t	file:
+Polygon_list	lib/polypartition.cpp	/^typedef std::list<Polygon> Polygon_list;$/;"	t	file:
+Polygon_list	src/Cpp_Polygon.cpp	/^typedef std::list<Polygon_2> Polygon_list;$/;"	t	file:
 RAM_PATH_PLANNING_DONGHONG_DINGBASE_HPP	include/ram_path_planning/donghong_ding_base.hpp	2;"	d
 RAM_PATH_PLANNING_DONGHONG_DINGBASE_IMP_HPP	include/ram_path_planning/donghong_ding_base_imp.hpp	2;"	d
 RAM_PATH_PLANNING_DONGHONG_DING_HPP	include/ram_path_planning/donghong_ding.hpp	2;"	d
@@ -55,19 +115,61 @@ RAM_PATH_PLANNING_DONGHONG_DING_IMP_HPP	include/ram_path_planning/donghong_ding_
 RAM_PATH_PLANNING_SEMAPHORE_HPP	include/ram_path_planning/shemaphore.hpp	2;"	d
 RELATIVE_ERROR_FACTOR	src/lsd.cpp	145;"	d	file:
 RawData	include/ram_path_planning/histogram.h	/^	typedef std::vector< std::pair< T, double> > RawData;$/;"	t	class:Histogram
+RemoveHoles	lib/polypartition.cpp	/^int TPPLPartition::RemoveHoles(TPPLPolyList *inpolys, TPPLPolyList *outpolys) {$/;"	f	class:TPPLPartition
+ScanLineEdge	lib/polypartition.h	/^        struct ScanLineEdge {$/;"	s	class:TPPLPartition
+Segment	lib/polypartition.cpp	/^typedef Kernel::Segment_2 Segment;$/;"	t	file:
+SegmentCgal	src/Cpp_Cgal.cpp	/^typedef Kernel::Segment_2 SegmentCgal;$/;"	t	file:
 Semaphore	include/ram_path_planning/shemaphore.hpp	/^  inline Semaphore(unsigned int counter) :$/;"	f	class:Cpp::Semaphore
 Semaphore	include/ram_path_planning/shemaphore.hpp	/^class Semaphore$/;"	c	namespace:Cpp
+SetHole	lib/polypartition.h	/^        void SetHole(bool hole) {$/;"	f	class:TPPLPoly
+SetOrientation	lib/polypartition.cpp	/^void TPPLPoly::SetOrientation(int orientation) {$/;"	f	class:TPPLPoly
 TABSIZE	src/lsd.cpp	922;"	d	file:
+TPPLPartition	lib/polypartition.h	/^class TPPLPartition {$/;"	c
+TPPLPoint	lib/polypartition.h	/^struct TPPLPoint {$/;"	s
+TPPLPoly	lib/polypartition.cpp	/^TPPLPoly::TPPLPoly() { $/;"	f	class:TPPLPoly
+TPPLPoly	lib/polypartition.cpp	/^TPPLPoly::TPPLPoly(const TPPLPoly &src) : TPPLPoly() {$/;"	f	class:TPPLPoly
+TPPLPoly	lib/polypartition.h	/^class TPPLPoly {$/;"	c
+TPPLPolyList	lib/polypartition.h	/^typedef std::list<TPPLPoly, TPPL_ALLOCATOR(TPPLPoly)> TPPLPolyList;$/;"	t
+TPPLPolyList	lib/polypartition.h	/^typedef std::list<TPPLPoly> TPPLPolyList;$/;"	t
+TPPL_CCW	lib/polypartition.h	29;"	d
+TPPL_CW	lib/polypartition.h	30;"	d
+TPPL_VERTEXTYPE_END	lib/polypartition.cpp	59;"	d	file:
+TPPL_VERTEXTYPE_MERGE	lib/polypartition.cpp	61;"	d	file:
+TPPL_VERTEXTYPE_REGULAR	lib/polypartition.cpp	57;"	d	file:
+TPPL_VERTEXTYPE_SPLIT	lib/polypartition.cpp	60;"	d	file:
+TPPL_VERTEXTYPE_START	lib/polypartition.cpp	58;"	d	file:
 TRUE	src/lsd.cpp	93;"	d	file:
+Traits	src/Cpp_Polygon.cpp	/^typedef CGAL::Partition_traits_2<K> Traits;$/;"	t	file:
+Triangle	lib/polypartition.cpp	/^void TPPLPoly::Triangle(TPPLPoint &p1, TPPLPoint &p2, TPPLPoint &p3) {$/;"	f	class:TPPLPoly
+TriangulateMonotone	lib/polypartition.cpp	/^int TPPLPartition::TriangulateMonotone(TPPLPoly *inPoly, TPPLPolyList *triangles) {$/;"	f	class:TPPLPartition
+Triangulate_EC	lib/polypartition.cpp	/^int TPPLPartition::Triangulate_EC(TPPLPoly *poly, TPPLPolyList *triangles) {$/;"	f	class:TPPLPartition
+Triangulate_EC	lib/polypartition.cpp	/^int TPPLPartition::Triangulate_EC(TPPLPolyList *inpolys, TPPLPolyList *triangles) {$/;"	f	class:TPPLPartition
+Triangulate_MONO	lib/polypartition.cpp	/^int TPPLPartition::Triangulate_MONO(TPPLPoly *poly, TPPLPolyList *triangles) {$/;"	f	class:TPPLPartition
+Triangulate_MONO	lib/polypartition.cpp	/^int TPPLPartition::Triangulate_MONO(TPPLPolyList *inpolys, TPPLPolyList *triangles) {$/;"	f	class:TPPLPartition
+Triangulate_OPT	lib/polypartition.cpp	/^int TPPLPartition::Triangulate_OPT(TPPLPoly *poly, TPPLPolyList *triangles) {$/;"	f	class:TPPLPartition
+TypeA	lib/polypartition.cpp	/^void TPPLPartition::TypeA(long i, long j, long k, PartitionVertex *vertices, DPState2 **dpstates) {$/;"	f	class:TPPLPartition
+TypeB	lib/polypartition.cpp	/^void TPPLPartition::TypeB(long i, long j, long k, PartitionVertex *vertices, DPState2 **dpstates) {$/;"	f	class:TPPLPartition
 USED	src/lsd.cpp	109;"	d	file:
+UpdateState	lib/polypartition.cpp	/^void TPPLPartition::UpdateState(long a, long b, long w, long i, long j, DPState2 **dpstates) {$/;"	f	class:TPPLPartition
+UpdateVertex	lib/polypartition.cpp	/^void TPPLPartition::UpdateVertex(PartitionVertex *v, PartitionVertex *vertices, long numvertices) {$/;"	f	class:TPPLPartition
+UpdateVertexReflexity	lib/polypartition.cpp	/^void TPPLPartition::UpdateVertexReflexity(PartitionVertex *v) {$/;"	f	class:TPPLPartition
+Valid	lib/polypartition.h	/^        inline bool Valid() const { return this->numpoints >= 3; }$/;"	f	class:TPPLPoly
+Vector	lib/polypartition.cpp	/^typedef Kernel::Vector_2 Vector;$/;"	t	file:
+VectorCgal	src/Cpp_Cgal.cpp	/^typedef Kernel::Vector_2 VectorCgal;$/;"	t	file:
+VertexSorter	lib/polypartition.h	/^            VertexSorter(MonotoneVertex *v) : vertices(v) {}$/;"	f	class:TPPLPartition::VertexSorter
+VertexSorter	lib/polypartition.h	/^        class VertexSorter{$/;"	c	class:TPPLPartition
 ZigZagCpp	src/Cpp.cpp	/^bool ZigZagCpp(ram_path_planning::Cpp::Request& req,$/;"	f	namespace:Cpp
+ZigZagCpp	src/Cpp_Cgal.cpp	/^bool ZigZagCpp(ram_path_planning::Cpp::Request& req,$/;"	f	namespace:Cpp
 ZigZagCpp	src/Cpp_Convex.cpp	/^bool ZigZagCpp(ram_path_planning::Cpp::Request& req,$/;"	f	namespace:Cpp
+ZigZagCpp	src/Cpp_Polygon.cpp	/^bool ZigZagCpp(ram_path_planning::Cpp::Request& req,$/;"	f	namespace:Cpp
 addData	include/ram_path_planning/histogram.h	/^	void addData(const T val, const double weight=1.0)$/;"	f	class:Histogram
 add_5tuple	src/lsd.cpp	/^void add_5tuple( ntuple_list out, double v1, double v2,$/;"	f
+angle	lib/polypartition.h	/^            tppl_float angle;$/;"	m	struct:TPPLPartition::PartitionVertex
 angleBetweenVectors	include/ram_path_planning/donghong_ding_base_imp.hpp	/^  double DonghongDingBase::angleBetweenVectors(const double v1[3],$/;"	f	class:Cpp::DonghongDingBase
 angle_diff	src/lsd.cpp	/^static double angle_diff(double a, double b)$/;"	f	file:
 angle_diff_signed	src/lsd.cpp	/^static double angle_diff_signed(double a, double b)$/;"	f	file:
 baseEdge	include/ram_path_planning/cpp_uav.hpp	/^  LineSegment baseEdge;$/;"	m	struct:Direction
+bestvertex	lib/polypartition.h	/^            long bestvertex;$/;"	m	struct:TPPLPartition::DPState
 calculateDistance	include/ram_path_planning/cgutil.hpp	/^double calculateDistance(const LineSegment& edge, const geometry_msgs::Point& vertex)$/;"	f
 calculateDistance	include/ram_path_planning/cgutil.hpp	/^inline double calculateDistance(const geometry_msgs::Point& p1, const geometry_msgs::Point& p2)$/;"	f
 calculateHorizontalAngle	include/ram_path_planning/cgutil.hpp	/^double calculateHorizontalAngle(const geometry_msgs::Point& p1, const geometry_msgs::Point& p2)$/;"	f
@@ -89,6 +191,7 @@ condition_	include/ram_path_planning/shemaphore.hpp	/^  std::condition_variable 
 connectLayersWithOnePolygon	include/ram_path_planning/donghong_ding_base_imp.hpp	/^  void DonghongDingBase::connectLayersWithOnePolygon($/;"	f	class:Cpp::DonghongDingBase
 connectMeshLayers	include/ram_path_planning/donghong_ding_base_imp.hpp	/^  std::string DonghongDingBase::connectMeshLayers(const int current_progrress_value,$/;"	f	class:Cpp::DonghongDingBase
 connectYamlLayers	include/ram_path_planning/donghong_ding_base_imp.hpp	/^  void DonghongDingBase::connectYamlLayers($/;"	f	class:Cpp::DonghongDingBase
+container	lib/polypartition.cpp	/^typedef std::vector<Kernel::Point_2> container;$/;"	t	file:
 contours_filtering_tolerance_	include/ram_path_planning/donghong_ding.hpp	/^    double contours_filtering_tolerance_; \/\/ In meters$/;"	m	class:Cpp::DonghongDing
 contours_filtering_tolerance_	include/ram_path_planning/donghong_ding_base.hpp	/^	double contours_filtering_tolerance_;$/;"	m	class:Cpp::DonghongDingBase
 convex_point	src/Cpp_Convex.cpp	/^	convex_point(int start_index_,int end_index_,bool change_value_,int current_index_){$/;"	f	struct:Cpp::convex_point
@@ -132,15 +235,25 @@ generateTrajectoryInConvexPolygon	include/ram_path_planning/donghong_ding_imp.hp
 getMaxBin	include/ram_path_planning/histogram.h	/^	size_t getMaxBin()$/;"	f	class:Histogram
 getMaxBinPreciseVal	include/ram_path_planning/histogram.h	/^	T getMaxBinPreciseVal()$/;"	f	class:Histogram
 getNextPoint	src/Cpp.cpp	/^cv::Point2i getNextPoint(cv::Point2i currentpoint, int d, int gsize) {$/;"	f	namespace:Cpp
+getNextPoint	src/Cpp_Cgal.cpp	/^cv::Point2i getNextPoint(cv::Point2i currentpoint, int d, int gsize) {$/;"	f	namespace:Cpp
+getNextPoint	src/Cpp_Polygon.cpp	/^cv::Point2i getNextPoint(cv::Point2i currentpoint, int d, int gsize) {$/;"	f	namespace:Cpp
 getPointType	src/Cpp.cpp	/^int getPointType(cv::Mat& img, cv::Point2i q, int gsize) {$/;"	f	namespace:Cpp
+getPointType	src/Cpp_Cgal.cpp	/^int getPointType(cv::Mat& img, cv::Point2i q, int gsize) {$/;"	f	namespace:Cpp
+getPointType	src/Cpp_Polygon.cpp	/^int getPointType(cv::Mat& img, cv::Point2i q, int gsize) {$/;"	f	namespace:Cpp
 getStartPoint	src/Cpp.cpp	/^cv::Point2i getStartPoint(cv::Mat& img, cv::Point2i p, int gsize) {$/;"	f	namespace:Cpp
+getStartPoint	src/Cpp_Cgal.cpp	/^cv::Point2i getStartPoint(cv::Mat& img, cv::Point2i p, int gsize) {$/;"	f	namespace:Cpp
+getStartPoint	src/Cpp_Polygon.cpp	/^cv::Point2i getStartPoint(cv::Mat& img, cv::Point2i p, int gsize) {$/;"	f	namespace:Cpp
 getTopLeftPoint	src/Cpp.cpp	/^cv::Point2i getTopLeftPoint(cv::Mat& image) {$/;"	f	namespace:Cpp
+getTopLeftPoint	src/Cpp_Cgal.cpp	/^cv::Point2i getTopLeftPoint(cv::Mat& image) {$/;"	f	namespace:Cpp
+getTopLeftPoint	src/Cpp_Polygon.cpp	/^cv::Point2i getTopLeftPoint(cv::Mat& image) {$/;"	f	namespace:Cpp
 get_theta	src/lsd.cpp	/^static double get_theta( struct point *reg, int reg_size, double x, double y,$/;"	f	file:
 hasConvexDefects	src/Cpp.cpp	/^bool hasConvexDefects(std::vector<cv::Vec4i>& defects_,int start_,int end_,int& mid_){$/;"	f	namespace:Cpp
 hasConvexDefects	src/Cpp_Convex.cpp	/^bool hasConvexDefects(std::vector<cv::Vec4i>& defects_,int start_,int end_,int& mid_){$/;"	f	namespace:Cpp
 hasIntersection	include/ram_path_planning/cgutil.hpp	/^bool hasIntersection(const LineSegment& edge1, const LineSegment& edge2)$/;"	f
 hasIntersection	include/ram_path_planning/cgutil.hpp	/^bool hasIntersection(const LineSegmentVector& vec1, const LineSegmentVector& vec2)$/;"	f
 histogram_bins_	include/ram_path_planning/histogram.h	/^	size_t histogram_bins_;		\/\/ number of histogram bins$/;"	m	class:Histogram
+hole	lib/polypartition.h	/^        bool hole;$/;"	m	class:TPPLPoly
+id	lib/polypartition.h	/^    int id;$/;"	m	struct:TPPLPoint
 identifyLeftChain	include/ram_path_planning/donghong_ding_imp.hpp	/^  void DonghongDing::identifyLeftChain(const Polygon poly_data,$/;"	f	class:Cpp::DonghongDing
 identifyOptimalAlternative	include/ram_path_planning/cpp_uav.hpp	/^PointVector identifyOptimalAlternative(const PointVector& polygon, const PointVector& path,$/;"	f
 identifyOptimalSweepDir	include/ram_path_planning/cpp_uav.hpp	/^Direction identifyOptimalSweepDir(const PointVector& polygon,PointVector& polygon_convex_hull)$/;"	f
@@ -152,13 +265,19 @@ image_double	include/ram_path_planning/lsd.h	/^} *image_double;$/;"	t	typeref:st
 image_double_s	include/ram_path_planning/lsd.h	/^typedef struct image_double_s$/;"	s
 image_int	include/ram_path_planning/lsd.h	/^} *image_int;$/;"	t	typeref:struct:image_int_s
 image_int_s	include/ram_path_planning/lsd.h	/^typedef struct image_int_s$/;"	s
+index	lib/polypartition.h	/^            mutable long index;$/;"	m	struct:TPPLPartition::ScanLineEdge
+index1	lib/polypartition.h	/^            long index1;$/;"	m	struct:TPPLPartition::Diagonal
+index2	lib/polypartition.h	/^            long index2;$/;"	m	struct:TPPLPartition::Diagonal
 inter_hi	src/lsd.cpp	/^static double inter_hi(double x, double x1, double y1, double x2, double y2)$/;"	f	file:
 inter_low	src/lsd.cpp	/^static double inter_low(double x, double x1, double y1, double x2, double y2)$/;"	f	file:
 intersectLineWithContours	include/ram_path_planning/donghong_ding_imp.hpp	/^  bool DonghongDing::intersectLineWithContours($/;"	f	class:Cpp::DonghongDing
 intersectionBetweenContours	include/ram_path_planning/donghong_ding_base_imp.hpp	/^  bool DonghongDingBase::intersectionBetweenContours(const Polygon poly_data)$/;"	f	class:Cpp::DonghongDingBase
+isActive	lib/polypartition.h	/^            bool isActive;$/;"	m	struct:TPPLPartition::PartitionVertex
 isAdjacent	include/ram_path_planning/cpp_uav.hpp	/^bool isAdjacent(const PointVector& polygon1, const PointVector& polygon2)$/;"	f
 isClockWise	include/ram_path_planning/cpp_uav.hpp	/^inline bool isClockWise(const PointVector& path)$/;"	f
 isConvex	include/ram_path_planning/cgutil.hpp	/^inline bool isConvex(PointVector points)$/;"	f
+isConvex	lib/polypartition.h	/^            bool isConvex;$/;"	m	struct:TPPLPartition::PartitionVertex
+isEar	lib/polypartition.h	/^            bool isEar;$/;"	m	struct:TPPLPartition::PartitionVertex
 isaligned	src/lsd.cpp	/^static int isaligned( int x, int y, image_double angles, double theta,$/;"	f	file:
 lineLsdTransform	src/line_detection_and_rotation.cpp	/^	bool lineLsdTransform(cv::Mat& bin_,double& angle)$/;"	f	namespace:line_detection_and_rotation
 line_detection_and_rotation	src/line_detection_and_rotation.cpp	/^namespace line_detection_and_rotation {$/;"	n	file:
@@ -171,11 +290,15 @@ lower_bound_	include/ram_path_planning/histogram.h	/^	T lower_bound_;		\/\/ lowe
 lsd	src/lsd.cpp	/^ntuple_list lsd(image_double image)$/;"	f
 lsd_scale	src/lsd.cpp	/^ntuple_list lsd_scale(image_double image, double scale)$/;"	f
 main	src/Cpp.cpp	/^int main(int argc, char **argv) {$/;"	f
+main	src/Cpp_Cgal.cpp	/^int main(int argc, char **argv) {$/;"	f
 main	src/Cpp_Convex.cpp	/^int main(int argc, char **argv) {$/;"	f
+main	src/Cpp_Polygon.cpp	/^int main(int argc, char **argv) {$/;"	f
 main	src/line_detection_and_rotation.cpp	/^int main(int argc, char **argv) {$/;"	f
 main	src/map_modify_node.cpp	/^int main(int argc, char **argv) {$/;"	f
 main	src/ram_cpp_node.cpp	/^int main(int argc, char **argv) {$/;"	f
 makeOIP	src/Cpp.cpp	/^std::vector<cv::Point2i> makeOIP(cv::Mat& img, int gsize) {$/;"	f	namespace:Cpp
+makeOIP	src/Cpp_Cgal.cpp	/^std::vector<cv::Point2i> makeOIP(cv::Mat& img, int gsize) {$/;"	f	namespace:Cpp
+makeOIP	src/Cpp_Polygon.cpp	/^std::vector<cv::Point2i> makeOIP(cv::Mat& img, int gsize) {$/;"	f	namespace:Cpp
 mapCallBack	src/ram_cpp_node.cpp	/^	void mapCallBack(const nav_msgs::OccupancyGrid::ConstPtr &msg){$/;"	f	class:cpp_test
 max_size	include/ram_path_planning/lsd.h	/^    unsigned int max_size;$/;"	m	struct:ntuple_list_s
 mergeColinearEdges	include/ram_path_planning/donghong_ding_base_imp.hpp	/^  bool DonghongDingBase::mergeColinearEdges(const Polygon polygon,$/;"	f	class:Cpp::DonghongDingBase
@@ -195,24 +318,50 @@ new_image_double_ini	src/lsd.cpp	/^image_double new_image_double_ini( unsigned i
 new_image_int	src/lsd.cpp	/^image_int new_image_int(unsigned int xsize, unsigned int ysize)$/;"	f
 new_image_int_ini	src/lsd.cpp	/^image_int new_image_int_ini( unsigned int xsize, unsigned int ysize,$/;"	f
 new_ntuple_list	src/lsd.cpp	/^ntuple_list new_ntuple_list(unsigned int dim)$/;"	f
+next	lib/polypartition.h	/^            PartitionVertex *next;$/;"	m	struct:TPPLPartition::PartitionVertex
+next	lib/polypartition.h	/^            long next;$/;"	m	struct:TPPLPartition::MonotoneVertex
 next	src/lsd.cpp	/^    struct coorlist *next;$/;"	m	struct:coorlist	typeref:struct:coorlist::coorlist	file:
 nfa	src/lsd.cpp	/^static double nfa(int n, int k, double p, double logNT)$/;"	f	file:
 normal_vector_	include/ram_path_planning/donghong_ding_base.hpp	/^    double normal_vector_[3]; \/\/Normal vector to slicing plane. [0,0,1] in YAML files$/;"	m	class:Cpp::DonghongDingBase
 ns_map_modify	src/map_modify_node.cpp	/^namespace ns_map_modify{$/;"	n	file:
 ntuple_list	include/ram_path_planning/lsd.h	/^} *ntuple_list;$/;"	t	typeref:struct:ntuple_list_s
 ntuple_list_s	include/ram_path_planning/lsd.h	/^typedef struct ntuple_list_s$/;"	s
+numpoints	lib/polypartition.h	/^        long numpoints;$/;"	m	class:TPPLPoly
 objectInUGB	src/Cpp.cpp	/^bool objectInUGB(cv::Mat& img, cv::Point2i q, int ugb, int gsize) {$/;"	f	namespace:Cpp
+objectInUGB	src/Cpp_Cgal.cpp	/^bool objectInUGB(cv::Mat& img, cv::Point2i q, int ugb, int gsize) {$/;"	f	namespace:Cpp
+objectInUGB	src/Cpp_Polygon.cpp	/^bool objectInUGB(cv::Mat& img, cv::Point2i q, int ugb, int gsize) {$/;"	f	namespace:Cpp
 offsetLeftChain	include/ram_path_planning/donghong_ding_imp.hpp	/^  bool DonghongDing::offsetLeftChain(const Polygon poly_data,$/;"	f	class:Cpp::DonghongDing
 offsetPolygonContour	include/ram_path_planning/donghong_ding_base_imp.hpp	/^  bool DonghongDingBase::offsetPolygonContour(const Polygon poly_data,$/;"	f	class:Cpp::DonghongDingBase
 operator !=	include/ram_path_planning/cgutil.hpp	/^bool operator!=(const geometry_msgs::Point& p1, const geometry_msgs::Point& p2)$/;"	f
+operator !=	lib/polypartition.h	/^    bool operator!=(const TPPLPoint& p) const {$/;"	f	struct:TPPLPoint
+operator ()	lib/polypartition.cpp	/^bool TPPLPartition::VertexSorter::operator() (long index1, long index2) {$/;"	f	class:TPPLPartition::VertexSorter
+operator *	lib/polypartition.h	/^    TPPLPoint operator * (const tppl_float f ) const {$/;"	f	struct:TPPLPoint
+operator +	lib/polypartition.h	/^    TPPLPoint operator + (const TPPLPoint& p) const {$/;"	f	struct:TPPLPoint
+operator -	lib/polypartition.h	/^    TPPLPoint operator - (const TPPLPoint& p) const {$/;"	f	struct:TPPLPoint
+operator /	lib/polypartition.h	/^    TPPLPoint operator \/ (const tppl_float f ) const {$/;"	f	struct:TPPLPoint
+operator <	lib/polypartition.cpp	/^bool TPPLPartition::ScanLineEdge::operator < (const ScanLineEdge & other) const {$/;"	f	class:TPPLPartition::ScanLineEdge
+operator =	lib/polypartition.cpp	/^TPPLPoly& TPPLPoly::operator=(const TPPLPoly &src) {$/;"	f	class:TPPLPoly
 operator ==	include/ram_path_planning/cgutil.hpp	/^bool operator==(const geometry_msgs::Point& p1, const geometry_msgs::Point& p2)$/;"	f
+operator ==	lib/polypartition.h	/^    bool operator==(const TPPLPoint& p) const {$/;"	f	struct:TPPLPoint
+operator []	lib/polypartition.h	/^        TPPLPoint& operator[] (int i) {$/;"	f	class:TPPLPoly
+operator []	lib/polypartition.h	/^        const TPPLPoint& operator[] (int i) const {$/;"	f	class:TPPLPoly
 opposedVertex	include/ram_path_planning/cpp_uav.hpp	/^  geometry_msgs::Point opposedVertex;$/;"	m	struct:Direction
 organizePolygonContoursInLayer	include/ram_path_planning/donghong_ding_base_imp.hpp	/^  bool DonghongDingBase::organizePolygonContoursInLayer(const Polygon poly_data,$/;"	f	class:Cpp::DonghongDingBase
+p	lib/polypartition.h	/^            TPPLPoint p;$/;"	m	struct:TPPLPartition::MonotoneVertex
+p	lib/polypartition.h	/^            TPPLPoint p;$/;"	m	struct:TPPLPartition::PartitionVertex
 p	src/lsd.cpp	/^    double p;            \/* probability of a point with angle within 'prec' *\/$/;"	m	struct:rect	file:
+p1	lib/polypartition.h	/^            TPPLPoint p1;$/;"	m	struct:TPPLPartition::ScanLineEdge
+p2	lib/polypartition.h	/^            TPPLPoint p2;$/;"	m	struct:TPPLPartition::ScanLineEdge
+pairs	lib/polypartition.h	/^            DiagonalList pairs;$/;"	m	struct:TPPLPartition::DPState2
 point	src/lsd.cpp	/^struct point$/;"	s	file:
+points	lib/polypartition.h	/^        TPPLPoint *points;$/;"	m	class:TPPLPoly
 polygonArea	src/Cpp.cpp	/^double polygonArea(PointVector& pv_,int n){$/;"	f	namespace:Cpp
+polygonArea	src/Cpp_Cgal.cpp	/^double polygonArea(PointVector& pv_,int n){$/;"	f	namespace:Cpp
+polygonArea	src/Cpp_Polygon.cpp	/^double polygonArea(PointVector& pv_,int n){$/;"	f	namespace:Cpp
 polygon_division_tolerance_	include/ram_path_planning/donghong_ding.hpp	/^    double polygon_division_tolerance_; \/\/ In radians$/;"	m	class:Cpp::DonghongDing
 prec	src/lsd.cpp	/^    double prec;         \/* tolerance angle *\/$/;"	m	struct:rect	file:
+previous	lib/polypartition.h	/^            PartitionVertex *previous;$/;"	m	struct:TPPLPartition::PartitionVertex
+previous	lib/polypartition.h	/^            long previous;$/;"	m	struct:TPPLPartition::MonotoneVertex
 range_inverse_	include/ram_path_planning/histogram.h	/^	T range_inverse_;	\/\/ = 1.0\/(upper_bound_-lower_bound_)$/;"	m	class:Histogram
 raw_data_	include/ram_path_planning/histogram.h	/^	std::vector<RawData> raw_data_;	\/\/ stores all entered data pairs (data, weight) for each histogram bin$/;"	m	class:Histogram
 rect	src/lsd.cpp	/^struct rect$/;"	s	file:
@@ -239,15 +388,23 @@ start_index	src/Cpp_Convex.cpp	/^	int start_index;$/;"	m	struct:Cpp::convex_poin
 sub	src/ram_cpp_node.cpp	/^	ros::Subscriber sub;$/;"	m	class:cpp_test	file:
 sub_	src/ram_cpp_node.cpp	/^	ros::Subscriber sub_;$/;"	m	class:cpp_test	file:
 theta	src/lsd.cpp	/^    double theta;        \/* angle *\/$/;"	m	struct:rect	file:
+tppl_float	lib/polypartition.h	/^typedef double tppl_float;$/;"	t
 upper_bound_	include/ram_path_planning/histogram.h	/^	T upper_bound_;		\/\/ highest possible value$/;"	m	class:Histogram
 use_gui	src/Cpp.cpp	/^bool use_gui = false;$/;"	v
 use_gui	src/Cpp_Convex.cpp	/^bool use_gui = false;$/;"	v
+use_gui	src/Cpp_Polygon.cpp	/^bool use_gui = false;$/;"	v
 values	include/ram_path_planning/lsd.h	/^    double *values;$/;"	m	struct:ntuple_list_s
 verifyAngles	include/ram_path_planning/donghong_ding_imp.hpp	/^  bool DonghongDing::verifyAngles(const Polygon poly_data,$/;"	f	class:Cpp::DonghongDing
+vertices	lib/polypartition.h	/^            MonotoneVertex *vertices;$/;"	m	class:TPPLPartition::VertexSorter
+visible	lib/polypartition.h	/^            bool visible;$/;"	m	struct:TPPLPartition::DPState
+visible	lib/polypartition.h	/^            bool visible;$/;"	m	struct:TPPLPartition::DPState2
 vx	src/lsd.cpp	/^    double vx[4];  \/* rectangle's corner X coordinates in circular order *\/$/;"	m	struct:__anon2	file:
 vy	src/lsd.cpp	/^    double vy[4];  \/* rectangle's corner Y coordinates in circular order *\/$/;"	m	struct:__anon2	file:
 wait	include/ram_path_planning/shemaphore.hpp	/^  inline void wait()$/;"	f	class:Cpp::Semaphore
+weight	lib/polypartition.h	/^            long weight;$/;"	m	struct:TPPLPartition::DPState2
+weight	lib/polypartition.h	/^            tppl_float weight;$/;"	m	struct:TPPLPartition::DPState
 width	src/lsd.cpp	/^    double width;        \/* rectangle width *\/$/;"	m	struct:rect	file:
+x	lib/polypartition.h	/^    tppl_float x;$/;"	m	struct:TPPLPoint
 x	src/lsd.cpp	/^    double x, y;         \/* center of the rectangle *\/$/;"	m	struct:rect	file:
 x	src/lsd.cpp	/^    int x, y;      \/* coordinates of currently explored pixel *\/$/;"	m	struct:__anon2	file:
 x	src/lsd.cpp	/^    int x, y;$/;"	m	struct:coorlist	file:
@@ -257,6 +414,7 @@ x2	src/lsd.cpp	/^    double x1, y1, x2, y2; \/* first and second point of the li
 xsize	include/ram_path_planning/lsd.h	/^    unsigned int xsize, ysize;$/;"	m	struct:image_char_s
 xsize	include/ram_path_planning/lsd.h	/^    unsigned int xsize, ysize;$/;"	m	struct:image_double_s
 xsize	include/ram_path_planning/lsd.h	/^    unsigned int xsize, ysize;$/;"	m	struct:image_int_s
+y	lib/polypartition.h	/^    tppl_float y;$/;"	m	struct:TPPLPoint
 y	src/lsd.cpp	/^    double x, y;         \/* center of the rectangle *\/$/;"	m	struct:rect	file:
 y	src/lsd.cpp	/^    int x, y;      \/* coordinates of currently explored pixel *\/$/;"	m	struct:__anon2	file:
 y	src/lsd.cpp	/^    int x, y;$/;"	m	struct:coorlist	file:
@@ -270,3 +428,4 @@ ysize	include/ram_path_planning/lsd.h	/^    unsigned int xsize, ysize;$/;"	m	str
 ysize	include/ram_path_planning/lsd.h	/^    unsigned int xsize, ysize;$/;"	m	struct:image_int_s
 zigzagGeneration	include/ram_path_planning/donghong_ding_imp.hpp	/^  bool DonghongDing::zigzagGeneration(const Polygon poly_data,$/;"	f	class:Cpp::DonghongDing
 ~DonghongDingBase	include/ram_path_planning/donghong_ding_base_imp.hpp	/^  DonghongDingBase::~DonghongDingBase()$/;"	f	class:Cpp::DonghongDingBase
+~TPPLPoly	lib/polypartition.cpp	/^TPPLPoly::~TPPLPoly() {$/;"	f	class:TPPLPoly

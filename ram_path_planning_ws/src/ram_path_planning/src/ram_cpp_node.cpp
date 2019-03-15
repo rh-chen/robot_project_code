@@ -147,7 +147,7 @@ public:
 					srv_zigzag.request.start_position_y = msg->point.y;
 					srv_zigzag.request.height_between_layers = 1;
 					srv_zigzag.request.deposited_material_width = 0.3;
-					srv_zigzag.request.contours_filtering_tolerance = 0.2;
+					srv_zigzag.request.contours_filtering_tolerance = 0.05;
 					srv_zigzag.request.map = map_modify_srv.response.map;
 					srv_zigzag.request.internal_contour_threshold = 128;
 
@@ -159,6 +159,7 @@ public:
 					if(res_srv_zigzag){
 							ROS_INFO("call /sweeper/zigzag_cpp service success...");
 
+						    ROS_INFO("srv_zigzag.response.polygon.size:%d",srv_zigzag.response.polygon.size());
 							ros::Publisher marker_pub = n.advertise<visualization_msgs::MarkerArray>("/cleanner_planner", 1);
 							ros::Rate loop_rate(10);
 							while(ros::ok()){
@@ -169,11 +170,10 @@ public:
 									visualization_msgs::MarkerArray markerArray;
 
 									int32_t plannerStartId = 0;
-#if 1
+#if 1 
 								//divide polygon
 							{
-								//ROS_INFO("srv_zigzag.response.polygon.size:%d",srv_zigzag.response.polygon.size());
-								for(int j = 0;j < srv_zigzag.response.polygon.size();j++){
+								for(int j = 0;j < 2;j++){
 									geometry_msgs::Polygon polygon_ = srv_zigzag.response.polygon[j];
 									geometry_msgs::Pose startPose;
 									startPose.position.x = polygon_.points[0].x;
@@ -232,7 +232,7 @@ public:
 
 											std_msgs::ColorRGBA markerArrowColor;
 											markerArrowColor.a = 1.0;
-											markerArrowColor.r = 1.0;
+											markerArrowColor.g = 1.0;
 
 											visualization_msgs::Marker markerArrow = createMarker("markerArrow",
 																			visualization_msgs::Marker::ARROW,
@@ -285,7 +285,7 @@ public:
 
 										std_msgs::ColorRGBA markerArrowColor;
 										markerArrowColor.a = 1.0;
-										markerArrowColor.r = 1.0;
+										markerArrowColor.g = 1.0;
 
 
 										visualization_msgs::Marker markerArrow = createMarker("markerArrow",
@@ -339,7 +339,7 @@ public:
 
 									std_msgs::ColorRGBA plannerStartColor;
 									plannerStartColor.a = 1.0;
-									plannerStartColor.g = 1.0;
+									plannerStartColor.r = 1.0;
 
 
 									visualization_msgs::Marker markerSphereStart = createMarker("PlannerStart",
@@ -467,10 +467,11 @@ public:
 
 
 
-#if 1 
+#if 1  
 								//coverage_path
 								{
-								for(int index = 0;index < srv_zigzag.response.path.size();index++){
+                                    //srv_zigzag.response.path.size()
+								for(int index = 0;index < 2;index++){
 									geometry_msgs::PoseStamped startPose = srv_zigzag.response.path[index].poses[0];
 									//marker start pose
 									geometry_msgs::Pose  plannerStartPose;
@@ -485,7 +486,7 @@ public:
 
 									std_msgs::ColorRGBA plannerStartColor;
 									plannerStartColor.a = 1.0;
-									plannerStartColor.g = 1.0;
+									plannerStartColor.r = 1.0;
 
 
 									visualization_msgs::Marker markerSphereStart = createMarker("PlannerStart",

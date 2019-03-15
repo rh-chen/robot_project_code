@@ -299,7 +299,7 @@ bool computeConvexCoverage(const PointVector& polygon, double footprintWidth, do
   }
 
   // TODO: Change to configurable
-  //const double padding = 0.2;
+  const double padding = 0.2;
 
   // rotate input polygon so that baseEdge become horizontal
   double rotationAngle = calculateHorizontalAngle(sweepDirection.baseEdge.front(), sweepDirection.baseEdge.back());
@@ -337,10 +337,9 @@ bool computeConvexCoverage(const PointVector& polygon, double footprintWidth, do
       maxY = vertex.y;
     }
   }
-ROS_INFO("minX:%f,maxX:%f",minX,maxX);
-ROS_INFO("minY:%f,maxY:%f",minY,maxY);
+  ROS_INFO("minX:%f,maxX:%f",minX,maxX);
+  ROS_INFO("minY:%f,maxY:%f",minY,maxY);
   double stepWidth = footprintWidth * (1 - horizontalOverwrap);
-  const double padding = stepWidth;
   // calculate sweep direction of rotated polygon
   PointVector dir{ sweepDirection.opposedVertex, sweepDirection.baseEdge.front(), sweepDirection.baseEdge.back() };
   dir = rotatePoints(dir, -rotationAngle);
@@ -349,13 +348,22 @@ ROS_INFO("minY:%f,maxY:%f",minY,maxY);
   rotatedDir.baseEdge.front() = dir.at(1);
   rotatedDir.baseEdge.back() = dir.at(2);
 
-ROS_INFO("rotatedDir.baseEdge.at(0).y:%f",rotatedDir.baseEdge.at(0).y);
-ROS_INFO("rotatedDir.baseEdge.at(1).y:%f",rotatedDir.baseEdge.at(1).y);
+  ROS_INFO("rotatedDir.baseEdge.at(0).y:%f",rotatedDir.baseEdge.at(0).y);
+  ROS_INFO("rotatedDir.baseEdge.at(0).x:%f",rotatedDir.baseEdge.at(0).x);
+  ROS_INFO("rotatedDir.baseEdge.at(1).y:%f",rotatedDir.baseEdge.at(1).y);
+  ROS_INFO("rotatedDir.baseEdge.at(1).x:%f",rotatedDir.baseEdge.at(1).x);
 
-  int stepNum = std::ceil(calculateDistance(rotatedDir.baseEdge, rotatedDir.opposedVertex) / stepWidth);
+  double verticalDistance = calculateDistance(rotatedDir.baseEdge, rotatedDir.opposedVertex);
+  ROS_INFO_STREAM("verticalDistance:" << verticalDistance);
+
+  //int stepNum = std::ceil(calculateDistance(rotatedDir.baseEdge, rotatedDir.opposedVertex) / stepWidth);
+  int stepNum = std::floor(calculateDistance(rotatedDir.baseEdge, rotatedDir.opposedVertex) / stepWidth);
 	
 	ROS_INFO("stepNum:%d",stepNum);
   LineSegmentVector sweepLines;
+
+    if(stepNum < 1)
+        return false;
 
   // generate list of sweep lines which is horizontal against the base edge
   for (int i = 0; i < stepNum; ++i)
@@ -363,9 +371,9 @@ ROS_INFO("rotatedDir.baseEdge.at(1).y:%f",rotatedDir.baseEdge.at(1).y);
     LineSegment ar;
     geometry_msgs::Point p1, p2;
     p1.x = minX-padding;
-    p1.y = rotatedDir.baseEdge.at(0).y + (i * stepWidth) + padding;
+    p1.y = rotatedDir.baseEdge.at(0).y + (i * stepWidth) + padding/2.0;
     p2.x = maxX+padding;
-    p2.y = rotatedDir.baseEdge.at(1).y + (i * stepWidth) + padding;
+    p2.y = rotatedDir.baseEdge.at(1).y + (i * stepWidth) + padding/2.0;
 
     ar.at(0) = p1;
     ar.at(1) = p2;
@@ -386,14 +394,13 @@ ROS_INFO("rotatedDir.baseEdge.at(1).y:%f",rotatedDir.baseEdge.at(1).y);
     for (const auto& edge : rotatedEdges)
     {
 		bool res_intersection = hasIntersection(sweepLine, edge);
-		//ROS_INFO("res_intersection:%d",res_intersection);
+		ROS_INFO("res_intersection:%d",res_intersection);
       if (res_intersection)
       {
         intersections.push_back(localizeIntersection(edge, sweepLine));
         ++intersectionCount;
       }
 		
-		//ROS_INFO("intersectionCount:%d",intersectionCount);
       // sweep line in optimal path does not have more than 2 intersections
       if (intersectionCount >= 3)
       {
@@ -405,7 +412,7 @@ ROS_INFO("rotatedDir.baseEdge.at(1).y:%f",rotatedDir.baseEdge.at(1).y);
 	//std::cout << "intersections_size_sort:" << intersections.size() << std::endl;
   // sort points by y coordinate in ascending order
   std::stable_sort(intersections.begin(), intersections.end(),
-                   [](const geometry_msgs::Point& p1, const geometry_msgs::Point& p2) { return p1.y < p2.y; });
+                   [](const geometry_msgs::Point& p1, const geometry_msgs::Point& p2) { return p1.y > p2.y; });
 	ROS_INFO("intersections_size:%d",intersections.size());
   PointVector rotatedPath = reshapePath(intersections, padding);
 	

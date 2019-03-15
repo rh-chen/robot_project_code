@@ -251,7 +251,7 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
 	cv::Mat bin;
 	cv::threshold(map,bin,req.occupancy_threshold,255,cv::THRESH_BINARY_INV);
 	
-	double delta_point = 12;
+	double delta_point = 6;
 
 	//rectlinear polygon
 	std::vector<cv::Point2i> vertices_point;
@@ -353,7 +353,14 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
 	}
     
     PolygonListCgal partition_polys;
+    std::vector<PointVector> subPolygons;
 	std::vector<PointVector> final_path;
+
+    std_msgs::Float64 footprintLength, footprintWidth, horizontalOverwrap, verticalOverwrap;
+    footprintLength.data = 0.2;
+    footprintWidth.data = 0.2; 
+    horizontalOverwrap.data = 0.0;
+    verticalOverwrap.data = 0.0;
 
 	// Generate trajectory
   	if (true)
@@ -365,12 +372,6 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
         std::cout << __FILE__ << __LINE__ << std::endl;
 
         std::cout << "partition_polys_size: " << partition_polys.size() << std::endl;
-        
-        std_msgs::Float64 footprintLength, footprintWidth, horizontalOverwrap, verticalOverwrap;
-        footprintLength.data = 0.3;
-        footprintWidth.data = 0.3; 
-        horizontalOverwrap.data = 0.1;
-        verticalOverwrap.data = 0.1;
 
         std::list<PolygonCgal>::iterator iter;
         for(iter = partition_polys.begin();iter != partition_polys.end();iter++){
@@ -394,26 +395,30 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
                 partial_polygon.points.push_back(point_32);
              }
              res.polygon.push_back(partial_polygon);
+             //subPolygons.push_back(polygon_bcd);
 
-             bool isOptimal = computeConvexCoverage(polygon_bcd, footprintWidth.data, horizontalOverwrap.data, candidatePath);
-                
+             bool isOptimal = computeConvexCoverage(polygon_bcd,\
+                                                    footprintWidth.data, \
+                                                    horizontalOverwrap.data, \
+                                                    candidatePath);
+             
              ROS_INFO_STREAM("isOptimal:" << isOptimal);
 			 if(isOptimal){
 		        geometry_msgs::Point start = polygon_bcd[0];
 
 				PointVector optimal_path = identifyOptimalAlternative(polygon_bcd, candidatePath, start);
-				
                 //optimal_path.insert(optimal_path.begin(),start);
 				final_path.push_back(optimal_path);
 			 }
 			 else{
 			    ROS_INFO("zigzag path plannning fail...");
 				return false;
-			 }
+			 }                                       
+                
         }
   	}
 
-	for(int index_i = 0;index_i < final_path.size();index_i++){
+    for(int index_i = 0;index_i < final_path.size();index_i++){
 		nav_msgs::Path path_bcd;
 
 		for(int index_j = 0;index_j < final_path[index_i].size();index_j++){

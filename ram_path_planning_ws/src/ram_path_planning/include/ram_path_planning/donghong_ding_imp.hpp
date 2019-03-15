@@ -31,7 +31,6 @@ namespace Cpp
     // Publish feedback with a percentage between current_progrress_value and next_progress_value :
     // progress_value = current_progrress_value + v * (next_progress_value - current_progrress_value )
     // v is a parameter between 0 and 1
-
     float v = 0.0;
     int progress_value = current_progrress_value;
 
@@ -115,7 +114,6 @@ namespace Cpp
         return "GoalHandle is not active";
 	  */
     }
-
     /*if (use_gui)
     {
       std::string s;
@@ -133,28 +131,15 @@ namespace Cpp
     for (auto polygons : layer)
       for (auto poly_data : polygons)
         futures.push_back(std::async(&DonghongDing::generateTrajectoryInConvexPolygon, this, poly_data));
-	*/
-#if 0
-	std::vector<bool> futures;
-	for(int i = 0;i < layer.size();i++){
-		for(int j = 0;j < layer[i].size();j++){
-			bool res = generateTrajectoryInConvexPolygon(layer[i][j]);
-			ROS_INFO("futures_generate_res:%d",res);
-			if(res)
-				futures.push_back(res);
-		}
-	}
-
+	
     bool global_return = true;
-    /*for (auto &t : futures){
+    for (auto &t : futures){
 		ROS_INFO("futures_generate_res:%d",t.get());
       	global_return |= t.get();
-	}*/
-	for(int i = 0;i < futures.size();i++)
-	 	global_return |= futures[i];
+	}
     if (!global_return)
       return "Failed to generate trajectory in one of the convex polygons";
-#endif
+    */
 #if 0
     // Merge convex polygons. First method
     vtkIdType n_lines = split_points->GetNumberOfPoints() / 2;
