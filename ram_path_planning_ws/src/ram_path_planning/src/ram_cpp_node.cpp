@@ -173,7 +173,8 @@ public:
 #if 1 
 								//divide polygon
 							{
-								for(int j = 0;j < 2;j++){
+							    //srv_zigzag.response.polygon.size()
+                                for(int j = 0;j < srv_zigzag.response.polygon.size();j++){
 									geometry_msgs::Polygon polygon_ = srv_zigzag.response.polygon[j];
 									geometry_msgs::Pose startPose;
 									startPose.position.x = polygon_.points[0].x;
@@ -467,11 +468,11 @@ public:
 
 
 
-#if 1  
+#if 0  
 								//coverage_path
 								{
                                     //srv_zigzag.response.path.size()
-								for(int index = 0;index < 2;index++){
+								for(int index = 0;index < srv_zigzag.response.path.size();index++){
 									geometry_msgs::PoseStamped startPose = srv_zigzag.response.path[index].poses[0];
 									//marker start pose
 									geometry_msgs::Pose  plannerStartPose;

@@ -412,7 +412,7 @@ bool computeConvexCoverage(const PointVector& polygon, double footprintWidth, do
 	//std::cout << "intersections_size_sort:" << intersections.size() << std::endl;
   // sort points by y coordinate in ascending order
   std::stable_sort(intersections.begin(), intersections.end(),
-                   [](const geometry_msgs::Point& p1, const geometry_msgs::Point& p2) { return p1.y > p2.y; });
+                   [](const geometry_msgs::Point& p1, const geometry_msgs::Point& p2) { return p1.y < p2.y; });
 	ROS_INFO("intersections_size:%d",intersections.size());
   PointVector rotatedPath = reshapePath(intersections, padding);
 	

@@ -180,6 +180,7 @@ calculation_tol_	include/ram_path_planning/donghong_ding_base.hpp	/^    const do
 change_value	src/Cpp_Convex.cpp	/^	bool change_value;$/;"	m	struct:Cpp::convex_point	file:
 clickCallBack	src/ram_cpp_node.cpp	/^	void clickCallBack(const geometry_msgs::PointStamped::ConstPtr &msg)$/;"	f	class:cpp_test
 closest_to_bisector_	include/ram_path_planning/donghong_ding.hpp	/^    bool closest_to_bisector_;$/;"	m	class:Cpp::DonghongDing
+compare_polygon	src/Cpp_Cgal.cpp	/^bool compare_polygon(const PolygonCgal& poly_a,const PolygonCgal& poly_b){$/;"	f	namespace:Cpp
 computeCCWPath	include/ram_path_planning/cpp_uav.hpp	/^PointVector computeCCWPath(PointVector path)$/;"	f
 computeConvexCoverage	include/ram_path_planning/cpp_uav.hpp	/^bool computeConvexCoverage(const PointVector& polygon, double footprintWidth, double horizontalOverwrap,$/;"	f
 computeConvexHull	include/ram_path_planning/cgutil.hpp	/^PointVector computeConvexHull(PointVector points)$/;"	f
