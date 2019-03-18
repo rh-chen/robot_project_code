@@ -32,6 +32,7 @@
 #include "scale_map/ModifyMap.h"
 #include "lsd.h"
 
+#define step_length 6
 
 namespace ns_map_modify{
 
@@ -114,6 +115,259 @@ void BresenhamLine(cv::Point& start,cv::Point& end,vector<cv::Point>& v){
     }
   }
 }
+#if 1
+cv::Point2i getTopLeftPoint(cv::Mat& image) {
+  int nRows = image.rows;
+  int nCols = image.cols;
+
+  if (image.isContinuous()) {
+    nCols *= nRows;
+    nRows = 1;
+  }
+
+  unsigned char* p;
+
+  for (int i = 0; i < nRows; ++i) {
+    p = image.ptr(i);
+    for (int j = 0; j < nCols; ++j) {
+      if (p[j] == 255) {
+        if (image.isContinuous()) {
+          nCols = image.cols;
+          cv::Point2i P(j % nCols, j / nCols);
+          return P;
+        } else {
+          cv::Point2i P(j, i);
+          return P;
+        }
+      }
+    }
+  }
+
+  cv::Point2i P(-1, -1);
+  return P;
+}
+
+cv::Point2i getStartPoint(cv::Mat& img, cv::Point2i p, int gsize) {
+  int qx, qy;
+  qx = (ceil(float(p.x) / gsize) - 1) * gsize;
+  qy = (ceil(float(p.y) / gsize) - 1) * gsize;
+  cv::Point2i q(qx, qy);
+  return q;
+}
+
+bool objectInUGB(cv::Mat& img, cv::Point2i q, int ugb, int gsize) {
+  cv::Point2i pt;
+  switch (ugb) {
+    case 1:
+      pt.x = q.x;
+      pt.y = q.y - gsize;
+      break;
+    case 2:
+      pt.x = q.x - gsize;
+      pt.y = q.y - gsize;
+      break;
+    case 3:
+      pt.x = q.x - gsize;
+      pt.y = q.y;
+      break;
+    case 4:
+      pt.x = q.x;
+      pt.y = q.y;
+      break;
+    default:
+      break;
+  }
+
+  if (pt.x < 0 || pt.y < 0 || pt.x >= img.cols || pt.y >= img.rows) {
+    return false;
+  }
+
+  unsigned char* p;
+  for (int i = pt.y; i <= pt.y + gsize; i++) {
+    p = img.ptr(i);
+    for (int j = pt.x; j <= pt.x + gsize; ++j) {
+      if (p[j] == 255) {
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
+int getPointType(cv::Mat& img, cv::Point2i q, int gsize) {
+  int m = 0, r = 0, t = 10;
+  for (int k = 1; k < 5; k++) {
+    if (objectInUGB(img, q, k, gsize)) {
+      m++;
+      r += k;
+    }
+  }
+  if (m == 2 && (r == 4 || r == 6)) {
+    t = -2;
+  } else if (m == 0 || m == 4) {
+    t = 0;
+  } else {
+    t = 2 - m;
+  }
+  return t;
+}
+
+cv::Point2i getNextPoint(cv::Point2i currentpoint, int d, int gsize) {
+  cv::Point2i nextpoint;
+  switch (d) {
+    case 0:
+      nextpoint.x = currentpoint.x + gsize;
+      nextpoint.y = currentpoint.y;
+      break;
+    case 1:
+      nextpoint.x = currentpoint.x;
+      nextpoint.y = currentpoint.y - gsize;
+      break;
+    case 2:
+      nextpoint.x = currentpoint.x - gsize;
+      nextpoint.y = currentpoint.y;
+      break;
+    case 3:
+      nextpoint.x = currentpoint.x;
+      nextpoint.y = currentpoint.y + gsize;
+      break;
+  }
+  return nextpoint;
+}
+
+std::vector<cv::Point2i> makeOIP(cv::Mat& img, int gsize) {
+  std::vector<cv::Point2i> vertices;
+
+  cv::Point2i topleftpoint = getTopLeftPoint(img);
+  //ROS_INFO("topleftpoint:%d,%d",topleftpoint.x,topleftpoint.y);
+  cv::Point2i startpoint = getStartPoint(img, topleftpoint, gsize);
+  //ROS_INFO("startpoint:%d,%d",startpoint.x,startpoint.y);
+  cv::Point2i q = startpoint;
+  int type = getPointType(img, q, gsize);
+
+  int d = (2 + type) % 4;
+  do {
+    if (type == 1 || type == -1) {
+      vertices.push_back(q);
+    }
+    q = getNextPoint(q, d, gsize);
+    type = getPointType(img, q, gsize);
+    if (type == -2) {
+      type = -1;
+    }
+    d = (d + type) % 4;
+    if (d < 0) {
+      d += 4;
+    }
+  } while (q != startpoint);
+
+  return vertices;
+}
+
+/*void deleteNoisePoint(cv::Mat& src_,cv::Mat& dst_){
+    int iterate_num = 1;
+    int count_step;
+    for(int l = 0;l < iterate_num;l++){
+        count_step = 0;
+        for(int i = 1;i < src_.rows-1;i++){
+            for(int j = 1;j < src_.cols-1;j++){
+                if(src_.at<unsigned char>(i,j) == 0){
+                
+                    int count_value_255_v = 0;
+                    int count_value_255_h = 0;
+                    {
+                        if(src_.at<unsigned char>(i-1,j-1) == 255)
+                            count_value_255_h++;
+                        if(src_.at<unsigned char>(i-1,j+1) == 255)
+                            count_value_255_h++;
+                        if(src_.at<unsigned char>(i+1,j-1) == 255)
+                            count_value_255_h++;
+                        if(src_.at<unsigned char>(i+1,j+1) == 255)
+                            count_value_255_h++;
+                    }
+
+                    if(count_value_255_h >= 3){
+                        dst_.at<unsigned char>(i,j) = 255;
+                        count_step ++;
+                    }
+                    else{
+                        if(src_.at<unsigned char>(i-1,j) == 255)
+                            count_value_255_v++;
+                        if(src_.at<unsigned char>(i+1,j) == 255)
+                            count_value_255_v++;
+                        if(src_.at<unsigned char>(i,j-1) == 255)
+                            count_value_255_v++;
+                        if(src_.at<unsigned char>(i,j+1) == 255)
+                            count_value_255_v++;
+
+
+                        if(count_value_255_v >= 3){
+                            dst_.at<unsigned char>(i,j) = 255;
+                            count_step ++;
+                        }
+                    }
+                }
+                else{
+                
+                    int count_value_0_v = 0;
+                    int count_value_0_h = 0;
+                    {
+                        if(src_.at<unsigned char>(i-1,j-1) == 0)
+                            count_value_0_h++;
+                        if(src_.at<unsigned char>(i-1,j+1) == 0)
+                            count_value_0_h++;
+                        if(src_.at<unsigned char>(i+1,j-1) == 0)
+                            count_value_0_h++;
+                        if(src_.at<unsigned char>(i+1,j+1) == 0)
+                            count_value_0_h++;
+                    }
+
+                    if(count_value_0_h >= 3){
+                        dst_.at<unsigned char>(i,j) = 0;
+                        count_step ++;
+                    }
+                    else{
+                        if(src_.at<unsigned char>(i-1,j) == 0)
+                            count_value_0_v++;
+                        if(src_.at<unsigned char>(i+1,j) == 0)
+                            count_value_0_v++;
+                        if(src_.at<unsigned char>(i,j-1) == 0)
+                            count_value_0_v++;
+                        if(src_.at<unsigned char>(i,j+1) == 0)
+                            count_value_0_v++;
+
+                        if(count_value_0_v >= 3){
+                            dst_.at<unsigned char>(i,j) = 0;
+                            count_step ++;
+                        }
+
+                    }
+                }
+            }
+        }
+        ROS_INFO("count_step:%d",count_step);
+    }
+}*/
+#endif
+
+/*void correctThinWalls(cv::Mat& src_){
+    for(int v = 1;v < src_.rows;v++){
+        for(int u = 1;u < src_.cols;u++){
+            if(src_.at<uchar>(v-1,u-1)==255 && \
+               src_.at<uchar>(v-1,u)==0 && \
+               src_.at<uchar>(v,u-1)==0 && \
+               src_.at<uchar>(v,u)==255)
+
+               src_.at<uchar>(v,u)=0;
+            else if(src_.at<uchar>(v-1,u-1)==0 && \
+                    src_.at<uchar>(v-1,u)==255 && \
+                    src_.at<uchar>(v,u-1)==255 && \
+                    src_.at<uchar>(v,u)==0)
+                    
+                    src_.at<uchar>(v,u-1)=0;
+        }
+    }
+}*/
 
 bool MapModifyService(
     scale_map::ModifyMap::Request &req,     
@@ -127,20 +381,96 @@ bool MapModifyService(
     cv::Mat map(req.map.info.height, req.map.info.width, CV_8UC1, req.map.data.data());
     vector<int8_t> map_data; 
 
-    cv::Mat bin_step1,bin_step1_out;
-    cv::threshold(map,bin_step1,req.threshold,255,cv::THRESH_BINARY_INV);
-    cv::Mat element = getStructuringElement(MORPH_RECT, Size(3, 3));
-    //cv::dilate(bin_step1, bin_step1_out, element);
+    cv::Mat bin_,bin;
+    cv::threshold(map,bin,req.threshold,255,cv::THRESH_BINARY_INV);
 
-    int dilate_count = 3;
-    for(int i = 0;i < dilate_count;i++){ 
-        cv::dilate(bin_step1, bin_step1_out, element);
-        bin_step1_out.copyTo(bin_step1);
+    cv::Mat element = cv::getStructuringElement(cv::MORPH_RECT,cv::Size(3,3));
+    cv::erode(bin,bin_,element,cv::Point(-1,-1),2); 
+    cv::dilate(bin_, bin, element, cv::Point(-1, -1), 2);
+
+    //Ex
+    std::vector<cv::Point2i> vertices_point;
+    vertices_point = makeOIP(bin,step_length);
+    
+    cv::Mat map_re(req.map.info.height, req.map.info.width, CV_8UC1,cv::Scalar::all(0));
+
+    cv::Point **polygonPointsEx = new cv::Point *[1];
+    polygonPointsEx[0] = new cv::Point[vertices_point.size()];
+    
+    for(int i = 0;i < vertices_point.size();i++){
+        polygonPointsEx[0][i].x = vertices_point[i].x;
+        polygonPointsEx[0][i].y = vertices_point[i].y;
     }
 
-    int iterate_num;
-//template eliminate noise
-#if 1
+    const cv::Point* ppt[1] = { polygonPointsEx[0] };
+
+    int npt[] = { vertices_point.size() };
+    cv::polylines(map_re, ppt, npt, 1, 1, cv::Scalar::all(255), 1, 8, 0);
+
+    cv::fillPoly(map_re, ppt,npt,1,cv::Scalar::all(255));
+    delete[] polygonPointsEx[0];
+    delete[] polygonPointsEx;
+    
+    //cv::imshow("map_re",map_re);
+    //cv::waitKey(0);
+    //In 
+    std::vector<std::vector<cv::Point> > contours;
+	std::vector<cv::Vec4i> hierarchy;
+	std::vector<std::vector<cv::Point> > valid_internal_contours;
+
+	cv::findContours(bin,contours,hierarchy,CV_RETR_TREE,CV_CHAIN_APPROX_NONE,cv::Point());
+
+	ROS_INFO_STREAM("contours_size:" << contours.size());
+	int external_contour_id;
+	int max_external_contour = 0;
+
+	for(int i = 0;i < contours.size();i++){
+		if(contours[i].size() > max_external_contour){
+			max_external_contour = contours[i].size();
+			external_contour_id = i;
+		}
+	}
+	ROS_INFO_STREAM("valid_external_contour_size:" << contours[external_contour_id].size());
+	
+    for(int i = 0;i < contours.size();i++){
+        if(i != external_contour_id)
+			if(contours[i].size() > req.internal_contour_threshold)
+            {
+				valid_internal_contours.push_back(contours[i]);
+				ROS_INFO_STREAM("valid_internal_contour_size:" << contours[i].size());
+			}
+	}
+
+	ROS_INFO_STREAM("valid_internal_contour_number:" << valid_internal_contours.size());
+
+    cv::Point **polygonPointsIn = new cv::Point *[valid_internal_contours.size()];
+    for(int i = 0;i < valid_internal_contours.size();i++){
+        polygonPointsIn[i] = new cv::Point[valid_internal_contours[i].size()];
+    }
+    
+    for(int i = 0;i < valid_internal_contours.size();i++){
+        for(int j = 0;j < valid_internal_contours[i].size();j++){
+            polygonPointsIn[i][j].x = valid_internal_contours[i][j].x;
+            polygonPointsIn[i][j].y = valid_internal_contours[i][j].y;
+        }
+    }
+
+    for(int i = 0;i < valid_internal_contours.size();i++){
+        const cv::Point* ppt_obj[1] = { polygonPointsIn[i] };
+
+        int npt_obj[] = { valid_internal_contours[i].size() };
+        cv::polylines(map_re, ppt_obj, npt_obj, 1, 1, cv::Scalar::all(0), 1, 8, 0);
+
+        cv::fillPoly(map_re, ppt_obj,npt_obj,1,cv::Scalar::all(0));
+    }
+    
+    
+    for(int i = 0;i < valid_internal_contours.size();i++){
+        delete[] polygonPointsIn[i];
+    }
+    delete[] polygonPointsIn;
+    
+#if 0
     cv::Mat bin_temp;
     bin_step1_out.convertTo(bin_temp,CV_64FC1);
 
@@ -174,85 +504,8 @@ bool MapModifyService(
             continue;
 
         BresenhamLine(start,end,v_point);
-#if 0
-        if(start.x == end.x){
-            for(int i = 0;i < v_point.size();i++){
-                map.at<unsigned char>(v_point[i].y,v_point[i].x) = 100;
-                if(bin_step1_out.at<unsigned char>(v_point[i].y,v_point[i].x+1) != \
-                   bin_step1_out.at<unsigned char>(v_point[i].y,v_point[i].x-1)){
-                        if(bin_step1_out.at<unsigned char>(v_point[i].y,v_point[i].x+1) == 0){
-                            if(bin_step1_out.at<unsigned char>(v_point[i].y-1,v_point[i].x+1) != 0 &&\
-                               bin_step1_out.at<unsigned char>(v_point[i].y+1,v_point[i].x+1) != 0)
-                                    map.at< unsigned char>(v_point[i].y,v_point[i].x+1) = 0;
-
-                        }
-                        else{
-                            if(bin_step1_out.at<unsigned char>(v_point[i].y-1,v_point[i].x-1) != 0 &&\
-                               bin_step1_out.at<unsigned char>(v_point[i].y+1,v_point[i].x-1) != 0)
-                                    map.at< unsigned char>(v_point[i].y,v_point[i].x-1) = 0;
-                        }
-                }
-            }
-        }
-        else{
-            if(start.y == end.y){
-                for(int i = 0;i < v_point.size();i++){
-                    map.at<unsigned char>(v_point[i].y,v_point[i].x) = 100;
-                    if(bin_step1_out.at<unsigned char>(v_point[i].y+1,v_point[i].x) != \
-                        bin_step1_out.at<unsigned char>(v_point[i].y-1,v_point[i].x)){
-                            if(bin_step1_out.at<unsigned char>(v_point[i].y-1,v_point[i].x) == 0){
-                                if(bin_step1_out.at<unsigned char>(v_point[i].y-1,v_point[i].x+1) != 0 &&\
-                                    bin_step1_out.at<unsigned char>(v_point[i].y-1,v_point[i].x-1) != 0)
-                                        map.at< unsigned char>(v_point[i].y-1,v_point[i].x) = 0;
-                            }
-                            else{
-                                if(bin_step1_out.at<unsigned char>(v_point[i].y+1,v_point[i].x+1) != 0 &&\
-                                    bin_step1_out.at<unsigned char>(v_point[i].y+1,v_point[i].x-1) != 0)
-                                        map.at< unsigned char>(v_point[i].y+1,v_point[i].x) = 0;
-                            }
-                    }
-                }
-            }
-            else{
-                double k = (start.y-end.y)/((start.x-end.x)*1.0);
-                if(k > 0){
-                    for(int i = 0;i < v_point.size();i++){
-                    map.at<unsigned char>(v_point[i].y,v_point[i].x) = 100;
-                    if(bin_step1_out.at<unsigned char>(v_point[i].y+1,v_point[i].x+1) != \
-                        bin_step1_out.at<unsigned char>(v_point[i].y-1,v_point[i].x-1)){
-                            if(bin_step1_out.at<unsigned char>(v_point[i].y-1,v_point[i].x-1) == 0)
-                                if(bin_step1_out.at<unsigned char>(v_point[i].y-1,v_point[i].x) != 0 &&\
-                                    bin_step1_out.at<unsigned char>(v_point[i].y,v_point[i].x-1) != 0)
-                                        map.at< unsigned char>(v_point[i].y-1,v_point[i].x-1) = 0;
-                            else
-                                if(bin_step1_out.at<unsigned char>(v_point[i].y,v_point[i].x+1) != 0 &&\
-                                    bin_step1_out.at<unsigned char>(v_point[i].y+1,v_point[i].x) != 0)
-                                        map.at< unsigned char>(v_point[i].y+1,v_point[i].x+1) = 0;
-                    }
-                    }
-                }
-                else{
-                    for(int i = 0;i < v_point.size();i++){
-                    map.at<unsigned char>(v_point[i].y,v_point[i].x) = 100;
-                    if(bin_step1_out.at<unsigned char>(v_point[i].y+1,v_point[i].x-1) != \
-                        bin_step1_out.at<unsigned char>(v_point[i].y-1,v_point[i].x+1)){
-                            if(bin_step1_out.at<unsigned char>(v_point[i].y-1,v_point[i].x+1) == 0)
-                                if(bin_step1_out.at<unsigned char>(v_point[i].y-1,v_point[i].x) != 0 &&\
-                                    bin_step1_out.at<unsigned char>(v_point[i].y,v_point[i].x+1) != 0)
-                                        map.at< unsigned char>(v_point[i].y-1,v_point[i].x+1) = 0;
-                            else
-                                if(bin_step1_out.at<unsigned char>(v_point[i].y,v_point[i].x-1) != 0 &&\
-                                    bin_step1_out.at<unsigned char>(v_point[i].y+1,v_point[i].x) != 0)
-                                        map.at< unsigned char>(v_point[i].y+1,v_point[i].x-1) = 0;
-                    }
-                    }
-                }
-            }
-        }
-
         ROS_INFO("v_point_size:%d",(int)v_point.size());
         v_point.clear();
-#endif
     }
 
     ROS_INFO("v_point_size:%d",(int)v_point.size());
@@ -261,107 +514,15 @@ bool MapModifyService(
     }
     
     vector<cv::Point>().swap(v_point);
-   //std::cout << __FILE__ << __LINE__ << std::endl;
     free_ntuple_list(ntl);
-#endif
-    //std::cout << __FILE__ << __LINE__ << std::endl;
-    cv::Mat bin_step2;
-    cv::threshold(map,bin_step2,req.threshold,255,cv::THRESH_BINARY_INV);
-    
-    cv::Mat bin_step2_out;
-    bin_step2.copyTo(bin_step2_out);
-#if 1
-iterate_num = 5;
-int count_step_2;
-for(int l = 0;l < iterate_num;l++){
-    count_step_2 = 0;
-    for(int i = 1;i < req.map.info.height-1;i++){
-        for(int j = 1;j < req.map.info.width-1;j++){
-            if(bin_step2_out.at<unsigned char>(i,j) == 0){
-                
-                int count_value_255_v = 0;
-                int count_value_255_h = 0;
-                {
-                     if(bin_step2_out.at<unsigned char>(i-1,j-1) == 255)
-                        count_value_255_h++;
-                     if(bin_step2_out.at<unsigned char>(i-1,j+1) == 255)
-                        count_value_255_h++;
-                     if(bin_step2_out.at<unsigned char>(i+1,j-1) == 255)
-                        count_value_255_h++;
-                     if(bin_step2_out.at<unsigned char>(i+1,j+1) == 255)
-                        count_value_255_h++;
-                }
-
-                if(count_value_255_h >= 3){
-                    map.at<unsigned char>(i,j) = 0;
-                    bin_step2_out.at<unsigned char>(i,j) = 255;
-                    count_step_2 ++;
-                }
-                else{
-                    if(bin_step2_out.at<unsigned char>(i-1,j) == 255)
-                        count_value_255_v++;
-                    if(bin_step2_out.at<unsigned char>(i+1,j) == 255)
-                        count_value_255_v++;
-                    if(bin_step2_out.at<unsigned char>(i,j-1) == 255)
-                        count_value_255_v++;
-                    if(bin_step2_out.at<unsigned char>(i,j+1) == 255)
-                        count_value_255_v++;
-
-
-                    if(count_value_255_v >= 3){
-                        map.at<unsigned char>(i,j) = 0;
-                        bin_step2_out.at<unsigned char>(i,j) = 255;
-                        count_step_2 ++;
-                    }
-                }
-            }
-            else{
-                
-                int count_value_0_v = 0;
-                int count_value_0_h = 0;
-                {
-                     if(bin_step2_out.at<unsigned char>(i-1,j-1) == 0)
-                        count_value_0_h++;
-                     if(bin_step2_out.at<unsigned char>(i-1,j+1) == 0)
-                        count_value_0_h++;
-                     if(bin_step2_out.at<unsigned char>(i+1,j-1) == 0)
-                        count_value_0_h++;
-                     if(bin_step2_out.at<unsigned char>(i+1,j+1) == 0)
-                        count_value_0_h++;
-                }
-
-                if(count_value_0_h >= 3){
-                    map.at<unsigned char>(i,j) = 100;
-                    bin_step2_out.at<unsigned char>(i,j) = 0;
-                    count_step_2 ++;
-                }
-                else{
-                    if(bin_step2_out.at<unsigned char>(i-1,j) == 0)
-                        count_value_0_v++;
-                    if(bin_step2_out.at<unsigned char>(i+1,j) == 0)
-                        count_value_0_v++;
-                    if(bin_step2_out.at<unsigned char>(i,j-1) == 0)
-                        count_value_0_v++;
-                    if(bin_step2_out.at<unsigned char>(i,j+1) == 0)
-                        count_value_0_v++;
-
-                    if(count_value_0_v >= 3){
-                        map.at<unsigned char>(i,j) = 100;
-                        bin_step2_out.at<unsigned char>(i,j) = 0;
-                        count_step_2 ++;
-                    }
-
-                }
-            }
-        }
-    }
-    ROS_INFO("count_step2:%d",count_step_2);
-}
 #endif
     for(int i = 0;i < req.map.info.height;i++){
         for(int j = 0;j < req.map.info.width;j++){
-           char value = map.at<char>(i,j);
-           map_data.push_back(value); 
+           char value = map_re.at<char>(i,j);
+           if(value == 0)
+                map_data.push_back(100);
+           else
+                map_data.push_back(0);
         }
      }
 

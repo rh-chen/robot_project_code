@@ -99,6 +99,7 @@ public:
 
             scale_map::ModifyMap map_modify_srv;
             map_modify_srv.request.threshold = 95;
+            map_modify_srv.request.internal_contour_threshold = 64;
 
 			srv.request.erosion_radius = 1;
 			srv.request.robot_radius = 0.03;
@@ -142,7 +143,7 @@ public:
             if(res_map_rotate){
                 srv.request.map = map_rotate_srv.response.map;
             }else{
-                ROS_ERROR("Failed to call map_modify_srv service.");
+                ROS_ERROR("Failed to call map_rotate_srv service.");
             }
 
 			ros::Time begin1 = ros::Time::now();
@@ -364,7 +365,7 @@ int main(int argc, char **argv) {
     	ros::Publisher marker_pub = n.advertise<visualization_msgs::MarkerArray>("/cleanner_planner", 1);
 			ros::Rate loop_rate(10);
 			while(ros::ok()){
-				int path_size = srv_darp.response.plan.poses.size();
+nternal_contour_threshold				int path_size = srv_darp.response.plan.poses.size();
 
       	visualization_msgs::MarkerArray markerArray;
 

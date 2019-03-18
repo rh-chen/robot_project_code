@@ -1137,10 +1137,10 @@ bool CoveragePlanService(
   start_x_world += req.map_origin_x;
   start_y_world += req.map_origin_y;
 
-  ROS_INFO("start_x_grid,start_y_grid:%f,%f",(start_x_origin-req.map_origin_x)/req.map_resolution,\
+  //ROS_INFO("start_x_grid,start_y_grid:%f,%f",(start_x_origin-req.map_origin_x)/req.map_resolution,\
                                              (start_y_origin-req.map_origin_y)/req.map_resolution);
-  ROS_INFO("start_x,start_y:%f,%f",req.start.pose.position.x,req.start.pose.position.y);
-  ROS_INFO("rotate_start_x,rotate_start_y:%f,%f",start_x_world,start_y_world);
+  //ROS_INFO("start_x,start_y:%f,%f",req.start.pose.position.x,req.start.pose.position.y);
+  //ROS_INFO("rotate_start_x,rotate_start_y:%f,%f",start_x_world,start_y_world);
 
   double delta_x = 0;
   double delta_y = 0;
@@ -1224,8 +1224,8 @@ bool CoveragePlanService(
 		return false;
 	}
 	else{
-		std::cout << "map_width:" << erosion.cols << std::endl;
-		std::cout << "map_height:" << erosion.rows << std::endl;
+		std::cout << "darp_map_width:" << erosion.cols << std::endl;
+		std::cout << "darp_map_height:" << erosion.rows << std::endl;
 		
 		ros::Time begin7 = ros::Time ::now();
 		environment_grid_.create(erosion.rows,erosion.cols,CV_32SC1);
@@ -1396,8 +1396,8 @@ bool CoveragePlanService(
     stt_pose.pose.position.x += delta_x;
     stt_pose.pose.position.y += delta_y;
     
-    ROS_INFO("stt_start_x,stt_start_y:%f,%f",stt_pose.pose.position.x,stt_pose.pose.position.y);
-    ROS_INFO("x_delta,y_delta:%f,%f",stt_pose.pose.position.x-start_x_origin,stt_pose.pose.position.y-start_y_origin);
+    //ROS_INFO("stt_start_x,stt_start_y:%f,%f",stt_pose.pose.position.x,stt_pose.pose.position.y);
+    //ROS_INFO("x_delta,y_delta:%f,%f",stt_pose.pose.position.x-start_x_origin,stt_pose.pose.position.y-start_y_origin);
 	resp.plan.poses.push_back(stt_pose);
 
 	geometry_msgs::PoseStamped pre_pose;

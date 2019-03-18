@@ -97,12 +97,73 @@ bool ScaleMapService(
     return false;
   }
 
+
+    if(SCALE_FACTOR == 1){
+        res.map = req.map;
+        return true;
+    }
 	std::cout << "map_height:" << req.map.info.height << std::endl;
 	std::cout << "map_width:" << req.map.info.width << std::endl;
 
-  cv::Mat map(req.map.info.height, req.map.info.width, CV_8SC1, req.map.data.data());
-	
-  ROS_INFO("start to scale map.");
+    cv::Mat map(req.map.info.height, req.map.info.width, CV_8SC1, req.map.data.data());
+    ROS_INFO("start to scale map.");
+
+    /*int map_start_col = 0;
+    int map_end_col = map.cols;
+    bool map_start_flag = false;
+    bool map_end_flag = false;
+
+    //map_start_col
+    for(int j = 0;j < map.cols;j++){
+        if(!map_start_flag){
+        for(int i = 0;i < map.rows;i++){
+            if(map.at<signed char>(i,j) == CellType::Empty)
+            {
+                map_start_col = j;
+                map_start_flag = true;
+                break;
+            }
+        }
+        }
+        else
+            break;
+    }
+    //map_end_col
+    for(int j = map.cols-1;j >= 0;j--){
+        if(!map_end_flag){
+        for(int i = map.rows-1;i >= 0;i--){
+            if(map.at<signed char>(i,j) == CellType::Empty)
+            {
+                map_end_col = j;
+                map_end_flag = true;
+                break;
+            }
+        }
+        }
+        else
+            break;
+    }
+    
+    ROS_INFO("map_start_col:%d",map_start_col);
+    ROS_INFO("map_end_col:%d",map_end_col);
+    
+    int SCALE_FACTOR;
+    
+    int col_delta_6 = (map_end_col-map_start_col+1)%6;
+    int col_delta_5 = (map_end_col-map_start_col+1)%5;
+    int col_delta_7 = (map_end_col-map_start_col+1)%7;
+
+    ROS_INFO("col_delta_6:%d",col_delta_6);
+    ROS_INFO("col_delta_5:%d",col_delta_5);
+    ROS_INFO("col_delta_7:%d",col_delta_7);
+
+    if(std::min(std::min(col_delta_5,col_delta_6),col_delta_7) == col_delta_6)
+        SCALE_FACTOR = 6;
+    else if(std::min(std::min(col_delta_5,col_delta_6),col_delta_7) == col_delta_5)
+        SCALE_FACTOR = 5;
+    else
+        SCALE_FACTOR = 7;
+    */
 
 	float ng_resolution = req.map.info.resolution * SCALE_FACTOR;
 
@@ -137,7 +198,7 @@ bool ScaleMapService(
 	signed char currentCellValue;
 	signed char ng_oldCellValue;
     
-    double scale_grid = 0.35;
+    double scale_grid = 0.01;
 
 	bool cacheObstacleCells = true;
 	bool cacheEmptyCells = true;
@@ -204,7 +265,7 @@ bool ScaleMapService(
 			ng_oldCellValue = ng_data[ng_row][ng_col];
             
 			if(currentCellValue == CellType::Obstacle){
-                ROS_INFO("ng_data_temp:%d",ng_data_temp[ng_row][ng_col]);
+                //ROS_INFO("ng_data_temp:%d",ng_data_temp[ng_row][ng_col]);
                 if(ng_data_temp[ng_row][ng_col] >= (int)floor(SCALE_FACTOR*SCALE_FACTOR*scale_grid)){
 				    ng_data[ng_row][ng_col] = CellType::Obstacle;
                     if(cacheObstacleCells){
@@ -241,7 +302,7 @@ bool ScaleMapService(
 				}*/
 			}
 			else if(currentCellValue == CellType::Unexplored){
-                ROS_INFO("ng_data_temp:%d",ng_data_temp[ng_row][ng_col]);
+                //ROS_INFO("ng_data_temp:%d",ng_data_temp[ng_row][ng_col]);
                 if(ng_data_temp[ng_row][ng_col] >= (int)floor(SCALE_FACTOR*SCALE_FACTOR*scale_grid)){
 				    if(ng_oldCellValue != CellType::Obstacle){
 					    ng_data[ng_row][ng_col] = CellType::Unexplored;

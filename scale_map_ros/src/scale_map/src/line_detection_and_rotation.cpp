@@ -170,64 +170,17 @@ namespace line_detection_and_rotation {
 #endif
         dst_ = dst;
 	}
-
-	bool lineLsdTransform(cv::Mat& bin_,double& angle)
-	{
-		cv::Mat bin_temp;
-        bin_.convertTo(bin_temp,CV_64FC1);
-
-        //std::cout << __FILE__ << __LINE__ << std::endl;
-        image_double image = new_image_double(bin_temp.cols,bin_temp.rows);
-        image->data = bin_temp.ptr<double>(0);
-
-        //std::cout << __FILE__ << __LINE__ << std::endl;
-        ntuple_list ntl = lsd(image);
-
-        //std::cout << __FILE__ << __LINE__ << std::endl;
-        ROS_INFO("Lines Number:%d",ntl->size);
-        double max_length = 0.0;
-        double line_angle = 0.0;
-        int line_num = ntl->size;
-
-        for(int j = 0;j < line_num;j++){
-            cv::Point start,end;
-
-            start.x = int(ntl->values[0 + j * ntl->dim]);
-            start.y = int(ntl->values[1 + j * ntl->dim]);
-            end.x = int(ntl->values[2 + j * ntl->dim]);
-            end.y = int(ntl->values[3 + j * ntl->dim]);
-        
-            int delta_x = end.x-start.x;
-            int delta_y = end.y-start.y;
-
-            if(sqrt(delta_x*delta_x+delta_y*delta_y) > max_length){
-                //line_angle = atan2(delta_y,delta_x);
-                line_angle = cv::fastAtan2(delta_y,delta_x);
-                max_length = sqrt(delta_x*delta_x+delta_y*delta_y);
-            }
-	    }
-
-        //angle = (line_angle*180.0)/CV_PI+180.0;
-        angle = line_angle;
-        ROS_INFO("line_anlge:%f",angle);
-        ROS_INFO("max_length:%f",max_length);
     
-        free_ntuple_list(ntl);
-
-        if(line_num > 0)
-            return true;
-        else
-            return false;
-#if 0
+    bool lineHoughTransform(vector<cv::Point>& src,int width,int height,int& value,int& dist,int& angle){
 		int nRow = height;
 		int nCol = width;
-		int nCount = count;
+		int nCount = src.size();
 
 		int nDist;
 		int nAngleNumber;
 
 		int nMaxAngleNumber = 360;
-		int nMaxDist =(int)sqrt(nRow/2.0 * nRow/2.0 + nCol/2.0 * nCol/2.0);
+		int nMaxDist = std::ceil(sqrt(nRow/2.0 * nRow/2.0 + nCol/2.0 * nCol/2.0));
 		int* pTran = new int[nMaxDist * nMaxAngleNumber];
 		memset(pTran,0,nMaxDist * nMaxAngleNumber * sizeof(int));
 
@@ -281,7 +234,65 @@ namespace line_detection_and_rotation {
 			return true;
 		else
 			return false;
-#endif
+    }
+
+	bool lineLsdTransform(cv::Mat& bin_,double& angle)
+	{
+		cv::Mat bin_temp;
+        bin_.convertTo(bin_temp,CV_64FC1);
+
+        //std::cout << __FILE__ << __LINE__ << std::endl;
+        image_double image = new_image_double(bin_temp.cols,bin_temp.rows);
+        image->data = bin_temp.ptr<double>(0);
+
+        //std::cout << __FILE__ << __LINE__ << std::endl;
+        ntuple_list ntl = lsd(image);
+
+        //std::cout << __FILE__ << __LINE__ << std::endl;
+        ROS_INFO("Lines Number:%d",ntl->size);
+        double max_length = 0.0;
+        double line_angle = 0.0;
+        int line_num = ntl->size;
+
+        int max_start_x,max_start_y;
+        int max_end_x,max_end_y;
+        for(int j = 0;j < line_num;j++){
+            cv::Point start,end;
+
+            start.x = int(ntl->values[0 + j * ntl->dim]);
+            start.y = int(ntl->values[1 + j * ntl->dim]);
+            end.x = int(ntl->values[2 + j * ntl->dim]);
+            end.y = int(ntl->values[3 + j * ntl->dim]);
+        
+            int delta_x = end.x-start.x;
+            int delta_y = end.y-start.y;
+
+            if(sqrt(delta_x*delta_x+delta_y*delta_y) > max_length){
+                //line_angle = atan2(delta_y,delta_x);
+                line_angle = cv::fastAtan2(delta_y,delta_x);
+                max_length = sqrt(delta_x*delta_x+delta_y*delta_y);
+                max_start_x = start.x;
+                max_start_y = start.y;
+
+                max_end_x = end.x;
+                max_end_y = end.y;
+            }
+	    }
+
+        //angle = (line_angle*180.0)/CV_PI+180.0;
+        angle = line_angle;
+        ROS_INFO("line_anlge:%f",angle);
+        ROS_INFO("max_length:%f",max_length);
+
+        ROS_INFO("max_start_x,max_start_y:%d,%d",max_start_x,max_start_y);
+        ROS_INFO("max_end_x,max_end_y:%d,%d",max_end_x,max_end_y);
+    
+        free_ntuple_list(ntl);
+
+        if(line_num > 0)
+            return true;
+        else
+            return false;
 	}
 
 	bool MapRotate(scale_map::MapRotate::Request &req,     
@@ -306,7 +317,8 @@ namespace line_detection_and_rotation {
 		if(!map.empty()){
 				cv::Mat bin;
 				cv::threshold(map,bin,95,255,cv::THRESH_BINARY_INV);
-				/*cv::Canny(map,binarization,75,3,3);
+                cv::Mat binarization;
+				cv::Canny(map,binarization,75,3,3);
 				vector<cv::Point> map_edge;
 				for(int i = 0;i < binarization.cols;i++)
 						for(int j = 0;j < binarization.rows;j++)
@@ -317,14 +329,11 @@ namespace line_detection_and_rotation {
 				int nValue = -1;
 				int nDist = -1;
 				int nAngle = -111111;
-				*/
-				//std::cout << __FILE__ << __LINE__ << std::endl;
-                double nAngle = 0;
+				
                 ros::Time begin_line = ros::Time::now();
-				bool res_line = lineLsdTransform(bin,nAngle);
+				bool res_line = lineHoughTransform(map_edge,binarization.cols,binarization.rows,nValue,nDist,nAngle);
                 ros::Time end_line = ros::Time::now();
                 std::cout << "line_hough_time_cost:" << (end_line-begin_line).toSec() << std::endl;
-				//std::cout << __FILE__ << __LINE__ << std::endl;
 				if(!res_line)	
 				{
                         ROS_ERROR("detetion line fail...");
@@ -332,7 +341,7 @@ namespace line_detection_and_rotation {
 				}
 				else{
                         ROS_INFO("line detection success...");
-                        ROS_INFO("nAngle:%f",nAngle);
+                        ROS_INFO("nAngle:%d",nAngle);
 						cv::Mat dst;		
 						double angle_threshold = 3;
                         double angle_rotate = 0;
@@ -344,13 +353,15 @@ namespace line_detection_and_rotation {
                             angle_rotate = 270-nAngle;
                         else if(floor(nAngle) >= 270 && floor(nAngle) < 360)
                             angle_rotate = 360-nAngle;
-                       
+                        
                         std::vector<double> rot_mat_inv;
                         ROS_INFO("angle_rotate:%f",angle_rotate);
                         if(angle_rotate > angle_threshold){
                             if((90-angle_rotate) < angle_rotate){
+                                ROS_INFO("counter clock wise...");
                                 ros::Time begin_rotate = ros::Time::now();
-						        ImgRotate(map,dst,-1,90-angle_rotate,rot_mat_inv);
+						        //ImgRotate(map,dst,-1,90-angle_rotate,rot_mat_inv);
+						        ImgRotate(map,dst,1,90-angle_rotate,rot_mat_inv);
                                 ros::Time end_rotate = ros::Time::now();
                                 std::cout << "image_rotate_time_cost:" << (end_rotate-begin_rotate).toSec() << std::endl;
                                 std::cout << "rot_mat_inv:" << rot_mat_inv[0] << "  "
@@ -365,9 +376,11 @@ namespace line_detection_and_rotation {
                                           << rot_mat_inv[7] << "  "
                                           << rot_mat_inv[8] << "  " << std::endl;
                             }
-                            else{    
+                            else{
+                                ROS_INFO("clockwise...");
                                 ros::Time begin_rotate = ros::Time::now();
-						        ImgRotate(map,dst,1,angle_rotate,rot_mat_inv);
+						        //ImgRotate(map,dst,1,angle_rotate,rot_mat_inv);
+						        ImgRotate(map,dst,-1,angle_rotate,rot_mat_inv);
                                 ros::Time end_rotate = ros::Time::now();
                                 std::cout << "image_rotate_time_cost:" << (end_rotate-begin_rotate).toSec() << std::endl;
                                 std::cout << "rot_mat_inv:" << rot_mat_inv[0] << "  "

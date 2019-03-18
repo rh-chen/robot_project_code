@@ -1,4 +1,5 @@
 int64 threshold
 nav_msgs/OccupancyGrid map
+int64 internal_contour_threshold
 ---
 nav_msgs/OccupancyGrid map
