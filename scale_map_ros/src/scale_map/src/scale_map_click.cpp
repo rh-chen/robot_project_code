@@ -204,9 +204,9 @@ public:
 									plannerStartPose.orientation.w = 1.0;
 
 									geometry_msgs::Vector3 plannerStartScale;
-									plannerStartScale.x = 0.2;
-									plannerStartScale.y = 0.2;
-									plannerStartScale.z = 0.2;
+									plannerStartScale.x = 0.03;
+									plannerStartScale.y = 0.03;
+									plannerStartScale.z = 0.03;
 
 									std_msgs::ColorRGBA plannerStartColor;
 									plannerStartColor.a = 1.0;
@@ -241,9 +241,9 @@ public:
 											markerArrowPose.orientation.w = 1.0;
 
 											geometry_msgs::Vector3 markerArrowScale;
-											markerArrowScale.x = 0.05;
-											markerArrowScale.y = 0.1;
-											markerArrowScale.z = 0.1;
+											markerArrowScale.x = 0.01;
+											markerArrowScale.y = 0.01;
+											markerArrowScale.z = 0.01;
 
 											std_msgs::ColorRGBA markerArrowColor;
 											markerArrowColor.a = 1.0;
