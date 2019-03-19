@@ -32,7 +32,7 @@
 #include "scale_map/ModifyMap.h"
 #include "lsd.h"
 
-#define step_length 6
+#define step_length 3
 
 namespace ns_map_modify{
 
@@ -381,16 +381,24 @@ bool MapModifyService(
     cv::Mat map(req.map.info.height, req.map.info.width, CV_8UC1, req.map.data.data());
     vector<int8_t> map_data; 
 
-    cv::Mat bin_,bin;
-    cv::threshold(map,bin,req.threshold,255,cv::THRESH_BINARY_INV);
+    cv::Mat bin_,bin_re_,temp;
+    cv::threshold(map,bin_,req.threshold,255,cv::THRESH_BINARY_INV);
+    
+    //cv::imshow("bin",bin_);
 
     cv::Mat element = cv::getStructuringElement(cv::MORPH_RECT,cv::Size(3,3));
-    cv::erode(bin,bin_,element,cv::Point(-1,-1),2); 
-    cv::dilate(bin_, bin, element, cv::Point(-1, -1), 2);
+    //cv::dilate(bin_, bin, element, cv::Point(-1, -1), 3);
 
-    //Ex
+    cv::erode(bin_,temp,element,cv::Point(-1,-1),1);
+    cv::dilate(temp,bin_re_,element,cv::Point(-1,-1),1);
+    
+    //cv::imshow("bin_re_",bin_re_);
+
+    //Ex rect
+
+    std::vector<cv::Point> contour_rect;
     std::vector<cv::Point2i> vertices_point;
-    vertices_point = makeOIP(bin,step_length);
+    vertices_point = makeOIP(bin_re_,step_length);
     
     cv::Mat map_re(req.map.info.height, req.map.info.width, CV_8UC1,cv::Scalar::all(0));
 
@@ -400,6 +408,8 @@ bool MapModifyService(
     for(int i = 0;i < vertices_point.size();i++){
         polygonPointsEx[0][i].x = vertices_point[i].x;
         polygonPointsEx[0][i].y = vertices_point[i].y;
+
+        contour_rect.push_back(cv::Point(vertices_point[i].x,vertices_point[i].y));
     }
 
     const cv::Point* ppt[1] = { polygonPointsEx[0] };
@@ -412,9 +422,8 @@ bool MapModifyService(
     delete[] polygonPointsEx;
     
     //cv::imshow("map_re",map_re);
-    //cv::waitKey(0);
     //In 
-    std::vector<std::vector<cv::Point> > contours;
+    /*std::vector<std::vector<cv::Point> > contours;
 	std::vector<cv::Vec4i> hierarchy;
 	std::vector<std::vector<cv::Point> > valid_internal_contours;
 
@@ -468,8 +477,70 @@ bool MapModifyService(
     for(int i = 0;i < valid_internal_contours.size();i++){
         delete[] polygonPointsIn[i];
     }
-    delete[] polygonPointsIn;
+    delete[] polygonPointsIn;*/
+
+    //Ex con
+    /*cv::Mat map_co(req.map.info.height, req.map.info.width, CV_8UC1,cv::Scalar::all(0));
+
+    cv::Point **polygonPointsExCon = new cv::Point *[1];
+    polygonPointsExCon[0] = new cv::Point[contours[external_contour_id].size()];
     
+    for(int j = 0;j < contours[external_contour_id].size();j++){
+        polygonPointsExCon[0][j].x = contours[external_contour_id][j].x;
+        polygonPointsExCon[0][j].y = contours[external_contour_id][j].y;
+    }
+
+    const cv::Point* ppt_ex_con[1] = { polygonPointsExCon[0] };
+
+    int npt_ex_con[] = { contours[external_contour_id].size() };
+    cv::polylines(map_co, ppt_ex_con, npt_ex_con, 1, 1, cv::Scalar::all(255), 1, 8, 0);
+
+    //cv::fillPoly(map_co, ppt_ex_con,npt_ex_con,1,cv::Scalar::all(0));
+    
+    delete[] polygonPointsExCon[0];
+    delete[] polygonPointsExCon;*/
+
+    //Ex con fit
+    cv::Mat map_co_fit(req.map.info.height, req.map.info.width, CV_8UC1,cv::Scalar::all(0));
+    
+    std::vector<cv::Point> contour_poly;
+    double epsilon_approx = 3;
+    cv::approxPolyDP(cv::Mat(contour_rect), contour_poly,epsilon_approx,true);
+
+    cv::Point **polygonPointsExConFit = new cv::Point *[1];
+    polygonPointsExConFit[0] = new cv::Point[contour_poly.size()];
+    
+    for(int j = 0;j < contour_poly.size();j++){
+        polygonPointsExConFit[0][j].x = contour_poly[j].x;
+        polygonPointsExConFit[0][j].y = contour_poly[j].y;
+    }
+
+    const cv::Point* ppt_ex_con_fit[1] = { polygonPointsExConFit[0] };
+
+    int npt_ex_con_fit[] = { contour_poly.size() };
+    cv::polylines(map_co_fit, ppt_ex_con_fit, npt_ex_con_fit, 1, 1, cv::Scalar::all(255), 1, 8, 0);
+    
+    delete[] polygonPointsExConFit[0];
+    delete[] polygonPointsExConFit;
+
+    //cv::imshow("map_co_fit",map_co_fit);
+    
+    cv::Rect rect = cv::boundingRect(contour_poly);
+    ros::Time begin = ros::Time::now();
+    for(int i = rect.tl().y;i < rect.br().y;i++){
+        for(int j = rect.tl().x;j < rect.br().x;j++){
+            double toNearestEdge = cv::pointPolygonTest(contour_poly, Point2f(j,i),true);
+            //ROS_INFO_STREAM("toNearestEdge:" << toNearestEdge);
+            if(std::fabs(toNearestEdge) > 9.0){
+               map_re.at<unsigned char>(i,j) = bin_re_.at<unsigned char>(i,j);
+            }
+        }
+    }
+    ros::Time end = ros::Time::now();
+
+    ROS_INFO_STREAM("#######################time cost:" << (end-begin).toSec());
+    //cv::imshow("map_re_",map_re);
+    //cv::waitKey(0);
 #if 0
     cv::Mat bin_temp;
     bin_step1_out.convertTo(bin_temp,CV_64FC1);
@@ -516,6 +587,10 @@ bool MapModifyService(
     vector<cv::Point>().swap(v_point);
     free_ntuple_list(ntl);
 #endif
+    cv::Mat temp_map;
+    cv::dilate(map_re,temp_map,element,cv::Point(-1,-1),1);
+    cv::erode(temp_map,map_re,element,cv::Point(-1,-1),1);
+
     for(int i = 0;i < req.map.info.height;i++){
         for(int j = 0;j < req.map.info.width;j++){
            char value = map_re.at<char>(i,j);
