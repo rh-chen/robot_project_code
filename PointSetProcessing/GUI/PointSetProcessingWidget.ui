@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>PointSetProcessingWidget</class>
+ <widget class="QMainWindow" name="PointSetProcessingWidget">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>800</width>
+    <height>600</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Point Set Processing</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QHBoxLayout" name="horizontalLayout" stretch="1,5">
+    <item>
+     <layout class="QVBoxLayout" name="verticalLayout">
+      <item>
+       <widget class="FloatSlider" name="sldArrowSize">
+        <property name="toolTip">
+         <string>Float slider</string>
+        </property>
+        <property name="whatsThis">
+         <string>The float slider widget allows the user to select a float value.</string>
+        </property>
+        <property name="name">
+         <string>Arrow size</string>
+        </property>
+        <property name="maxValueText">
+         <double>10.000000000000000</double>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="FloatSlider" name="sldNeighborRadius">
+        <property name="toolTip">
+         <string>Float slider</string>
+        </property>
+        <property name="whatsThis">
+         <string>The float slider widget allows the user to select a float value.</string>
+        </property>
+        <property name="name">
+         <string>Neighbor radius</string>
+        </property>
+        <property name="maxValueText">
+         <double>10.000000000000000</double>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="btnGenerateNormals">
+        <property name="text">
+         <string>Generate Normals</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="CoordinateEditWidget" name="coordOrientationPoint">
+        <property name="toolTip">
+         <string>CoordinateEditWidget</string>
+        </property>
+        <property name="whatsThis">
+         <string>Edit a coordinate value.</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="btnOrientNormalsToPoint">
+        <property name="text">
+         <string>Orient to Point</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="btnOrientNormals">
+        <property name="text">
+         <string>Orient Normals</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item>
+     <layout class="QVBoxLayout" name="verticalLayout_2">
+      <item>
+       <widget class="QVTKWidget" name="qvtkWidget"/>
+      </item>
+      <item>
+       <widget class="QProgressBar" name="progressBar">
+        <property name="value">
+         <number>24</number>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>800</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menuFile">
+    <property name="title">
+     <string>File</string>
+    </property>
+    <addaction name="actionOpenFile"/>
+    <addaction name="actionSave"/>
+   </widget>
+   <addaction name="menuFile"/>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+  <action name="actionOpenFile">
+   <property name="text">
+    <string>Open file</string>
+   </property>
+  </action>
+  <action name="actionSave">
+   <property name="text">
+    <string>Save</string>
+   </property>
+  </action>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>LabeledSlider</class>
+   <extends>QWidget</extends>
+   <header>LabeledSlider.h</header>
+  </customwidget>
+  <customwidget>
+   <class>FloatSlider</class>
+   <extends>LabeledSlider</extends>
+   <header>FloatSlider.h</header>
+  </customwidget>
+  <customwidget>
+   <class>CoordinateEditWidget</class>
+   <extends>QWidget</extends>
+   <header>CoordinateEditWidget.h</header>
+  </customwidget>
+  <customwidget>
+   <class>QVTKWidget</class>
+   <extends>QWidget</extends>
+   <header>QVTKWidget.h</header>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>
