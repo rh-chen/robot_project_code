@@ -294,8 +294,8 @@ namespace line_detection_and_rotation {
 		ROS_INFO("start rotate map...");
 		
 		if(req.map.info.width*req.map.info.height != req.map.data.size()){
-				ROS_ERROR("map data error...");
-				return false;
+		    ROS_ERROR("map data error...");
+		    return false;
 		}
         
         ROS_INFO("map.info.origin.position.x:%f",req.map.info.origin.position.x);
@@ -303,121 +303,114 @@ namespace line_detection_and_rotation {
         ROS_INFO("map.info.resolution:%f",req.map.info.resolution);
 
         for(int i = 0;i < req.map.data.size();i++)
-        if(req.map.data[i] == -1)
-            req.map.data[i] = 100;
+            if(req.map.data[i] == -1)
+                req.map.data[i] = 100;
    
         cv::Mat map(req.map.info.height, req.map.info.width, CV_8UC1, req.map.data.data());
 
 		if(!map.empty()){
-				cv::Mat bin;
-				cv::threshold(map,bin,95,255,cv::THRESH_BINARY_INV);
-                
-                /*cv::Mat binarization;
-				cv::Canny(map,binarization,75,3,3);
-				vector<cv::Point> map_edge;
-				for(int i = 0;i < binarization.cols;i++)
-						for(int j = 0;j < binarization.rows;j++)
-						{
-							if(binarization.at<unsigned char>(j,i) == 255)
-								map_edge.push_back(cv::Point(i,j));
-						}
-				int nValue = -1;
-				int nDist = -1;
-				int nAngle = -111111;
-				
-                ros::Time begin_line = ros::Time::now();
-				bool res_line = lineHoughTransform(map_edge,binarization.cols,binarization.rows,nValue,nDist,nAngle);
-                ros::Time end_line = ros::Time::now();
-                */
-                double nAngle = 0;
-                bool res_line = lineLsdTransform(bin,nAngle);
-				
-                if(!res_line)	
-				{
-                        ROS_ERROR("detetion line fail...");
-						return false;
-				}
-				else{
-                        ROS_INFO("line detection success...");
-                        ROS_INFO("nAngle:%f",nAngle);
-						
-                        cv::Mat dst;		
-                        double angle_rotate = 0;
-                        if(std::floor(nAngle) >= 0 && std::floor(nAngle) <= 90)
-                            angle_rotate = 90-nAngle;
-                        else if(std::floor(nAngle) >= 90 && std::floor(nAngle) <= 180)
-                            angle_rotate = 180-nAngle;
+            cv::Mat bin;
+            cv::threshold(map,bin,95,255,cv::THRESH_BINARY_INV);
+            
+            /*cv::Mat binarization;
+            cv::Canny(map,binarization,75,3,3);
+            vector<cv::Point> map_edge;
+            for(int i = 0;i < binarization.cols;i++)
+                    for(int j = 0;j < binarization.rows;j++)
+                    {
+                        if(binarization.at<unsigned char>(j,i) == 255)
+                            map_edge.push_back(cv::Point(i,j));
+                    }
+            int nValue = -1;
+            int nDist = -1;
+            int nAngle = -1;
+            
+            ros::Time begin_line = ros::Time::now();
+            bool res_line = lineHoughTransform(map_edge,binarization.cols,binarization.rows,nValue,nDist,nAngle);
+            ros::Time end_line = ros::Time::now();
+            */
+            double nAngle = 0;
+            bool res_line = lineLsdTransform(bin,nAngle);
+            
+            if(!res_line)	
+            {
+                    ROS_ERROR("detetion line fail...");
+                    return false;
+            }
+            else{
+                    ROS_INFO("line detection success...");
+                    ROS_INFO("nAngle:%f",nAngle);
+                    
+                    cv::Mat dst;		
+                    double angle_rotate = 0;
+                    if(std::floor(nAngle) >= 0.0 && std::floor(nAngle) <= 90.0)
+                        angle_rotate = 90.0 - nAngle;
+                    else if(std::floor(nAngle) >= 90.0 && std::floor(nAngle) <= 180.0)
+                        angle_rotate = 180 - nAngle;
+                    
+                    std::vector<double> rot_mat_inv;
+                    if(std::floor(90-angle_rotate) < std::floor(angle_rotate)){
+                        ROS_INFO("clockwise...");
+                        ImgRotate(map,dst,-1,90-angle_rotate,rot_mat_inv);
+                        std::cout << "rot_mat_inv:" << rot_mat_inv[0] << "  "
+                                                    << rot_mat_inv[1] << "  "
+                                                    << rot_mat_inv[2] << "  " << std::endl;
+
+                        std::cout << rot_mat_inv[3] << "  "
+                                  << rot_mat_inv[4] << "  "
+                                  << rot_mat_inv[5] << "  " << std::endl;
+
+                        std::cout << rot_mat_inv[6] << "  "
+                                  << rot_mat_inv[7] << "  "
+                                  << rot_mat_inv[8] << "  " << std::endl;
+                    }
+                    else{
+                        ROS_INFO("counter-clockwise...");
+                        ImgRotate(map,dst,1,angle_rotate,rot_mat_inv);
+                        std::cout << "rot_mat_inv:" << rot_mat_inv[0] << "  "
+                                                    << rot_mat_inv[1] << "  "
+                                                    << rot_mat_inv[2] << "  " << std::endl;
+
+                        std::cout << rot_mat_inv[3] << "  "
+                                  << rot_mat_inv[4] << "  "
+                                  << rot_mat_inv[5] << "  " << std::endl;
+
+                        std::cout << rot_mat_inv[6] << "  "
+                                  << rot_mat_inv[7] << "  "
+                                  << rot_mat_inv[8] << "  " << std::endl;
+                    }
+
+                    if(!dst.empty()){
+                        ROS_INFO("map_rotation_dst_width:%d",dst.cols);
+                        ROS_INFO("map_rotation_dst_height:%d",dst.rows);
                         
-                        std::vector<double> rot_mat_inv;
-                        ROS_INFO("angle_rotate:%f",angle_rotate);
-
-                        if(angle_rotate > 1.0){
-                            if((90-angle_rotate) < angle_rotate){
-                                ROS_INFO("clockwise...");
-						        ImgRotate(map,dst,-1,90-angle_rotate,rot_mat_inv);
-                                std::cout << "rot_mat_inv:" << rot_mat_inv[0] << "  "
-                                                            << rot_mat_inv[1] << "  "
-                                                            << rot_mat_inv[2] << "  " << std::endl;
-
-                                std::cout << rot_mat_inv[3] << "  "
-                                          << rot_mat_inv[4] << "  "
-                                          << rot_mat_inv[5] << "  " << std::endl;
-
-                                std::cout << rot_mat_inv[6] << "  "
-                                          << rot_mat_inv[7] << "  "
-                                          << rot_mat_inv[8] << "  " << std::endl;
-                            }
-                            else{
-                                ROS_INFO("counter-clockwise...");
-						        ImgRotate(map,dst,1,angle_rotate,rot_mat_inv);
-                                std::cout << "rot_mat_inv:" << rot_mat_inv[0] << "  "
-                                                            << rot_mat_inv[1] << "  "
-                                                            << rot_mat_inv[2] << "  " << std::endl;
-
-                                std::cout << rot_mat_inv[3] << "  "
-                                          << rot_mat_inv[4] << "  "
-                                          << rot_mat_inv[5] << "  " << std::endl;
-
-                                std::cout << rot_mat_inv[6] << "  "
-                                          << rot_mat_inv[7] << "  "
-                                          << rot_mat_inv[8] << "  " << std::endl;
+                        std::vector<int8_t> map_data;
+                        for(int i = 0;i < dst.rows;i++){
+                            for(int j = 0;j < dst.cols;j++){
+                                char value = dst.at<char>(i,j);
+                                map_data.push_back(value); 
                             }
                         }
-                        else{
-                            ImgRotate(map,dst,1,0,rot_mat_inv);
-                        }
 
-						if(!dst.empty()){
-                            ROS_INFO("map_rotation_dst_width:%d",dst.cols);
-                            ROS_INFO("map_rotation_dst_height:%d",dst.rows);
-                            
-                            std::vector<int8_t> map_data;
-				            for(int i = 0;i < dst.rows;i++){
-				                for(int j = 0;j < dst.cols;j++){
-				                    char value = dst.at<char>(i,j);
-				                    map_data.push_back(value); 
-				                }
-				            }
+                        res.map.info.height = dst.rows;
+                        res.map.info.width = dst.cols;
+                        res.map.info.resolution = req.map.info.resolution;
+                        res.map.data = map_data;
 
-				            res.map.info.height = dst.rows;
-				            res.map.info.width = dst.cols;
-				            res.map.info.resolution = req.map.info.resolution;
-				            res.map.data = map_data;
+                        res.map.header.frame_id = req.map.header.frame_id;
+                        res.map.info.origin.position.x = req.map.info.origin.position.x;
+                        res.map.info.origin.position.y = req.map.info.origin.position.y;
+                        
+                        res.transform = rot_mat_inv;
+                        res.map_origin_x = req.map.info.origin.position.x;
+                        res.map_origin_y = req.map.info.origin.position.y;
+                        res.map_resolution = req.map.info.resolution;
 
-				            res.map.header.frame_id = req.map.header.frame_id;
-				            res.map.info.origin.position.x = req.map.info.origin.position.x;
-				            res.map.info.origin.position.y = req.map.info.origin.position.y;
-                            
-                            res.transform = rot_mat_inv;
-                            res.map_origin_x = req.map.info.origin.position.x;
-                            res.map_origin_y = req.map.info.origin.position.y;
-                            res.map_resolution = req.map.info.resolution;
-
-                            return true;
-						}
-						else
-							return false;
-				}
+                        return true;
+                    }
+                    else
+                        return false;
+            }
 		}
 		else{
 				ROS_ERROR("map data empty...");
