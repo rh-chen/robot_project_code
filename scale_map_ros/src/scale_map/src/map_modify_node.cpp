@@ -390,7 +390,7 @@ bool MapModifyService(
     //cv::dilate(bin_, bin, element, cv::Point(-1, -1), 3);
 
     cv::erode(bin_,temp,element,cv::Point(-1,-1),1);
-    cv::dilate(temp,bin_re_,element,cv::Point(-1,-1),1);
+    cv::dilate(temp,bin_re_,element,cv::Point(-1,-1),2);
     
     //cv::imshow("bin_re_",bin_re_);
 
@@ -399,7 +399,7 @@ bool MapModifyService(
     std::vector<cv::Point> contour_rect;
     std::vector<cv::Point2i> vertices_point;
     vertices_point = makeOIP(bin_re_,step_length);
-    
+    ROS_INFO_STREAM("vertices_point:" << vertices_point.size());    
     cv::Mat map_re(req.map.info.height, req.map.info.width, CV_8UC1,cv::Scalar::all(0));
 
     cv::Point **polygonPointsEx = new cv::Point *[1];

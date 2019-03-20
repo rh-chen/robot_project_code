@@ -347,7 +347,8 @@ namespace line_detection_and_rotation {
                         angle_rotate = 90.0 - nAngle;
                     else if(std::floor(nAngle) >= 90.0 && std::floor(nAngle) <= 180.0)
                         angle_rotate = 180 - nAngle;
-                    
+                                        
+                    ROS_INFO("angle_rotate:%f",angle_rotate);
                     std::vector<double> rot_mat_inv;
                     if(std::floor(90-angle_rotate) < std::floor(angle_rotate)){
                         ROS_INFO("clockwise...");
