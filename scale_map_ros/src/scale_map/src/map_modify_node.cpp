@@ -33,6 +33,7 @@
 #include "lsd.h"
 
 #define step_length 3
+//#define DEBUG_SHOW
 
 namespace ns_map_modify{
 
@@ -381,21 +382,29 @@ bool MapModifyService(
     cv::Mat map(req.map.info.height, req.map.info.width, CV_8UC1, req.map.data.data());
     vector<int8_t> map_data; 
 
-    cv::Mat bin_,bin_re_,temp;
+    cv::Mat bin_,bin_re_,temp_re_,bin,temp_bin_;
     cv::threshold(map,bin_,req.threshold,255,cv::THRESH_BINARY_INV);
-    
-    //cv::imshow("bin",bin_);
+
+#ifdef DEBUG_SHOW    
+    cv::imshow("bin",bin_);
+#endif
 
     cv::Mat element = cv::getStructuringElement(cv::MORPH_RECT,cv::Size(3,3));
     //cv::dilate(bin_, bin, element, cv::Point(-1, -1), 3);
-
-    cv::erode(bin_,temp,element,cv::Point(-1,-1),1);
-    cv::dilate(temp,bin_re_,element,cv::Point(-1,-1),2);
     
-    //cv::imshow("bin_re_",bin_re_);
+    //bin to construct in contour
+    cv::erode(bin_,temp_bin_,element,cv::Point(-1,-1),1);
+    cv::dilate(temp_bin_,bin,element,cv::Point(-1,-1),1);
+
+    //bin_re_ to construct ex contour
+    cv::erode(bin_,temp_re_,element,cv::Point(-1,-1),2);
+    cv::dilate(temp_re_,bin_re_,element,cv::Point(-1,-1),2);
+
+#ifdef DEBUG_SHOW    
+    cv::imshow("bin_re_",bin_re_);
+#endif
 
     //Ex rect
-
     std::vector<cv::Point> contour_rect;
     std::vector<cv::Point2i> vertices_point;
     vertices_point = makeOIP(bin_re_,step_length);
@@ -420,8 +429,11 @@ bool MapModifyService(
     cv::fillPoly(map_re, ppt,npt,1,cv::Scalar::all(255));
     delete[] polygonPointsEx[0];
     delete[] polygonPointsEx;
-    
-    //cv::imshow("map_re",map_re);
+
+#ifdef DEBUG_SHOW
+    cv::imshow("map_re",map_re);
+#endif
+
     //In 
     /*std::vector<std::vector<cv::Point> > contours;
 	std::vector<cv::Vec4i> hierarchy;
@@ -523,8 +535,10 @@ bool MapModifyService(
     delete[] polygonPointsExConFit[0];
     delete[] polygonPointsExConFit;
 
-    //cv::imshow("map_co_fit",map_co_fit);
-    
+#ifdef DEBUG_SHOW
+    cv::imshow("map_co_fit",map_co_fit);
+#endif
+
     cv::Rect rect = cv::boundingRect(contour_poly);
     ros::Time begin = ros::Time::now();
     for(int i = rect.tl().y;i < rect.br().y;i++){
@@ -532,15 +546,19 @@ bool MapModifyService(
             double toNearestEdge = cv::pointPolygonTest(contour_poly, Point2f(j,i),true);
             //ROS_INFO_STREAM("toNearestEdge:" << toNearestEdge);
             if(std::fabs(toNearestEdge) > 9.0){
-               map_re.at<unsigned char>(i,j) = bin_re_.at<unsigned char>(i,j);
+               map_re.at<unsigned char>(i,j) = bin.at<unsigned char>(i,j);
             }
         }
     }
     ros::Time end = ros::Time::now();
 
     ROS_INFO_STREAM("#######################time cost:" << (end-begin).toSec());
-    //cv::imshow("map_re_",map_re);
-    //cv::waitKey(0);
+
+#ifdef DEBUG_SHOW
+    cv::imshow("map_re_",map_re);
+    cv::waitKey(0);
+#endif
+
 #if 0
     cv::Mat bin_temp;
     bin_step1_out.convertTo(bin_temp,CV_64FC1);

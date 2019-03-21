@@ -198,7 +198,7 @@ bool ScaleMapService(
 	signed char currentCellValue;
 	signed char ng_oldCellValue;
     
-    double scale_grid = 0.05;
+    double scale_grid = 0.2;
 
 	bool cacheObstacleCells = true;
 	bool cacheEmptyCells = true;
