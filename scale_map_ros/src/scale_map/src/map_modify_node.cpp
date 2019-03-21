@@ -390,18 +390,56 @@ bool MapModifyService(
 #endif
 
     cv::Mat element = cv::getStructuringElement(cv::MORPH_RECT,cv::Size(3,3));
-    //cv::dilate(bin_, bin, element, cv::Point(-1, -1), 3);
-    
     //bin to construct in contour
     cv::erode(bin_,temp_bin_,element,cv::Point(-1,-1),1);
     cv::dilate(temp_bin_,bin,element,cv::Point(-1,-1),1);
-
     //bin_re_ to construct ex contour
-    cv::erode(bin_,temp_re_,element,cv::Point(-1,-1),2);
-    cv::dilate(temp_re_,bin_re_,element,cv::Point(-1,-1),2);
+    cv::erode(bin_,temp_re_,element,cv::Point(-1,-1),1);
+    cv::dilate(temp_re_,bin_re_,element,cv::Point(-1,-1),1);
+#ifdef DEBUG_SHOW
+    cv::imshow("bin_re_before",bin_re_);
+#endif
+    //Handle small ex contour 
+    std::vector<std::vector<cv::Point> > contours;
+	std::vector<cv::Vec4i> hierarchy;
+	std::vector<std::vector<cv::Point> > valid_internal_contours;
 
+	cv::findContours(bin,contours,hierarchy,CV_RETR_EXTERNAL,CV_CHAIN_APPROX_NONE,cv::Point());
+
+	ROS_INFO_STREAM("contours_size:" << contours.size());
+	int external_contour_id;
+	int max_external_contour = 0;
+
+	for(int i = 0;i < contours.size();i++){
+		if(contours[i].size() > max_external_contour){
+			max_external_contour = contours[i].size();
+			external_contour_id = i;
+		}
+	}
+
+	ROS_INFO_STREAM("valid_external_contour_size:" << contours[external_contour_id].size());
+    for(int i = 0;i < contours.size();i++){
+        if(i != external_contour_id){
+            cv::Point **polygonPointsExCell = new cv::Point *[1];
+            polygonPointsExCell[0] = new cv::Point[contours[i].size()];
+    
+            for(int j = 0;j < contours[i].size();j++){
+                polygonPointsExCell[0][j].x = contours[i][j].x;
+                polygonPointsExCell[0][j].y = contours[i][j].y;
+            }
+
+            const cv::Point* ex_ppt_cell[1] = { polygonPointsExCell[0] };
+
+            int ex_npt_cell[] = { contours[i].size() };
+            cv::polylines(bin_re_, ex_ppt_cell, ex_npt_cell, 1, 1, cv::Scalar::all(0), 1, 8, 0);
+
+            cv::fillPoly(bin_re_, ex_ppt_cell,ex_npt_cell,1,cv::Scalar::all(0));
+            delete[] polygonPointsExCell[0];
+            delete[] polygonPointsExCell;
+        }
+	}
 #ifdef DEBUG_SHOW    
-    cv::imshow("bin_re_",bin_re_);
+    cv::imshow("bin_re_after",bin_re_);
 #endif
 
     //Ex rect
@@ -545,7 +583,8 @@ bool MapModifyService(
         for(int j = rect.tl().x;j < rect.br().x;j++){
             double toNearestEdge = cv::pointPolygonTest(contour_poly, Point2f(j,i),true);
             //ROS_INFO_STREAM("toNearestEdge:" << toNearestEdge);
-            if(std::fabs(toNearestEdge) > 9.0){
+            if(std::fabs(toNearestEdge) > 9.0 && (int)toNearestEdge > 0){
+               //ROS_INFO_STREAM("toNearestEdge:" << toNearestEdge);
                map_re.at<unsigned char>(i,j) = bin.at<unsigned char>(i,j);
             }
         }
