@@ -91,8 +91,17 @@ include_directories(
   lib/
   ${catkin_INCLUDE_DIRS}
   ${OpenCV_INCLUDE_DIRS}
+  acd/
 )
 
+file(GLOB ACD_SRC_LIST "acd/*.cpp")
+file(GLOB ACD_HPP_LIST "acd/*.h")
+
+add_library(acd SHARED
+    ${ACD_SRC_LIST}
+    ${ACD_HPP_LIST}
+)
+add_dependencies(acd ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 # Library (mostly VTK) that slices a mesh into layers
 add_library(polypartition SHARED
     lib/polypartition.cpp
@@ -108,6 +117,28 @@ add_dependencies(polypartition ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPO
 #  ${PROJECT_NAME}_mesh_slicer
 #  ${catkin_EXPORTED_TARGETS}
 #)
+add_executable(
+  cpp_acd_node
+  src/Cpp_Acd.cpp
+)
+
+target_link_libraries(
+  cpp_acd_node
+  ${catkin_LIBRARIES}
+  ${VTK_LIBRARIES}
+  ${OpenCV_LIBS}
+  polypartition
+  CGAL
+  acd
+  ${CMAKE_CURRENT_SOURCE_DIR}/acd/libFIST.linux64.a
+)
+
+add_dependencies(
+  cpp_acd_node
+  ${PROJECT_NAME}_generate_messages_cpp
+  ${catkin_EXPORTED_TARGETS}
+)
+
 add_executable(
   cpp_cgal_node
   src/Cpp_Cgal.cpp

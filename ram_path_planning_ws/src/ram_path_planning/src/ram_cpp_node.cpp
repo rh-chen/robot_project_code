@@ -170,7 +170,7 @@ public:
 									visualization_msgs::MarkerArray markerArray;
 
 									int32_t plannerStartId = 0;
-#if 1 
+#if 1
 								//divide polygon
 							{
 							    //srv_zigzag.response.polygon.size()
