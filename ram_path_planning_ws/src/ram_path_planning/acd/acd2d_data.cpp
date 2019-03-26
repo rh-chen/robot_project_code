@@ -559,10 +559,12 @@ namespace acd2d
 			i->scale(factor);
 	}
 	
-	void cd_polygon::normalize()
+	float cd_polygon::normalize()
 	{
 		float r=front().getRadius();
 		scale(1.0/r);
+
+        return r;
 	}
 	
 	bool cd_polygon::valid() const //check if this is a valid polygon

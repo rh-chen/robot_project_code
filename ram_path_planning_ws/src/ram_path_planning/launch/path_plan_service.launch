@@ -3,6 +3,6 @@
     </node>
     <node name="line_detection_and_rotation_node" pkg="ram_path_planning" type="line_detection_and_rotation_node" output="screen">
     </node>
-    <node name="cpp_cgal_node" pkg="ram_path_planning" type="cpp_cgal_node" output="screen">
+    <node name="cpp_acd_node" pkg="ram_path_planning" type="cpp_acd_node" output="screen">
     </node>
 </launch>

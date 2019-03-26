@@ -31,13 +31,59 @@ double g_beta = 1;
 std::string g_concavity_measure = "hybrid1";
 double g_tau = 0.1;
 
-
 namespace Cpp{
 
-void decomposeAll()
-{
-    cd_2d cd;
+using namespace acd2d;
 
+void createPolys(Polygon_list& polygon, cd_2d& cd,float& scale_)
+{
+    //read polygon
+    {
+		cd_polygon poly;
+        
+        int polygon_count = 0;
+		std::list<Polygon_2>::iterator iter;
+        for(iter = polygon.begin();iter != polygon.end();iter++){
+            
+            Polygon_2 poly_cell = *iter;
+
+            if(polygon_count == 0){
+                cd_poly cd_poly_cell(cd_poly::POUT);
+                cd_poly_cell.beginPoly();
+                for(int j = 0;j < poly_cell.size();j++){
+                    Point_2 p = poly_cell.vertex(j);
+                    cd_poly_cell.addVertex(p.x(),p.y());
+                }
+                cd_poly_cell.endPoly();
+                poly.push_back(cd_poly_cell);
+            }
+            else{
+                cd_poly cd_poly_cell(cd_poly::PIN);
+                cd_poly_cell.beginPoly();
+                for(int j = 0;j < poly_cell.size();j++){
+                    Point_2 p = poly_cell.vertex(j);
+                    cd_poly_cell.addVertex(p.x(),p.y());
+                }
+                cd_poly_cell.endPoly();
+                poly.push_back(cd_poly_cell);
+            }
+
+            polygon_count++;
+        }
+
+		scale_ = poly.normalize();
+        ROS_INFO_STREAM("scale_" << scale_);
+		cd.addPolygon(poly);
+
+        ROS_INFO_STREAM("cd_poly_size:" << polygon_count);
+    }
+    
+    if(cd.getTodoList().empty())
+        return;
+}
+
+void decomposeAll(cd_2d& cd,Polygon_list& polygon,float scale)
+{
     IConcavityMeasure * measure=
     ConcavityMeasureFac::createMeasure(g_concavity_measure);
     cd.updateCutDirParameters(g_alpha,g_beta);
@@ -48,7 +94,33 @@ void decomposeAll()
     clock_t start=clock();
     cd.decomposeAll(g_tau,measure);
     int time=clock()-start;
-    cout<<"- Decompose All Takes "<<((double)(time))/CLOCKS_PER_SEC<<" secs"<<endl;
+    ROS_INFO_STREAM("Decompose All Takes:" << ((double)(time))/CLOCKS_PER_SEC);
+
+    std::list<cd_polygon> acd_polygons_done = cd.getDoneList();
+    ROS_INFO_STREAM("acd_polygons_size:" << acd_polygons_done.size());
+
+    std::list<cd_polygon>::iterator iter;
+    std::list<cd_poly>::iterator iter_;
+
+    for(iter = acd_polygons_done.begin();iter != acd_polygons_done.end();iter++){
+        ROS_INFO_STREAM("acd_polygons_cell_size:" << (*iter).size());
+        
+        Polygon_2 temp_polygon;
+        for(iter_ = (*iter).begin();iter_ != (*iter).end();iter_++){
+            ROS_INFO_STREAM("acd_poly_cell_size:" << (*iter_).getSize());
+            cd_vertex* list_start = (*iter_).getHead();
+            
+            int tmp_cnt = (*iter_).getSize();
+            while(tmp_cnt > 0){
+                Point2d temp_p = list_start->getPos();
+                temp_polygon.push_back(Point_2(temp_p[0]*scale,temp_p[1]*scale));
+                list_start = list_start->getNext();
+                tmp_cnt--;
+            }
+        }
+        polygon.push_back(temp_polygon);
+    }
+    
     delete measure;
 }
 
@@ -290,11 +362,6 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
 		return false;
 	}
 
-	/*if(req.transform.size() != 3*3){
-		ROS_ERROR_STREAM("Bad transform matrix...");
-		return false;
-	}*/
-
 	if(req.internal_contour_threshold <= 0){
 		ROS_ERROR_STREAM("internal contour threshold cannot be <=0");
 	}
@@ -313,6 +380,10 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
 	std::vector<cv::Point2i> vertices_point;
 	vertices_point = makeOIP(bin,delta_rect);
     
+    ROS_INFO_STREAM("vertices_point_size:" << vertices_point.size());
+
+    Polygon_list polygon_holes;
+    Polygon_2 polygon_ext;
 	for(int j = 0;j < vertices_point.size();j++){
 		double point_x = vertices_point[j].x*req.map_resolution+req.map_origin_x;
 		double point_y = vertices_point[j].y*req.map_resolution+req.map_origin_y;
@@ -322,8 +393,13 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
 		pose_.position.y = point_y;
 
 		res.pose.push_back(pose_);	
+        polygon_ext.push_back(Point_2(point_x,point_y));
 	}
     
+    if(polygon_ext.is_clockwise_oriented())
+        polygon_ext.reverse_orientation();
+
+    polygon_holes.push_back(polygon_ext);
 	//Find  contour
 	std::vector<std::vector<cv::Point> > contours;
 	std::vector<cv::Vec4i> hierarchy;
@@ -331,21 +407,19 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
 
 	cv::findContours(bin,contours,hierarchy,CV_RETR_TREE,CV_CHAIN_APPROX_NONE,cv::Point());
 
-	ROS_INFO("find contours:%d",(int)contours.size());
+	ROS_INFO_STREAM("find_contours:" << contours.size());
 	int external_contour_id;
 	int max_external_contour = 0;
 
-	//find external contour and has subcontour 
+	//ext 
 	for(int i = 0;i < contours.size();i++){
-		ROS_INFO("contours[%d]:%d",i,contours[i].size());
 		if(contours[i].size() > max_external_contour){
 			max_external_contour = contours[i].size();
 			external_contour_id = i;
 		}
 	}
-
-	ROS_INFO("valid_external_contour_size:%d",contours[external_contour_id].size());
-	//find subcontour
+	
+    //int
 	for(int i = 0;i < contours.size();i++){
         if(i != external_contour_id)
 			if(contours[i].size() > req.internal_contour_threshold)
@@ -356,9 +430,11 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
 	}
 
 	ROS_INFO("valid_internal_contour_number:%d",valid_internal_contours.size());
-	
+
 	//add internal contour data
 	for(int i = 0;i < valid_internal_contours.size();i++){
+        Polygon_2 polygon_hole;
+
         cv::RotatedRect rRect = cv::minAreaRect(valid_internal_contours[i]);
 		cv::Point2f vertices[4];
 		rRect.points(vertices);
@@ -366,6 +442,8 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
         for(int i = 0;i < 4;i++){
 			double point_x = vertices[i].x*req.map_resolution+req.map_origin_x;
 			double point_y = vertices[i].y*req.map_resolution+req.map_origin_y;
+            
+            polygon_hole.push_back(Point_2(point_x,point_y));
 		}
 
 		/*std::vector<cv::Point> convex_contour_poly_p;
@@ -377,8 +455,37 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
             
             holes.push_back(PointCgal(point_x,point_y));
 		}*/
+        if(polygon_hole.is_counterclockwise_oriented())
+            polygon_hole.reverse_orientation();
+
+        polygon_holes.push_back(polygon_hole);
 	}
+   
+    cd_2d cd_obj;
+    Polygon_list polygon_res;
+    float scale = 0;
+    createPolys(polygon_holes,cd_obj,scale);
+    decomposeAll(cd_obj,polygon_res,scale);
+
+    ROS_INFO_STREAM("polygon_res_size:" << polygon_res.size());
     
+    std::list<Polygon_2>::iterator iter;
+    for(iter = polygon_res.begin();iter != polygon_res.end();iter++){
+        geometry_msgs::Polygon partial_polygon;
+
+        Polygon_2 poly_cell = *iter;
+        for(int j = 0;j < poly_cell.size();j++){
+            geometry_msgs::Point32 point_32;
+
+            Point_2 p = poly_cell.vertex(j);
+
+            point_32.x = p.x();
+            point_32.y = p.y();
+            
+            partial_polygon.points.push_back(point_32);
+         }
+         res.polygon.push_back(partial_polygon);
+    }
     /*for(int index_i = 0;index_i < final_path.size();index_i++){
 		nav_msgs::Path path_bcd;
 

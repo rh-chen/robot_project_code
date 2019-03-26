@@ -225,7 +225,7 @@ namespace acd2d
 		cd_poly next(); //get the next polychain to be resolved
 		cd_poly& outmost();
 		void scale(float factor);
-		void normalize();
+		float normalize();
 		bool valid() const; //check if this is a valid polygon
 		void copy(const cd_polygon& other);
 		void destroy();
