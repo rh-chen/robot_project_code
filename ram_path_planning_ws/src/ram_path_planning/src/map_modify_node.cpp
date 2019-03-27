@@ -130,9 +130,8 @@ bool MapModifyService(
     cv::Mat bin_step1,bin_step1_out;
     cv::threshold(map,bin_step1,req.threshold,255,cv::THRESH_BINARY_INV);
 
-    int iterate_num;
-//template eliminate noise
-#if 1
+    
+#if 0
     cv::Mat bin_temp;
     bin_step1.convertTo(bin_temp,CV_64FC1);
 
@@ -178,52 +177,45 @@ bool MapModifyService(
     free_ntuple_list(ntl);
 #endif
     //std::cout << __FILE__ << __LINE__ << std::endl;
-    cv::Mat bin_step2;
-    cv::threshold(map,bin_step2,req.threshold,255,cv::THRESH_BINARY_INV);
-    
-    cv::Mat bin_step2_out;
-    bin_step2.copyTo(bin_step2_out);
 #if 1
-iterate_num = 9;
+int iterate_num = 9;
 int count_step_2;
 for(int l = 0;l < iterate_num;l++){
     count_step_2 = 0;
     for(int i = 1;i < req.map.info.height-1;i++){
         for(int j = 1;j < req.map.info.width-1;j++){
-            if(bin_step2_out.at<unsigned char>(i,j) == 0){
+            if(bin_step1.at<unsigned char>(i,j) == 0){
                 
                 int count_value_255_v = 0;
                 int count_value_255_h = 0;
                 {
-                     if(bin_step2_out.at<unsigned char>(i-1,j-1) == 255)
+                     if(bin_step1.at<unsigned char>(i-1,j-1) == 255)
                         count_value_255_h++;
-                     if(bin_step2_out.at<unsigned char>(i-1,j+1) == 255)
+                     if(bin_step1.at<unsigned char>(i-1,j+1) == 255)
                         count_value_255_h++;
-                     if(bin_step2_out.at<unsigned char>(i+1,j-1) == 255)
+                     if(bin_step1.at<unsigned char>(i+1,j-1) == 255)
                         count_value_255_h++;
-                     if(bin_step2_out.at<unsigned char>(i+1,j+1) == 255)
+                     if(bin_step1.at<unsigned char>(i+1,j+1) == 255)
                         count_value_255_h++;
                 }
 
-                if(count_value_255_h >= 3){
-                    map.at<unsigned char>(i,j) = 0;
-                    bin_step2_out.at<unsigned char>(i,j) = 255;
+                if(count_value_255_h > 3){
+                    bin_step1.at<unsigned char>(i,j) = 255;
                     count_step_2 ++;
                 }
                 else{
-                    if(bin_step2_out.at<unsigned char>(i-1,j) == 255)
+                    if(bin_step1.at<unsigned char>(i-1,j) == 255)
                         count_value_255_v++;
-                    if(bin_step2_out.at<unsigned char>(i+1,j) == 255)
+                    if(bin_step1.at<unsigned char>(i+1,j) == 255)
                         count_value_255_v++;
-                    if(bin_step2_out.at<unsigned char>(i,j-1) == 255)
+                    if(bin_step1.at<unsigned char>(i,j-1) == 255)
                         count_value_255_v++;
-                    if(bin_step2_out.at<unsigned char>(i,j+1) == 255)
+                    if(bin_step1.at<unsigned char>(i,j+1) == 255)
                         count_value_255_v++;
 
 
-                    if(count_value_255_v >= 3){
-                        map.at<unsigned char>(i,j) = 0;
-                        bin_step2_out.at<unsigned char>(i,j) = 255;
+                    if(count_value_255_v > 3){
+                        bin_step1.at<unsigned char>(i,j) = 255;
                         count_step_2 ++;
                     }
                 }
@@ -233,34 +225,32 @@ for(int l = 0;l < iterate_num;l++){
                 int count_value_0_v = 0;
                 int count_value_0_h = 0;
                 {
-                     if(bin_step2_out.at<unsigned char>(i-1,j-1) == 0)
+                     if(bin_step1.at<unsigned char>(i-1,j-1) == 0)
                         count_value_0_h++;
-                     if(bin_step2_out.at<unsigned char>(i-1,j+1) == 0)
+                     if(bin_step1.at<unsigned char>(i-1,j+1) == 0)
                         count_value_0_h++;
-                     if(bin_step2_out.at<unsigned char>(i+1,j-1) == 0)
+                     if(bin_step1.at<unsigned char>(i+1,j-1) == 0)
                         count_value_0_h++;
-                     if(bin_step2_out.at<unsigned char>(i+1,j+1) == 0)
+                     if(bin_step1.at<unsigned char>(i+1,j+1) == 0)
                         count_value_0_h++;
                 }
 
-                if(count_value_0_h >= 3){
-                    map.at<unsigned char>(i,j) = 100;
-                    bin_step2_out.at<unsigned char>(i,j) = 0;
+                if(count_value_0_h > 3){
+                    bin_step1.at<unsigned char>(i,j) = 0;
                     count_step_2 ++;
                 }
                 else{
-                    if(bin_step2_out.at<unsigned char>(i-1,j) == 0)
+                    if(bin_step1.at<unsigned char>(i-1,j) == 0)
                         count_value_0_v++;
-                    if(bin_step2_out.at<unsigned char>(i+1,j) == 0)
+                    if(bin_step1.at<unsigned char>(i+1,j) == 0)
                         count_value_0_v++;
-                    if(bin_step2_out.at<unsigned char>(i,j-1) == 0)
+                    if(bin_step1.at<unsigned char>(i,j-1) == 0)
                         count_value_0_v++;
-                    if(bin_step2_out.at<unsigned char>(i,j+1) == 0)
+                    if(bin_step1.at<unsigned char>(i,j+1) == 0)
                         count_value_0_v++;
 
-                    if(count_value_0_v >= 3){
-                        map.at<unsigned char>(i,j) = 100;
-                        bin_step2_out.at<unsigned char>(i,j) = 0;
+                    if(count_value_0_v > 3){
+                        bin_step1.at<unsigned char>(i,j) = 0;
                         count_step_2 ++;
                     }
 
@@ -268,14 +258,16 @@ for(int l = 0;l < iterate_num;l++){
             }
         }
     }
-    //ROS_INFO("count_step2:%d",count_step_2);
 }
+#endif
+cv::Mat temp_out;
+cv::Mat element = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(7, 7));
+cv::morphologyEx(bin_step1,temp_out, cv::MORPH_CLOSE,element, cv::Point(-1,-1),1);
+cv::morphologyEx(temp_out,bin_step1_out, cv::MORPH_OPEN,element, cv::Point(-1,-1),1);
 
-cv::Mat bin_step3;
-cv::threshold(map,bin_step3,req.threshold,255,cv::THRESH_BINARY_INV);
 std::vector<std::vector<cv::Point> > contours;
 std::vector<cv::Vec4i> hierarchy;
-cv::findContours(bin_step3,contours,hierarchy,CV_RETR_EXTERNAL,CV_CHAIN_APPROX_NONE,cv::Point());
+cv::findContours(bin_step1_out,contours,hierarchy,CV_RETR_EXTERNAL,CV_CHAIN_APPROX_NONE,cv::Point());
 
 int max_contour_point = 0;
 for(int i = 0;i < contours.size();i++){
@@ -300,37 +292,38 @@ if(contours.size() > 1){
 			
 			//ROS_INFO("contour_center_x:%f",contour_center_x);
 			//ROS_INFO("contour_center_y:%f",contour_center_y);
-			cv::floodFill(map,
+			cv::floodFill(bin_step1_out,
 						  cv::Point(std::floor(contour_center_x),std::floor(contour_center_y)),
-						  cv::Scalar(100), 0, 0, 0, 8 | cv::FLOODFILL_FIXED_RANGE);
+						  cv::Scalar(0), 0, 0, 0, 8 | cv::FLOODFILL_FIXED_RANGE);
 		}
 	}
  }
 
 
 
-cv::Mat bin_step4;
-cv::threshold(map,bin_step4,req.threshold,255,cv::THRESH_BINARY_INV);
 std::vector<std::vector<cv::Point> > contours_step4;
 std::vector<cv::Vec4i> hierarchy_step4;
-cv::findContours(bin_step4,contours_step4,hierarchy_step4,CV_RETR_TREE,CV_CHAIN_APPROX_NONE,cv::Point());
+cv::findContours(bin_step1_out,contours_step4,hierarchy_step4,CV_RETR_TREE,CV_CHAIN_APPROX_NONE,cv::Point());
 
-int limit_contour_point = 9;
+int limit_contour_point = 7;
 for(int i = 0;i < contours_step4.size();i++){
 	if(contours_step4[i].size() < limit_contour_point){
 		cv::Rect boundRect = cv::boundingRect(cv::Mat(contours_step4[i]));
 		for(int i = boundRect.tl().x;i < boundRect.br().x;i++){
 			for(int j = boundRect.tl().y;j < boundRect.br().y;j++){
-				map.at<unsigned char>(j,i) = 0;
+				bin_step1_out.at<unsigned char>(j,i) = 255;
 			}
 		}
 	}
 }
-#endif
     for(int i = 0;i < req.map.info.height;i++){
         for(int j = 0;j < req.map.info.width;j++){
-           char value = map.at<char>(i,j);
-           map_data.push_back(value); 
+           char value = bin_step1_out.at<char>(i,j);
+
+           if(value == 0)
+                map_data.push_back(100);
+           else
+                map_data.push_back(0);
         }
      }
 

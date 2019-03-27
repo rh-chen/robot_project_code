@@ -23,8 +23,11 @@
 #include "acd2d_Point.h"
 
 
-#define step_length 0.2
-#define delta_rect 6
+#define delta_rect 3
+
+typedef vtkSmartPointer<vtkPolyData> Polygon;
+typedef std::vector<Polygon> PolygonVector;
+typedef std::vector<PolygonVector> Layer;
 
 double g_alpha = 0;
 double g_beta = 1;
@@ -469,11 +472,21 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
 
     ROS_INFO_STREAM("polygon_res_size:" << polygon_res.size());
     
+	double epsilon_approx_poly = 0.1;	
     std::list<Polygon_2>::iterator iter;
-    for(iter = polygon_res.begin();iter != polygon_res.end();iter++){
+    for(iter = polygon_res.begin();iter != polygon_res.end();iter++)
+    {
         geometry_msgs::Polygon partial_polygon;
-
         Polygon_2 poly_cell = *iter;
+    	
+        vtkSmartPointer<vtkPolyData> polygonPolyData = vtkSmartPointer<vtkPolyData>::New();
+	    vtkSmartPointer<vtkPoints> pts = vtkSmartPointer<vtkPoints>::New();
+	    vtkSmartPointer<vtkCellArray> cells = vtkSmartPointer<vtkCellArray>::New();
+        vtkSmartPointer<vtkPolygon> polygon_cell = vtkSmartPointer<vtkPolygon>::New();
+        
+        std::vector<cv::Point2f> contour_in;
+        std::vector<cv::Point2f> contour_out;
+            
         for(int j = 0;j < poly_cell.size();j++){
             geometry_msgs::Point32 point_32;
 
@@ -483,22 +496,69 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
             point_32.y = p.y();
             
             partial_polygon.points.push_back(point_32);
+            contour_in.push_back(cv::Point2f(p.x(),p.y()));
          }
-         res.polygon.push_back(partial_polygon);
+
+        res.polygon.push_back(partial_polygon);
+
+        //cv::approxPolyDP(cv::Mat(contour_in), contour_out,epsilon_approx_poly,true);
+        cv::convexHull(contour_in,contour_out,false,true);
+
+        ROS_INFO_STREAM("contour_out_size:" << contour_out.size());
+
+        for(auto p_out:contour_out){
+            polygon_cell->GetPointIds()->InsertNextId(pts->GetNumberOfPoints());
+            pts->InsertNextPoint(p_out.x,p_out.y,0.0);
+        }
+
+        cells->InsertNextCell(polygon_cell);
+        
+        polygonPolyData->SetPoints(pts);
+	    polygonPolyData->SetPolys(cells);
+
+  	    ram_path_planning::AdditiveManufacturingTrajectory msg;
+  	    DonghongDing dhd;
+
+	    PolygonVector polygon_vector_;
+  	    Layer current_layer_;
+
+	    polygon_vector_.push_back(polygonPolyData);
+	    current_layer_.push_back(polygon_vector_);
+    
+        if(current_layer_.size() > 0)
+  	    {
+    	    std::string error_message;
+    	    error_message = dhd.generateOneLayerTrajectory(
+													10, 50,polygonPolyData,current_layer_,
+                                                    req.deposited_material_width,
+                                                    req.contours_filtering_tolerance, M_PI / 6,
+                                                    false,
+                                                    false);
+
+
+    	    if(error_message.empty())
+    	    {
+      		    dhd.connectYamlLayers( 50,90,current_layer_, msg,req.number_of_layers,req.height_between_layers);
+    	    }
+    	    else
+    	    {
+      		    ROS_ERROR_STREAM(error_message);
+      		    return false;
+    	    }
+  	    }
+
+        ROS_INFO_STREAM("Trajectory size:" << msg.poses.size());
+	    nav_msgs::Path path_cell;
+	    for(int i = 0;i < msg.poses.size();i++){
+		    geometry_msgs::PoseStamped current_pose;
+		    current_pose.pose.position.x = msg.poses[i].pose.position.x;
+		    current_pose.pose.position.y = msg.poses[i].pose.position.y;
+		    current_pose.pose.position.z = msg.poses[i].pose.position.z;
+
+		    path_cell.poses.push_back(current_pose);
+	    }
+	    res.path.push_back(path_cell);
     }
-    /*for(int index_i = 0;index_i < final_path.size();index_i++){
-		nav_msgs::Path path_bcd;
-
-		for(int index_j = 0;index_j < final_path[index_i].size();index_j++){
-			geometry_msgs::PoseStamped current_pose;
-			current_pose.pose.position.x = final_path[index_i][index_j].x;
-			current_pose.pose.position.y = final_path[index_i][index_j].y;
-			current_pose.pose.position.z = final_path[index_i][index_j].z;
-
-			path_bcd.poses.push_back(current_pose);
-		}
-		res.path.push_back(path_bcd);
-	}*/
 
 	return true;
 }

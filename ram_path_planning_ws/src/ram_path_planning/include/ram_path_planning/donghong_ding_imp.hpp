@@ -121,26 +121,29 @@ namespace Cpp
       ROS_INFO_STREAM("Enter was pressed: zigzag in convex polygons");
     }*/
 
-	/*ROS_INFO("layer_size:%d",(size_t)layer.size());
+	ROS_INFO("layer_size:%d",(size_t)layer.size());
 	ROS_INFO("layer_polygons_size:%d",(size_t)layer[0].size());
 	for(int i = 0;i < (size_t)layer[0].size();i++){
 		ROS_INFO("layer_polygons_polydata_size:%d",(size_t)layer[0][i]->GetNumberOfCells());
-	}*/
+	}
     // Path generation in convex polygons
-    /*std::vector<std::future<bool> > futures;
+    std::vector<std::future<bool> > futures;
     for (auto polygons : layer)
       for (auto poly_data : polygons)
         futures.push_back(std::async(&DonghongDing::generateTrajectoryInConvexPolygon, this, poly_data));
 	
     bool global_return = true;
     for (auto &t : futures){
-		ROS_INFO("futures_generate_res:%d",t.get());
-      	global_return |= t.get();
+		//ROS_INFO("futures_generate_res:%d",t.get());
+      	global_return &= t.get();
 	}
+
     if (!global_return)
       return "Failed to generate trajectory in one of the convex polygons";
-    */
-#if 0
+    
+
+#if 1
+    std::cout << __FILE__ << __LINE__ << std::endl;
     // Merge convex polygons. First method
     vtkIdType n_lines = split_points->GetNumberOfPoints() / 2;
     int current_line = 0;
@@ -177,12 +180,12 @@ namespace Cpp
           return "Failed to merge colinear edges";
       }
 
-    if (use_gui)
+    /*if (use_gui)
     {
       std::string s;
       ROS_INFO_STREAM("Path generated on one layer");
       std::getline(std::cin, s);
-    }
+    }*/
 #endif
     return "";
   }
@@ -207,7 +210,7 @@ namespace Cpp
 	*/
 
     std::array<double, 3> normal_vector = {0, 0, 1};
-    //layer.clear();
+    layer.clear();
     return generateOneLayerTrajectory(current_progrress_value, next_progress_value, poly_data, layer,
                                       deposited_material_width,
                                       contours_filtering_tolerance, normal_vector,
@@ -1419,7 +1422,7 @@ namespace Cpp
   bool DonghongDing::generateTrajectoryInConvexPolygon(const Polygon poly_data)
   {
     semaphore_.wait(); //Semaphore
-	
+    std::cout << __FILE__ << __LINE__ << std::endl;	
     this->removeDuplicatePoints(poly_data);
     this->mergeColinearEdges(poly_data);
 
@@ -1481,6 +1484,7 @@ namespace Cpp
     this->removeDuplicatePoints(poly_data);
     this->mergeColinearEdges(poly_data);
     semaphore_.signal();
+    std::cout << __FILE__ << __LINE__ << std::endl;	
     return true;
   }
 
