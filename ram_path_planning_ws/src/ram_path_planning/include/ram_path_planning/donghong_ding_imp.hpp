@@ -134,7 +134,6 @@ namespace Cpp
 	
     bool global_return = true;
     for (auto &t : futures){
-		//ROS_INFO("futures_generate_res:%d",t.get());
       	global_return &= t.get();
 	}
 
@@ -143,7 +142,7 @@ namespace Cpp
     
 
 #if 1
-    std::cout << __FILE__ << __LINE__ << std::endl;
+    //std::cout << __FILE__ << __LINE__ << std::endl;
     // Merge convex polygons. First method
     vtkIdType n_lines = split_points->GetNumberOfPoints() / 2;
     int current_line = 0;
@@ -1422,7 +1421,7 @@ namespace Cpp
   bool DonghongDing::generateTrajectoryInConvexPolygon(const Polygon poly_data)
   {
     semaphore_.wait(); //Semaphore
-    std::cout << __FILE__ << __LINE__ << std::endl;	
+    //std::cout << __FILE__ << __LINE__ << std::endl;	
     this->removeDuplicatePoints(poly_data);
     this->mergeColinearEdges(poly_data);
 
@@ -1484,7 +1483,7 @@ namespace Cpp
     this->removeDuplicatePoints(poly_data);
     this->mergeColinearEdges(poly_data);
     semaphore_.signal();
-    std::cout << __FILE__ << __LINE__ << std::endl;	
+    //std::cout << __FILE__ << __LINE__ << std::endl;	
     return true;
   }
 

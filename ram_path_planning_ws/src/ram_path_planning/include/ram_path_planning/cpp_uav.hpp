@@ -66,7 +66,7 @@ Direction identifyOptimalSweepDir(const PointVector& polygon,PointVector& polygo
 	
 	std::vector<cv::Point2f> polygon_convex;
 	for(int i = 0;i < polygon.size();i++){
-		ROS_INFO("polygon[%d].x:%f,polygon[%d].y:%f",i,i,polygon[i].x,polygon[i].y);
+		//ROS_INFO("polygon[%d].x:%f,polygon[%d].y:%f",i,i,polygon[i].x,polygon[i].y);
 		polygon_convex.push_back(cv::Point2f(polygon[i].x,polygon[i].y));
 	}
   //PointVector convexHull = computeConvexHull(polygon);
@@ -87,7 +87,7 @@ Direction identifyOptimalSweepDir(const PointVector& polygon,PointVector& polygo
   // Edges of polygon
   LineSegmentVector edges;
 
-	ROS_INFO("convex_hull_size:%d",convex_hull.size());
+	//ROS_INFO("convex_hull_size:%d",convex_hull.size());
 
   // Make a list of edges of polygon
   for (std::size_t i = 0; i < convex_hull.size(); ++i)
@@ -95,7 +95,7 @@ Direction identifyOptimalSweepDir(const PointVector& polygon,PointVector& polygo
     LineSegment ar;
 
     ar.at(0) = convex_hull.at(i);
-	ROS_INFO("convex_hull[%d].x:%f,convex_hull[%d].y:%f",i,i,convex_hull[i].x,convex_hull[i].y);
+	//ROS_INFO("convex_hull[%d].x:%f,convex_hull[%d].y:%f",i,i,convex_hull[i].x,convex_hull[i].y);
     // if vertex is the last one,
     // that vertex makes an edge whose end is the first vertex
     if (i == convex_hull.size() - 1)
@@ -108,14 +108,14 @@ Direction identifyOptimalSweepDir(const PointVector& polygon,PointVector& polygo
     }
     edges.push_back(ar);
   }
-	ROS_INFO("edges_size:%d",edges.size());
+	/*ROS_INFO("edges_size:%d",edges.size());
 	for(int i = 0;i < edges.size();i++){
 		
 		ROS_INFO("edges[%d].x:%f,edges[%d].y:%f",\
 				i,i,edges[i].at(0).x,edges[i].at(0).y);
 		ROS_INFO("edges[%d].x:%f,edges[%d].y:%f",\
 				i,i,edges[i].at(1).x,edges[i].at(1).y);
-	}
+	}*/
   //double optimalDistance = 0;
   double optimalDistance = DBL_MAX;
 
@@ -147,12 +147,13 @@ Direction identifyOptimalSweepDir(const PointVector& polygon,PointVector& polygo
     }
   }
 
-	ROS_INFO("opposedVertex.x:%f,opposedVertex.y:%f",\
+	/*ROS_INFO("opposedVertex.x:%f,opposedVertex.y:%f",\
 				sweepDirection.opposedVertex.x,sweepDirection.opposedVertex.y);
 	ROS_INFO("sweepDirection.baseEdge[0].x:%f,sweepDirection.baseEdge[0].y:%f",\
 				sweepDirection.baseEdge.at(0).x,sweepDirection.baseEdge.at(0).y);
 	ROS_INFO("sweepDirection.baseEdge[1].x:%f,sweepDirection.baseEdge[1].y:%f",\
-				sweepDirection.baseEdge.at(1).x,sweepDirection.baseEdge.at(1).y);
+				sweepDirection.baseEdge.at(1).x,sweepDirection.baseEdge.at(1).y);*/
+
   return sweepDirection;
 }
 

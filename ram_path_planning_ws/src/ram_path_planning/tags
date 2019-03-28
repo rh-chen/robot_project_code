@@ -232,6 +232,7 @@ LargestEigenVector	acd/acd2d_eigen.h	/^	Vector2d LargestEigenVector(double c[2][
 Layer	include/ram_path_planning/donghong_ding.hpp	/^    typedef std::vector<PolygonVector> Layer;$/;"	t	class:Cpp::DonghongDing
 Layer	include/ram_path_planning/donghong_ding_base.hpp	/^    typedef std::vector<PolygonVector> Layer;$/;"	t	class:Cpp::DonghongDingBase
 Layer	src/Cpp.cpp	/^typedef std::vector<PolygonVector> Layer;$/;"	t	file:
+Layer	src/Cpp_Acd.cpp	/^typedef std::vector<PolygonVector> Layer;$/;"	t	file:
 Layer	src/Cpp_Convex.cpp	/^typedef std::vector<PolygonVector> Layer;$/;"	t	file:
 Length2	acd/basic.h	107;"	d
 Length_l1	acd/basic.h	111;"	d
@@ -353,12 +354,14 @@ Polygon	include/ram_path_planning/donghong_ding.hpp	/^    typedef vtkSmartPointe
 Polygon	include/ram_path_planning/donghong_ding_base.hpp	/^    typedef vtkSmartPointer<vtkPolyData> Polygon;$/;"	t	class:Cpp::DonghongDingBase
 Polygon	lib/polypartition.cpp	/^typedef CGAL::Polygon_2<Kernel> Polygon;$/;"	t	file:
 Polygon	src/Cpp.cpp	/^typedef vtkSmartPointer<vtkPolyData> Polygon;$/;"	t	file:
+Polygon	src/Cpp_Acd.cpp	/^typedef vtkSmartPointer<vtkPolyData> Polygon;$/;"	t	file:
 Polygon	src/Cpp_Convex.cpp	/^typedef vtkSmartPointer<vtkPolyData> Polygon;$/;"	t	file:
 PolygonCgal	src/Cpp_Cgal.cpp	/^typedef CGAL::Polygon_2<Kernel> PolygonCgal;$/;"	t	file:
 PolygonListCgal	src/Cpp_Cgal.cpp	/^typedef std::list<PolygonCgal> PolygonListCgal;$/;"	t	file:
 PolygonVector	include/ram_path_planning/donghong_ding.hpp	/^    typedef std::vector<Polygon> PolygonVector;$/;"	t	class:Cpp::DonghongDing
 PolygonVector	include/ram_path_planning/donghong_ding_base.hpp	/^    typedef std::vector<Polygon> PolygonVector;$/;"	t	class:Cpp::DonghongDingBase
 PolygonVector	src/Cpp.cpp	/^typedef std::vector<Polygon> PolygonVector;$/;"	t	file:
+PolygonVector	src/Cpp_Acd.cpp	/^typedef std::vector<Polygon> PolygonVector;$/;"	t	file:
 PolygonVector	src/Cpp_Convex.cpp	/^typedef std::vector<Polygon> PolygonVector;$/;"	t	file:
 PolygonWithHoles	lib/polypartition.cpp	/^typedef CGAL::Polygon_with_holes_2<Kernel> PolygonWithHoles;$/;"	t	file:
 PolygonWithHolesCgal	src/Cpp_Cgal.cpp	/^typedef CGAL::Polygon_with_holes_2<Kernel> PolygonWithHolesCgal;$/;"	t	file:
@@ -693,7 +696,7 @@ decomposeAll	src/Cpp_Acd.cpp	/^void decomposeAll(cd_2d& cd,Polygon_list& polygon
 decomposePolygon	include/ram_path_planning/cgutil.hpp	/^std::vector<PointVector> decomposePolygon(const PointVector& polygon)$/;"	f
 decompose_IN	acd/acd2d_core.cpp	/^	void cd_2d::decompose_IN(double d, cd_polygon& polys, cd_poly& poly)$/;"	f	class:acd2d::cd_2d
 decompose_OUT	acd/acd2d_core.cpp	/^	void cd_2d::decompose_OUT(double d, cd_polygon& polys, cd_poly& poly)$/;"	f	class:acd2d::cd_2d
-delta_rect	src/Cpp_Acd.cpp	27;"	d	file:
+delta_rect	src/Cpp_Acd.cpp	26;"	d	file:
 delta_rect	src/Cpp_Cgal.cpp	23;"	d	file:
 deposited_material_width_	include/ram_path_planning/donghong_ding_base.hpp	/^    double deposited_material_width_; \/\/ In meters$/;"	m	class:Cpp::DonghongDingBase
 description_	include/ram_path_planning/donghong_ding_base.hpp	/^	std::string description_;$/;"	m	class:Cpp::DonghongDingBase
@@ -764,7 +767,7 @@ free_triangle	acd/acd2d_ev_function.cpp	/^	void free_triangle( ev_triangle * t )
 free_triangle	acd/acd2d_ev_function.cpp	/^	void free_triangle( ev_triangle * t, ev_triangle * p )$/;"	f	namespace:acd2d
 g_alpha	src/Cpp_Acd.cpp	/^double g_alpha = 0;$/;"	v
 g_beta	src/Cpp_Acd.cpp	/^double g_beta = 1;$/;"	v
-g_concavity_measure	src/Cpp_Acd.cpp	/^std::string g_concavity_measure = "hybrid1";$/;"	v
+g_concavity_measure	src/Cpp_Acd.cpp	/^std::string g_concavity_measure = "shortestpath";$/;"	v
 g_id	acd/acd2d_ev_shortest_path.h	/^	int g_id=0;$/;"	m	namespace:acd2d
 g_tau	src/Cpp_Acd.cpp	/^double g_tau = 0.1;$/;"	v
 gaussian_kernel	src/lsd.cpp	/^static void gaussian_kernel(ntuple_list kernel, double sigma, double mean)$/;"	f	file:
@@ -793,6 +796,7 @@ getNextPoint	src/Cpp.cpp	/^cv::Point2i getNextPoint(cv::Point2i currentpoint, in
 getNextPoint	src/Cpp_Acd.cpp	/^cv::Point2i getNextPoint(cv::Point2i currentpoint, int d, int gsize) {$/;"	f	namespace:Cpp
 getNextPoint	src/Cpp_Cgal.cpp	/^cv::Point2i getNextPoint(cv::Point2i currentpoint, int d, int gsize) {$/;"	f	namespace:Cpp
 getNextPoint	src/Cpp_Polygon.cpp	/^cv::Point2i getNextPoint(cv::Point2i currentpoint, int d, int gsize) {$/;"	f	namespace:Cpp
+getNextPoint	src/map_modify_node.cpp	/^cv::Point2i getNextPoint(cv::Point2i currentpoint, int d, int gsize) {$/;"	f	namespace:ns_map_modify
 getNormal	acd/acd2d_data.h	/^		const Vector2d& getNormal() const { return normal; }$/;"	f	class:acd2d::cd_vertex
 getOppT	acd/acd2d_ev_data.h	/^		ev_triangle * getOppT(int v1, int v2){$/;"	f	class:acd2d::ev_triangle
 getOppV	acd/acd2d_ev_data.h	/^		int getOppV(int v1, int v2){$/;"	f	class:acd2d::ev_triangle
@@ -800,6 +804,7 @@ getPointType	src/Cpp.cpp	/^int getPointType(cv::Mat& img, cv::Point2i q, int gsi
 getPointType	src/Cpp_Acd.cpp	/^int getPointType(cv::Mat& img, cv::Point2i q, int gsize) {$/;"	f	namespace:Cpp
 getPointType	src/Cpp_Cgal.cpp	/^int getPointType(cv::Mat& img, cv::Point2i q, int gsize) {$/;"	f	namespace:Cpp
 getPointType	src/Cpp_Polygon.cpp	/^int getPointType(cv::Mat& img, cv::Point2i q, int gsize) {$/;"	f	namespace:Cpp
+getPointType	src/map_modify_node.cpp	/^int getPointType(cv::Mat& img, cv::Point2i q, int gsize) {$/;"	f	namespace:ns_map_modify
 getPos	acd/acd2d_data.h	/^		virtual const Point2d& getPos() const { return pos; }$/;"	f	class:acd2d::cd_vertex
 getPos	acd/acd2d_edge_visibility.cpp	/^	inline const Point2d& getPos(ev_vertex * pts, int id)$/;"	f	namespace:acd2d
 getPre	acd/acd2d_data.h	/^		virtual cd_vertex * getPre() const { return pre; }$/;"	f	class:acd2d::cd_vertex
@@ -809,11 +814,13 @@ getStartPoint	src/Cpp.cpp	/^cv::Point2i getStartPoint(cv::Mat& img, cv::Point2i 
 getStartPoint	src/Cpp_Acd.cpp	/^cv::Point2i getStartPoint(cv::Mat& img, cv::Point2i p, int gsize) {$/;"	f	namespace:Cpp
 getStartPoint	src/Cpp_Cgal.cpp	/^cv::Point2i getStartPoint(cv::Mat& img, cv::Point2i p, int gsize) {$/;"	f	namespace:Cpp
 getStartPoint	src/Cpp_Polygon.cpp	/^cv::Point2i getStartPoint(cv::Mat& img, cv::Point2i p, int gsize) {$/;"	f	namespace:Cpp
+getStartPoint	src/map_modify_node.cpp	/^cv::Point2i getStartPoint(cv::Mat& img, cv::Point2i p, int gsize) {$/;"	f	namespace:ns_map_modify
 getTodoList	acd/acd2d_core.h	/^		const list<cd_polygon>& getTodoList() const { return todo_list; }$/;"	f	class:acd2d::cd_2d
 getTopLeftPoint	src/Cpp.cpp	/^cv::Point2i getTopLeftPoint(cv::Mat& image) {$/;"	f	namespace:Cpp
 getTopLeftPoint	src/Cpp_Acd.cpp	/^cv::Point2i getTopLeftPoint(cv::Mat& image) {$/;"	f	namespace:Cpp
 getTopLeftPoint	src/Cpp_Cgal.cpp	/^cv::Point2i getTopLeftPoint(cv::Mat& image) {$/;"	f	namespace:Cpp
 getTopLeftPoint	src/Cpp_Polygon.cpp	/^cv::Point2i getTopLeftPoint(cv::Mat& image) {$/;"	f	namespace:Cpp
+getTopLeftPoint	src/map_modify_node.cpp	/^cv::Point2i getTopLeftPoint(cv::Mat& image) {$/;"	f	namespace:ns_map_modify
 getType	acd/acd2d_data.h	/^		POLYTYPE getType() const { return type; }$/;"	f	class:acd2d::cd_poly
 getU	acd/acd2d_data.h	/^		double getU() const { return u; } \/\/the coordinate on cut line$/;"	f	class:acd2d::cd_vertex
 getVSize	acd/acd2d_ev_data.h	/^		int getVSize(){ return left.size()+right.size()+1; }$/;"	f	class:acd2d::ev_funnel
@@ -925,6 +932,7 @@ makeOIP	src/Cpp.cpp	/^std::vector<cv::Point2i> makeOIP(cv::Mat& img, int gsize) 
 makeOIP	src/Cpp_Acd.cpp	/^std::vector<cv::Point2i> makeOIP(cv::Mat& img, int gsize) {$/;"	f	namespace:Cpp
 makeOIP	src/Cpp_Cgal.cpp	/^std::vector<cv::Point2i> makeOIP(cv::Mat& img, int gsize) {$/;"	f	namespace:Cpp
 makeOIP	src/Cpp_Polygon.cpp	/^std::vector<cv::Point2i> makeOIP(cv::Mat& img, int gsize) {$/;"	f	namespace:Cpp
+makeOIP	src/map_modify_node.cpp	/^std::vector<cv::Point2i> makeOIP(cv::Mat& img, int gsize) {$/;"	f	namespace:ns_map_modify
 mapCallBack	src/ram_cpp_node.cpp	/^	void mapCallBack(const nav_msgs::OccupancyGrid::ConstPtr &msg){$/;"	f	class:cpp_test
 martin_h_local	acd/local.h	/^double martin_h_local;$/;"	v
 matrix_h_cosine	acd/local.h	/^double matrix_h_sine, matrix_h_cosine;$/;"	v
@@ -982,6 +990,7 @@ objectInUGB	src/Cpp.cpp	/^bool objectInUGB(cv::Mat& img, cv::Point2i q, int ugb,
 objectInUGB	src/Cpp_Acd.cpp	/^bool objectInUGB(cv::Mat& img, cv::Point2i q, int ugb, int gsize) {$/;"	f	namespace:Cpp
 objectInUGB	src/Cpp_Cgal.cpp	/^bool objectInUGB(cv::Mat& img, cv::Point2i q, int ugb, int gsize) {$/;"	f	namespace:Cpp
 objectInUGB	src/Cpp_Polygon.cpp	/^bool objectInUGB(cv::Mat& img, cv::Point2i q, int ugb, int gsize) {$/;"	f	namespace:Cpp
+objectInUGB	src/map_modify_node.cpp	/^bool objectInUGB(cv::Mat& img, cv::Point2i q, int ugb, int gsize) {$/;"	f	namespace:ns_map_modify
 offsetLeftChain	include/ram_path_planning/donghong_ding_imp.hpp	/^  bool DonghongDing::offsetLeftChain(const Polygon poly_data,$/;"	f	class:Cpp::DonghongDing
 offsetPolygonContour	include/ram_path_planning/donghong_ding_base_imp.hpp	/^  bool DonghongDingBase::offsetPolygonContour(const Polygon poly_data,$/;"	f	class:Cpp::DonghongDingBase
 operator !=	acd/acd2d_Point.h	/^        bool operator!=( const Point & other ) const {$/;"	f	class:acd2d::Point
@@ -1128,8 +1137,8 @@ size	include/ram_path_planning/lsd.h	/^    unsigned int size;$/;"	m	struct:ntupl
 sqr	acd/acd2d_Basic.h	28;"	d
 srand48	acd/acd2d_Basic.cpp	/^    void srand48(long seedval)$/;"	f
 start_index	src/Cpp_Convex.cpp	/^	int start_index;$/;"	m	struct:Cpp::convex_point	file:
-step_length	src/Cpp_Acd.cpp	26;"	d	file:
 step_length	src/Cpp_Cgal.cpp	21;"	d	file:
+step_length	src/map_modify_node.cpp	35;"	d	file:
 step_overlap	src/Cpp_Cgal.cpp	22;"	d	file:
 store_diagoanls	acd/acd2d_core.h	/^		bool store_diagoanls;    \/\/if set, all cut lines will be stored$/;"	m	class:acd2d::cd_2d
 sub	src/ram_cpp_node.cpp	/^	ros::Subscriber sub;$/;"	m	class:cpp_test	file:

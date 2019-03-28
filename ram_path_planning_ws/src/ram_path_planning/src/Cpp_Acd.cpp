@@ -23,7 +23,7 @@
 #include "acd2d_Point.h"
 
 
-#define delta_rect 3
+#define delta_rect 1
 
 typedef vtkSmartPointer<vtkPolyData> Polygon;
 typedef std::vector<Polygon> PolygonVector;
@@ -32,7 +32,9 @@ typedef std::vector<PolygonVector> Layer;
 double g_alpha = 0;
 double g_beta = 1;
 std::string g_concavity_measure = "hybrid1";
-double g_tau = 0.1;
+//std::string g_concavity_measure = "shortestpath";
+//std::string g_concavity_measure = "hybrid2";
+double g_tau = 0.15;
 
 namespace Cpp{
 
@@ -92,6 +94,10 @@ void decomposeAll(cd_2d& cd,Polygon_list& polygon,float scale)
     cd.updateCutDirParameters(g_alpha,g_beta);
 
     if(g_concavity_measure=="hybrid2")
+        ((HybridMeasurement2*)measure)->setTau(g_tau);
+    else if(g_concavity_measure=="shortestpath")
+        ((HybridMeasurement2*)measure)->setTau(g_tau);
+    else
         ((HybridMeasurement2*)measure)->setTau(g_tau);
 
     clock_t start=clock();
@@ -295,11 +301,47 @@ double polygonArea(PointVector& pv_,int n){
 	
 	sum *= 0.5;
 
-	return sum;
+    ROS_INFO_STREAM("fabs_area_sum:" << fabs(sum));
+	
+    return sum;
 }
 
-bool isBadPolygon(PointVector& polygon_,double step_){
+int minEdgeLength(PointVector& polygon,double deposited_width){
+    geometry_msgs::Point p1;
+    geometry_msgs::Point p2;
     
+    int lessCount = 0;
+    for(int i = 0;i < polygon.size();i++){
+        if(i == 0){
+            p1 = polygon[polygon.size()-1];
+            p2 = polygon[0];
+        }
+        else{
+            p1 = polygon[i-1];
+            p2 = polygon[i];
+        }
+                
+        ROS_INFO_STREAM("minELCell:" << std::sqrt((p1.x-p2.x)*(p1.x-p2.x)+(p1.y-p2.y)*(p1.y-p2.y)));
+        if(std::sqrt((p1.x-p2.x)*(p1.x-p2.x)+(p1.y-p2.y)*(p1.y-p2.y)) < deposited_width)
+            lessCount++;
+    }
+    
+    ROS_INFO_STREAM("lessCount:" << lessCount);
+
+    return lessCount;
+}
+bool isBadPolygon(std::vector<cv::Point2f>& polygon,double step_){
+    
+    PointVector polygon_;
+    for(int i = 0;i < polygon.size();i++){
+        geometry_msgs::Point p;
+        p.x = polygon[i].x;
+        p.y = polygon[i].y;
+        p.z = 0.0;
+
+        polygon_.push_back(p);
+    }
+
     if(polygon_.size() < 3)
     {
         return true;
@@ -333,10 +375,15 @@ bool isBadPolygon(PointVector& polygon_,double step_){
     if(verticalDistance < step_)
             return true;
     else{
-        if(fabs(polygonArea(polygon_convex_hull,polygon_convex_hull.size())) < 0.4)
+        if(fabs(polygonArea(polygon_convex_hull,polygon_convex_hull.size())) < step_*30){
             return true;
-        else
-            return false;
+        }
+        else{
+            if(minEdgeLength(rotatedPolygon,1.0) >= 2 )
+                return true;
+            else
+                return false;
+        }
     }
 }
 
@@ -380,14 +427,13 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
 	cv::threshold(map,bin,req.occupancy_threshold,255,cv::THRESH_BINARY_INV);
 	
 	//rectlinear polygon
-	std::vector<cv::Point2i> vertices_point;
-	vertices_point = makeOIP(bin,delta_rect);
-    
-    ROS_INFO_STREAM("vertices_point_size:" << vertices_point.size());
+	//std::vector<cv::Point2i> vertices_point;
+	//vertices_point = makeOIP(bin,delta_rect);
+    //ROS_INFO_STREAM("vertices_point_size:" << vertices_point.size());
 
     Polygon_list polygon_holes;
     Polygon_2 polygon_ext;
-	for(int j = 0;j < vertices_point.size();j++){
+	/*for(int j = 0;j < vertices_point.size();j++){
 		double point_x = vertices_point[j].x*req.map_resolution+req.map_origin_x;
 		double point_y = vertices_point[j].y*req.map_resolution+req.map_origin_y;
 				
@@ -402,7 +448,7 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
     if(polygon_ext.is_clockwise_oriented())
         polygon_ext.reverse_orientation();
 
-    polygon_holes.push_back(polygon_ext);
+    polygon_holes.push_back(polygon_ext);*/
 	//Find  contour
 	std::vector<std::vector<cv::Point> > contours;
 	std::vector<cv::Vec4i> hierarchy;
@@ -424,12 +470,33 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
 	
     //int
 	for(int i = 0;i < contours.size();i++){
-        if(i != external_contour_id)
+        if(i != external_contour_id){
 			if(contours[i].size() > req.internal_contour_threshold)
             {
 				valid_internal_contours.push_back(contours[i]);
 				ROS_INFO("valid_internal_contour_size:%d",contours[i].size());
 			}
+        }
+        else{
+             std::vector<cv::Point> contour_dp;
+             cv::approxPolyDP(contours[i],contour_dp,0.1,true);
+             for(int j = 0;j < contour_dp.size();j++){
+                double point_x = contour_dp[j].x*req.map_resolution+req.map_origin_x;
+                double point_y = contour_dp[j].y*req.map_resolution+req.map_origin_y;
+                        
+                geometry_msgs::Pose pose_;
+                pose_.position.x = point_x;
+                pose_.position.y = point_y;
+
+                res.pose.push_back(pose_);	
+                polygon_ext.push_back(Point_2(point_x,point_y));
+            }
+            
+            if(polygon_ext.is_clockwise_oriented())
+                polygon_ext.reverse_orientation();
+
+            polygon_holes.push_back(polygon_ext);       
+        }
 	}
 
 	ROS_INFO("valid_internal_contour_number:%d",valid_internal_contours.size());
@@ -472,13 +539,15 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
 
     ROS_INFO_STREAM("polygon_res_size:" << polygon_res.size());
     
-	double epsilon_approx_poly = 0.1;	
+	double epsilon_approx_poly = 2.0;	
     std::list<Polygon_2>::iterator iter;
     for(iter = polygon_res.begin();iter != polygon_res.end();iter++)
     {
         geometry_msgs::Polygon partial_polygon;
         Polygon_2 poly_cell = *iter;
-    	
+        
+        //PointVector partial_point_vector;
+
         vtkSmartPointer<vtkPolyData> polygonPolyData = vtkSmartPointer<vtkPolyData>::New();
 	    vtkSmartPointer<vtkPoints> pts = vtkSmartPointer<vtkPoints>::New();
 	    vtkSmartPointer<vtkCellArray> cells = vtkSmartPointer<vtkCellArray>::New();
@@ -497,14 +566,25 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
             
             partial_polygon.points.push_back(point_32);
             contour_in.push_back(cv::Point2f(p.x(),p.y()));
+            
+            /*geometry_msgs::Point point;
+            point.x = p.x();
+            point.y = p.y();
+            point.z = 0.0;
+
+            partial_point_vector.push_back(point);*/
          }
 
         res.polygon.push_back(partial_polygon);
 
-        //cv::approxPolyDP(cv::Mat(contour_in), contour_out,epsilon_approx_poly,true);
+        //cv::approxPolyDP(cv::Mat(contour_in), contour_out,0.2,true);
         cv::convexHull(contour_in,contour_out,false,true);
 
         ROS_INFO_STREAM("contour_out_size:" << contour_out.size());
+        
+        /*if(isBadPolygon(contour_out,req.deposited_material_width))
+            continue;*/
+
 
         for(auto p_out:contour_out){
             polygon_cell->GetPointIds()->InsertNextId(pts->GetNumberOfPoints());
