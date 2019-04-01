@@ -34,7 +34,7 @@ double g_beta = 1;
 std::string g_concavity_measure = "hybrid1";
 //std::string g_concavity_measure = "shortestpath";
 //std::string g_concavity_measure = "hybrid2";
-double g_tau = 0.15;
+double g_tau = 0.1;
 
 namespace Cpp{
 
@@ -499,9 +499,7 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
         }
 	}
 
-	ROS_INFO("valid_internal_contour_number:%d",valid_internal_contours.size());
-
-	//add internal contour data
+	/*ROS_INFO("valid_internal_contour_number:%d",valid_internal_contours.size());
 	for(int i = 0;i < valid_internal_contours.size();i++){
         Polygon_2 polygon_hole;
 
@@ -516,20 +514,11 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
             polygon_hole.push_back(Point_2(point_x,point_y));
 		}
 
-		/*std::vector<cv::Point> convex_contour_poly_p;
-		cv::convexHull(valid_internal_contours[i],convex_contour_poly_p,false,true);
-
-		for(int i = 0;i < convex_contour_poly_p.size();i++){
-			double point_x = convex_contour_poly_p[i].x*req.map_resolution+req.map_origin_x;
-			double point_y = convex_contour_poly_p[i].y*req.map_resolution+req.map_origin_y;
-            
-            holes.push_back(PointCgal(point_x,point_y));
-		}*/
         if(polygon_hole.is_counterclockwise_oriented())
             polygon_hole.reverse_orientation();
 
         polygon_holes.push_back(polygon_hole);
-	}
+	}*/
    
     cd_2d cd_obj;
     Polygon_list polygon_res;
@@ -605,7 +594,7 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
 	    polygon_vector_.push_back(polygonPolyData);
 	    current_layer_.push_back(polygon_vector_);
     
-        if(current_layer_.size() > 0)
+        /*if(current_layer_.size() > 0)
   	    {
     	    std::string error_message;
     	    error_message = dhd.generateOneLayerTrajectory(
@@ -637,7 +626,7 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
 
 		    path_cell.poses.push_back(current_pose);
 	    }
-	    res.path.push_back(path_cell);
+	    res.path.push_back(path_cell);*/
     }
 
 	return true;

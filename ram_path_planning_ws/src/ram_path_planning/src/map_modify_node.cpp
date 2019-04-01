@@ -32,9 +32,9 @@
 #include "ram_path_planning/ModifyMap.h"
 #include "ram_path_planning/lsd.h"
 
-#define step_length 6
+#define step_length 1
 
-//#define SHOW_DEBUG
+#define SHOW_DEBUG
 
 namespace ns_map_modify{
 
@@ -288,10 +288,66 @@ bool MapModifyService(
     cv::Mat map(req.map.info.height, req.map.info.width, CV_8UC1, req.map.data.data());
     vector<int8_t> map_data; 
 
-    cv::Mat bin_step,bin_step_out;
+    cv::Mat bin_step,bin_step_out,bin_blurred_temp;
     cv::threshold(map,bin_step,req.threshold,255,cv::THRESH_BINARY_INV);
 
+    cv::Mat blurred_bin(map.size(), CV_8UC1);
+    cv::blur(bin_step,blurred_bin,cv::Size(5,5));
+
+#ifdef SHOW_DEBUG    
+    cv::imshow("blurred_bin",blurred_bin);
+#endif
     
+    cv::Mat canny_bin(map.size(), CV_8UC1);
+    cv::Canny(blurred_bin, canny_bin, 50, 255, 3);
+
+#ifdef SHOW_DEBUG
+    imshow("canny_bin", canny_bin);
+#endif
+    cv::Mat contours_bin(map.rows,map.cols,CV_8UC1,cv::Scalar(255));
+    std::vector<std::vector<cv::Point> > contours_canny;
+    std::vector<std::vector<cv::Point> > contours_ext;
+    std::vector<cv::Vec4i> hierarchy_canny;
+    std::vector<cv::Vec4i> hierarchy_ext;
+
+    cv::findContours(canny_bin, contours_canny, hierarchy_canny, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_SIMPLE, cv::Point(0,0));
+    
+    /*int max_contour_id_ = 0;
+    int max_contour_point_ = 0;
+    for(int i = 0;i < contours_canny.size();i++){
+        ROS_INFO_STREAM("contours_canny_size:" << contours_canny[i].size());
+        if(contours_canny[i].size() > max_contour_point_){
+            max_contour_point_ = contours_canny[i].size();
+            max_contour_id_ = i;
+        }
+    }
+
+    contours_ext.push_back(contours_canny[max_contour_id_]);
+    hierarchy_ext.push_back(hierarchy_canny[max_contour_id_]);
+    */
+
+    cv::drawContours(contours_bin, contours_canny, -1, cv::Scalar(0), 2, 8, hierarchy_canny, 1, cv::Point());
+#ifdef SHOW_DEBUG
+    imshow("contours_bin",contours_bin);
+#endif
+
+    cv::Point start_point((req.start_position_x-req.map.info.origin.position.x)/req.map.info.resolution,\
+                          (req.start_position_y-req.map.info.origin.position.y)/req.map.info.resolution);
+    cv::Rect roi;
+    uchar seedColor = 200;
+    cv::Mat mask_img = contours_bin.clone();
+    cv::Mat masked_img;
+
+    cv::floodFill(mask_img,start_point,cv::Scalar(200),&roi,cv::Scalar(5),cv::Scalar(5));
+#ifdef SHOW_DEBUG
+    imshow("mask_img",mask_img);
+#endif
+    masked_img = (mask_img == seedColor);
+   
+#ifdef SHOW_DEBUG
+    imshow("masked_img",masked_img);
+    cv::waitKey(0);
+#endif
 #if 0
     cv::Mat bin_temp;
     bin_step1.convertTo(bin_temp,CV_64FC1);

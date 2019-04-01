@@ -1,4 +1,6 @@
 int64 threshold
 nav_msgs/OccupancyGrid map
+float64 start_position_x
+float64 start_position_y
 ---
 nav_msgs/OccupancyGrid map

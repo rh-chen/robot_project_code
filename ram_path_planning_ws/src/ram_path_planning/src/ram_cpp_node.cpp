@@ -102,8 +102,10 @@ public:
 
             ram_path_planning::ModifyMap map_modify_srv;
             map_modify_srv.request.threshold = 95;
-
-			nav_msgs::GetMap getMapSrv;
+            map_modify_srv.request.start_position_x = msg->point.x;
+			map_modify_srv.request.start_position_y = msg->point.y;
+			
+            nav_msgs::GetMap getMapSrv;
 
 			ros::Duration(2).sleep();
 			//map_modify_srv.request.map = msg_;

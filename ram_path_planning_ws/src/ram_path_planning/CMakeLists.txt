@@ -232,6 +232,14 @@ target_link_libraries(line_detection_and_rotation_node
 
 add_dependencies(line_detection_and_rotation_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
+add_executable(ppl_node src/ppl.cpp)
+
+target_link_libraries(ppl_node
+   ${catkin_LIBRARIES}
+   ${OpenCV_LIBS}
+ )
+
+add_dependencies(ppl_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 #############
 ## Install ##
 #############
