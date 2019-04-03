@@ -576,6 +576,7 @@ angle	lib/polypartition.h	/^            tppl_float angle;$/;"	m	struct:TPPLParti
 angleBetweenVectors	include/ram_path_planning/donghong_ding_base_imp.hpp	/^  double DonghongDingBase::angleBetweenVectors(const double v1[3],$/;"	f	class:Cpp::DonghongDingBase
 angle_diff	src/lsd.cpp	/^static double angle_diff(double a, double b)$/;"	f	file:
 angle_diff_signed	src/lsd.cpp	/^static double angle_diff_signed(double a, double b)$/;"	f	file:
+area	src/ppl.cpp	/^    int area;$/;"	m	class:cells	file:
 baseEdge	include/ram_path_planning/cpp_uav.hpp	/^  LineSegment baseEdge;$/;"	m	struct:Direction
 basic_h_local	acd/local.h	/^double basic_h_local, basic_h_local_min, basic_h_local_max;$/;"	v
 basic_h_local_a	acd/local.h	/^double basic_h_local_a, basic_h_local_b;$/;"	v
@@ -588,12 +589,14 @@ basic_h_v1	acd/local.h	/^vertex basic_h_v1, basic_h_v2;$/;"	v
 basic_h_v2	acd/local.h	/^vertex basic_h_v1, basic_h_v2;$/;"	v
 basic_i_local	acd/local.h	/^long basic_i_local;$/;"	v
 beginPoly	acd/acd2d_data.cpp	/^	void cd_poly::beginPoly()$/;"	f	class:acd2d::cd_poly
+begin_of_cells	src/ppl.cpp	/^vector<int> begin_of_cells;$/;"	v
 bestvertex	lib/polypartition.h	/^            long bestvertex;$/;"	m	struct:TPPLPartition::DPState
 beta	acd/acd2d_core.h	/^		double alpha, beta; \/\/ for selecting cutting direction$/;"	m	class:acd2d::cd_2d
 boolean	acd/martin.h	/^typedef bool boolean;$/;"	t
 boolean	acd/martin.h	/^typedef unsigned char  boolean;$/;"	t
 bounding_box	acd/defs.h	/^} bounding_box;        \/* bounding box                                       *\/$/;"	t	typeref:struct:__anon3
 bounding_box_extended	acd/defs.h	/^} bounding_box_extended;$/;"	t	typeref:struct:__anon4
+branch	src/ppl.cpp	/^    vector<int> branch;$/;"	m	class:cells	file:
 bridge	acd/acd2d_data.h	/^		cd_bridge * bridge; \/\/what bridge this vertex is in$/;"	m	class:acd2d::cd_vertex
 bridge	acd/acd2d_hull_use_qhull.h	/^		list< pair<int,int> > bridge;$/;"	m	class:acd2d::hull_2d
 buildDependency	acd/acd2d_data.cpp	/^	void cd_polygon::buildDependency()$/;"	f	class:acd2d::cd_polygon
@@ -627,14 +630,23 @@ cd_state	acd/acd2d_stat.h	/^class cd_state$/;"	c
 cd_vertex	acd/acd2d_data.h	/^		cd_vertex( const Point2d& p ){ pos=p; init(); }$/;"	f	class:acd2d::cd_vertex
 cd_vertex	acd/acd2d_data.h	/^		cd_vertex(){ init(); }$/;"	f	class:acd2d::cd_vertex
 cd_vertex	acd/acd2d_data.h	/^	class cd_vertex$/;"	c	namespace:acd2d
+cell_decompose	src/ppl.cpp	/^vector<cells> cell_decompose(){$/;"	f
+cell_decompose_result	src/ppl.cpp	/^Mat cell_decompose_result;$/;"	v
+cell_img_mouse_callback	src/ppl.cpp	/^void cell_img_mouse_callback(int event, int x, int y, int flags, void* param){$/;"	f
+cell_pixel_init	src/ppl.cpp	/^void cell_pixel_init(){$/;"	f
+cells	src/ppl.cpp	/^class cells$/;"	c	file:
+cells_v	src/ppl.cpp	/^vector<cells> cells_v;$/;"	v
 center	acd/acd2d_data.h	/^		Point2d center;$/;"	m	class:acd2d::cd_poly
 change_value	src/Cpp_Convex.cpp	/^	bool change_value;$/;"	m	struct:Cpp::convex_point	file:
 checkDegeneracy	acd/acd2d_cut.h	/^	inline void checkDegeneracy(cd_vertex* v1)$/;"	f	namespace:acd2d
 checkDegeneracy	acd/acd2d_cut.h	/^	inline void checkDegeneracy(cd_vertex* v1, cd_vertex * v2)$/;"	f	namespace:acd2d
+check_map_rect	src/ppl.cpp	/^int check_map_rect(Point pt){$/;"	f
 children	acd/acd2d_ev_data.h	/^		list<ev_vertex *> children[2];$/;"	m	class:acd2d::ev_vertex
+cleaned	src/ppl.cpp	/^    int cleaned = 0;$/;"	m	class:cells	file:
 clickCallBack	src/ram_cpp_node.cpp	/^	void clickCallBack(const geometry_msgs::PointStamped::ConstPtr &msg)$/;"	f	class:cpp_test
 closest_to_bisector_	include/ram_path_planning/donghong_ding.hpp	/^    bool closest_to_bisector_;$/;"	m	class:Cpp::DonghongDing
 color	acd/defs.h	/^   int color;$/;"	m	struct:__anon7
+color	src/ppl.cpp	/^    Scalar color;$/;"	m	class:cells	file:
 compare_polygon	src/Cpp_Cgal.cpp	/^bool compare_polygon(const PolygonCgal& poly_a,const PolygonCgal& poly_b){$/;"	f	namespace:Cpp
 computeCCWPath	include/ram_path_planning/cpp_uav.hpp	/^PointVector computeCCWPath(PointVector path)$/;"	f
 computeCW	acd/acd2d_data.cpp	/^	pair<Point2d,Point2d> cd_polygon::computeCW(cd_poly& p)$/;"	f	class:acd2d::cd_polygon
@@ -655,6 +667,7 @@ condition_	include/ram_path_planning/shemaphore.hpp	/^  std::condition_variable 
 connectLayersWithOnePolygon	include/ram_path_planning/donghong_ding_base_imp.hpp	/^  void DonghongDingBase::connectLayersWithOnePolygon($/;"	f	class:Cpp::DonghongDingBase
 connectMeshLayers	include/ram_path_planning/donghong_ding_base_imp.hpp	/^  std::string DonghongDingBase::connectMeshLayers(const int current_progrress_value,$/;"	f	class:Cpp::DonghongDingBase
 connectYamlLayers	include/ram_path_planning/donghong_ding_base_imp.hpp	/^  void DonghongDingBase::connectYamlLayers($/;"	f	class:Cpp::DonghongDingBase
+connected	src/ppl.cpp	/^    vector<int> connected;$/;"	m	class:cells	file:
 construct_bridges	acd/acd2d_bridge.h	/^	inline void construct_bridges( cd_vertex * s, cd_vertex * e)$/;"	f	namespace:acd2d
 container	lib/polypartition.cpp	/^typedef std::vector<Kernel::Point_2> container;$/;"	t	file:
 contours_filtering_tolerance_	include/ram_path_planning/donghong_ding.hpp	/^    double contours_filtering_tolerance_; \/\/ In meters$/;"	m	class:Cpp::DonghongDing
@@ -674,6 +687,7 @@ countVertices	acd/acd2d_util.h	/^	inline int countVertices(const cd_polygon& pol
 countVertices	acd/acd2d_util.h	/^	inline int countVertices(const list<cd_polygon>& poly)$/;"	f	namespace:acd2d
 count_v	acd/acd2d_util.h	/^	inline int count_v( cd_vertex * s, cd_vertex * e ){$/;"	f	namespace:acd2d
 counter_	include/ram_path_planning/shemaphore.hpp	/^  unsigned int counter_;$/;"	m	class:Cpp::Semaphore
+coverage_path_planning	src/ppl.cpp	/^void coverage_path_planning(){$/;"	f
 cpp_test	src/ram_cpp_node.cpp	/^	cpp_test(ros::NodeHandle n_):n(n_){$/;"	f	class:cpp_test
 cpp_test	src/ram_cpp_node.cpp	/^class cpp_test{$/;"	c	file:
 createMarker	src/ram_cpp_node.cpp	/^	visualization_msgs::Marker createMarker(const std::string markerName,$/;"	f	class:cpp_test
@@ -697,7 +711,6 @@ decomposePolygon	include/ram_path_planning/cgutil.hpp	/^std::vector<PointVector>
 decompose_IN	acd/acd2d_core.cpp	/^	void cd_2d::decompose_IN(double d, cd_polygon& polys, cd_poly& poly)$/;"	f	class:acd2d::cd_2d
 decompose_OUT	acd/acd2d_core.cpp	/^	void cd_2d::decompose_OUT(double d, cd_polygon& polys, cd_poly& poly)$/;"	f	class:acd2d::cd_2d
 delta_rect	src/Cpp_Acd.cpp	26;"	d	file:
-delta_rect	src/Cpp_Cgal.cpp	23;"	d	file:
 deposited_material_width_	include/ram_path_planning/donghong_ding_base.hpp	/^    double deposited_material_width_; \/\/ In meters$/;"	m	class:Cpp::DonghongDingBase
 description_	include/ram_path_planning/donghong_ding_base.hpp	/^	std::string description_;$/;"	m	class:Cpp::DonghongDingBase
 destroy	acd/acd2d_core.cpp	/^	void cd_2d::destroy()$/;"	f	class:acd2d::cd_2d
@@ -718,12 +731,18 @@ drand48	acd/acd2d_Basic.cpp	/^        drand48()$/;"	f
 dualT	acd/acd2d_ev_function.cpp	/^	inline ev_triangle * dualT(int * t, int tsize, int psize)$/;"	f	namespace:acd2d
 dx	src/lsd.cpp	/^    double dx, dy;       \/* vector with the line segment angle *\/$/;"	m	struct:rect	file:
 dy	src/lsd.cpp	/^    double dx, dy;       \/* vector with the line segment angle *\/$/;"	m	struct:rect	file:
+edge_lo	src/ppl.cpp	/^    vector<Point> edge_lo;$/;"	m	class:cells	file:
+edge_lt	src/ppl.cpp	/^    vector<Point> edge_lt;$/;"	m	class:cells	file:
+edge_rt	src/ppl.cpp	/^    vector<Point> edge_rt;$/;"	m	class:cells	file:
+edge_up	src/ppl.cpp	/^    vector<Point> edge_up;$/;"	m	class:cells	file:
 element	acd/matrix.h	/^   double element[4][4];$/;"	m	struct:__anon2
 endPoly	acd/acd2d_data.cpp	/^	void cd_poly::endPoly()$/;"	f	class:acd2d::cd_poly
 end_index	src/Cpp_Convex.cpp	/^	int end_index;$/;"	m	struct:Cpp::convex_point	file:
 enlarge_ntuple_list	src/lsd.cpp	/^void enlarge_ntuple_list(ntuple_list n_tuple)$/;"	f
 eq	acd/martin.h	195;"	d
 eraseElement	acd/acd2d_data.cpp	/^	cd_poly cd_polygon::eraseElement(Dep_El * e)$/;"	f	class:acd2d::cd_polygon
+erase_small_cells	src/ppl.cpp	/^void erase_small_cells(int size_s){$/;"	f
+erase_tiny_cells	src/ppl.cpp	/^void erase_tiny_cells(int min_width){$/;"	f
 error	src/lsd.cpp	/^static void error(char *msg)$/;"	f	file:
 ev_funnel	acd/acd2d_ev_data.h	/^		ev_funnel(){ cusp=-1; }$/;"	f	class:acd2d::ev_funnel
 ev_funnel	acd/acd2d_ev_data.h	/^	class ev_funnel{$/;"	c	namespace:acd2d
@@ -756,6 +775,7 @@ findVertex	include/ram_path_planning/donghong_ding_imp.hpp	/^  bool DonghongDing
 find_MP	acd/acd2d_dir.h	/^	Point2d find_MP(cd_vertex * v, cd_poly& poly)$/;"	f	namespace:acd2d
 find_a_good_cutline	acd/acd2d_dir.h	/^	inline void find_a_good_cutline$/;"	f	namespace:acd2d
 find_a_good_cutline_for_hole	acd/acd2d_dir.h	/^	inline void find_a_good_cutline_for_hole$/;"	f	namespace:acd2d
+find_intersection_line	src/ppl.cpp	/^vector<Point> find_intersection_line(Mat map, vector<Point> line){$/;"	f
 find_shaded_region_in_B	acd/acd2d_ev_shortest_path.h	/^	inline void find_shaded_region_in_B$/;"	f	namespace:acd2d
 fitLine	src/Cpp_Convex.cpp	/^void fitLine(std::vector<cv::Point>& vec,\\$/;"	f	namespace:Cpp
 free	acd/acd2d_hull_use_qhull.h	/^		void free(){$/;"	f	class:acd2d::hull_2d
@@ -767,7 +787,7 @@ free_triangle	acd/acd2d_ev_function.cpp	/^	void free_triangle( ev_triangle * t )
 free_triangle	acd/acd2d_ev_function.cpp	/^	void free_triangle( ev_triangle * t, ev_triangle * p )$/;"	f	namespace:acd2d
 g_alpha	src/Cpp_Acd.cpp	/^double g_alpha = 0;$/;"	v
 g_beta	src/Cpp_Acd.cpp	/^double g_beta = 1;$/;"	v
-g_concavity_measure	src/Cpp_Acd.cpp	/^std::string g_concavity_measure = "shortestpath";$/;"	v
+g_concavity_measure	src/Cpp_Acd.cpp	/^std::string g_concavity_measure = "hybrid1";$/;"	v
 g_id	acd/acd2d_ev_shortest_path.h	/^	int g_id=0;$/;"	m	namespace:acd2d
 g_tau	src/Cpp_Acd.cpp	/^double g_tau = 0.1;$/;"	v
 gaussian_kernel	src/lsd.cpp	/^static void gaussian_kernel(ntuple_list kernel, double sigma, double mean)$/;"	f	file:
@@ -824,6 +844,7 @@ getTopLeftPoint	src/map_modify_node.cpp	/^cv::Point2i getTopLeftPoint(cv::Mat& i
 getType	acd/acd2d_data.h	/^		POLYTYPE getType() const { return type; }$/;"	f	class:acd2d::cd_poly
 getU	acd/acd2d_data.h	/^		double getU() const { return u; } \/\/the coordinate on cut line$/;"	f	class:acd2d::cd_vertex
 getVSize	acd/acd2d_ev_data.h	/^		int getVSize(){ return left.size()+right.size()+1; }$/;"	f	class:acd2d::ev_funnel
+get_cell_area	src/ppl.cpp	/^int get_cell_area(const cells &c1){$/;"	f
 get_theta	src/lsd.cpp	/^static double get_theta( struct point *reg, int reg_size, double x, double y,$/;"	f	file:
 gt	acd/martin.h	196;"	d
 hasConvexDefects	src/Cpp.cpp	/^bool hasConvexDefects(std::vector<cv::Vec4i>& defects_,int start_,int end_,int& mid_){$/;"	f	namespace:Cpp
@@ -876,7 +897,7 @@ intersectionBetweenContours	include/ram_path_planning/donghong_ding_base_imp.hpp
 irand48	acd/acd2d_Basic.cpp	/^        irand48(register unsigned short m)$/;"	f
 isActive	lib/polypartition.h	/^            bool isActive;$/;"	m	struct:TPPLPartition::PartitionVertex
 isAdjacent	include/ram_path_planning/cpp_uav.hpp	/^bool isAdjacent(const PointVector& polygon1, const PointVector& polygon2)$/;"	f
-isBadPolygon	src/Cpp_Acd.cpp	/^bool isBadPolygon(PointVector& polygon_,double step_){$/;"	f	namespace:Cpp
+isBadPolygon	src/Cpp_Acd.cpp	/^bool isBadPolygon(std::vector<cv::Point2f>& polygon,double step_){$/;"	f	namespace:Cpp
 isBadPolygon	src/Cpp_Cgal.cpp	/^bool isBadPolygon(PointVector& polygon_,double step_){$/;"	f	namespace:Cpp
 isClockWise	include/ram_path_planning/cpp_uav.hpp	/^inline bool isClockWise(const PointVector& path)$/;"	f
 isConvex	include/ram_path_planning/cgutil.hpp	/^inline bool isConvex(PointVector points)$/;"	f
@@ -927,6 +948,7 @@ main	src/Cpp_Convex.cpp	/^int main(int argc, char **argv) {$/;"	f
 main	src/Cpp_Polygon.cpp	/^int main(int argc, char **argv) {$/;"	f
 main	src/line_detection_and_rotation.cpp	/^int main(int argc, char **argv) {$/;"	f
 main	src/map_modify_node.cpp	/^int main(int argc, char **argv) {$/;"	f
+main	src/ppl.cpp	/^int main(int argc, char ** argv){$/;"	f
 main	src/ram_cpp_node.cpp	/^int main(int argc, char **argv) {$/;"	f
 makeOIP	src/Cpp.cpp	/^std::vector<cv::Point2i> makeOIP(cv::Mat& img, int gsize) {$/;"	f	namespace:Cpp
 makeOIP	src/Cpp_Acd.cpp	/^std::vector<cv::Point2i> makeOIP(cv::Mat& img, int gsize) {$/;"	f	namespace:Cpp
@@ -934,7 +956,11 @@ makeOIP	src/Cpp_Cgal.cpp	/^std::vector<cv::Point2i> makeOIP(cv::Mat& img, int gs
 makeOIP	src/Cpp_Polygon.cpp	/^std::vector<cv::Point2i> makeOIP(cv::Mat& img, int gsize) {$/;"	f	namespace:Cpp
 makeOIP	src/map_modify_node.cpp	/^std::vector<cv::Point2i> makeOIP(cv::Mat& img, int gsize) {$/;"	f	namespace:ns_map_modify
 mapCallBack	src/ram_cpp_node.cpp	/^	void mapCallBack(const nav_msgs::OccupancyGrid::ConstPtr &msg){$/;"	f	class:cpp_test
+map_size_x	src/ppl.cpp	/^int map_size_x;$/;"	v
+map_size_y	src/ppl.cpp	/^int map_size_y;$/;"	v
 martin_h_local	acd/local.h	/^double martin_h_local;$/;"	v
+masked_img	src/ppl.cpp	/^Mat masked_img;$/;"	v
+match_intersect	src/ppl.cpp	/^int match_intersect(const cells &c1, vector<Point> intersect){$/;"	f
 matrix_h_cosine	acd/local.h	/^double matrix_h_sine, matrix_h_cosine;$/;"	v
 matrix_h_local	acd/local.h	/^double matrix_h_local;$/;"	v
 matrix_h_sine	acd/local.h	/^double matrix_h_sine, matrix_h_cosine;$/;"	v
@@ -944,6 +970,9 @@ mergeColinearEdges	include/ram_path_planning/donghong_ding_base_imp.hpp	/^  bool
 mergeConvexPolygons	include/ram_path_planning/donghong_ding_imp.hpp	/^  bool DonghongDing::mergeConvexPolygons(PolygonVector &polygon_source,$/;"	f	class:Cpp::DonghongDing
 mergeHole	acd/acd2d_cut.h	/^	mergeHole(cd_poly& out, cd_poly& hole, cd_line& cut_l)$/;"	f	namespace:acd2d
 mergeListOfPoints	include/ram_path_planning/donghong_ding_imp.hpp	/^  void DonghongDing::mergeListOfPoints(const Polygon poly_data,$/;"	f	class:Cpp::DonghongDing
+minEdgeLength	src/Cpp_Acd.cpp	/^int minEdgeLength(PointVector& polygon,double deposited_width){$/;"	f	namespace:Cpp
+min_entry_width	src/ppl.cpp	/^    int min_entry_width = 8;$/;"	m	class:robot	file:
+min_entry_width	src/ppl.cpp	/^int min_entry_width = 8;$/;"	v
 mrand48	acd/acd2d_Basic.cpp	/^        mrand48()$/;"	f
 msg_	src/ram_cpp_node.cpp	/^	nav_msgs::OccupancyGrid msg_;$/;"	m	class:cpp_test	file:
 mutex_	include/ram_path_planning/shemaphore.hpp	/^  std::mutex mutex_;$/;"	m	class:Cpp::Semaphore
@@ -977,6 +1006,7 @@ normsqr	acd/acd2d_Vector.h	/^    T Vector<T,D>::normsqr() const            \/\/ 
 ns_map_modify	src/map_modify_node.cpp	/^namespace ns_map_modify{$/;"	n	file:
 ntuple_list	include/ram_path_planning/lsd.h	/^} *ntuple_list;$/;"	t	typeref:struct:ntuple_list_s
 ntuple_list_s	include/ram_path_planning/lsd.h	/^typedef struct ntuple_list_s$/;"	s
+number	src/ppl.cpp	/^    int number;$/;"	m	class:cells	file:
 number_of_notches	acd/acd2d_data.h	/^		int number_of_notches() const {$/;"	f	class:acd2d::cd_poly
 numerics_h_det	acd/local.h	/^double numerics_h_det, numerics_h_dot;$/;"	v
 numerics_h_dot	acd/local.h	/^double numerics_h_det, numerics_h_dot;$/;"	v
@@ -1045,8 +1075,11 @@ p1	lib/polypartition.h	/^            TPPLPoint p1;$/;"	m	struct:TPPLPartition::S
 p2	lib/polypartition.h	/^            TPPLPoint p2;$/;"	m	struct:TPPLPartition::ScanLineEdge
 pairs	lib/polypartition.h	/^            DiagonalList pairs;$/;"	m	struct:TPPLPartition::DPState2
 parent	acd/acd2d_ev_data.h	/^		ev_vertex * parent;  \/\/final parent in the shortest path$/;"	m	class:acd2d::ev_vertex
+path	src/ppl.cpp	/^    vector<Point> path;$/;"	m	class:robot	file:
+pixel	src/ppl.cpp	/^    vector<vector<int> > pixel;$/;"	m	class:cells	file:
 point	acd/defs.h	/^} point;                                  $/;"	t	typeref:struct:__anon6
 point	src/lsd.cpp	/^struct point$/;"	s	file:
+point_check	src/ppl.cpp	/^int point_check(Point pt1, Point pt2){$/;"	f
 points	lib/polypartition.h	/^        TPPLPoint *points;$/;"	m	class:TPPLPoly
 poly	acd/acd2d_ev_data.h	/^	typedef cd_poly poly;$/;"	t	namespace:acd2d
 polyBox	acd/acd2d_util.h	/^	inline void polyBox(const cd_2d& cd, double box[4])$/;"	f	namespace:acd2d
@@ -1061,10 +1094,12 @@ polygonArea	src/Cpp_Cgal.cpp	/^double polygonArea(PointVector& pv_,int n){$/;"	f
 polygonArea	src/Cpp_Polygon.cpp	/^double polygonArea(PointVector& pv_,int n){$/;"	f	namespace:Cpp
 polygon_division_tolerance_	include/ram_path_planning/donghong_ding.hpp	/^    double polygon_division_tolerance_; \/\/ In radians$/;"	m	class:Cpp::DonghongDing
 pos	acd/acd2d_data.h	/^		Point2d pos;      \/\/position$/;"	m	class:acd2d::cd_vertex
+pose	src/ppl.cpp	/^    Rect pose;$/;"	m	class:robot	file:
 pre	acd/acd2d_data.h	/^		cd_vertex * pre;  \/\/previous upvertex in the polygon$/;"	m	class:acd2d::cd_vertex
 prec	src/lsd.cpp	/^    double prec;         \/* tolerance angle *\/$/;"	m	struct:rect	file:
 previous	lib/polypartition.h	/^            PartitionVertex *previous;$/;"	m	struct:TPPLPartition::PartitionVertex
 previous	lib/polypartition.h	/^            long previous;$/;"	m	struct:TPPLPartition::MonotoneVertex
+print_cells	src/ppl.cpp	/^Mat print_cells(){$/;"	f
 pt	acd/acd2d_edge_visibility.h	/^	struct triangle { Point2d pt[3]; };$/;"	m	struct:acd2d::triangle
 pt	acd/acd2d_hull_use_qhull.h	/^		coordT * pt; \/\/points in the patch (*3 for each coord)$/;"	m	class:acd2d::hull_2d
 ptsize	acd/acd2d_hull_use_qhull.h	/^		int ptsize;  \/\/number of point$/;"	m	class:acd2d::hull_2d
@@ -1098,8 +1133,16 @@ ri_ini	src/lsd.cpp	/^static rect_iter *ri_ini(struct rect *r)$/;"	f	file:
 right	acd/acd2d_ev_data.h	/^		list<int> right;$/;"	m	class:acd2d::ev_funnel
 right_pt	acd/acd2d_ev_data.h	/^		int right_pt(){ return right.back(); } \/\/(right.empty())?cusp:right.back(); }$/;"	f	class:acd2d::ev_funnel
 rint	acd/acd2d_Basic.cpp	/^    double rint(double x)$/;"	f
+robot	src/ppl.cpp	/^class robot$/;"	c	file:
+robot	src/ppl.cpp	/^robot robot;$/;"	v
+robot_move_down	src/ppl.cpp	/^int robot_move_down(){$/;"	f
+robot_move_right	src/ppl.cpp	/^int robot_move_right(){$/;"	f
+robot_move_up	src/ppl.cpp	/^int robot_move_up(){$/;"	f
+robot_pose_init	src/ppl.cpp	/^    void robot_pose_init(Point pt){$/;"	f	class:robot
+robot_size	src/ppl.cpp	/^int robot_size = 9;        \/\/ size of robot set to 10 x 10;$/;"	v
 rot	acd/matrix.h	/^   vertex rot;$/;"	m	struct:__anon1
 rotatePoints	include/ram_path_planning/cgutil.hpp	/^PointVector rotatePoints(const PointVector& points, double angle_rad)$/;"	f
+rotate_img	src/ppl.cpp	/^Mat rotate_img(Mat src, double angle){$/;"	f
 rson	acd/defs.h	/^   tree_ind rson;      \/* index of right child                               *\/$/;"	m	struct:__anon12
 save_polys	acd/acd2d_util.h	/^	inline void save_polys(const string& name, const cd_2d& cd)$/;"	f	namespace:acd2d
 save_polys	acd/acd2d_util.h	/^	inline void save_polys(ostream& fout, const list<cd_polygon>& polys)$/;"	f	namespace:acd2d
@@ -1134,12 +1177,13 @@ show_origpoly	acd/acd2d_stat.h	/^    bool show_origpoly;   \/\/show original pol
 signal	include/ram_path_planning/shemaphore.hpp	/^  inline void signal()$/;"	f	class:Cpp::Semaphore
 size	acd/acd2d_data.h	/^		int size;  \/\/is this used???$/;"	m	class:acd2d::cd_poly
 size	include/ram_path_planning/lsd.h	/^    unsigned int size;$/;"	m	struct:ntuple_list_s
+size	src/ppl.cpp	/^    int size = 9;$/;"	m	class:robot	file:
 sqr	acd/acd2d_Basic.h	28;"	d
 srand48	acd/acd2d_Basic.cpp	/^    void srand48(long seedval)$/;"	f
+src	src/ppl.cpp	/^Mat src;$/;"	v
 start_index	src/Cpp_Convex.cpp	/^	int start_index;$/;"	m	struct:Cpp::convex_point	file:
-step_length	src/Cpp_Cgal.cpp	21;"	d	file:
+status	src/ppl.cpp	/^    string status;$/;"	m	class:cells	file:
 step_length	src/map_modify_node.cpp	35;"	d	file:
-step_overlap	src/Cpp_Cgal.cpp	22;"	d	file:
 store_diagoanls	acd/acd2d_core.h	/^		bool store_diagoanls;    \/\/if set, all cut lines will be stored$/;"	m	class:acd2d::cd_2d
 sub	src/ram_cpp_node.cpp	/^	ros::Subscriber sub;$/;"	m	class:cpp_test	file:
 sub_	src/ram_cpp_node.cpp	/^	ros::Subscriber sub_;$/;"	m	class:cpp_test	file:
@@ -1171,6 +1215,7 @@ updateHullBot	acd/acd2d_hull.cpp	/^	inline void updateHullBot(cd_vertex * v,list
 updateHullTop	acd/acd2d_hull.cpp	/^	inline void updateHullTop(cd_vertex * v,list<cd_vertex*>& hull)$/;"	f	namespace:acd2d
 updateInfo	acd/acd2d_cut.h	/^	inline void updateInfo(cd_vertex* v)$/;"	f	namespace:acd2d
 updateSize	acd/acd2d_data.cpp	/^	void cd_poly::updateSize()$/;"	f	class:acd2d::cd_poly
+update_pose	src/ppl.cpp	/^    void update_pose(Point pt){$/;"	f	class:robot
 upper_bound_	include/ram_path_planning/histogram.h	/^	T upper_bound_;		\/\/ highest possible value$/;"	m	class:Histogram
 use_gui	src/Cpp.cpp	/^bool use_gui = false;$/;"	v
 use_gui	src/Cpp_Convex.cpp	/^bool use_gui = false;$/;"	v
@@ -1241,6 +1286,7 @@ ys	src/lsd.cpp	/^    double ys, ye; \/* start and end Y values of current 'colum
 ysize	include/ram_path_planning/lsd.h	/^    unsigned int xsize, ysize;$/;"	m	struct:image_char_s
 ysize	include/ram_path_planning/lsd.h	/^    unsigned int xsize, ysize;$/;"	m	struct:image_double_s
 ysize	include/ram_path_planning/lsd.h	/^    unsigned int xsize, ysize;$/;"	m	struct:image_int_s
+yslice_gen	src/ppl.cpp	/^vector<Point> yslice_gen(int x_current, int map_size_y){$/;"	f
 z	acd/defs.h	/^   double z;$/;"	m	struct:__anon5
 zigzagGeneration	include/ram_path_planning/donghong_ding_imp.hpp	/^  bool DonghongDing::zigzagGeneration(const Polygon poly_data,$/;"	f	class:Cpp::DonghongDing
 ~DonghongDingBase	include/ram_path_planning/donghong_ding_base_imp.hpp	/^  DonghongDingBase::~DonghongDingBase()$/;"	f	class:Cpp::DonghongDingBase

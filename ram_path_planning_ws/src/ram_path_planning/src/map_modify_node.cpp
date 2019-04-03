@@ -34,7 +34,7 @@
 
 #define step_length 1
 
-#define SHOW_DEBUG
+//#define SHOW_DEBUG
 
 namespace ns_map_modify{
 
@@ -287,19 +287,21 @@ bool MapModifyService(
    
     cv::Mat map(req.map.info.height, req.map.info.width, CV_8UC1, req.map.data.data());
     vector<int8_t> map_data; 
-
     cv::Mat bin_step,bin_step_out,bin_blurred_temp;
     cv::threshold(map,bin_step,req.threshold,255,cv::THRESH_BINARY_INV);
+#ifdef SHOW_DEBUG
+    cv::imshow("bin_step",bin_step);
+#endif
 
     cv::Mat blurred_bin(map.size(), CV_8UC1);
-    cv::blur(bin_step,blurred_bin,cv::Size(5,5));
-
+    //cv::blur(bin_step,blurred_bin,cv::Size(5,5));
+    cv::GaussianBlur(bin_step,blurred_bin,cv::Size(3,3),0,0);
 #ifdef SHOW_DEBUG    
     cv::imshow("blurred_bin",blurred_bin);
 #endif
     
     cv::Mat canny_bin(map.size(), CV_8UC1);
-    cv::Canny(blurred_bin, canny_bin, 50, 255, 3);
+    cv::Canny(blurred_bin, canny_bin, 60, 255, 3);
 
 #ifdef SHOW_DEBUG
     imshow("canny_bin", canny_bin);
@@ -311,21 +313,6 @@ bool MapModifyService(
     std::vector<cv::Vec4i> hierarchy_ext;
 
     cv::findContours(canny_bin, contours_canny, hierarchy_canny, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_SIMPLE, cv::Point(0,0));
-    
-    /*int max_contour_id_ = 0;
-    int max_contour_point_ = 0;
-    for(int i = 0;i < contours_canny.size();i++){
-        ROS_INFO_STREAM("contours_canny_size:" << contours_canny[i].size());
-        if(contours_canny[i].size() > max_contour_point_){
-            max_contour_point_ = contours_canny[i].size();
-            max_contour_id_ = i;
-        }
-    }
-
-    contours_ext.push_back(contours_canny[max_contour_id_]);
-    hierarchy_ext.push_back(hierarchy_canny[max_contour_id_]);
-    */
-
     cv::drawContours(contours_bin, contours_canny, -1, cv::Scalar(0), 2, 8, hierarchy_canny, 1, cv::Point());
 #ifdef SHOW_DEBUG
     imshow("contours_bin",contours_bin);
@@ -334,11 +321,11 @@ bool MapModifyService(
     cv::Point start_point((req.start_position_x-req.map.info.origin.position.x)/req.map.info.resolution,\
                           (req.start_position_y-req.map.info.origin.position.y)/req.map.info.resolution);
     cv::Rect roi;
-    uchar seedColor = 200;
+    uchar seedColor = 128;
     cv::Mat mask_img = contours_bin.clone();
     cv::Mat masked_img;
 
-    cv::floodFill(mask_img,start_point,cv::Scalar(200),&roi,cv::Scalar(5),cv::Scalar(5));
+    cv::floodFill(mask_img,start_point,cv::Scalar(128),&roi,cv::Scalar(3),cv::Scalar(3));
 #ifdef SHOW_DEBUG
     imshow("mask_img",mask_img);
 #endif
@@ -346,7 +333,6 @@ bool MapModifyService(
    
 #ifdef SHOW_DEBUG
     imshow("masked_img",masked_img);
-    cv::waitKey(0);
 #endif
 #if 0
     cv::Mat bin_temp;
@@ -394,7 +380,7 @@ bool MapModifyService(
     free_ntuple_list(ntl);
 #endif
     //std::cout << __FILE__ << __LINE__ << std::endl;
-#if 1
+#if 0
     int iterate_num = 7;
     int count_step;
     for(int l = 0;l < iterate_num;l++){
@@ -406,33 +392,33 @@ bool MapModifyService(
                     int count_value_255_v = 0;
                     int count_value_255_h = 0;
                     {
-                         if(bin_step.at<unsigned char>(i-1,j-1) == 255)
+                         if(masked_img.at<unsigned char>(i-1,j-1) == 255)
                             count_value_255_h++;
-                         if(bin_step.at<unsigned char>(i-1,j+1) == 255)
+                         if(masked_img.at<unsigned char>(i-1,j+1) == 255)
                             count_value_255_h++;
-                         if(bin_step.at<unsigned char>(i+1,j-1) == 255)
+                         if(masked_img.at<unsigned char>(i+1,j-1) == 255)
                             count_value_255_h++;
-                         if(bin_step.at<unsigned char>(i+1,j+1) == 255)
+                         if(masked_img.at<unsigned char>(i+1,j+1) == 255)
                             count_value_255_h++;
                     }
 
                     if(count_value_255_h > 3){
-                        bin_step.at<unsigned char>(i,j) = 255;
+                        masked_img.at<unsigned char>(i,j) = 255;
                         count_step ++;
                     }
                     else{
-                        if(bin_step.at<unsigned char>(i-1,j) == 255)
+                        if(masked_img.at<unsigned char>(i-1,j) == 255)
                             count_value_255_v++;
-                        if(bin_step.at<unsigned char>(i+1,j) == 255)
+                        if(masked_img.at<unsigned char>(i+1,j) == 255)
                             count_value_255_v++;
-                        if(bin_step.at<unsigned char>(i,j-1) == 255)
+                        if(masked_img.at<unsigned char>(i,j-1) == 255)
                             count_value_255_v++;
-                        if(bin_step.at<unsigned char>(i,j+1) == 255)
+                        if(masked_img.at<unsigned char>(i,j+1) == 255)
                             count_value_255_v++;
 
 
                         if(count_value_255_v > 3){
-                            bin_step.at<unsigned char>(i,j) = 255;
+                            masked_img.at<unsigned char>(i,j) = 255;
                             count_step ++;
                         }
                     }
@@ -442,32 +428,32 @@ bool MapModifyService(
                     int count_value_0_v = 0;
                     int count_value_0_h = 0;
                     {
-                         if(bin_step.at<unsigned char>(i-1,j-1) == 0)
+                         if(masked_img.at<unsigned char>(i-1,j-1) == 0)
                             count_value_0_h++;
-                         if(bin_step.at<unsigned char>(i-1,j+1) == 0)
+                         if(masked_img.at<unsigned char>(i-1,j+1) == 0)
                             count_value_0_h++;
-                         if(bin_step.at<unsigned char>(i+1,j-1) == 0)
+                         if(masked_img.at<unsigned char>(i+1,j-1) == 0)
                             count_value_0_h++;
-                         if(bin_step.at<unsigned char>(i+1,j+1) == 0)
+                         if(masked_img.at<unsigned char>(i+1,j+1) == 0)
                             count_value_0_h++;
                     }
 
                     if(count_value_0_h > 3){
-                        bin_step.at<unsigned char>(i,j) = 0;
+                        masked_img.at<unsigned char>(i,j) = 0;
                         count_step ++;
                     }
                     else{
-                        if(bin_step.at<unsigned char>(i-1,j) == 0)
+                        if(masked_img.at<unsigned char>(i-1,j) == 0)
                             count_value_0_v++;
-                        if(bin_step.at<unsigned char>(i+1,j) == 0)
+                        if(masked_img.at<unsigned char>(i+1,j) == 0)
                             count_value_0_v++;
-                        if(bin_step.at<unsigned char>(i,j-1) == 0)
+                        if(masked_img.at<unsigned char>(i,j-1) == 0)
                             count_value_0_v++;
-                        if(bin_step.at<unsigned char>(i,j+1) == 0)
+                        if(masked_img.at<unsigned char>(i,j+1) == 0)
                             count_value_0_v++;
 
                         if(count_value_0_v > 3){
-                            bin_step.at<unsigned char>(i,j) = 0;
+                            masked_img.at<unsigned char>(i,j) = 0;
                             count_step ++;
                         }
 
@@ -477,16 +463,21 @@ bool MapModifyService(
         }
     }
     #endif
+
+
     cv::Mat temp_out;
-    cv::Mat element = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(3, 3));
-    //cv::morphologyEx(bin_step,temp_out, cv::MORPH_CLOSE,element, cv::Point(-1,-1),1);
-    //cv::morphologyEx(temp_out,bin_step_out, cv::MORPH_OPEN,element, cv::Point(-1,-1),1);
-    cv::erode(bin_step,temp_out,element, cv::Point(-1,-1),2);
-    cv::dilate(temp_out,bin_step_out,element, cv::Point(-1,-1),2);
+    cv::Mat element = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(3,3));
+    cv::dilate(masked_img,temp_out,element, cv::Point(-1,-1),1);
+    //temp_out.copyTo(masked_img);
+    cv::erode(temp_out,masked_img,element, cv::Point(-1,-1),1);
+
+#ifdef SHOW_DEBUG
+    imshow("masked_img_step_1",masked_img);
+#endif
 
     std::vector<std::vector<cv::Point> > contours;
     std::vector<cv::Vec4i> hierarchy;
-    cv::findContours(bin_step_out,contours,hierarchy,CV_RETR_EXTERNAL,CV_CHAIN_APPROX_NONE,cv::Point());
+    cv::findContours(masked_img,contours,hierarchy,CV_RETR_EXTERNAL,CV_CHAIN_APPROX_NONE,cv::Point());
 
     int max_contour_point = 0;
     for(int i = 0;i < contours.size();i++){
@@ -494,7 +485,7 @@ bool MapModifyService(
             max_contour_point = contours[i].size();
         }
     }
-
+    ROS_INFO_STREAM("max_ext_contour_point:" << max_contour_point);
     if(contours.size() > 1){
         for(int i = 0;i < contours.size();i++){
             if(contours[i].size() < max_contour_point){
@@ -507,34 +498,40 @@ bool MapModifyService(
                 contour_center_x /= (contours[i].size()*1.0);
                 contour_center_y /= (contours[i].size()*1.0);
                 
-                cv::floodFill(bin_step_out,
+                cv::floodFill(masked_img,
                               cv::Point(std::floor(contour_center_x),std::floor(contour_center_y)),
                               cv::Scalar(0), 0, 0, 0, 8 | cv::FLOODFILL_FIXED_RANGE);
             }
         }
      }
 
+#ifdef SHOW_DEBUG
+    imshow("masked_img_step_2",masked_img);
+#endif
 
 
     std::vector<std::vector<cv::Point> > contours_step;
     std::vector<cv::Vec4i> hierarchy_step;
-    cv::findContours(bin_step_out,contours_step,hierarchy_step,CV_RETR_TREE,CV_CHAIN_APPROX_NONE,cv::Point());
+    cv::findContours(masked_img,contours_step,hierarchy_step,CV_RETR_TREE,CV_CHAIN_APPROX_NONE,cv::Point());
 
-    int limit_contour_point = 36;
+    int limit_contour_point = 16;
     for(int i = 0;i < contours_step.size();i++){
         if(contours_step[i].size() < limit_contour_point){
             cv::Rect boundRect = cv::boundingRect(cv::Mat(contours_step[i]));
             for(int i = boundRect.tl().x;i < boundRect.br().x;i++){
                 for(int j = boundRect.tl().y;j < boundRect.br().y;j++){
-                    bin_step_out.at<unsigned char>(j,i) = 255;
+                    masked_img.at<unsigned char>(j,i) = 255;
                 }
             }
         }
     }
 
+#ifdef SHOW_DEBUG
+    imshow("masked_img_step_3",masked_img);
+#endif
     std::vector<cv::Point> contour_rect;
     std::vector<cv::Point2i> vertices_point;
-    vertices_point = makeOIP(bin_step_out,step_length);
+    vertices_point = makeOIP(masked_img,step_length);
     ROS_INFO_STREAM("vertices_point:" << vertices_point.size());    
     cv::Mat map_re(req.map.info.height, req.map.info.width, CV_8UC1,cv::Scalar::all(0));
 
@@ -556,10 +553,27 @@ bool MapModifyService(
     cv::fillPoly(map_re, ppt,npt,1,cv::Scalar::all(255));
     delete[] polygonPointsEx[0];
     delete[] polygonPointsEx;
+
 #ifdef SHOW_DEBUG
-    cv::imshow("map_re",map_re);
+    imshow("map_re",map_re);
+    cv::waitKey(0);
 #endif
-    cv::Rect rect = cv::boundingRect(vertices_point);
+    /*std::vector<cv::Point2f> goodCorners;
+    int max_corners = 20;
+    double quality_level = 0.01;
+    double min_distance = 3.0;
+    int block_size = 3;
+    bool use_harris = false;
+    double k = 0.04;
+
+    cv::goodFeaturesToTrack(map_re,goodCorners,max_corners,quality_level,min_distance,cv::Mat(),block_size,use_harris,k);
+    ROS_INFO_STREAM("goodCorners:" << goodCorners.size());
+    
+    for(int i = 0;i < goodCorners.size();i++){
+        cv::circle(map_re,goodCorners[i],1,cv::Scalar::all(255),2,8,0);
+    }*/
+
+    /*cv::Rect rect = cv::boundingRect(vertices_point);
     ros::Time begin = ros::Time::now();
     for(int i = rect.tl().y;i < rect.br().y;i++){
         for(int j = rect.tl().x;j < rect.br().x;j++){
@@ -570,11 +584,7 @@ bool MapModifyService(
                map_re.at<unsigned char>(i,j) = bin_step_out.at<unsigned char>(i,j);
             }
         }
-    }
-#ifdef SHOW_DEBUG    
-    cv::imshow("map_re_",map_re);
-    cv::waitKey(0);
-#endif
+    }*/
 
     for(int i = 0;i < req.map.info.height;i++){
         for(int j = 0;j < req.map.info.width;j++){

@@ -460,6 +460,7 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
 	int external_contour_id;
 	int max_external_contour = 0;
 
+	double epsilon_approx_poly = 2.0;	
 	//ext 
 	for(int i = 0;i < contours.size();i++){
 		if(contours[i].size() > max_external_contour){
@@ -467,7 +468,8 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
 			external_contour_id = i;
 		}
 	}
-	
+    ROS_INFO_STREAM("max_external_contour:" << max_external_contour);
+
     //int
 	for(int i = 0;i < contours.size();i++){
         if(i != external_contour_id){
@@ -479,7 +481,7 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
         }
         else{
              std::vector<cv::Point> contour_dp;
-             cv::approxPolyDP(contours[i],contour_dp,0.1,true);
+             cv::approxPolyDP(contours[i],contour_dp,epsilon_approx_poly,true);
              for(int j = 0;j < contour_dp.size();j++){
                 double point_x = contour_dp[j].x*req.map_resolution+req.map_origin_x;
                 double point_y = contour_dp[j].y*req.map_resolution+req.map_origin_y;
@@ -528,7 +530,6 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
 
     ROS_INFO_STREAM("polygon_res_size:" << polygon_res.size());
     
-	double epsilon_approx_poly = 2.0;	
     std::list<Polygon_2>::iterator iter;
     for(iter = polygon_res.begin();iter != polygon_res.end();iter++)
     {

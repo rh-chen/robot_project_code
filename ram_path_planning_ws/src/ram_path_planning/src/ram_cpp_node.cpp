@@ -151,7 +151,7 @@ public:
 					srv_zigzag.request.deposited_material_width = 0.3;
 					srv_zigzag.request.contours_filtering_tolerance = 0.5;
 					srv_zigzag.request.map = map_modify_srv.response.map;
-					srv_zigzag.request.internal_contour_threshold = 128;
+					srv_zigzag.request.internal_contour_threshold = 64;
 
 					ros::Time begin = ros::Time::now();
 					bool res_srv_zigzag = client_zigzag.call(srv_zigzag);
@@ -190,13 +190,13 @@ public:
 									plannerStartPose.orientation.w = 1.0;
 
 									geometry_msgs::Vector3 plannerStartScale;
-									plannerStartScale.x = 0.2;
-									plannerStartScale.y = 0.2;
-									plannerStartScale.z = 0.2;
+									plannerStartScale.x = 0.1;
+									plannerStartScale.y = 0.1;
+									plannerStartScale.z = 0.1;
 
 									std_msgs::ColorRGBA plannerStartColor;
 									plannerStartColor.a = 1.0;
-									plannerStartColor.g = 1.0;
+									plannerStartColor.r = 1.0;
 
 
 									visualization_msgs::Marker markerSphereStart = createMarker("PlannerStart",
@@ -230,8 +230,8 @@ public:
 
 											geometry_msgs::Vector3 markerArrowScale;
 											markerArrowScale.x = 0.05;
-											markerArrowScale.y = 0.1;
-											markerArrowScale.z = 0.1;
+											markerArrowScale.y = 0.05;
+											markerArrowScale.z = 0.05;
 
 											std_msgs::ColorRGBA markerArrowColor;
 											markerArrowColor.a = 1.0;

@@ -18,10 +18,6 @@
 #include <deque>
 #include <polypartition.h>
 
-#define step_length 0.2
-#define step_overlap 0.0
-#define delta_rect 6
-
 typedef CGAL::Exact_predicates_inexact_constructions_kernel Kernel;
 typedef Kernel::FT Ft;
 typedef Kernel::Point_2 PointCgal;
@@ -312,7 +308,7 @@ void selectPolygon(PolygonListCgal& src_,PolygonListCgal& dst_)
             polygon_bcd.push_back(point_divide_bcd);
        }
 
-       if(!isBadPolygon(polygon_bcd,step_length))
+       if(!isBadPolygon(polygon_bcd,0.3))
              dst_.push_back(*iter);
     }
 
@@ -361,9 +357,7 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
 	cv::Mat bin;
 	cv::threshold(map,bin,req.occupancy_threshold,255,cv::THRESH_BINARY_INV);
 	
-	double delta_point = delta_rect;
-
-	//rectlinear polygon
+    /*double delta_point = delta_rect;
 	std::vector<cv::Point2i> vertices_point;
 	vertices_point = makeOIP(bin,delta_point);
 
@@ -383,27 +377,45 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
     
     PolygonWithHolesCgal polyHoles(poly_cgal);
     polyHoles.outer_boundary() = poly_cgal;
+    */
 
-	//Find  contour
 	std::vector<std::vector<cv::Point> > contours;
 	std::vector<cv::Vec4i> hierarchy;
-	std::vector<std::vector<cv::Point> > valid_internal_contours;
 
-	cv::findContours(bin,contours,hierarchy,CV_RETR_TREE,CV_CHAIN_APPROX_NONE,cv::Point());
-
-	ROS_INFO("find contours:%d",(int)contours.size());
-	int external_contour_id;
+	cv::findContours(bin,contours,hierarchy,CV_RETR_EXTERNAL,CV_CHAIN_APPROX_SIMPLE,cv::Point());
+    ROS_INFO_STREAM("contours_size:" << contours.size());
+	
+    
+    int external_contour_id;
 	int max_external_contour = 0;
-
-	//find external contour and has subcontour 
+	//ext
 	for(int i = 0;i < contours.size();i++){
-		ROS_INFO("contours[%d]:%d",i,contours[i].size());
+        ROS_INFO_STREAM("contour_obj:" << contours[i].size());
 		if(contours[i].size() > max_external_contour){
 			max_external_contour = contours[i].size();
 			external_contour_id = i;
 		}
 	}
+    
+    std::vector<cv::Point> contour_ext_dp;
+    cv::approxPolyDP(contours[external_contour_id],contour_ext_dp,12.0,true);
 
+    PolygonCgal poly_cgal;
+	for(int j = 0;j < contour_ext_dp.size();j++){
+		double point_x = contour_ext_dp[j].x*req.map_resolution+req.map_origin_x;
+		double point_y = contour_ext_dp[j].y*req.map_resolution+req.map_origin_y;
+				
+		geometry_msgs::Pose pose_;
+		pose_.position.x = point_x;
+		pose_.position.y = point_y;
+
+		res.pose.push_back(pose_);	
+        poly_cgal.push_back(Point_2(point_x,point_y));
+	}
+    
+    PolygonWithHolesCgal polyHoles(poly_cgal);
+    polyHoles.outer_boundary() = poly_cgal;
+#if 0
 	ROS_INFO("valid_external_contour_size:%d",contours[external_contour_id].size());
 	//find subcontour
 	for(int i = 0;i < contours.size();i++){
@@ -416,7 +428,6 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
 	}
 
 	ROS_INFO("valid_internal_contour_number:%d",valid_internal_contours.size());
-	
 	//add internal contour data
 	for(int i = 0;i < valid_internal_contours.size();i++){
         PolygonCgal holes;
@@ -461,18 +472,19 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
         ROS_INFO("hole_size:%d",holes.size());
         polyHoles.add_hole(holes);
 	}
-    
+#endif
+
     PolygonListCgal partition_polys_;
     PolygonListCgal partition_polys;
-    std::vector<PointVector> subPolygons;
-	std::vector<PointVector> final_path;
+    
+    /*std::vector<PointVector> subPolygons;
+    std::vector<PointVector> final_path;
 	nav_msgs::Path plan_path;
-
     std_msgs::Float64 footprintLength, footprintWidth, horizontalOverwrap, verticalOverwrap;
     footprintLength.data = step_length;
     footprintWidth.data = step_length; 
     horizontalOverwrap.data = step_overlap;
-    verticalOverwrap.data = step_overlap;
+    verticalOverwrap.data = step_overlap;*/
 
 	// Generate trajectory
   	if (true)
@@ -480,21 +492,15 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
         std::cout << __FILE__ << __LINE__ << std::endl;
         CGAL::Polygon_vertical_decomposition_2<Kernel,ContainerCgal> obj;
         std::cout << __FILE__ << __LINE__ << std::endl;
-        obj(polyHoles,std::back_inserter(partition_polys_));
+        obj(polyHoles,std::back_inserter(partition_polys));
         std::cout << __FILE__ << __LINE__ << std::endl;
 
-        std::cout << "partition_polys_size_: " << partition_polys_.size() << std::endl;
+        /*std::cout << "partition_polys_size_: " << partition_polys_.size() << std::endl;
         selectPolygon(partition_polys_,partition_polys);
         std::cout << "partition_polys_size: " << partition_polys.size() << std::endl;
-        
+        */
         partition_polys.sort(compare_polygon);
 
-        bool left_connection = false;
-        bool right_connection = false;
-
-        ROS_INFO_STREAM("left_connection:" << left_connection);
-        ROS_INFO_STREAM("right_connection:" << right_connection);
-        
         std::list<PolygonCgal>::iterator iter;
         for(iter = partition_polys.begin();iter != partition_polys.end();iter++){
             geometry_msgs::Polygon partial_polygon;
@@ -519,7 +525,7 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
              res.polygon.push_back(partial_polygon);
              //subPolygons.push_back(polygon_bcd);
 
-             bool isOptimal = computeConvexCoverage(polygon_bcd,\
+             /*bool isOptimal = computeConvexCoverage(polygon_bcd,\
                                                     footprintWidth.data, \
                                                     horizontalOverwrap.data, \
                                                     candidatePath);
@@ -586,12 +592,12 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
 			 else{
 			    ROS_INFO("zigzag path plannning fail...");
 				return false;
-			 }                                       
+			 }*/                                       
                 
         }
   	}
 
-    for(int index_i = 0;index_i < final_path.size();index_i++){
+    /*for(int index_i = 0;index_i < final_path.size();index_i++){
 		for(int index_j = 0;index_j < final_path[index_i].size();index_j++){
 			geometry_msgs::PoseStamped current_pose;
 			current_pose.pose.position.x = final_path[index_i][index_j].x;
@@ -602,7 +608,7 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
 		}
 	}
 
-    res.path.push_back(plan_path);
+    res.path.push_back(plan_path);*/
 
     /*for(int index_i = 0;index_i < final_path.size();index_i++){
 		nav_msgs::Path path_bcd;
