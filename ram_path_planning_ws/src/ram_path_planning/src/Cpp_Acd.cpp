@@ -34,7 +34,6 @@ double g_beta = 1;
 std::string g_concavity_measure = "hybrid1";
 //std::string g_concavity_measure = "shortestpath";
 //std::string g_concavity_measure = "hybrid2";
-double g_tau = 0.1;
 
 namespace Cpp{
 
@@ -77,18 +76,20 @@ void createPolys(Polygon_list& polygon, cd_2d& cd,float& scale_)
         }
 
 		scale_ = poly.normalize();
-        ROS_INFO_STREAM("scale_" << scale_);
+        //ROS_INFO_STREAM("scale_" << scale_);
 		cd.addPolygon(poly);
 
-        ROS_INFO_STREAM("cd_poly_size:" << polygon_count);
+        //ROS_INFO_STREAM("cd_poly_size:" << polygon_count);
     }
     
     if(cd.getTodoList().empty())
         return;
 }
 
-void decomposeAll(cd_2d& cd,Polygon_list& polygon,float scale)
+void decomposeAll(cd_2d& cd,Polygon_list& polygon,float scale,float tau)
 {
+    double g_tau = tau;
+
     IConcavityMeasure * measure=
     ConcavityMeasureFac::createMeasure(g_concavity_measure);
     cd.updateCutDirParameters(g_alpha,g_beta);
@@ -103,20 +104,20 @@ void decomposeAll(cd_2d& cd,Polygon_list& polygon,float scale)
     clock_t start=clock();
     cd.decomposeAll(g_tau,measure);
     int time=clock()-start;
-    ROS_INFO_STREAM("Decompose All Takes:" << ((double)(time))/CLOCKS_PER_SEC);
+    //ROS_INFO_STREAM("Decompose All Takes:" << ((double)(time))/CLOCKS_PER_SEC);
 
     std::list<cd_polygon> acd_polygons_done = cd.getDoneList();
-    ROS_INFO_STREAM("acd_polygons_size:" << acd_polygons_done.size());
+    //ROS_INFO_STREAM("acd_polygons_size:" << acd_polygons_done.size());
 
     std::list<cd_polygon>::iterator iter;
     std::list<cd_poly>::iterator iter_;
 
     for(iter = acd_polygons_done.begin();iter != acd_polygons_done.end();iter++){
-        ROS_INFO_STREAM("acd_polygons_cell_size:" << (*iter).size());
+        //ROS_INFO_STREAM("acd_polygons_cell_size:" << (*iter).size());
         
         Polygon_2 temp_polygon;
         for(iter_ = (*iter).begin();iter_ != (*iter).end();iter_++){
-            ROS_INFO_STREAM("acd_poly_cell_size:" << (*iter_).getSize());
+            //ROS_INFO_STREAM("acd_poly_cell_size:" << (*iter_).getSize());
             cd_vertex* list_start = (*iter_).getHead();
             
             int tmp_cnt = (*iter_).getSize();
@@ -526,26 +527,27 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
     Polygon_list polygon_res;
     float scale = 0;
     createPolys(polygon_holes,cd_obj,scale);
-    decomposeAll(cd_obj,polygon_res,scale);
+    decomposeAll(cd_obj,polygon_res,scale,0.1);
 
     ROS_INFO_STREAM("polygon_res_size:" << polygon_res.size());
     
     std::list<Polygon_2>::iterator iter;
     for(iter = polygon_res.begin();iter != polygon_res.end();iter++)
     {
-        geometry_msgs::Polygon partial_polygon;
+        //geometry_msgs::Polygon partial_polygon;
         Polygon_2 poly_cell = *iter;
-        
-        //PointVector partial_point_vector;
-
-        vtkSmartPointer<vtkPolyData> polygonPolyData = vtkSmartPointer<vtkPolyData>::New();
-	    vtkSmartPointer<vtkPoints> pts = vtkSmartPointer<vtkPoints>::New();
-	    vtkSmartPointer<vtkCellArray> cells = vtkSmartPointer<vtkCellArray>::New();
-        vtkSmartPointer<vtkPolygon> polygon_cell = vtkSmartPointer<vtkPolygon>::New();
+        ROS_INFO_STREAM("poly_cell_size:" << poly_cell.size()); 
+        //vtkSmartPointer<vtkPolyData> polygonPolyData = vtkSmartPointer<vtkPolyData>::New();
+	    //vtkSmartPointer<vtkPoints> pts = vtkSmartPointer<vtkPoints>::New();
+	    //vtkSmartPointer<vtkCellArray> cells = vtkSmartPointer<vtkCellArray>::New();
+        //vtkSmartPointer<vtkPolygon> polygon_cell = vtkSmartPointer<vtkPolygon>::New();
         
         std::vector<cv::Point2f> contour_in;
         std::vector<cv::Point2f> contour_out;
-            
+        
+        Polygon_list polygon_holes_cell;
+        Polygon_2 polygon_hole_cell;
+        
         for(int j = 0;j < poly_cell.size();j++){
             geometry_msgs::Point32 point_32;
 
@@ -554,34 +556,71 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
             point_32.x = p.x();
             point_32.y = p.y();
             
-            partial_polygon.points.push_back(point_32);
+            //partial_polygon.points.push_back(point_32);
             contour_in.push_back(cv::Point2f(p.x(),p.y()));
             
-            /*geometry_msgs::Point point;
-            point.x = p.x();
-            point.y = p.y();
-            point.z = 0.0;
+            polygon_hole_cell.push_back(Point_2(p.x(),p.y()));
+        }
+        
+        polygon_holes_cell.push_back(polygon_hole_cell);
 
-            partial_point_vector.push_back(point);*/
-         }
+        double contour_cell_area_in = cv::contourArea(contour_in,false);
+        ROS_INFO_STREAM("contour_cell_area_in:" << contour_cell_area_in);
 
-        res.polygon.push_back(partial_polygon);
+        cv::convexHull(contour_in,contour_out,false,true);
+        
+        double contour_cell_area_out = cv::contourArea(contour_out,false);
+        ROS_INFO_STREAM("contour_cell_area_out:" << contour_cell_area_out);
+        
+        double similarity = (contour_cell_area_out-contour_cell_area_in)/contour_cell_area_in;
+        ROS_INFO_STREAM("similarity:" << similarity);
+
+        if(similarity > 0.55){
+            ROS_WARN("similarity too low");
+            continue;
+        }
+        
+        cd_2d cd_obj_cell;
+        Polygon_list polygon_cell_res;
+        float scale_cell = 0;
+        createPolys(polygon_holes_cell,cd_obj_cell,scale_cell);
+        decomposeAll(cd_obj_cell,polygon_cell_res,scale_cell,0.07);
+        
+        ROS_INFO_STREAM("polygon_cell_res_size:" << polygon_cell_res.size());
+        
+        std::list<Polygon_2>::iterator iter_cell;
+        for(iter_cell = polygon_cell_res.begin();iter_cell != polygon_cell_res.end();iter_cell++){
+            geometry_msgs::Polygon partial_polygon_cell;
+            Polygon_2 poly_cell_res = *iter_cell;
+            ROS_INFO_STREAM("poly_cell_res_size:" << poly_cell_res.size());
+
+            for(int j = 0;j < poly_cell_res.size();j++){
+                geometry_msgs::Point32 point_32;
+                Point_2 p = poly_cell_res.vertex(j);
+
+                point_32.x = p.x();
+                point_32.y = p.y();
+            
+                partial_polygon_cell.points.push_back(point_32);
+            }
+            res.polygon.push_back(partial_polygon_cell);
+        }
 
         //cv::approxPolyDP(cv::Mat(contour_in), contour_out,0.2,true);
-        cv::convexHull(contour_in,contour_out,false,true);
+        //cv::convexHull(contour_in,contour_out,false,true);
 
-        ROS_INFO_STREAM("contour_out_size:" << contour_out.size());
+        //ROS_INFO_STREAM("contour_out_size:" << contour_out.size());
         
         /*if(isBadPolygon(contour_out,req.deposited_material_width))
             continue;*/
 
 
-        for(auto p_out:contour_out){
+        /*for(auto p_out:contour_out){
             polygon_cell->GetPointIds()->InsertNextId(pts->GetNumberOfPoints());
             pts->InsertNextPoint(p_out.x,p_out.y,0.0);
-        }
+        }*/
 
-        cells->InsertNextCell(polygon_cell);
+        /*cells->InsertNextCell(polygon_cell);
         
         polygonPolyData->SetPoints(pts);
 	    polygonPolyData->SetPolys(cells);
@@ -593,7 +632,7 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
   	    Layer current_layer_;
 
 	    polygon_vector_.push_back(polygonPolyData);
-	    current_layer_.push_back(polygon_vector_);
+	    current_layer_.push_back(polygon_vector_);*/
     
         /*if(current_layer_.size() > 0)
   	    {
