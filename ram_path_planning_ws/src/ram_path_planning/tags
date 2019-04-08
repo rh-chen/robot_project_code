@@ -706,7 +706,7 @@ data_	include/ram_path_planning/histogram.h	/^	std::vector<double> data_;	\/\/ s
 decompose	acd/acd2d_core.cpp	/^	void cd_2d::decompose(double d, IConcavityMeasure * measure)$/;"	f	class:acd2d::cd_2d
 decompose	acd/acd2d_core.cpp	/^	void cd_2d::decompose(double d, cd_polygon& polys)$/;"	f	class:acd2d::cd_2d
 decomposeAll	acd/acd2d_core.cpp	/^	void cd_2d::decomposeAll(double d, IConcavityMeasure * measure)$/;"	f	class:acd2d::cd_2d
-decomposeAll	src/Cpp_Acd.cpp	/^void decomposeAll(cd_2d& cd,Polygon_list& polygon,float scale)$/;"	f	namespace:Cpp
+decomposeAll	src/Cpp_Acd.cpp	/^void decomposeAll(cd_2d& cd,Polygon_list& polygon,float scale,float tau)$/;"	f	namespace:Cpp
 decomposePolygon	include/ram_path_planning/cgutil.hpp	/^std::vector<PointVector> decomposePolygon(const PointVector& polygon)$/;"	f
 decompose_IN	acd/acd2d_core.cpp	/^	void cd_2d::decompose_IN(double d, cd_polygon& polys, cd_poly& poly)$/;"	f	class:acd2d::cd_2d
 decompose_OUT	acd/acd2d_core.cpp	/^	void cd_2d::decompose_OUT(double d, cd_polygon& polys, cd_poly& poly)$/;"	f	class:acd2d::cd_2d
@@ -789,7 +789,6 @@ g_alpha	src/Cpp_Acd.cpp	/^double g_alpha = 0;$/;"	v
 g_beta	src/Cpp_Acd.cpp	/^double g_beta = 1;$/;"	v
 g_concavity_measure	src/Cpp_Acd.cpp	/^std::string g_concavity_measure = "hybrid1";$/;"	v
 g_id	acd/acd2d_ev_shortest_path.h	/^	int g_id=0;$/;"	m	namespace:acd2d
-g_tau	src/Cpp_Acd.cpp	/^double g_tau = 0.1;$/;"	v
 gaussian_kernel	src/lsd.cpp	/^static void gaussian_kernel(ntuple_list kernel, double sigma, double mean)$/;"	f	file:
 gaussian_sampler	src/lsd.cpp	/^static image_double gaussian_sampler( image_double in, double scale,$/;"	f	file:
 ge	acd/martin.h	194;"	d

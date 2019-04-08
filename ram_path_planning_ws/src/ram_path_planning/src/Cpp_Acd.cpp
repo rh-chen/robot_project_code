@@ -461,7 +461,6 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
 	int external_contour_id;
 	int max_external_contour = 0;
 
-	double epsilon_approx_poly = 2.0;	
 	//ext 
 	for(int i = 0;i < contours.size();i++){
 		if(contours[i].size() > max_external_contour){
@@ -482,7 +481,7 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
         }
         else{
              std::vector<cv::Point> contour_dp;
-             cv::approxPolyDP(contours[i],contour_dp,epsilon_approx_poly,true);
+             cv::approxPolyDP(contours[i],contour_dp,3.0,true);
              for(int j = 0;j < contour_dp.size();j++){
                 double point_x = contour_dp[j].x*req.map_resolution+req.map_origin_x;
                 double point_y = contour_dp[j].y*req.map_resolution+req.map_origin_y;
@@ -575,36 +574,79 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
         double similarity = (contour_cell_area_out-contour_cell_area_in)/contour_cell_area_in;
         ROS_INFO_STREAM("similarity:" << similarity);
 
-        if(similarity > 0.55){
+        if(similarity > 0.75){
             ROS_WARN("similarity too low");
+            cv::Point **polygonPointsCell = new cv::Point *[1];
+            polygonPointsCell[0] = new cv::Point[contour_in.size()];
+
+            for(int i = 0;i < contour_in.size();i++){
+                polygonPointsCell[0][i].x = (contour_in[i].x-req.map_origin_x)/req.map_resolution;
+                polygonPointsCell[0][i].y = (contour_in[i].y-req.map_origin_y)/req.map_resolution;
+            }
+
+            const cv::Point* ppt[1] = { polygonPointsCell[0] };
+
+            int npt[] = { contour_in.size() };
+            cv::polylines(bin, ppt, npt, 1, true, cv::Scalar::all(0), 3, 8, 0);
+
+            cv::fillPoly(bin, ppt,npt,1,cv::Scalar::all(0));
+            delete[] polygonPointsCell[0];
+            delete[] polygonPointsCell;
             continue;
         }
         
         cd_2d cd_obj_cell;
         Polygon_list polygon_cell_res;
+        Polygon_list polygon_cell_alter;
         float scale_cell = 0;
         createPolys(polygon_holes_cell,cd_obj_cell,scale_cell);
-        decomposeAll(cd_obj_cell,polygon_cell_res,scale_cell,0.07);
+        decomposeAll(cd_obj_cell,polygon_cell_res,scale_cell,1.0);
         
         ROS_INFO_STREAM("polygon_cell_res_size:" << polygon_cell_res.size());
         
         std::list<Polygon_2>::iterator iter_cell;
         for(iter_cell = polygon_cell_res.begin();iter_cell != polygon_cell_res.end();iter_cell++){
-            geometry_msgs::Polygon partial_polygon_cell;
+            //geometry_msgs::Polygon partial_polygon_cell;
             Polygon_2 poly_cell_res = *iter_cell;
+            std::vector<cv::Point2f> cv_cell_alter;
+
             ROS_INFO_STREAM("poly_cell_res_size:" << poly_cell_res.size());
 
             for(int j = 0;j < poly_cell_res.size();j++){
-                geometry_msgs::Point32 point_32;
+                //geometry_msgs::Point32 point_32;
                 Point_2 p = poly_cell_res.vertex(j);
 
-                point_32.x = p.x();
-                point_32.y = p.y();
+                //point_32.x = p.x();
+                //point_32.y = p.y();
             
-                partial_polygon_cell.points.push_back(point_32);
+                //partial_polygon_cell.points.push_back(point_32);
+                cv_cell_alter.push_back(cv::Point2f(p.x(),p.y()));
             }
-            res.polygon.push_back(partial_polygon_cell);
+            //res.polygon.push_back(partial_polygon_cell);
+            
+            double cv_cell_area = cv::contourArea(cv_cell_alter,false);
+            ROS_INFO_STREAM("cv_cell_area:" << cv_cell_area);
+            if(cv_cell_area < 0.5){
+                cv::Point **polygonPointsCell = new cv::Point *[1];
+                polygonPointsCell[0] = new cv::Point[cv_cell_alter.size()];
+    
+                for(int i = 0;i < cv_cell_alter.size();i++){
+                    polygonPointsCell[0][i].x = (cv_cell_alter[i].x-req.map_origin_x)/req.map_resolution;
+                    polygonPointsCell[0][i].y = (cv_cell_alter[i].y-req.map_origin_y)/req.map_resolution;
+                }
+
+                const cv::Point* ppt[1] = { polygonPointsCell[0] };
+
+                int npt[] = { cv_cell_alter.size() };
+                cv::polylines(bin, ppt, npt, 1, true, cv::Scalar::all(0), 3, 8, 0);
+
+                cv::fillPoly(bin, ppt,npt,1,cv::Scalar::all(0));
+                delete[] polygonPointsCell[0];
+                delete[] polygonPointsCell;               
+            }
         }
+        
+        
 
         //cv::approxPolyDP(cv::Mat(contour_in), contour_out,0.2,true);
         //cv::convexHull(contour_in,contour_out,false,true);
@@ -668,8 +710,134 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
 	    }
 	    res.path.push_back(path_cell);*/
     }
+    
+    std::vector<int8_t> cv_map_data; 
+    for(int i = 0;i < req.map.info.height;i++){
+        for(int j = 0;j < req.map.info.width;j++){
+            char value = bin.at<char>(i,j);
 
-	return true;
+            if(value == 0)
+                cv_map_data.push_back(100);
+            else
+                cv_map_data.push_back(0);
+        }
+    }
+
+    res.cv_map.info.height = req.map.info.height;
+    res.cv_map.info.width = req.map.info.width;
+    res.cv_map.info.resolution = req.map.info.resolution;
+    res.cv_map.data = cv_map_data;
+
+    res.cv_map.header.frame_id = req.map.header.frame_id;
+    res.cv_map.info.origin.position.x = req.map.info.origin.position.x;
+    res.cv_map.info.origin.position.y = req.map.info.origin.position.y;
+
+
+    std::vector<std::vector<cv::Point> > contours_ext;
+	std::vector<cv::Vec4i> hierarchy_ext;
+
+    Polygon_list polygon_holes_re;
+    Polygon_2 polygon_ext_re;
+
+	cv::findContours(bin,contours_ext,hierarchy_ext,CV_RETR_EXTERNAL,CV_CHAIN_APPROX_NONE,cv::Point());
+
+	ROS_INFO_STREAM("find_contours_ext:" << contours_ext.size());
+	int externalContourId = 0;
+	int maxExternalContour = 0;
+	for(int i = 0;i < contours_ext.size();i++){
+		if(contours_ext[i].size() > maxExternalContour){
+			maxExternalContour = contours_ext[i].size();
+			externalContourId = i;
+		}
+	}
+    
+    ROS_INFO_STREAM("maxExternalContour:" << maxExternalContour);
+    
+    std::vector<cv::Point> contour_dp_ext;
+    cv::approxPolyDP(contours_ext[externalContourId],contour_dp_ext,3.0,true);
+    for(int j = 0;j < contour_dp_ext.size();j++){
+       double point_x = contour_dp_ext[j].x*req.map_resolution+req.map_origin_x;
+       double point_y = contour_dp_ext[j].y*req.map_resolution+req.map_origin_y;
+                
+       geometry_msgs::Pose pose_;
+       pose_.position.x = point_x;
+       pose_.position.y = point_y;
+
+       polygon_ext_re.push_back(Point_2(point_x,point_y));
+    }
+    
+    if(polygon_ext_re.is_clockwise_oriented())
+        polygon_ext_re.reverse_orientation();
+
+    polygon_holes_re.push_back(polygon_ext_re);
+
+    cd_2d cd_obj_ext;
+    Polygon_list polygon_res_ext;
+    float scale_ext = 0;
+    createPolys(polygon_holes_re,cd_obj_ext,scale_ext);
+    decomposeAll(cd_obj_ext,polygon_res_ext,scale_ext,0.1);
+
+    ROS_INFO_STREAM("polygon_res_ext_size:" << polygon_res_ext.size());
+    std::vector<PointVector> final_path; 
+    std::list<Polygon_2>::iterator iter_ext;
+
+    for(iter_ext = polygon_res_ext.begin();iter_ext != polygon_res_ext.end();iter_ext++)
+    {
+        Polygon_2 poly_cell = *iter_ext;
+        ROS_INFO_STREAM("poly_cell_size:" << poly_cell.size());
+        
+        PointVector polygon_bcd,candidatePath;
+        geometry_msgs::Polygon partial_polygon_cell;
+        for(int j = 0;j < poly_cell.size();j++){
+            geometry_msgs::Point point_divide_bcd;
+            geometry_msgs::Point32 point_32;
+            Point_2 p = poly_cell.vertex(j);
+
+            point_32.x = p.x();
+            point_32.y = p.y();
+            point_divide_bcd.x = p.x();
+            point_divide_bcd.y = p.y();
+
+            partial_polygon_cell.points.push_back(point_32);
+            polygon_bcd.push_back(point_divide_bcd);
+        }
+        res.polygon.push_back(partial_polygon_cell);
+
+
+        bool isOptimal = computeConvexCoverage(polygon_bcd,\
+                                               0.3, \
+                                               0.3, \
+                                               candidatePath);
+             
+        ROS_INFO_STREAM("isOptimal:" << isOptimal);
+	    if(isOptimal){
+		    geometry_msgs::Point start = polygon_bcd[0];
+		    PointVector optimal_path = identifyOptimalAlternative(polygon_bcd, candidatePath, start);
+
+            ROS_INFO_STREAM("optimal_path_size:" << optimal_path.size());
+		    final_path.push_back(candidatePath);
+        }
+        else{
+			    ROS_INFO("zigzag path plannning fail...");
+				return false;
+	    }
+    }
+
+    for(int index_i = 0;index_i < final_path.size();index_i++){
+        nav_msgs::Path plan_path;
+		for(int index_j = 0;index_j < final_path[index_i].size();index_j++){
+			geometry_msgs::PoseStamped current_pose;
+			current_pose.pose.position.x = final_path[index_i][index_j].x;
+			current_pose.pose.position.y = final_path[index_i][index_j].y;
+			current_pose.pose.position.z = final_path[index_i][index_j].z;
+
+			plan_path.poses.push_back(current_pose);
+		}
+
+        res.path.push_back(plan_path);
+	}
+
+    return true;
 }
 
 }

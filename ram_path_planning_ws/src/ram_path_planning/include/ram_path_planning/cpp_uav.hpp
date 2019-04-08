@@ -306,9 +306,9 @@ bool computeConvexCoverage(const PointVector& polygon, double footprintWidth, do
   double rotationAngle = calculateHorizontalAngle(sweepDirection.baseEdge.front(), sweepDirection.baseEdge.back());
   PointVector rotatedPolygon = rotatePoints(polygon, -rotationAngle);
 	
-	for(int i = 0;i < rotatedPolygon.size();i++){
+	/*for(int i = 0;i < rotatedPolygon.size();i++){
 		ROS_INFO("rotatedPolygon_X:%f,rotatedPolygon_Y:%f",rotatedPolygon[i].x,rotatedPolygon[i].y);
-	}
+	}*/
 	//std::cout << "rotatedPolygon_size:" << rotatedPolygon.size() << std::endl;
 	//std::cout << "rotationAngle:" << rotationAngle << std::endl;
   // find x coordinate of most left and most right point
@@ -338,8 +338,8 @@ bool computeConvexCoverage(const PointVector& polygon, double footprintWidth, do
       maxY = vertex.y;
     }
   }
-  ROS_INFO("minX:%f,maxX:%f",minX,maxX);
-  ROS_INFO("minY:%f,maxY:%f",minY,maxY);
+  //ROS_INFO("minX:%f,maxX:%f",minX,maxX);
+  //ROS_INFO("minY:%f,maxY:%f",minY,maxY);
   double stepWidth = footprintWidth * (1 - horizontalOverwrap);
   // calculate sweep direction of rotated polygon
   PointVector dir{ sweepDirection.opposedVertex, sweepDirection.baseEdge.front(), sweepDirection.baseEdge.back() };
@@ -349,10 +349,10 @@ bool computeConvexCoverage(const PointVector& polygon, double footprintWidth, do
   rotatedDir.baseEdge.front() = dir.at(1);
   rotatedDir.baseEdge.back() = dir.at(2);
 
-  ROS_INFO("rotatedDir.baseEdge.at(0).y:%f",rotatedDir.baseEdge.at(0).y);
-  ROS_INFO("rotatedDir.baseEdge.at(0).x:%f",rotatedDir.baseEdge.at(0).x);
-  ROS_INFO("rotatedDir.baseEdge.at(1).y:%f",rotatedDir.baseEdge.at(1).y);
-  ROS_INFO("rotatedDir.baseEdge.at(1).x:%f",rotatedDir.baseEdge.at(1).x);
+  //ROS_INFO("rotatedDir.baseEdge.at(0).y:%f",rotatedDir.baseEdge.at(0).y);
+  //ROS_INFO("rotatedDir.baseEdge.at(0).x:%f",rotatedDir.baseEdge.at(0).x);
+  //ROS_INFO("rotatedDir.baseEdge.at(1).y:%f",rotatedDir.baseEdge.at(1).y);
+  //ROS_INFO("rotatedDir.baseEdge.at(1).x:%f",rotatedDir.baseEdge.at(1).x);
 
   double verticalDistance = calculateDistance(rotatedDir.baseEdge, rotatedDir.opposedVertex);
   ROS_INFO_STREAM("verticalDistance:" << verticalDistance);
@@ -392,21 +392,32 @@ bool computeConvexCoverage(const PointVector& polygon, double footprintWidth, do
   for (const auto& sweepLine : sweepLines)
   {
     int intersectionCount = 0;
+    PointVector intersection_temp;
     for (const auto& edge : rotatedEdges)
     {
 		bool res_intersection = hasIntersection(sweepLine, edge);
-		ROS_INFO("res_intersection:%d",res_intersection);
+		//ROS_INFO("res_intersection:%d",res_intersection);
       if (res_intersection)
       {
         intersections.push_back(localizeIntersection(edge, sweepLine));
+        intersection_temp.push_back(localizeIntersection(edge,sweepLine));
         ++intersectionCount;
       }
 		
       // sweep line in optimal path does not have more than 2 intersections
-      if (intersectionCount >= 3)
+      /*if (intersectionCount >= 3)
       {
         return false;
-      }
+
+      }*/
+    }
+    if (intersectionCount >= 3)
+    {
+        
+            std::stable_sort(intersection_temp.begin(), intersection_temp.end(),
+                   [](const geometry_msgs::Point& p1, const geometry_msgs::Point& p2) { return p1.x < p2.x; });
+            intersections.push_back(intersection_temp[0]);
+            intersections.push_back(intersection_temp[intersectionCount-1]);
     }
   }
 	
@@ -414,7 +425,7 @@ bool computeConvexCoverage(const PointVector& polygon, double footprintWidth, do
   // sort points by y coordinate in ascending order
   std::stable_sort(intersections.begin(), intersections.end(),
                    [](const geometry_msgs::Point& p1, const geometry_msgs::Point& p2) { return p1.y < p2.y; });
-	ROS_INFO("intersections_size:%d",intersections.size());
+  ROS_INFO("intersections_size:%d",intersections.size());
   PointVector rotatedPath = reshapePath(intersections, padding);
 	
 	//std::cout << "rotatedPath.size:" << rotatedPath.size() << std::endl;

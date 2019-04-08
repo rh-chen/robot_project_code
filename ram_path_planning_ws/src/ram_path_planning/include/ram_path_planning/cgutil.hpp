@@ -136,10 +136,10 @@ LineSegmentVector generateEdgeVector(const PointVector& vec, bool isClosed)
         break;
       }
     }
-    ROS_INFO("Edge.at(0).y:%f",edge.at(0).y);
-    ROS_INFO("Edge.at(0).x:%f",edge.at(0).x);
-    ROS_INFO("Edge.at(1).y:%f",edge.at(1).y);
-    ROS_INFO("Edge.at(1).x:%f",edge.at(1).x);
+    //ROS_INFO("Edge.at(0).y:%f",edge.at(0).y);
+    //ROS_INFO("Edge.at(0).x:%f",edge.at(0).x);
+    //ROS_INFO("Edge.at(1).y:%f",edge.at(1).y);
+    //ROS_INFO("Edge.at(1).x:%f",edge.at(1).x);
     edgeVector.push_back(edge);
   }
   return edgeVector;
