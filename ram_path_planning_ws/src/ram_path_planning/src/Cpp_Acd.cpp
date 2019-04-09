@@ -574,7 +574,7 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
         double similarity = (contour_cell_area_out-contour_cell_area_in)/contour_cell_area_in;
         ROS_INFO_STREAM("similarity:" << similarity);
 
-        if(similarity > 0.75){
+        if(similarity > 0.5){
             ROS_WARN("similarity too low");
             cv::Point **polygonPointsCell = new cv::Point *[1];
             polygonPointsCell[0] = new cv::Point[contour_in.size()];
@@ -634,7 +634,7 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
             
             double cv_cell_area = cv::contourArea(cv_cell_alter,false);
             ROS_INFO_STREAM("cv_cell_area:" << cv_cell_area);
-            if(cv_cell_area < 0.2){
+            if(cv_cell_area < 0.1){
                 cv::Point **polygonPointsCell = new cv::Point *[1];
                 polygonPointsCell[0] = new cv::Point[cv_cell_alter.size()];
     

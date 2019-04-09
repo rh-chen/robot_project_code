@@ -303,17 +303,42 @@ bool MapModifyService(
     cv::Mat canny_bin(map.size(), CV_8UC1);
     cv::Canny(blurred_bin, canny_bin, 60, 255, 3);
 
-#ifdef SHOW_DEBUG
-    imshow("canny_bin", canny_bin);
-#endif
     cv::Mat contours_bin(map.rows,map.cols,CV_8UC1,cv::Scalar(255));
     std::vector<std::vector<cv::Point> > contours_canny;
     std::vector<std::vector<cv::Point> > contours_ext;
     std::vector<cv::Vec4i> hierarchy_canny;
     std::vector<cv::Vec4i> hierarchy_ext;
-
+    
     cv::findContours(canny_bin, contours_canny, hierarchy_canny, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_SIMPLE, cv::Point(0,0));
-    cv::drawContours(contours_bin, contours_canny, -1, cv::Scalar(0), 3, 8, hierarchy_canny, 1, cv::Point());
+    for(int i = 0;i < contours_canny.size();i++){
+        if(contours_canny[i].size() < 12){
+            cv::Point **polygonPointsEx = new cv::Point *[1];
+            polygonPointsEx[0] = new cv::Point[contours_canny[i].size()];
+    
+            for(int j = 0;j < contours_canny[i].size();j++){
+                polygonPointsEx[0][j].x = contours_canny[i][j].x;
+                polygonPointsEx[0][j].y = contours_canny[i][j].y;
+            }
+
+            const cv::Point* ppt[1] = { polygonPointsEx[0] };
+
+            int npt[] = { contours_canny[i].size() };
+            cv::polylines(canny_bin, ppt, npt, 1, 1, cv::Scalar::all(0), 1, 8, 0);
+
+            cv::fillPoly(canny_bin, ppt,npt,1,cv::Scalar::all(0));
+            delete[] polygonPointsEx[0];
+            delete[] polygonPointsEx;
+        }
+    }
+
+    cv::findContours(canny_bin, contours_ext, hierarchy_ext, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_SIMPLE, cv::Point(0,0));
+    cv::drawContours(contours_bin, contours_ext, -1, cv::Scalar(0), 3, 8, hierarchy_ext, 1, cv::Point());
+
+#ifdef SHOW_DEBUG
+    imshow("canny_bin", canny_bin);
+#endif
+
+
 #ifdef SHOW_DEBUG
     imshow("contours_bin",contours_bin);
 #endif
