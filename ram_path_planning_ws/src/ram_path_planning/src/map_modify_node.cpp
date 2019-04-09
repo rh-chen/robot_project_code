@@ -313,7 +313,7 @@ bool MapModifyService(
     std::vector<cv::Vec4i> hierarchy_ext;
 
     cv::findContours(canny_bin, contours_canny, hierarchy_canny, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_SIMPLE, cv::Point(0,0));
-    cv::drawContours(contours_bin, contours_canny, -1, cv::Scalar(0), 2, 8, hierarchy_canny, 1, cv::Point());
+    cv::drawContours(contours_bin, contours_canny, -1, cv::Scalar(0), 3, 8, hierarchy_canny, 1, cv::Point());
 #ifdef SHOW_DEBUG
     imshow("contours_bin",contours_bin);
 #endif

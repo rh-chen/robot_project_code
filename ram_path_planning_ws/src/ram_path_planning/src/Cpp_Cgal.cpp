@@ -357,7 +357,7 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
 	cv::Mat bin;
 	cv::threshold(map,bin,req.occupancy_threshold,255,cv::THRESH_BINARY_INV);
 	
-    /*double delta_point = delta_rect;
+    double delta_point = 12;
 	std::vector<cv::Point2i> vertices_point;
 	vertices_point = makeOIP(bin,delta_point);
 
@@ -377,9 +377,9 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
     
     PolygonWithHolesCgal polyHoles(poly_cgal);
     polyHoles.outer_boundary() = poly_cgal;
-    */
+    
 
-	std::vector<std::vector<cv::Point> > contours;
+	/*std::vector<std::vector<cv::Point> > contours;
 	std::vector<cv::Vec4i> hierarchy;
 
 	cv::findContours(bin,contours,hierarchy,CV_RETR_EXTERNAL,CV_CHAIN_APPROX_SIMPLE,cv::Point());
@@ -414,7 +414,7 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
 	}
     
     PolygonWithHolesCgal polyHoles(poly_cgal);
-    polyHoles.outer_boundary() = poly_cgal;
+    polyHoles.outer_boundary() = poly_cgal;*/
 #if 0
 	ROS_INFO("valid_external_contour_size:%d",contours[external_contour_id].size());
 	//find subcontour

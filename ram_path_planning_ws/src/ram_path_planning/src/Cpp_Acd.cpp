@@ -561,7 +561,7 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
             polygon_hole_cell.push_back(Point_2(p.x(),p.y()));
         }
         
-        polygon_holes_cell.push_back(polygon_hole_cell);
+        //polygon_holes_cell.push_back(polygon_hole_cell);
 
         double contour_cell_area_in = cv::contourArea(contour_in,false);
         ROS_INFO_STREAM("contour_cell_area_in:" << contour_cell_area_in);
@@ -594,13 +594,75 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
             delete[] polygonPointsCell;
             continue;
         }
+
+#if 1
+        Polygon_list partition_polys;
+        Traits partition_traits;
+
+        if(polygon_hole_cell.is_clockwise_oriented())
+            polygon_hole_cell.reverse_orientation();
+
+        CGAL::optimal_convex_partition_2(polygon_hole_cell.vertices_begin(),
+                                        polygon_hole_cell.vertices_end(),
+                                        std::back_inserter(partition_polys),
+                                        partition_traits);
+        assert(CGAL::convex_partition_is_valid_2(polygon_hole_cell.vertices_begin(),
+                                                polygon_hole_cell.vertices_end(),
+                                                partition_polys.begin(),
+                                                partition_polys.end(),
+                                                partition_traits));
+
+        ROS_INFO_STREAM("partition_polys_size:" << partition_polys.size());
         
+        std::list<Polygon_2>::iterator iter_2;
+        for(iter_2 = partition_polys.begin();iter_2 != partition_polys.end();iter_2++){
+            geometry_msgs::Polygon partial_polygon;
+            std::vector<cv::Point2f> cv_cell_alter;
+            
+            Polygon_2 poly_cell = *iter_2;
+            for(int j = 0;j < poly_cell.size();j++){
+                geometry_msgs::Point32 point_32;
+                Point_2 p = poly_cell.vertex(j);
+
+                point_32.x = p.x();
+                point_32.y = p.y();
+                
+                partial_polygon.points.push_back(point_32);
+                cv_cell_alter.push_back(cv::Point2f(p.x(),p.y()));
+             }
+             //res.polygon.push_back(partial_polygon);
+            
+            double cv_cell_area = cv::contourArea(cv_cell_alter,false);
+            ROS_INFO_STREAM("cv_cell_area:" << cv_cell_area);
+            if(cv_cell_area < 0.2){
+                cv::Point **polygonPointsCell = new cv::Point *[1];
+                polygonPointsCell[0] = new cv::Point[cv_cell_alter.size()];
+    
+                for(int i = 0;i < cv_cell_alter.size();i++){
+                    polygonPointsCell[0][i].x = (cv_cell_alter[i].x-req.map_origin_x)/req.map_resolution;
+                    polygonPointsCell[0][i].y = (cv_cell_alter[i].y-req.map_origin_y)/req.map_resolution;
+                }
+
+                const cv::Point* ppt[1] = { polygonPointsCell[0] };
+
+                int npt[] = { cv_cell_alter.size() };
+                cv::polylines(bin, ppt, npt, 1, true, cv::Scalar::all(0), 3, 8, 0);
+
+                cv::fillPoly(bin, ppt,npt,1,cv::Scalar::all(0));
+                delete[] polygonPointsCell[0];
+                delete[] polygonPointsCell;               
+            }
+        }
+
+#endif
+
+#if 0        
         cd_2d cd_obj_cell;
         Polygon_list polygon_cell_res;
         Polygon_list polygon_cell_alter;
         float scale_cell = 0;
         createPolys(polygon_holes_cell,cd_obj_cell,scale_cell);
-        decomposeAll(cd_obj_cell,polygon_cell_res,scale_cell,1.0);
+        decomposeAll(cd_obj_cell,polygon_cell_res,scale_cell,3.0);
         
         ROS_INFO_STREAM("polygon_cell_res_size:" << polygon_cell_res.size());
         
@@ -646,7 +708,7 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
             }
         }
         
-        
+#endif        
 
         //cv::approxPolyDP(cv::Mat(contour_in), contour_out,0.2,true);
         //cv::convexHull(contour_in,contour_out,false,true);
@@ -733,6 +795,7 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
     res.cv_map.info.origin.position.y = req.map.info.origin.position.y;
 
 
+    std::vector<PointVector> final_path; 
     std::vector<std::vector<cv::Point> > contours_ext;
 	std::vector<cv::Vec4i> hierarchy_ext;
 
@@ -769,6 +832,74 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
     if(polygon_ext_re.is_clockwise_oriented())
         polygon_ext_re.reverse_orientation();
 
+
+#if 1
+        Polygon_list partition_polys_cpp;
+        Traits partition_traits_cpp;
+
+        if(polygon_ext_re.is_clockwise_oriented())
+            polygon_ext_re.reverse_orientation();
+
+        CGAL::optimal_convex_partition_2(polygon_ext_re.vertices_begin(),
+                                        polygon_ext_re.vertices_end(),
+                                        std::back_inserter(partition_polys_cpp),
+                                        partition_traits_cpp);
+        assert(CGAL::convex_partition_is_valid_2(polygon_ext_re.vertices_begin(),
+                                                polygon_ext_re.vertices_end(),
+                                                partition_polys_cpp.begin(),
+                                                partition_polys_cpp.end(),
+                                                partition_traits_cpp));
+
+        ROS_INFO_STREAM("partition_polys_cpp_size:" << partition_polys_cpp.size());
+        
+        std::list<Polygon_2>::iterator iter_cpp;
+        for(iter_cpp = partition_polys_cpp.begin();iter_cpp != partition_polys_cpp.end();iter_cpp++){
+            geometry_msgs::Polygon partial_polygon;
+            std::vector<cv::Point2f> cv_cell_alter;
+            PointVector polygon_bcd,candidatePath;   
+
+            Polygon_2 poly_cell = *iter_cpp;
+            for(int j = 0;j < poly_cell.size();j++){
+                geometry_msgs::Point32 point_32;
+                geometry_msgs::Point point_divide_bcd;
+                Point_2 p = poly_cell.vertex(j);
+
+                point_32.x = p.x();
+                point_32.y = p.y();
+                point_divide_bcd.x = p.x();
+                point_divide_bcd.y = p.y();
+                
+                partial_polygon.points.push_back(point_32);
+                cv_cell_alter.push_back(cv::Point2f(p.x(),p.y()));
+                polygon_bcd.push_back(point_divide_bcd);
+             }
+             res.polygon.push_back(partial_polygon);
+            
+            double cv_cell_area = cv::contourArea(cv_cell_alter,false);
+
+            if(cv_cell_area < 0.5)
+                continue;
+
+            bool isOptimal = computeConvexCoverage(polygon_bcd,\
+                                               0.3, \
+                                               0.3, \
+                                               candidatePath);
+             
+            ROS_INFO_STREAM("isOptimal:" << isOptimal);
+	        if(isOptimal){
+		        geometry_msgs::Point start = polygon_bcd[0];
+		        PointVector optimal_path = identifyOptimalAlternative(polygon_bcd, candidatePath, start);
+
+                ROS_INFO_STREAM("optimal_path_size:" << optimal_path.size());
+		        final_path.push_back(candidatePath);
+            }
+            else{
+			    ROS_INFO("zigzag path plannning fail...");
+				return false;
+	        }
+        }
+#endif
+#if 0
     polygon_holes_re.push_back(polygon_ext_re);
 
     cd_2d cd_obj_ext;
@@ -778,7 +909,6 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
     decomposeAll(cd_obj_ext,polygon_res_ext,scale_ext,0.1);
 
     ROS_INFO_STREAM("polygon_res_ext_size:" << polygon_res_ext.size());
-    std::vector<PointVector> final_path; 
     std::list<Polygon_2>::iterator iter_ext;
 
     for(iter_ext = polygon_res_ext.begin();iter_ext != polygon_res_ext.end();iter_ext++)
@@ -801,7 +931,7 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
             partial_polygon_cell.points.push_back(point_32);
             polygon_bcd.push_back(point_divide_bcd);
         }
-        res.polygon.push_back(partial_polygon_cell);
+        //res.polygon.push_back(partial_polygon_cell);
 
 
         bool isOptimal = computeConvexCoverage(polygon_bcd,\
@@ -822,6 +952,7 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
 				return false;
 	    }
     }
+#endif
 
     for(int index_i = 0;index_i < final_path.size();index_i++){
         nav_msgs::Path plan_path;
