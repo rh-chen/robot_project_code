@@ -528,7 +528,7 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
     createPolys(polygon_holes,cd_obj,scale);
     decomposeAll(cd_obj,polygon_res,scale,0.1);
 
-    ROS_INFO_STREAM("polygon_res_size:" << polygon_res.size());
+    ROS_INFO_STREAM("#############################################polygon_res_size:" << polygon_res.size());
     
     std::list<Polygon_2>::iterator iter;
     for(iter = polygon_res.begin();iter != polygon_res.end();iter++)

@@ -289,6 +289,45 @@ bool MapModifyService(
     vector<int8_t> map_data; 
     cv::Mat bin_step,bin_step_out,bin_blurred_temp;
     cv::threshold(map,bin_step,req.threshold,255,cv::THRESH_BINARY_INV);
+
+#ifdef SHOW_DEBUG
+    cv::imshow("bin_step_",bin_step);
+#endif
+    
+    std::vector<std::vector<cv::Point> > contours_bin_cv;
+    std::vector<cv::Vec4i> hierarchy_bin_cv;
+    cv::findContours(bin_step, contours_bin_cv, hierarchy_bin_cv, cv::RETR_LIST, cv::CHAIN_APPROX_SIMPLE, cv::Point(0,0));
+    int maxBinContour = 0;
+    int maxBinContourId = 0;
+    for(int i = 0;i < contours_bin_cv.size();i++){
+        if(contours_bin_cv[i].size() > maxBinContour){
+            maxBinContourId = i;
+            maxBinContour = contours_bin_cv[i].size();
+        }
+    }
+
+    for(int i = 0;i < contours_bin_cv.size();i++){
+        if(i != maxBinContourId){
+            if(contours_bin_cv[i].size() < 12){
+                cv::Point **polygonPointsEx = new cv::Point *[1];
+                polygonPointsEx[0] = new cv::Point[contours_bin_cv[i].size()];
+        
+                for(int j = 0;j < contours_bin_cv[i].size();j++){
+                    polygonPointsEx[0][j].x = contours_bin_cv[i][j].x;
+                    polygonPointsEx[0][j].y = contours_bin_cv[i][j].y;
+                }
+
+                const cv::Point* ppt[1] = { polygonPointsEx[0] };
+
+                int npt[] = { contours_bin_cv[i].size() };
+                cv::polylines(bin_step, ppt, npt, 1, 1, cv::Scalar::all(255), 1, 8, 0);
+
+                cv::fillPoly(bin_step, ppt,npt,1,cv::Scalar::all(255));
+                delete[] polygonPointsEx[0];
+                delete[] polygonPointsEx;
+            }
+        }
+    }
 #ifdef SHOW_DEBUG
     cv::imshow("bin_step",bin_step);
 #endif
@@ -311,7 +350,7 @@ bool MapModifyService(
     
     cv::findContours(canny_bin, contours_canny, hierarchy_canny, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_SIMPLE, cv::Point(0,0));
     for(int i = 0;i < contours_canny.size();i++){
-        if(contours_canny[i].size() < 12){
+        if(contours_canny[i].size() < 3){
             cv::Point **polygonPointsEx = new cv::Point *[1];
             polygonPointsEx[0] = new cv::Point[contours_canny[i].size()];
     
