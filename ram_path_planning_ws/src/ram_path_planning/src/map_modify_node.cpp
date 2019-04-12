@@ -289,7 +289,11 @@ bool MapModifyService(
     vector<int8_t> map_data; 
     cv::Mat bin_step,bin_step_out,bin_blurred_temp;
     cv::threshold(map,bin_step,req.threshold,255,cv::THRESH_BINARY_INV);
-
+    
+    cv::Mat temp;
+    cv::Mat element = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(3,3));
+    cv::erode(bin_step,temp,element, cv::Point(-1,-1),1);
+    cv::dilate(temp,bin_step,element, cv::Point(-1,-1),1);
 #ifdef SHOW_DEBUG
     cv::imshow("bin_step_",bin_step);
 #endif
@@ -348,7 +352,7 @@ bool MapModifyService(
     std::vector<cv::Vec4i> hierarchy_canny;
     std::vector<cv::Vec4i> hierarchy_ext;
     
-    cv::findContours(canny_bin, contours_canny, hierarchy_canny, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_SIMPLE, cv::Point(0,0));
+    /*cv::findContours(canny_bin, contours_canny, hierarchy_canny, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_SIMPLE, cv::Point(0,0));
     for(int i = 0;i < contours_canny.size();i++){
         if(contours_canny[i].size() < 3){
             cv::Point **polygonPointsEx = new cv::Point *[1];
@@ -368,7 +372,7 @@ bool MapModifyService(
             delete[] polygonPointsEx[0];
             delete[] polygonPointsEx;
         }
-    }
+    }*/
 
     cv::findContours(canny_bin, contours_ext, hierarchy_ext, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_SIMPLE, cv::Point(0,0));
     cv::drawContours(contours_bin, contours_ext, -1, cv::Scalar(0), 3, 8, hierarchy_ext, 1, cv::Point());
@@ -530,7 +534,7 @@ bool MapModifyService(
 
 
     cv::Mat temp_out;
-    cv::Mat element = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(3,3));
+    //cv::Mat element = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(3,3));
     cv::dilate(masked_img,temp_out,element, cv::Point(-1,-1),1);
     //temp_out.copyTo(masked_img);
     cv::erode(temp_out,masked_img,element, cv::Point(-1,-1),1);

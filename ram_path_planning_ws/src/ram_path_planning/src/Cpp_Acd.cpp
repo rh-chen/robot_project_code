@@ -526,7 +526,7 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
     Polygon_list polygon_res;
     float scale = 0;
     createPolys(polygon_holes,cd_obj,scale);
-    decomposeAll(cd_obj,polygon_res,scale,0.1);
+    decomposeAll(cd_obj,polygon_res,scale,0.15);
 
     ROS_INFO_STREAM("#############################################polygon_res_size:" << polygon_res.size());
     
@@ -574,7 +574,7 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
         double similarity = (contour_cell_area_out-contour_cell_area_in)/contour_cell_area_in;
         ROS_INFO_STREAM("similarity:" << similarity);
 
-        if(similarity > 0.5){
+        if(false){
             ROS_WARN("similarity too low");
             cv::Point **polygonPointsCell = new cv::Point *[1];
             polygonPointsCell[0] = new cv::Point[contour_in.size()];
@@ -634,7 +634,7 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
             
             double cv_cell_area = cv::contourArea(cv_cell_alter,false);
             ROS_INFO_STREAM("cv_cell_area:" << cv_cell_area);
-            if(cv_cell_area < 0.1){
+            if(cv_cell_area < 0.05){
                 cv::Point **polygonPointsCell = new cv::Point *[1];
                 polygonPointsCell[0] = new cv::Point[cv_cell_alter.size()];
     
@@ -833,7 +833,7 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
         polygon_ext_re.reverse_orientation();
 
 
-#if 1
+#if 0
         Polygon_list partition_polys_cpp;
         Traits partition_traits_cpp;
 
@@ -877,7 +877,7 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
             
             double cv_cell_area = cv::contourArea(cv_cell_alter,false);
 
-            if(cv_cell_area < 0.5)
+            if(cv_cell_area < 0.36)
                 continue;
 
             bool isOptimal = computeConvexCoverage(polygon_bcd,\
@@ -899,7 +899,7 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
 	        }
         }
 #endif
-#if 0
+#if 1
     polygon_holes_re.push_back(polygon_ext_re);
 
     cd_2d cd_obj_ext;
@@ -931,7 +931,7 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
             partial_polygon_cell.points.push_back(point_32);
             polygon_bcd.push_back(point_divide_bcd);
         }
-        //res.polygon.push_back(partial_polygon_cell);
+        res.polygon.push_back(partial_polygon_cell);
 
 
         bool isOptimal = computeConvexCoverage(polygon_bcd,\
