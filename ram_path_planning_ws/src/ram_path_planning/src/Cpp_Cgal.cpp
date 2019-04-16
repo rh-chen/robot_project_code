@@ -34,6 +34,9 @@ typedef std::vector<PointCgal> ContainerCgal;
 typedef CGAL::Straight_skeleton_2<K>  Ss;
 typedef boost::shared_ptr<Ss> SsPtr;
 
+typedef CGAL::Straight_skeleton_2<K>::Vertex_const_handle     Vertex_const_handle ;
+typedef CGAL::Straight_skeleton_2<K>::Halfedge_const_handle   Halfedge_const_handle ;
+
 namespace Cpp{
 
 #if 1
@@ -395,18 +398,24 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
             Ss::Halfedge_const_handle begin = face->halfedge();
             Ss::Halfedge_const_handle edge = begin;
 
-            geometry_msgs::Polygon cellPolygon;
             do{
-                geometry_msgs::Point32 p_t;
+                geometry_msgs::Pose p_t;
+                
+                const Vertex_const_handle& v = edge->vertex();
+                //p_t.x = edge->vertex()->point().x();
+                //p_t.y = edge->vertex()->point().y();
 
-                p_t.x = edge->vertex()->point().x();
-                p_t.y = edge->vertex()->point().y();
+                if(v->is_skeleton())
+                {
+                    p_t.position.x = v->point().x();
+                    p_t.position.y = v->point().y();
+                    p_t.position.z = 0.f;
 
-                cellPolygon.points.push_back(p_t);
+                    res.point_skeleton.push_back(p_t);
+                }
+
                 edge = edge->prev();
             }while(edge != begin);
-
-            res.polygon.push_back(cellPolygon);
         }
     }
 	/*std::vector<std::vector<cv::Point> > contours;
