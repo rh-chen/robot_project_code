@@ -470,7 +470,7 @@ public:
 
 
 
-#if 1 
+#if 0 
 								//coverage_path
 								{
                                     //srv_zigzag.response.path.size()

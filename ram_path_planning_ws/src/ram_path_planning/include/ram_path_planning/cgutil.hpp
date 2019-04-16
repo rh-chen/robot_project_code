@@ -20,8 +20,9 @@
 #include <CGAL/Polygon_with_holes_2.h>
 #include <CGAL/Polygon_vertical_decomposition_2.h>
 #include <CGAL/Boolean_set_operations_2.h>
-
-
+#include <CGAL/Straight_skeleton_builder_2.h>
+#include <CGAL/create_straight_skeleton_from_polygon_with_holes_2.h>
+#include <CGAL/Polyhedron_3.h>
 // roscpp
 #include <ros/ros.h>
 // geometry_msgs

@@ -17,6 +17,8 @@
 #include <opencv2/core/matx.hpp>
 #include <deque>
 #include <polypartition.h>
+#include<boost/shared_ptr.hpp>
+
 
 typedef CGAL::Exact_predicates_inexact_constructions_kernel Kernel;
 typedef Kernel::FT Ft;
@@ -29,6 +31,8 @@ typedef CGAL::Polygon_2<Kernel> PolygonCgal;
 typedef CGAL::Polygon_with_holes_2<Kernel> PolygonWithHolesCgal;
 typedef std::list<PolygonCgal> PolygonListCgal;
 typedef std::vector<PointCgal> ContainerCgal;
+typedef CGAL::Straight_skeleton_2<K>  Ss;
+typedef boost::shared_ptr<Ss> SsPtr;
 
 namespace Cpp{
 
@@ -357,7 +361,7 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
 	cv::Mat bin;
 	cv::threshold(map,bin,req.occupancy_threshold,255,cv::THRESH_BINARY_INV);
 	
-    double delta_point = 12;
+    double delta_point = 6;
 	std::vector<cv::Point2i> vertices_point;
 	vertices_point = makeOIP(bin,delta_point);
 
@@ -371,14 +375,40 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
 		pose_.position.x = point_x;
 		pose_.position.y = point_y;
 
-		res.pose.push_back(pose_);	
+		//res.pose.push_back(pose_);	
         poly_cgal.push_back(Point_2(point_x,point_y));
 	}
     
+    if(poly_cgal.is_clockwise_oriented())
+        poly_cgal.reverse_orientation();
+
     PolygonWithHolesCgal polyHoles(poly_cgal);
     polyHoles.outer_boundary() = poly_cgal;
     
+    SsPtr iss = CGAL::create_interior_straight_skeleton_2(polyHoles);
+    ROS_INFO_STREAM("iss.size_of_vertices():" << iss->size_of_vertices());
+    ROS_INFO_STREAM("iss.size_of_halfedges():" << iss->size_of_halfedges());
+    ROS_INFO_STREAM("iss.size_of_faces():" << iss->size_of_faces());
 
+    if(iss){
+        for(auto face = iss->faces_begin();face != iss->faces_end();face++){
+            Ss::Halfedge_const_handle begin = face->halfedge();
+            Ss::Halfedge_const_handle edge = begin;
+
+            geometry_msgs::Polygon cellPolygon;
+            do{
+                geometry_msgs::Point32 p_t;
+
+                p_t.x = edge->vertex()->point().x();
+                p_t.y = edge->vertex()->point().y();
+
+                cellPolygon.points.push_back(p_t);
+                edge = edge->prev();
+            }while(edge != begin);
+
+            res.polygon.push_back(cellPolygon);
+        }
+    }
 	/*std::vector<std::vector<cv::Point> > contours;
 	std::vector<cv::Vec4i> hierarchy;
 
@@ -474,8 +504,8 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
 	}
 #endif
 
-    PolygonListCgal partition_polys_;
-    PolygonListCgal partition_polys;
+    //PolygonListCgal partition_polys_;
+    //PolygonListCgal partition_polys;
     
     /*std::vector<PointVector> subPolygons;
     std::vector<PointVector> final_path;
@@ -487,7 +517,7 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
     verticalOverwrap.data = step_overlap;*/
 
 	// Generate trajectory
-  	if (true)
+  	/*if (true)
   	{
         std::cout << __FILE__ << __LINE__ << std::endl;
         CGAL::Polygon_vertical_decomposition_2<Kernel,ContainerCgal> obj;
@@ -495,11 +525,7 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
         obj(polyHoles,std::back_inserter(partition_polys));
         std::cout << __FILE__ << __LINE__ << std::endl;
 
-        /*std::cout << "partition_polys_size_: " << partition_polys_.size() << std::endl;
-        selectPolygon(partition_polys_,partition_polys);
-        std::cout << "partition_polys_size: " << partition_polys.size() << std::endl;
-        */
-        partition_polys.sort(compare_polygon);
+        //partition_polys.sort(compare_polygon);
 
         std::list<PolygonCgal>::iterator iter;
         for(iter = partition_polys.begin();iter != partition_polys.end();iter++){
@@ -523,79 +549,9 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
                 partial_polygon.points.push_back(point_32);
              }
              res.polygon.push_back(partial_polygon);
-             //subPolygons.push_back(polygon_bcd);
-
-             /*bool isOptimal = computeConvexCoverage(polygon_bcd,\
-                                                    footprintWidth.data, \
-                                                    horizontalOverwrap.data, \
-                                                    candidatePath);
-             
-             ROS_INFO_STREAM("isOptimal:" << isOptimal);
-			 if(isOptimal){
-                ROS_INFO_STREAM("final_path_size:" << final_path.size());
-                if(final_path.size() == 0){
-
-		            geometry_msgs::Point start = polygon_bcd[0];
-				    PointVector optimal_path = identifyOptimalAlternative(polygon_bcd, candidatePath, start);
-
-                    if(((optimal_path.size()/2)%2) == 1)
-                        right_connection = true;
-                    else
-                        left_connection = true;
-
-                    ROS_INFO_STREAM("optimal_path_size:" << optimal_path.size());
-				    //final_path.push_back(optimal_path);
-				    final_path.push_back(candidatePath);
-                    ROS_INFO_STREAM("left_connection:" << left_connection);
-                    ROS_INFO_STREAM("right_connection:" << right_connection);
-                }
-                else{
-                    geometry_msgs::Point start = polygon_bcd[0];
-				    PointVector optimal_path = identifyOptimalAlternative(polygon_bcd, candidatePath, start);
-                    ROS_INFO_STREAM("optimal_path_size:" << optimal_path.size());
-                    ROS_INFO_STREAM("left_connection:" << left_connection);
-                    ROS_INFO_STREAM("right_connection:" << right_connection);
-
-				    //final_path.push_back(candidatePath);
-                    if(right_connection == true){
-                        for(int i = 0;i < candidatePath.size()/2;i++){
-                           geometry_msgs::Point temp = candidatePath[i*2];
-                           candidatePath[i*2] = candidatePath[i*2+1];
-                           candidatePath[i*2+1] = temp;
-                        }
-
-                        if(((optimal_path.size()/2)%2) == 1){
-                            left_connection = true;
-                            right_connection = false;
-                        }
-                        else{
-                            left_connection = false;
-                            right_connection = true;
-                        }
-
-				        final_path.push_back(candidatePath);
-                    }
-                    else if(left_connection == true){
-                        if(((optimal_path.size()/2)%2) == 1){
-                            left_connection = false;
-                            right_connection = true;
-                        }
-                        else{ 
-                            left_connection = true;
-                            right_connection = false;
-                        }
-
-				        final_path.push_back(candidatePath);
-                    }
-                }
-			 }
-			 else{
-			    ROS_INFO("zigzag path plannning fail...");
-				return false;
-			 }*/                                       
                 
         }
-  	}
+  	}*/
 
     /*for(int index_i = 0;index_i < final_path.size();index_i++){
 		for(int index_j = 0;index_j < final_path[index_i].size();index_j++){
