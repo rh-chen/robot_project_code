@@ -472,7 +472,7 @@ public:
 								//skeleton
 								{
 									geometry_msgs::Pose startPose = srv_zigzag.response.point_skeleton[0];
-
+                                    //ROS_INFO_STREAM("start pose:(" << startPose.position.x << "," << startPose.position.y << ")");
 									//marker start pose
 									geometry_msgs::Pose  plannerStartPose;
 									plannerStartPose.position.x = startPose.position.x;
@@ -480,13 +480,13 @@ public:
 									plannerStartPose.orientation.w = 1.0;
 
 									geometry_msgs::Vector3 plannerStartScale;
-									plannerStartScale.x = 0.2;
-									plannerStartScale.y = 0.2;
-									plannerStartScale.z = 0.2;
+									plannerStartScale.x = 0.1;
+									plannerStartScale.y = 0.1;
+									plannerStartScale.z = 0.1;
 
 									std_msgs::ColorRGBA plannerStartColor;
 									plannerStartColor.a = 1.0;
-									plannerStartColor.r = 1.0;
+									plannerStartColor.g = 1.0;
 
 
 									visualization_msgs::Marker markerSphereStart = createMarker("PlannerStart",
@@ -507,6 +507,7 @@ public:
 									for(int i = 1; i < srv_zigzag.response.point_skeleton.size(); ++i) {
 
 											geometry_msgs::Pose pose = srv_zigzag.response.point_skeleton[i];
+                                            //ROS_INFO_STREAM("pose:(" << pose.position.x << "," << pose.position.y << ")");
 											//ROS_INFO_STREAM("poses:%s" << pose);
 
 											//marker planner pose
@@ -517,9 +518,9 @@ public:
 											markerArrowPose.orientation.w = 1.0;
 
 											geometry_msgs::Vector3 markerArrowScale;
-											markerArrowScale.x = 0.05;
-											markerArrowScale.y = 0.1;
-											markerArrowScale.z = 0.1;
+											markerArrowScale.x = 0.03;
+											markerArrowScale.y = 0.05;
+											markerArrowScale.z = 0.05;
 
 											std_msgs::ColorRGBA markerArrowColor;
 											markerArrowColor.a = 1.0;
@@ -560,7 +561,7 @@ public:
 											last_point = p;
 
 									}
-									if(true)
+									/*if(true)
 									{
 										geometry_msgs::Pose  markerArrowPose;
 										markerArrowPose.position.x = last_point.x;
@@ -608,7 +609,7 @@ public:
 										markerArrow.points.push_back(arrowHeadPoint);
 
 										markerArray.markers.push_back(markerArrow);
-									}
+									}*/
 								}
 #endif
 

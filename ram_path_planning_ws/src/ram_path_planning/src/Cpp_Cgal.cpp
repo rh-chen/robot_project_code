@@ -17,7 +17,9 @@
 #include <opencv2/core/matx.hpp>
 #include <deque>
 #include <polypartition.h>
-#include<boost/shared_ptr.hpp>
+#include <boost/shared_ptr.hpp>
+#include <map>
+#include<algorithm>
 
 
 typedef CGAL::Exact_predicates_inexact_constructions_kernel Kernel;
@@ -33,7 +35,6 @@ typedef std::list<PolygonCgal> PolygonListCgal;
 typedef std::vector<PointCgal> ContainerCgal;
 typedef CGAL::Straight_skeleton_2<K>  Ss;
 typedef boost::shared_ptr<Ss> SsPtr;
-
 typedef CGAL::Straight_skeleton_2<K>::Vertex_const_handle     Vertex_const_handle ;
 typedef CGAL::Straight_skeleton_2<K>::Halfedge_const_handle   Halfedge_const_handle ;
 
@@ -320,6 +321,26 @@ void selectPolygon(PolygonListCgal& src_,PolygonListCgal& dst_)
     }
 
 }
+
+typedef struct skeletonPoint{
+    int x;
+    int y;
+
+    skeletonPoint(int x_,int y_){
+        x = x_;
+        y = y_;
+    }
+
+    bool operator < (const skeletonPoint& p)const
+    {
+        if(x*y == p.x*p.y)
+            return (x < p.x?true:false);
+        else
+            return (x*y < p.x*p.y?true:false);
+    }
+
+}SP;
+
 bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
 			   ram_path_planning::Cpp::Response& res){
   	if (req.height_between_layers <= 0)
@@ -364,17 +385,20 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
 	cv::Mat bin;
 	cv::threshold(map,bin,req.occupancy_threshold,255,cv::THRESH_BINARY_INV);
 	
-    double delta_point = 6;
+    double delta_point = 3;
 	std::vector<cv::Point2i> vertices_point;
 	vertices_point = makeOIP(bin,delta_point);
 
     PolygonCgal poly_cgal;
     
 	for(int j = 0;j < vertices_point.size();j++){
-		double point_x = vertices_point[j].x*req.map_resolution+req.map_origin_x;
-		double point_y = vertices_point[j].y*req.map_resolution+req.map_origin_y;
+		//double point_x = vertices_point[j].x*req.map_resolution+req.map_origin_x;
+		//double point_y = vertices_point[j].y*req.map_resolution+req.map_origin_y;
 				
-		geometry_msgs::Pose pose_;
+		int point_x = vertices_point[j].x;
+		int point_y = vertices_point[j].y;
+		
+        geometry_msgs::Pose pose_;
 		pose_.position.x = point_x;
 		pose_.position.y = point_y;
 
@@ -393,31 +417,43 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
     ROS_INFO_STREAM("iss.size_of_halfedges():" << iss->size_of_halfedges());
     ROS_INFO_STREAM("iss.size_of_faces():" << iss->size_of_faces());
 
+    std::map<SP,int> skeletonPointMap;
+    int key_ = 0;
+
     if(iss){
         for(auto face = iss->faces_begin();face != iss->faces_end();face++){
             Ss::Halfedge_const_handle begin = face->halfedge();
             Ss::Halfedge_const_handle edge = begin;
 
             do{
-                geometry_msgs::Pose p_t;
-                
                 const Vertex_const_handle& v = edge->vertex();
-                //p_t.x = edge->vertex()->point().x();
-                //p_t.y = edge->vertex()->point().y();
-
+                
+                SP sp_(v->point().x(),v->point().y());
+                ROS_INFO_STREAM("map.count:" << skeletonPointMap.count(sp_));
+                ROS_INFO_STREAM("is_skeleton:" << v->is_skeleton());
+                ROS_INFO_STREAM("sp_:(" << sp_.x << "," << sp_.y << ")");
+                
                 if(v->is_skeleton())
                 {
-                    p_t.position.x = v->point().x();
-                    p_t.position.y = v->point().y();
-                    p_t.position.z = 0.f;
+                    if(skeletonPointMap.count(sp_) != 1){
+                        geometry_msgs::Pose p_t;
+                        p_t.position.x = v->point().x()*req.map_resolution+req.map_origin_x;;
+                        p_t.position.y = v->point().y()*req.map_resolution+req.map_origin_y;;
+                        p_t.position.z = 0.f;
 
-                    res.point_skeleton.push_back(p_t);
+                        res.point_skeleton.push_back(p_t);
+
+                        skeletonPointMap.insert(std::make_pair(sp_,key_++));
+                    }
                 }
-
+                
                 edge = edge->prev();
+
             }while(edge != begin);
         }
     }
+    
+    ROS_INFO_STREAM("key_:" << key_);
 	/*std::vector<std::vector<cv::Point> > contours;
 	std::vector<cv::Vec4i> hierarchy;
 
