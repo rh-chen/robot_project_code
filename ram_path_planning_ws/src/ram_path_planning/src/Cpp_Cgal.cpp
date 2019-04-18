@@ -20,6 +20,8 @@
 #include <boost/shared_ptr.hpp>
 #include <map>
 #include<algorithm>
+#include<CGAL/create_offset_polygons_2.h>
+
 
 
 typedef CGAL::Exact_predicates_inexact_constructions_kernel Kernel;
@@ -37,6 +39,8 @@ typedef CGAL::Straight_skeleton_2<K>  Ss;
 typedef boost::shared_ptr<Ss> SsPtr;
 typedef CGAL::Straight_skeleton_2<K>::Vertex_const_handle     Vertex_const_handle ;
 typedef CGAL::Straight_skeleton_2<K>::Halfedge_const_handle   Halfedge_const_handle ;
+typedef boost::shared_ptr<PolygonCgal> PolygonPtr;
+typedef std::vector<PolygonPtr> PolygonPtrVector;
 
 namespace Cpp{
 
@@ -385,18 +389,20 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
 	cv::Mat bin;
 	cv::threshold(map,bin,req.occupancy_threshold,255,cv::THRESH_BINARY_INV);
 	
-    double delta_point = 3;
+    double delta_point = 1;
 	std::vector<cv::Point2i> vertices_point;
 	vertices_point = makeOIP(bin,delta_point);
-
-    PolygonCgal poly_cgal;
     
-	for(int j = 0;j < vertices_point.size();j++){
-		//double point_x = vertices_point[j].x*req.map_resolution+req.map_origin_x;
-		//double point_y = vertices_point[j].y*req.map_resolution+req.map_origin_y;
+    std::vector<cv::Point> contour_ext;
+    cv::approxPolyDP(vertices_point,contour_ext,2.0,true);
+    
+    PolygonCgal poly_cgal;
+	for(int j = 0;j < contour_ext.size();j++){
+		double point_x = contour_ext[j].x*req.map_resolution+req.map_origin_x;
+		double point_y = contour_ext[j].y*req.map_resolution+req.map_origin_y;
 				
-		int point_x = vertices_point[j].x;
-		int point_y = vertices_point[j].y;
+		//int point_x = vertices_point[j].x;
+		//int point_y = vertices_point[j].y;
 		
         geometry_msgs::Pose pose_;
 		pose_.position.x = point_x;
@@ -409,17 +415,56 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
     if(poly_cgal.is_clockwise_oriented())
         poly_cgal.reverse_orientation();
 
-    PolygonWithHolesCgal polyHoles(poly_cgal);
-    polyHoles.outer_boundary() = poly_cgal;
+    //PolygonWithHolesCgal polyHoles(poly_cgal);
+    //polyHoles.outer_boundary() = poly_cgal;
     
-    SsPtr iss = CGAL::create_interior_straight_skeleton_2(polyHoles);
-    ROS_INFO_STREAM("iss.size_of_vertices():" << iss->size_of_vertices());
-    ROS_INFO_STREAM("iss.size_of_halfedges():" << iss->size_of_halfedges());
-    ROS_INFO_STREAM("iss.size_of_faces():" << iss->size_of_faces());
+    //SsPtr iss = CGAL::create_interior_straight_skeleton_2(polyHoles);
+    //ROS_INFO_STREAM("iss.size_of_vertices():" << iss->size_of_vertices());
+    //ROS_INFO_STREAM("iss.size_of_halfedges():" << iss->size_of_halfedges());
+    //ROS_INFO_STREAM("iss.size_of_faces():" << iss->size_of_faces());
+    
+    double lOffset = 0.2;
+    //PolygonPtrVector offset_polygons = CGAL::create_offset_polygons_2<PolygonCgal>(lOffset,*iss);
+    PolygonPtrVector offset_polygons;
+    offset_polygons = CGAL::create_interior_skeleton_and_offset_polygons_2(lOffset,poly_cgal);
+    ROS_INFO_STREAM("PoygonPtrVectorSize:" << offset_polygons.size());
 
-    std::map<SP,int> skeletonPointMap;
+    while(offset_polygons.size() > 0){
+        PolygonCgal poly_temp;
+        std::vector<std::vector<cv::Point2f> > pi_cgal_ex;
+        
+        for(PolygonPtrVector::const_iterator pi = offset_polygons.begin() ; pi != offset_polygons.end() ; ++ pi){
+            PolygonPtr pi_ = *pi;
+            PolygonCgal pi_cgal = *pi_;
+            
+            geometry_msgs::Polygon partial_polygon;
+
+            ROS_INFO_STREAM("pi_cgal.size:" << pi_cgal.size());
+            
+            std::vector<cv::Point2f> pi_cgal_te;
+            for(int i = 0;i < pi_cgal.size();i++){
+                 geometry_msgs::Point32 point_32;
+                 PointCgal p = pi_cgal.vertex(i);
+
+                 point_32.x = p.x();
+                 point_32.y = p.y();
+                 partial_polygon.points.push_back(point_32);
+                 poly_temp.push_back(Point_2(p.x(),p.y()));
+                 pi_cgal_te.push_back(cv::Point2f(p.x(),p.y()));
+            }
+            
+            pi_cgal_ex.push_back(pi_cgal_te);
+            res.polygon.push_back(partial_polygon);
+        }
+        
+        if(pi_cgal_ex.size() > 1)
+            break;
+        
+        offset_polygons = CGAL::create_interior_skeleton_and_offset_polygons_2(lOffset,poly_temp);
+        ROS_INFO_STREAM("PoygonPtrVectorSize:" << offset_polygons.size());
+    }
+    /*std::map<SP,int> skeletonPointMap;
     int key_ = 0;
-
     if(iss){
         for(auto face = iss->faces_begin();face != iss->faces_end();face++){
             Ss::Halfedge_const_handle begin = face->halfedge();
@@ -454,6 +499,8 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
     }
     
     ROS_INFO_STREAM("key_:" << key_);
+    */
+
 	/*std::vector<std::vector<cv::Point> > contours;
 	std::vector<cv::Vec4i> hierarchy;
 
