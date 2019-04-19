@@ -50,11 +50,18 @@ namespace Cpp{
 
 typedef struct node_t
 {
-    //char* name;
-    PolygonCgal polygon;
-    int   n_children;         
-    int   level;              
+    cv::Point2f* polygon; 
+    int n_children;
+    int n_point;
+    int level;              
     struct node_t** children;
+    node_t(int n_point_,int n_children_,int l_){
+        polygon = new cv::Point2f[n_point_];
+        n_point = n_point_;
+        n_children = n_children_;
+        level = l_;
+        children = NULL;
+    }
 } NODE;
 
 typedef struct stack_t
@@ -217,7 +224,7 @@ void QUEUEdestroy(QUEUE* qp)
     free(qp);
 }
 
-NODE* create_node()
+/*NODE* create_node()
 {
     NODE* q;
 
@@ -227,7 +234,7 @@ NODE* create_node()
     q->children   = NULL;
 
     return q;
-}
+}*/
 
 /*NODE* search_node_r(char* name, NODE* head)
 {
@@ -656,7 +663,7 @@ void selectPolygon(PolygonListCgal& src_,PolygonListCgal& dst_)
 
 }
 
-typedef struct skeletonPoint{
+/*typedef struct skeletonPoint{
     int x;
     int y;
 
@@ -673,7 +680,13 @@ typedef struct skeletonPoint{
             return (x*y < p.x*p.y?true:false);
     }
 
-}SP;
+}SP;*/
+
+void PolygonCgalToPtr(cv::Point2f* ptr,int n,PolygonCgal& poly){
+    for(int i = 0;i < n;i++){
+        poly.push_back(PointCgal(ptr[i].x,ptr[i].y));
+    }
+}
 
 bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
 			   ram_path_planning::Cpp::Response& res){
@@ -728,9 +741,15 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
     
     //B+Tree
     NODE* head = NULL;
-    head = create_node();
+    head = new NODE(contour_ext.size(),0,0);
 
-    PolygonCgal poly_cgal;
+    ROS_INFO_STREAM("head->polygon:" << head->polygon);
+    ROS_INFO_STREAM("head->n_children:" << head->n_children);
+    ROS_INFO_STREAM("head->n_point:" << head->n_point);
+    ROS_INFO_STREAM("head->level:" << head->level);
+    ROS_INFO_STREAM("head->children:" << head->children);
+
+    //PolygonCgal poly_cgal;
 	for(int j = 0;j < contour_ext.size();j++){
 		double point_x = contour_ext[j].x*req.map_resolution+req.map_origin_x;
 		double point_y = contour_ext[j].y*req.map_resolution+req.map_origin_y;
@@ -743,21 +762,20 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
 		pose_.position.y = point_y;
 
 		//res.pose.push_back(pose_);	
-        poly_cgal.push_back(PointCgal(point_x,point_y));
-    std::cout << __FILE__ << __LINE__ << std::endl;
-        //head->polygon.push_back(Point_2(point_x,point_y));
-    std::cout << __FILE__ << __LINE__ << std::endl;
+        //poly_cgal.push_back(PointCgal(point_x,point_y));
+    //std::cout << __FILE__ << __LINE__ << std::endl;
+        head->polygon[j].x = point_x;
+        head->polygon[j].y = point_y;
+    //std::cout << __FILE__ << __LINE__ << std::endl;
 	}
     
-    std::cout << __FILE__ << __LINE__ << std::endl;
-    if(poly_cgal.is_clockwise_oriented())
-        poly_cgal.reverse_orientation();
+    //std::cout << __FILE__ << __LINE__ << std::endl;
+    //if(poly_cgal.is_clockwise_oriented())
+        //poly_cgal.reverse_orientation();
 
-    std::cout << __FILE__ << __LINE__ << std::endl;
-    
-    for(int i = 0;i < poly_cgal.size();i++){
-        PointCgal p = poly_cgal.vertex(i);
-        head->polygon.push_back(PointCgal(p.x(),p.y()));
+    //std::cout << __FILE__ << __LINE__ << std::endl;
+    for(int i = 0;i < head->n_children;i++){
+       ROS_INFO_STREAM("head->polygon:(" << head->polygon[i].x << "," << head->polygon[i].y << ")");
     }
     //PolygonWithHolesCgal polyHoles(poly_cgal);
     //polyHoles.outer_boundary() = poly_cgal;
@@ -767,7 +785,7 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
     //ROS_INFO_STREAM("iss.size_of_halfedges():" << iss->size_of_halfedges());
     //ROS_INFO_STREAM("iss.size_of_faces():" << iss->size_of_faces());
     
-    std::cout << __FILE__ << __LINE__ << std::endl;
+    //std::cout << __FILE__ << __LINE__ << std::endl;
     double lOffset = 0.2;
     //PolygonPtrVector offset_polygons = CGAL::create_offset_polygons_2<PolygonCgal>(lOffset,*iss);
     PolygonPtrVector offset_polygons;
@@ -776,55 +794,84 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
     bool flag = false;
     int count_level = -1;
     std::vector<std::vector<NODE*> > tempNode;
-    std::cout << __FILE__ << __LINE__ << std::endl;
+    //std::cout << __FILE__ << __LINE__ << std::endl;
     std::vector<NODE*> tempNodeInit;
-    std::cout << __FILE__ << __LINE__ << std::endl;
+    //std::cout << __FILE__ << __LINE__ << std::endl;
     tempNodeInit.push_back(head);
-    std::cout << __FILE__ << __LINE__ << std::endl;
+    //std::cout << __FILE__ << __LINE__ << std::endl;
     tempNode.push_back(tempNodeInit);
-    std::cout << __FILE__ << __LINE__ << std::endl;
+    //std::cout << __FILE__ << __LINE__ << std::endl;
     while(!flag){
         flag = true;
 
-    std::cout << __FILE__ << __LINE__ << std::endl;
+    //std::cout << __FILE__ << __LINE__ << std::endl;
         if(tempNode.size() > 0){
             count_level++;
             std::vector<NODE*> tempNode_;
             for(NODE* node : tempNode[count_level]){
                   
-    std::cout << __FILE__ << __LINE__ << std::endl;
-                offset_polygons = CGAL::create_interior_skeleton_and_offset_polygons_2(lOffset,node->polygon);
-    std::cout << __FILE__ << __LINE__ << std::endl;
+    //std::cout << __FILE__ << __LINE__ << std::endl;
+                PolygonCgal poly_cgal;
+                PolygonCgalToPtr(node->polygon,node->n_point,poly_cgal);
+                ROS_INFO_STREAM("poly_cgal_size:" << poly_cgal.size());
+                
+                if(poly_cgal.is_clockwise_oriented())
+                    poly_cgal.reverse_orientation();
+                
+                for(int i = 0;i < poly_cgal.size();i++){
+                    PointCgal p = poly_cgal.vertex(i);
+                    ROS_INFO_STREAM("p:(" << p.x() << "," << p.y() << ")");
+                }
+
+                offset_polygons = CGAL::create_interior_skeleton_and_offset_polygons_2(lOffset,poly_cgal);
+    //std::cout << __FILE__ << __LINE__ << std::endl;
                 //if(offset_polygons.size() > 0)
                     //count_level++;
-
-                if(offset_polygons.size() == 0)
+                ROS_INFO_STREAM("offset_polygons_size:" << offset_polygons.size());
+                if(offset_polygons.size() == 0){
                     flag &= true;
+                    continue;
+                }
                 else
                     flag &= false;
 
                 node->n_children = offset_polygons.size();
+                node->children = new NODE* [offset_polygons.size()];
                 int index = 0;
 
                 //std::vector<NODE*>(tempNode).swap(tempNode);
-    std::cout << __FILE__ << __LINE__ << std::endl;
+    //std::cout << __FILE__ << __LINE__ << std::endl;
                 //std::vector<NODE*> tempNode_;
                 for(PolygonPtrVector::const_iterator pi = offset_polygons.begin() ; pi != offset_polygons.end() ; ++ pi){
                
                     PolygonPtr pi_ = *pi;
                     PolygonCgal pi_cgal = *pi_;
-                    NODE* node_cell = create_node();
-                    node_cell->polygon = pi_cgal;
-                    node_cell->level = count_level;
+                    NODE* node_cell = new NODE(pi_cgal.size(),0,count_level+1);
+                    
+                    ROS_INFO_STREAM("node_cell->polygon:" << node_cell->polygon);
+                    ROS_INFO_STREAM("node_cell->n_children:" << node_cell->n_children);
+                    ROS_INFO_STREAM("node_cell->n_point:" << node_cell->n_point);
+                    ROS_INFO_STREAM("node_cell->level:" << node_cell->level);
+                    ROS_INFO_STREAM("node_cell->children:" << node_cell->children);
+
+                    for(int i = 0;i < pi_cgal.size();i++){
+                        PointCgal p = pi_cgal.vertex(i);
+                        //ROS_INFO_STREAM("p:(" << p.x() << "," << p.y() << ")");
+                        node_cell->polygon[i].x = p.x();
+                        node_cell->polygon[i].y = p.y();
+                    }
+
+                    //node_cell->polygon = pi_cgal;
+                    //node_cell->level = count_level;
                     node->children[index++] = node_cell;
                     tempNode_.push_back(node_cell);
                 }
-    std::cout << __FILE__ << __LINE__ << std::endl;
+    //std::cout << __FILE__ << __LINE__ << std::endl;
                 
             }
             
             tempNode.push_back(tempNode_);
-    std::cout << __FILE__ << __LINE__ << std::endl;
+    //std::cout << __FILE__ << __LINE__ << std::endl;
         }
         
         
@@ -856,6 +903,25 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
             res.polygon.push_back(partial_polygon);
         }*/
         
+    }
+
+    ROS_INFO_STREAM("tempNode_size:" << tempNode.size());
+    for(int i = 0;i < tempNode.size();i++){
+        //ROS_INFO_STREAM("tempNode_size:" << tempNode.size());
+        //geometry_msgs::Polygon partial_polygon;
+        ROS_INFO_STREAM("tempNode_[" << i << "]:" << tempNode[i].size());
+        for(int j = 0;j < tempNode[i].size();j++){
+            geometry_msgs::Polygon partial_polygon;
+
+            for(int k = 0;k < tempNode[i][j]->n_point;k++){
+                geometry_msgs::Point32 point_32;
+                point_32.x = tempNode[i][j]->polygon[k].x;
+                point_32.y = tempNode[i][j]->polygon[k].y;
+
+                partial_polygon.points.push_back(point_32);
+            }
+            res.polygon.push_back(partial_polygon);
+        }
     }
     /*std::map<SP,int> skeletonPointMap;
     int key_ = 0;
