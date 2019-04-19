@@ -19,11 +19,12 @@
 #include <polypartition.h>
 #include <boost/shared_ptr.hpp>
 #include <map>
-#include<algorithm>
-#include<CGAL/create_offset_polygons_2.h>
+#include <algorithm>
+#include <CGAL/create_offset_polygons_2.h>
 #include <stdio.h>
 #include <stdlib.h>
-
+#include <queue>
+#include <stack>
 
 typedef CGAL::Exact_predicates_inexact_constructions_kernel Kernel;
 typedef Kernel::FT Ft;
@@ -55,6 +56,7 @@ typedef struct node_t
     int n_point;
     int level;              
     struct node_t** children;
+
     node_t(int n_point_,int n_children_,int l_){
         polygon = new cv::Point2f[n_point_];
         n_point = n_point_;
@@ -64,320 +66,23 @@ typedef struct node_t
     }
 } NODE;
 
-typedef struct stack_t
-{
-    NODE** array;
-    int    index;
-    int    size;
-} STACK;
+void BfsTree(NODE* head){
+    std::vector<NODE*> vec;
+    std::queue<NODE*> q;
+    NODE* p;
 
-typedef struct queue_t
-{
-    NODE** array;
-    int    head;
-    int    tail;
-    int    num;
-    int    size;
-} QUEUE;
-
-void* util_malloc(int size)
-{
-    void* ptr = malloc(size);
-
-    if (ptr == NULL)
-    {
-        printf("Memory allocation error!\n");
-        exit(EXIT_FAILURE);
-    }
-
-    return ptr;
-}
-
-char* util_strdup(char* src)
-{
-    char* dst = strdup(src);
-
-    if (dst == NULL)
-    {
-        printf ("Memroy allocation error!\n");
-        exit(EXIT_FAILURE);
-    }
-
-    return dst;
-}
-
-FILE* util_fopen(char* name, char* access)
-{
-    FILE* fp = fopen(name, access);
-
-    if (fp == NULL)
-    {
-        printf("Error opening file %s!\n", name);
-        exit(EXIT_FAILURE);
-    }
-
-    return  fp;
-}
-
-
-STACK* STACKinit(int size)
-{
-    STACK* sp;
-
-    sp = (STACK*)util_malloc(sizeof (STACK));
-    sp->size  = size;
-    sp->index = 0;
-    sp->array = (NODE**)util_malloc(size * sizeof (NODE*));
-
-    return sp;
-}
-
-int STACKempty(STACK* sp)
-{
-    if (sp == NULL || sp->index <= 0)
-    {
-        return 1;
-    }
-    return 0;
-}
-
-int STACKpush(STACK* sp, NODE* data)
-{
-    if (sp == NULL || sp->index >= sp->size)
-    {
-        return 0;
-    }
-
-    sp->array[sp->index++] = data;
-    return 1;
-}
-
-int STACKpop(STACK* sp, NODE** data_ptr)
-{
-    if (sp == NULL || sp->index <= 0)
-    {
-        return 0;
-    }
-
-    *data_ptr = sp->array[--sp->index];
-    return 1;
-}
-
-void STACKdestroy(STACK* sp)
-{
-    free(sp->array);
-    free(sp);
-}
-
-QUEUE* QUEUEinit(int size)
-{
-    QUEUE* qp;
-
-    qp = (QUEUE*)util_malloc(sizeof (QUEUE));
-    qp->size  = size;
-    qp->head  = qp->tail = qp->num = 0;
-    qp->array = (NODE**)util_malloc(size * sizeof (NODE*));
-
-    return qp;
-}
-
-int QUEUEenqueue(QUEUE* qp, NODE* data)
-{
-    if (qp == NULL || qp->num >= qp->size)
-    {
-        return 0;
-    }
-
-    qp->array[qp->tail] = data;
-    qp->tail = (qp->tail + 1) % (qp->size);
-    ++qp->num;
-    return 1;
-}
-
-int QUEUEdequeue(QUEUE* qp, NODE** data_ptr)
-{
-    if (qp == NULL || qp->num <= 0)
-    {
-        return 0;
-    }
-
-    *data_ptr = qp->array[qp->head];
-    qp->head = (qp->head + 1) % (qp->size);
-    --qp->num;
-
-    return 1;
-}
-
-int QUEUEempty(QUEUE* qp)
-{
-    if (qp == NULL || qp->num <= 0)
-    {
-        return 1;
-    }
-
-    return 0;
-}
-
-void QUEUEdestroy(QUEUE* qp)
-{
-    free(qp->array);
-    free(qp);
-}
-
-/*NODE* create_node()
-{
-    NODE* q;
-
-    q = (NODE*)util_malloc(sizeof (NODE));
-    q->n_children = 0;
-    q->level      = 0;
-    q->children   = NULL;
-
-    return q;
-}*/
-
-/*NODE* search_node_r(char* name, NODE* head)
-{
-    NODE* temp = NULL;
-    int i = 0;
-
-    if (head != NULL)
-    {
-        if (strcmp(name, head->name) == 0)
-        {
-            temp = head;
+    q.push(head);
+    while(!q.empty()){
+        p = q.front();
+        q.pop();
+     
+        ROS_INFO_STREAM("ptr:" << p);
+        for(int i = 0;i < p->n_children;i++){
+            q.push(p->children[i]);
+            ROS_INFO_STREAM("ptr_:" << p->children[i]);
         }
-        else
-        {
-            for (i = 0; i < head->n_children && temp == NULL; ++i)
-            {
-                temp = search_node_r(name, head->children[i]);
-            }
-        }
+        ROS_INFO_STREAM("*************************************************");
     }
-
-    return temp;
-}*/
-
-/*void read_file(NODE** head, char* filename)
-{
-    NODE* temp = NULL;
-    int i = 0, n = 0;
-    char name[M], child[M];
-    FILE* fp;
-
-    fp = util_fopen(filename, "r");
-
-    while (fscanf(fp, "%s %d", name, &n) != EOF)
-    {
-        if (*head == NULL)
-        {
-            temp = *head = create_node();
-            temp->name = util_strdup(name);
-        }
-        else
-        {
-            temp = search_node_r(name, *head);
-        }
-        temp->n_children = n;
-        temp->children   = (NODE**)malloc(n * sizeof (NODE*));
-        if (temp->children == NULL)
-        {
-            fprintf(stderr, "Dynamic allocation error!\n");
-            exit(EXIT_FAILURE);
-        }
-
-        for (i = 0; i < n; ++i)
-        {
-            fscanf(fp, "%s", child);
-            temp->children[i] = create_node();
-            temp->children[i]->name = util_strdup(child);
-        }
-    }
-
-    fclose(fp);
-}*/
-
-void f1(NODE* head)
-{
-    NODE* p = NULL;
-    QUEUE* q = NULL;
-    STACK* s = NULL;
-    int i = 0;
-
-    q = QUEUEinit(100);
-    s = STACKinit(100);
-
-    head->level = 0;
-    
-    QUEUEenqueue(q, head);
-    
-    while (QUEUEempty(q) == 0)
-    {
-        QUEUEdequeue(q, &p);
-        for (i = 0; i < p->n_children; ++i)
-        {
-            p->children[i]->level = p->level + 1;
-            QUEUEenqueue(q, p->children[i]);
-        }
-        STACKpush(s, p);
-    }
-
-    while (STACKempty(s) == 0)
-    {
-        STACKpop(s, &p);
-        //fprintf(stdout, "   %d %s\n", p->level, p->name);
-    }
-
-    QUEUEdestroy(q);
-    STACKdestroy(s);
-}
-
-/*void f2(NODE* head, char* str, char** strBest, int level)
-{
-    int   i   = 0;
-    char* tmp = NULL;
-
-    if (head == NULL)
-    {
-        return;
-    }
-
-    tmp = (char*)util_malloc((strlen(str) + strlen(head->name) + 1) * sizeof (char));
-    sprintf(tmp, "%s%s", str, head->name);
-
-    if (head->n_children == 0)
-    {
-        if (*strBest == NULL || strlen(tmp) > strlen(*strBest))
-        {
-            free(*strBest);
-            *strBest = util_strdup(tmp);
-        }
-    }
-
-    for (i = 0; i < head->n_children; ++i)
-    {
-        f2(head->children[i], tmp, strBest, level + 1);
-    }
-
-    free(tmp);
-}*/
-
-void free_tree_r(NODE* head)
-{
-    int i = 0;
-    if (head == NULL)
-    {
-        return;
-    }
-
-    for (i = 0; i < head->n_children; ++i)
-    {
-        free_tree_r(head->children[i]);
-    }
-
-    //free(head->name);
-    free(head);
 }
 #endif
 
@@ -912,7 +617,7 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
         ROS_INFO_STREAM("tempNode_[" << i << "]:" << tempNode[i].size());
         for(int j = 0;j < tempNode[i].size();j++){
             geometry_msgs::Polygon partial_polygon;
-
+            ROS_INFO_STREAM("tempNode_level:" << tempNode[i][j]->level);
             for(int k = 0;k < tempNode[i][j]->n_point;k++){
                 geometry_msgs::Point32 point_32;
                 point_32.x = tempNode[i][j]->polygon[k].x;
@@ -923,6 +628,9 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
             res.polygon.push_back(partial_polygon);
         }
     }
+
+    BfsTree(head);
+
     /*std::map<SP,int> skeletonPointMap;
     int key_ = 0;
     if(iss){
