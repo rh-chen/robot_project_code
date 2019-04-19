@@ -70,8 +70,11 @@ void BfsTree(NODE* head){
     std::vector<NODE*> vec;
     std::queue<NODE*> q;
     NODE* p;
+    
+    std::stack<NODE*> s;
 
     q.push(head);
+    s.push(head);
     while(!q.empty()){
         p = q.front();
         q.pop();
@@ -80,8 +83,17 @@ void BfsTree(NODE* head){
         for(int i = 0;i < p->n_children;i++){
             q.push(p->children[i]);
             ROS_INFO_STREAM("ptr_:" << p->children[i]);
+            s.push(p->children[i]);
         }
         ROS_INFO_STREAM("*************************************************");
+    }
+
+    while(!s.empty()){
+        p = s.top();
+        s.pop();
+        
+        delete[] p->polygon;
+        delete[] p->children;
     }
 }
 #endif
