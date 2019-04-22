@@ -380,7 +380,7 @@ void selectPolygon(PolygonListCgal& src_,PolygonListCgal& dst_)
 
 }
 
-/*typedef struct skeletonPoint{
+typedef struct skeletonPoint{
     int x;
     int y;
 
@@ -397,7 +397,7 @@ void selectPolygon(PolygonListCgal& src_,PolygonListCgal& dst_)
             return (x*y < p.x*p.y?true:false);
     }
 
-}SP;*/
+}SP;
 
 void PolygonCgalToPtr(cv::Point2f* ptr,int n,PolygonCgal& poly){
     for(int i = 0;i < n;i++){
@@ -466,7 +466,7 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
     ROS_INFO_STREAM("head->level:" << head->level);
     ROS_INFO_STREAM("head->children:" << head->children);
 
-    //PolygonCgal poly_cgal;
+    PolygonCgal polyCgalPoint;
 	for(int j = 0;j < contour_ext.size();j++){
 		double point_x = contour_ext[j].x*req.map_resolution+req.map_origin_x;
 		double point_y = contour_ext[j].y*req.map_resolution+req.map_origin_y;
@@ -479,7 +479,7 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
 		pose_.position.y = point_y;
 
 		//res.pose.push_back(pose_);	
-        //poly_cgal.push_back(PointCgal(point_x,point_y));
+        polyCgalPoint.push_back(PointCgal(contour_ext[j].x,contour_ext[j].y));
     //std::cout << __FILE__ << __LINE__ << std::endl;
         head->polygon[j].x = point_x;
         head->polygon[j].y = point_y;
@@ -487,20 +487,21 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
 	}
     
     //std::cout << __FILE__ << __LINE__ << std::endl;
-    //if(poly_cgal.is_clockwise_oriented())
-        //poly_cgal.reverse_orientation();
+    /*if(polyCgalPoint.is_clockwise_oriented())
+        polyCgalPoint.reverse_orientation();*/
 
     //std::cout << __FILE__ << __LINE__ << std::endl;
     for(int i = 0;i < head->n_children;i++){
        ROS_INFO_STREAM("head->polygon:(" << head->polygon[i].x << "," << head->polygon[i].y << ")");
     }
-    //PolygonWithHolesCgal polyHoles(poly_cgal);
-    //polyHoles.outer_boundary() = poly_cgal;
     
-    //SsPtr iss = CGAL::create_interior_straight_skeleton_2(polyHoles);
-    //ROS_INFO_STREAM("iss.size_of_vertices():" << iss->size_of_vertices());
-    //ROS_INFO_STREAM("iss.size_of_halfedges():" << iss->size_of_halfedges());
-    //ROS_INFO_STREAM("iss.size_of_faces():" << iss->size_of_faces());
+    /*PolygonWithHolesCgal polyWithHoles(poly_cgal);
+    polyWithHoles.outer_boundary() = polyCgalPoint;
+    
+    SsPtr iss = CGAL::create_interior_straight_skeleton_2(polyWithHoles);
+    ROS_INFO_STREAM("iss.size_of_vertices():" << iss->size_of_vertices());
+    ROS_INFO_STREAM("iss.size_of_halfedges():" << iss->size_of_halfedges());
+    ROS_INFO_STREAM("iss.size_of_faces():" << iss->size_of_faces());*/
     
     //std::cout << __FILE__ << __LINE__ << std::endl;
     double lOffset = 0.2;
@@ -621,7 +622,8 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
         }*/
         
     }
-
+    
+    //BFS
     ROS_INFO_STREAM("tempNode_size:" << tempNode.size());
     for(int i = 0;i < tempNode.size();i++){
         //ROS_INFO_STREAM("tempNode_size:" << tempNode.size());
@@ -640,10 +642,24 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
             res.polygon.push_back(partial_polygon);
         }
     }
-
+    
+    //delete
     BfsTree(head);
+    
+   
+    //straight skeleton
+    if(polyCgalPoint.is_clockwise_oriented())
+        polyCgalPoint.reverse_orientation();
 
-    /*std::map<SP,int> skeletonPointMap;
+    PolygonWithHolesCgal polyWithHoles(polyCgalPoint);
+    polyWithHoles.outer_boundary() = polyCgalPoint;
+    
+    SsPtr iss = CGAL::create_interior_straight_skeleton_2(polyWithHoles);
+    ROS_INFO_STREAM("iss.size_of_vertices():" << iss->size_of_vertices());
+    ROS_INFO_STREAM("iss.size_of_halfedges():" << iss->size_of_halfedges());
+    ROS_INFO_STREAM("iss.size_of_faces():" << iss->size_of_faces());
+    
+    std::map<SP,int> skeletonPointMap;
     int key_ = 0;
     if(iss){
         for(auto face = iss->faces_begin();face != iss->faces_end();face++){
@@ -660,7 +676,10 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
                 
                 if(v->is_skeleton())
                 {
-                    if(skeletonPointMap.count(sp_) != 1){
+                    if(skeletonPointMap.count(sp_) == 0){
+
+                        ROS_INFO_STREAM("collapse time:" << v->time());
+
                         geometry_msgs::Pose p_t;
                         p_t.position.x = v->point().x()*req.map_resolution+req.map_origin_x;;
                         p_t.position.y = v->point().y()*req.map_resolution+req.map_origin_y;;
@@ -679,7 +698,7 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
     }
     
     ROS_INFO_STREAM("key_:" << key_);
-    */
+    
 
 	/*std::vector<std::vector<cv::Point> > contours;
 	std::vector<cv::Vec4i> hierarchy;
