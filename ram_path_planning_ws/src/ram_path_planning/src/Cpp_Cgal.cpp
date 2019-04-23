@@ -25,6 +25,11 @@
 #include <stdlib.h>
 #include <queue>
 #include <stack>
+#include <array>
+#include <numeric>
+#include <exception>
+#include <functional>
+
 
 typedef CGAL::Exact_predicates_inexact_constructions_kernel Kernel;
 typedef Kernel::FT Ft;
@@ -46,7 +51,297 @@ typedef std::vector<PolygonPtr> PolygonPtrVector;
 
 namespace Cpp{
 #if 1
+	/** @brief k-d tree class.
+	*/
+	template <class PointT>
+	class KDTree
+	{
+	public:
+		/** @brief The constructors.
+		*/
+		KDTree() : root_(nullptr) {};
+		KDTree(const std::vector<PointT>& points) : root_(nullptr) { build(points); }
 
+		/** @brief The destructor.
+		*/
+		~KDTree() { clear(); }
+
+		/** @brief Re-builds k-d tree.
+		*/
+		void build(const std::vector<PointT>& points)
+		{
+			clear();
+
+			points_ = points;
+
+			std::vector<int> indices(points.size());
+			std::iota(std::begin(indices), std::end(indices), 0);
+
+			root_ = buildRecursive(indices.data(), (int)points.size(), 0);
+		}
+
+		/** @brief Clears k-d tree.
+		*/
+		void clear()
+		{ 
+			clearRecursive(root_);
+			root_ = nullptr;
+			points_.clear();
+		}
+
+		/** @brief Validates k-d tree.
+		*/
+		bool validate() const
+		{
+			try
+			{
+				validateRecursive(root_, 0);
+			}
+			catch (const Exception&)
+			{
+				return false;
+			}
+
+			return true;
+		}
+
+		/** @brief Searches the nearest neighbor.
+		*/
+		int nnSearch(const PointT& query, double* minDist = nullptr) const
+		{
+			int guess;
+			double _minDist = std::numeric_limits<double>::max();
+
+			nnSearchRecursive(query, root_, &guess, &_minDist);
+
+			if (minDist)
+				*minDist = _minDist;
+
+			return guess;
+		}
+
+		/** @brief Searches k-nearest neighbors.
+		*/
+		std::vector<int> knnSearch(const PointT& query, int k) const
+		{
+			KnnQueue queue(k);
+			knnSearchRecursive(query, root_, queue, k);
+			
+			std::vector<int> indices(queue.size());
+			for (size_t i = 0; i < queue.size(); i++)
+				indices[i] = queue[i].second;
+
+			return indices;
+		}
+
+		/** @brief Searches neighbors within radius.
+		*/
+		std::vector<int> radiusSearch(const PointT& query, double radius) const
+		{
+			std::vector<int> indices;
+			radiusSearchRecursive(query, root_, indices, radius);
+			return indices;
+		}
+
+	private:
+
+		/** @brief k-d tree node.
+		*/
+		struct Node
+		{
+			int idx;       //!< index to the original point
+			Node* next[2]; //!< pointers to the child nodes
+			int axis;      //!< dimension's axis
+
+			Node() : idx(-1), axis(-1) { next[0] = next[1] = nullptr; }
+		};
+
+		/** @brief k-d tree exception.
+		*/
+		class Exception : public std::exception { using std::exception::exception; };
+
+		/** @brief Bounded priority queue.
+		*/
+		template <class T, class Compare = std::less<T>>
+		class BoundedPriorityQueue
+		{
+		public:
+
+			BoundedPriorityQueue() = delete;
+			BoundedPriorityQueue(size_t bound) : bound_(bound) { elements_.reserve(bound + 1); };
+
+			void push(const T& val)
+			{
+				auto it = std::find_if(std::begin(elements_), std::end(elements_),
+					[&](const T& element){ return Compare()(val, element); });
+				elements_.insert(it, val);
+
+				if (elements_.size() > bound_)
+					elements_.resize(bound_);
+			}
+
+			const T& back() const { return elements_.back(); };
+			const T& operator[](size_t index) const { return elements_[index]; }
+			size_t size() const { return elements_.size(); }
+
+		private:
+			size_t bound_;
+			std::vector<T> elements_;
+		};
+
+		/** @brief Priority queue of <distance, index> pair.
+		*/
+		using KnnQueue = BoundedPriorityQueue<std::pair<double, int>>;
+
+		/** @brief Builds k-d tree recursively.
+		*/
+		Node* buildRecursive(int* indices, int npoints, int depth)
+		{
+			if (npoints <= 0)
+				return nullptr;
+
+			const int axis = depth % PointT::DIM;
+			const int mid = (npoints - 1) / 2;
+
+			std::nth_element(indices, indices + mid, indices + npoints, [&](int lhs, int rhs)
+			{
+				return points_[lhs][axis] < points_[rhs][axis];
+			});
+
+			Node* node = new Node();
+			node->idx = indices[mid];
+			node->axis = axis;
+
+			node->next[0] = buildRecursive(indices, mid, depth + 1);
+			node->next[1] = buildRecursive(indices + mid + 1, npoints - mid - 1, depth + 1);
+
+			return node;
+		}
+
+		/** @brief Clears k-d tree recursively.
+		*/
+		void clearRecursive(Node* node)
+		{
+			if (node == nullptr)
+				return;
+
+			if (node->next[0])
+				clearRecursive(node->next[0]);
+
+			if (node->next[1])
+				clearRecursive(node->next[1]);
+
+			delete node;
+		}
+
+		/** @brief Validates k-d tree recursively.
+		*/
+		void validateRecursive(const Node* node, int depth) const
+		{
+			if (node == nullptr)
+				return;
+
+			const int axis = node->axis;
+			const Node* node0 = node->next[0];
+			const Node* node1 = node->next[1];
+
+			if (node0 && node1)
+			{
+				if (points_[node->idx][axis] < points_[node0->idx][axis])
+					throw Exception();
+
+				if (points_[node->idx][axis] > points_[node1->idx][axis])
+					throw Exception();
+			}
+
+			if (node0)
+				validateRecursive(node0, depth + 1);
+
+			if (node1)
+				validateRecursive(node1, depth + 1);
+		}
+
+		static double distance(const PointT& p, const PointT& q)
+		{
+			double dist = 0;
+			for (size_t i = 0; i < PointT::DIM; i++)
+				dist += (p[i] - q[i]) * (p[i] - q[i]);
+			return sqrt(dist);
+		}
+
+		/** @brief Searches the nearest neighbor recursively.
+		*/
+		void nnSearchRecursive(const PointT& query, const Node* node, int *guess, double *minDist) const
+		{
+			if (node == nullptr)
+				return;
+
+			const PointT& train = points_[node->idx];
+
+			const double dist = distance(query, train);
+			if (dist < *minDist)
+			{
+				*minDist = dist;
+				*guess = node->idx;
+			}
+
+			const int axis = node->axis;
+			const int dir = query[axis] < train[axis] ? 0 : 1;
+			nnSearchRecursive(query, node->next[dir], guess, minDist);
+
+			const double diff = fabs(query[axis] - train[axis]);
+			if (diff < *minDist)
+				nnSearchRecursive(query, node->next[!dir], guess, minDist);
+		}
+
+		/** @brief Searches k-nearest neighbors recursively.
+		*/
+		void knnSearchRecursive(const PointT& query, const Node* node, KnnQueue& queue, int k) const
+		{
+			if (node == nullptr)
+				return;
+
+			const PointT& train = points_[node->idx];
+
+			const double dist = distance(query, train);
+			queue.push(std::make_pair(dist, node->idx));
+
+			const int axis = node->axis;
+			const int dir = query[axis] < train[axis] ? 0 : 1;
+			knnSearchRecursive(query, node->next[dir], queue, k);
+
+			const double diff = fabs(query[axis] - train[axis]);
+			if ((int)queue.size() < k || diff < queue.back().first)
+				knnSearchRecursive(query, node->next[!dir], queue, k);
+		}
+
+		/** @brief Searches neighbors within radius.
+		*/
+		void radiusSearchRecursive(const PointT& query, const Node* node, std::vector<int>& indices, double radius) const
+		{
+			if (node == nullptr)
+				return;
+
+			const PointT& train = points_[node->idx];
+
+			const double dist = distance(query, train);
+			if (dist < radius)
+				indices.push_back(node->idx);
+
+			const int axis = node->axis;
+			const int dir = query[axis] < train[axis] ? 0 : 1;
+			radiusSearchRecursive(query, node->next[dir], indices, radius);
+
+			const double diff = fabs(query[axis] - train[axis]);
+			if (diff < radius)
+				radiusSearchRecursive(query, node->next[!dir], indices, radius);
+		}
+
+		Node* root_;                 //!< root node
+		std::vector<PointT> points_; //!< points
+	};
+#endif
+#if 1
 //#define M 1024
 
 typedef struct node_t
@@ -315,7 +610,7 @@ bool compare_polygon(const PolygonCgal& poly_a,const PolygonCgal& poly_b){
     }
 }
 
-bool isBadPolygon(PointVector& polygon_,double step_){
+/*bool isBadPolygon(PointVector& polygon_,double step_){
     
     if(polygon_.size() < 3)
     {
@@ -355,8 +650,9 @@ bool isBadPolygon(PointVector& polygon_,double step_){
         else
             return false;
     }
-}
-void selectPolygon(PolygonListCgal& src_,PolygonListCgal& dst_)
+}*/
+
+/*void selectPolygon(PolygonListCgal& src_,PolygonListCgal& dst_)
 {
     std::list<PolygonCgal>::iterator iter;
     for(iter = src_.begin();iter != src_.end();iter++){
@@ -378,32 +674,66 @@ void selectPolygon(PolygonListCgal& src_,PolygonListCgal& dst_)
              dst_.push_back(*iter);
     }
 
-}
+}*/
 
-typedef struct skeletonPoint{
-    int x;
-    int y;
+typedef struct SS_Edge{
+    cv::Point from;
+    bool isSplitNodeFrom;
+    cv::Point to;
+    bool isSplitNodeTo;
+    double time;
 
-    skeletonPoint(int x_,int y_){
-        x = x_;
-        y = y_;
+    SS_Edge(cv::Point& from_,cv::Point& to_,bool is_from,bool is_to){
+        from.x = from_.x;
+        from.y = from_.y;
+        to.x = to_.x;
+        to.x = to_.y;
+
+        isSplitNodeFrom = is_from;
+        isSplitNodeTo = is_to;
+        time = 0.f;
     }
 
-    bool operator < (const skeletonPoint& p)const
+    bool operator < (const SS_Edge& p)const
     {
-        if(x*y == p.x*p.y)
-            return (x < p.x?true:false);
+        if((from.x*from.y*to.x*to.y) == (p.from.y*p.from.x*p.to.x*p.to.y)){
+            if((from.x+from.y+to.x+to.y) == (p.from.y+p.from.x+p.to.x+p.to.y)){
+                return (from.x+from.y) < (p.from.x+p.from.y)?true:false;
+            }
+            else
+                return (from.x+from.y+to.x+to.y) < (p.to.x+p.to.y+p.from.x+p.from.y)?true:false;
+        }
         else
-            return (x*y < p.x*p.y?true:false);
+            return (from.x*from.y*to.x*to.y) < (p.from.x*p.from.y*p.to.x*p.to.y)?true:false;
     }
 
-}SP;
+}SSEdge;
 
 void PolygonCgalToPtr(cv::Point2f* ptr,int n,PolygonCgal& poly){
     for(int i = 0;i < n;i++){
         poly.push_back(PointCgal(ptr[i].x,ptr[i].y));
     }
 }
+
+class LocalPoint : public std::array<double, 2>
+{
+public:
+
+	// dimension of space (or "k" of k-d tree)
+	// KDTree class accesses this member
+	static const int DIM = 2;
+
+	// the constructors
+	LocalPoint() {}
+	LocalPoint(double x, double y)
+	{ 
+		(*this)[0] = x;
+		(*this)[1] = y;
+	}
+
+	// conversion to OpenCV Point2d
+	operator cv::Point2d() const { return cv::Point2d((*this)[0], (*this)[1]); }
+};
 
 bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
 			   ram_path_planning::Cpp::Response& res){
@@ -454,7 +784,7 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
 	vertices_point = makeOIP(bin,delta_point);
     
     std::vector<cv::Point> contour_ext;
-    cv::approxPolyDP(vertices_point,contour_ext,2.0,true);
+    cv::approxPolyDP(vertices_point,contour_ext,3.0,true);
     
     //B+Tree
     NODE* head = NULL;
@@ -467,6 +797,7 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
     ROS_INFO_STREAM("head->children:" << head->children);
 
     PolygonCgal polyCgalPoint;
+    std::vector<LocalPoint> extPoint;
 	for(int j = 0;j < contour_ext.size();j++){
 		double point_x = contour_ext[j].x*req.map_resolution+req.map_origin_x;
 		double point_y = contour_ext[j].y*req.map_resolution+req.map_origin_y;
@@ -484,6 +815,7 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
         head->polygon[j].x = point_x;
         head->polygon[j].y = point_y;
     //std::cout << __FILE__ << __LINE__ << std::endl;
+        extPoint.push_back(LocalPoint(point_x,point_y));
 	}
     
     //std::cout << __FILE__ << __LINE__ << std::endl;
@@ -505,7 +837,7 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
     
     //std::cout << __FILE__ << __LINE__ << std::endl;
     double lOffset = 0.2;
-    //PolygonPtrVector offset_polygons = CGAL::create_offset_polygons_2<PolygonCgal>(lOffset,*iss);
+    //PolygonPtrVector offset_polygonsncident vertex of h.  = CGAL::create_offset_polygons_2<PolygonCgal>(lOffset,*iss);
     PolygonPtrVector offset_polygons;
     //offset_polygons = CGAL::create_interior_skeleton_and_offset_polygons_2(lOffset,poly_cgal);
     //ROS_INFO_STREAM("PoygonPtrVectorSize:" << offset_polygons.size());
@@ -659,7 +991,7 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
     ROS_INFO_STREAM("iss.size_of_halfedges():" << iss->size_of_halfedges());
     ROS_INFO_STREAM("iss.size_of_faces():" << iss->size_of_faces());
     
-    std::map<SP,int> skeletonPointMap;
+    std::map<SSEdge,int> SSEdgeTop;
     int key_ = 0;
     if(iss){
         for(auto face = iss->faces_begin();face != iss->faces_end();face++){
@@ -667,29 +999,86 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
             Ss::Halfedge_const_handle edge = begin;
 
             do{
+                
+                Ss::Halfedge_const_handle opposite_edge = edge->opposite();
                 const Vertex_const_handle& v = edge->vertex();
+                const Vertex_const_handle& v_op = opposite_edge->vertex();
                 
-                SP sp_(v->point().x(),v->point().y());
-                ROS_INFO_STREAM("map.count:" << skeletonPointMap.count(sp_));
-                ROS_INFO_STREAM("is_skeleton:" << v->is_skeleton());
-                ROS_INFO_STREAM("sp_:(" << sp_.x << "," << sp_.y << ")");
+                cv::Point from;
+                cv::Point to;
+                bool isSplitNodeFrom = false;
+                bool isSplitNodeTo = false;
                 
-                if(v->is_skeleton())
-                {
-                    if(skeletonPointMap.count(sp_) == 0){
+                from.x = v->point().x();
+                from.y = v->point().y();
+                to.x = v_op->point().x();
+                to.y = v_op->point().y();
 
-                        ROS_INFO_STREAM("collapse time:" << v->time());
+                //SP sp_(v->point().x(),v->point().y(),v->time());
+                //SP sp_op(v_op->point().x(),v_op->point().y(),v_op->time());
+                
+                SSEdge ss_edge(from,to,isSplitNodeFrom,isSplitNodeTo);
+                ROS_INFO_STREAM("#####################################################");
+                ROS_INFO_STREAM("map.count:" << SSEdgeTop.count(ss_edge));
+                
+                ROS_INFO_STREAM("v_is_skeleton:" << v->is_skeleton());
+                ROS_INFO_STREAM("from:(" << from.x << "," << from.y << ")");
+                
+                ROS_INFO_STREAM("v_op_is_contour:" << v_op->is_contour());
+                ROS_INFO_STREAM("to:(" << to.x << "," << to.y << ")");
+
+                if(v->is_skeleton() && v_op->is_contour())
+                {
+                    if(SSEdgeTop.count(ss_edge) == 0){
+                        double t = v->time();
+                        if(t < 9.0){
+                            ss_edge.isSplitNodeFrom = true;
+                            ss_edge.time = t;
+
+                            ROS_INFO_STREAM("v_t:" << t);
+                            geometry_msgs::Pose p_t;
+                            p_t.position.x = v->point().x()*req.map_resolution+req.map_origin_x;
+                            p_t.position.y = v->point().y()*req.map_resolution+req.map_origin_y;
+                            p_t.position.z = 0.f;
+
+                            ROS_INFO_STREAM("p_t:(" << p_t.position.x << "," << p_t.position.y << ")");
+                            res.point_skeleton.push_back(p_t);
+
+                            SSEdgeTop.insert(std::make_pair(ss_edge,key_++));
+                        }
+                    }
+                    /*if(skeletonPointMap.count(sp_) == 0){
+                        ROS_INFO_STREAM("collapse time:" << sp_.t);
 
                         geometry_msgs::Pose p_t;
                         p_t.position.x = v->point().x()*req.map_resolution+req.map_origin_x;;
                         p_t.position.y = v->point().y()*req.map_resolution+req.map_origin_y;;
                         p_t.position.z = 0.f;
 
+                        ROS_INFO_STREAM("p_t:(" << p_t.position.x << "," << p_t.position.y << ")");
                         res.point_skeleton.push_back(p_t);
 
                         skeletonPointMap.insert(std::make_pair(sp_,key_++));
-                    }
+                    }*/
                 }
+                /*else if(v->is_contour() && v_op->is_skeleton()){
+                   double t = v_op->time();
+                   if(t < 10.0){
+                        ss_edge.isSplitNodeTo = true;
+                        ss_edge.time = t;
+
+                        ROS_INFO_STREAM("v_op_t:" << t);
+                        geometry_msgs::Pose p_t;
+                        p_t.position.x = v_op->point().x()*req.map_resolution+req.map_origin_x;;
+                        p_t.position.y = v_op->point().y()*req.map_resolution+req.map_origin_y;;
+                        p_t.position.z = 0.f;
+
+                        ROS_INFO_STREAM("p_t:(" << p_t.position.x << "," << p_t.position.y << ")");
+                        res.point_skeleton.push_back(p_t);
+
+                        SSEdgeTop.insert(std::make_pair(ss_edge,key_++));
+                   }
+                }*/
                 
                 edge = edge->prev();
 
@@ -699,6 +1088,37 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
     
     ROS_INFO_STREAM("key_:" << key_);
     
+    ROS_INFO_STREAM("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$");    
+    
+    //init KDtree
+    KDTree<LocalPoint> kdtree(extPoint);
+    
+    std::map<SSEdge,int>::iterator iter_edge;
+    for(iter_edge = SSEdgeTop.begin();iter_edge != SSEdgeTop.end();iter_edge++){
+        LocalPoint query(iter_edge->first.from.x*req.map_resolution+req.map_origin_x,
+                         iter_edge->first.from.y*req.map_resolution+req.map_origin_y);
+        ROS_INFO_STREAM("from:(" << iter_edge->first.from.x*req.map_resolution+req.map_origin_x << ","
+                                 << iter_edge->first.from.y*req.map_resolution+req.map_origin_y << ")");
+        
+        const std::vector<int> knnIndices = kdtree.knnSearch(query, 2);
+        for(int i : knnIndices){
+            ROS_INFO_STREAM("kdtree:(" << cv::Point2d(extPoint[i]).x << "," << cv::Point2d(extPoint[i]).y << ")");
+            geometry_msgs::Pose p_t;
+            p_t.position.x = cv::Point2d(extPoint[i]).x;
+            p_t.position.y = cv::Point2d(extPoint[i]).y;
+            p_t.position.z = 0.f;
+            
+            res.point_nearest.push_back(p_t);
+        }
+
+        /*ROS_INFO_STREAM("to:(" << iter_edge->first.to.x*req.map_resolution+req.map_origin_x << ","
+                               << iter_edge->first.to.y*req.map_resolution+req.map_origin_y << ")");
+        ROS_INFO_STREAM("isSplitNodeFrom:" << iter_edge->first.isSplitNodeFrom << ",isSplitNodeTo:" << iter_edge->first.isSplitNodeTo);
+        ROS_INFO_STREAM("time:" << iter_edge->first.time);
+        ROS_INFO_STREAM("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$");*/
+
+
+    }
 
 	/*std::vector<std::vector<cv::Point> > contours;
 	std::vector<cv::Vec4i> hierarchy;
@@ -843,34 +1263,6 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
                 
         }
   	}*/
-
-    /*for(int index_i = 0;index_i < final_path.size();index_i++){
-		for(int index_j = 0;index_j < final_path[index_i].size();index_j++){
-			geometry_msgs::PoseStamped current_pose;
-			current_pose.pose.position.x = final_path[index_i][index_j].x;
-			current_pose.pose.position.y = final_path[index_i][index_j].y;
-			current_pose.pose.position.z = final_path[index_i][index_j].z;
-
-			plan_path.poses.push_back(current_pose);
-		}
-	}
-
-    res.path.push_back(plan_path);*/
-
-    /*for(int index_i = 0;index_i < final_path.size();index_i++){
-		nav_msgs::Path path_bcd;
-
-		for(int index_j = 0;index_j < final_path[index_i].size();index_j++){
-			geometry_msgs::PoseStamped current_pose;
-			current_pose.pose.position.x = final_path[index_i][index_j].x;
-			current_pose.pose.position.y = final_path[index_i][index_j].y;
-			current_pose.pose.position.z = final_path[index_i][index_j].z;
-
-			path_bcd.poses.push_back(current_pose);
-		}
-		res.path.push_back(path_bcd);
-	}*/
-
 
 	return true;
 }
