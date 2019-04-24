@@ -709,6 +709,38 @@ typedef struct SS_Edge{
 
 }SSEdge;
 
+typedef struct Split_Edge{
+    int start_id;
+    int end_id;
+
+    Split_Edge(int start_id_,int end_id_){
+        start_id = start_id_;
+        end_id = end_id_;
+    }
+
+    /*bool operator < (const Split_Edge& e)const
+    {
+        if((start_id*end_id) == (e.start_id*e.end_id))
+            return ((start_id+end_id) < (e.start_id+e.end_id)?true:false);
+
+        else
+            return ((start_id*end_id) < (e.start_id*e.end_id)?true:false);
+    }*/
+}SPEdge;
+
+class edgeCmp{
+    public:
+    bool operator()(SPEdge const &e_a,SPEdge const &e_b)const
+    {
+        if((e_a.start_id*e_a.end_id) == (e_b.start_id*e_b.end_id)){
+            return (e_a.start_id < e_b.start_id?true:false);
+        }
+        else
+            return ((e_a.start_id*e_a.end_id) < (e_b.start_id*e_b.end_id)?true:false);
+
+    }
+};
+
 void PolygonCgalToPtr(cv::Point2f* ptr,int n,PolygonCgal& poly){
     for(int i = 0;i < n;i++){
         poly.push_back(PointCgal(ptr[i].x,ptr[i].y));
@@ -1093,14 +1125,29 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
     //init KDtree
     KDTree<LocalPoint> kdtree(extPoint);
     
+    //store spilt edge
+    std::map<SPEdge,int>::iterator iter_sp_edge;
+    std::map<SPEdge,int,edgeCmp> SPEdgeTop;
+
     std::map<SSEdge,int>::iterator iter_edge;
+    double sub_area_limit = 1.0;
+    double split_edge_limit = 0.5;
+    int split_key = 0;
+
     for(iter_edge = SSEdgeTop.begin();iter_edge != SSEdgeTop.end();iter_edge++){
         LocalPoint query(iter_edge->first.from.x*req.map_resolution+req.map_origin_x,
                          iter_edge->first.from.y*req.map_resolution+req.map_origin_y);
+        ROS_INFO_STREAM("*************************************************************************");
         ROS_INFO_STREAM("from:(" << iter_edge->first.from.x*req.map_resolution+req.map_origin_x << ","
                                  << iter_edge->first.from.y*req.map_resolution+req.map_origin_y << ")");
         
         const std::vector<int> knnIndices = kdtree.knnSearch(query, 2);
+        int start_id = knnIndices[0] < knnIndices[1]?knnIndices[0]:knnIndices[1];
+        int end_id = knnIndices[0] > knnIndices[1]?knnIndices[0]:knnIndices[1];
+        
+        SPEdge sp_edge(start_id,end_id);
+
+        /*ROS_INFO_STREAM("ID:(" << begin_id << "," << end_id << ")");
         for(int i : knnIndices){
             ROS_INFO_STREAM("kdtree:(" << cv::Point2d(extPoint[i]).x << "," << cv::Point2d(extPoint[i]).y << ")");
             geometry_msgs::Pose p_t;
@@ -1109,6 +1156,54 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
             p_t.position.z = 0.f;
             
             res.point_nearest.push_back(p_t);
+        }*/
+
+        ROS_INFO_STREAM("ID:(" << start_id<< "," << end_id << ")");
+        ROS_INFO_STREAM("SPEdgeTop.count(sp_edge):" << SPEdgeTop.count(sp_edge));
+        if(SPEdgeTop.count(sp_edge) == 0){
+            std::vector<cv::Point2f> sub_contour;
+            for(int i = sp_edge.start_id;i < sp_edge.end_id;i++){
+                sub_contour.push_back(cv::Point2f(cv::Point2d(extPoint[i]).x,cv::Point2d(extPoint[i]).y));
+
+                ROS_INFO_STREAM("sub_contour:(" << cv::Point2d(extPoint[i]).x << "," 
+                                               << cv::Point2d(extPoint[i]).y << ")");
+            }
+
+            ROS_INFO_STREAM("sub_contour_size:" << sub_contour.size());
+
+            if(sub_contour.size() < 3)
+                continue;
+
+            double sub_area = cv::contourArea(sub_contour,false);
+            ROS_INFO_STREAM("sub_area:" << sub_area);
+
+            if(sub_area > sub_area_limit){
+                double delta_x = cv::Point2d(extPoint[sp_edge.start_id]).x-cv::Point2d(extPoint[sp_edge.end_id]).x;
+                double delta_y = cv::Point2d(extPoint[sp_edge.start_id]).y-cv::Point2d(extPoint[sp_edge.end_id]).y;
+                ROS_INFO_STREAM("split_edge_limit:" << std::sqrt(delta_x*delta_x + delta_y*delta_y));
+
+                if(std::sqrt(delta_x*delta_x + delta_y*delta_y) > split_edge_limit){
+                    SPEdgeTop.insert(std::make_pair(sp_edge,split_key++));      
+
+                    ROS_INFO_STREAM("kdtree_start:(" << cv::Point2d(extPoint[sp_edge.start_id]).x << "," 
+                                               << cv::Point2d(extPoint[sp_edge.start_id]).y << ")");
+                    geometry_msgs::Pose p_t;
+                    p_t.position.x = cv::Point2d(extPoint[sp_edge.start_id]).x;
+                    p_t.position.y = cv::Point2d(extPoint[sp_edge.start_id]).y;
+                    p_t.position.z = 0.f;
+                    
+                    res.point_nearest.push_back(p_t);
+
+                    ROS_INFO_STREAM("kdtree_end:(" << cv::Point2d(extPoint[sp_edge.end_id]).x << "," 
+                                               << cv::Point2d(extPoint[sp_edge.end_id]).y << ")");
+                    geometry_msgs::Pose p_t_end;
+                    p_t_end.position.x = cv::Point2d(extPoint[sp_edge.end_id]).x;
+                    p_t_end.position.y = cv::Point2d(extPoint[sp_edge.end_id]).y;
+                    p_t_end.position.z = 0.f;
+                    
+                    res.point_nearest.push_back(p_t_end);
+                }
+            }
         }
 
         /*ROS_INFO_STREAM("to:(" << iter_edge->first.to.x*req.map_resolution+req.map_origin_x << ","
@@ -1119,7 +1214,7 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
 
 
     }
-
+    
 	/*std::vector<std::vector<cv::Point> > contours;
 	std::vector<cv::Vec4i> hierarchy;
 
