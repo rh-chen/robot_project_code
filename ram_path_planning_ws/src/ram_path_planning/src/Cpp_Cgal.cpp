@@ -741,6 +741,29 @@ class edgeCmp{
     }
 };
 
+typedef struct SP_Union{
+    cv::Point2f p;
+    cv::Point2f c1;
+    cv::Point2f c2;
+
+    SP_Union(cv::Point2f& p_,cv::Point2f& c1_,cv::Point2f& c2_){
+        p.x = p_.x;
+        p.y = p_.y;
+
+        c1.x = c1_.x;
+        c1.y = c1_.y;
+        
+        c2.x = c2_.x;
+        c2.y = c2_.y;
+    }
+    
+    bool operator < (const SP_Union& u)const
+    {
+        return (p.x < u.p.x?true:false);
+    }
+
+}SPUnion;
+
 void PolygonCgalToPtr(cv::Point2f* ptr,int n,PolygonCgal& poly){
     for(int i = 0;i < n;i++){
         poly.push_back(PointCgal(ptr[i].x,ptr[i].y));
@@ -1134,7 +1157,10 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
     double sub_area_limit = 1.5;
     double split_edge_limit = 0.5;
     int split_key = 0;
+    int sp_union_key = 0;
 
+    std::map<SPUnion,int> SPUnionTop;
+    std::vector<LocalPoint> spUnionPoint; 
     ROS_INFO_STREAM("contour_ext:" << contour_ext.size());
     for(iter_edge = SSEdgeTop.begin();iter_edge != SSEdgeTop.end();iter_edge++){
         LocalPoint query(iter_edge->first.from.x*req.map_resolution+req.map_origin_x,
@@ -1196,28 +1222,37 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
 
                     ROS_INFO_STREAM("kdtree_start:(" << cv::Point2d(extPoint[sp_edge.start_id]).x << "," 
                                                << cv::Point2d(extPoint[sp_edge.start_id]).y << ")");
-                    geometry_msgs::Pose p_t;
-                    p_t.position.x = cv::Point2d(extPoint[sp_edge.start_id]).x;
-                    p_t.position.y = cv::Point2d(extPoint[sp_edge.start_id]).y;
-                    p_t.position.z = 0.f;
+                    geometry_msgs::Pose p_start;
+                    p_start.position.x = cv::Point2d(extPoint[sp_edge.start_id]).x;
+                    p_start.position.y = cv::Point2d(extPoint[sp_edge.start_id]).y;
+                    p_start.position.z = 0.f;
                     
-                    res.point_nearest.push_back(p_t);
+                    //res.point_nearest.push_back(p_start);
 
                     ROS_INFO_STREAM("kdtree_end:(" << cv::Point2d(extPoint[sp_edge.end_id]).x << "," 
                                                << cv::Point2d(extPoint[sp_edge.end_id]).y << ")");
-                    geometry_msgs::Pose p_t_end;
-                    p_t_end.position.x = cv::Point2d(extPoint[sp_edge.end_id]).x;
-                    p_t_end.position.y = cv::Point2d(extPoint[sp_edge.end_id]).y;
-                    p_t_end.position.z = 0.f;
+                    geometry_msgs::Pose p_end;
+                    p_end.position.x = cv::Point2d(extPoint[sp_edge.end_id]).x;
+                    p_end.position.y = cv::Point2d(extPoint[sp_edge.end_id]).y;
+                    p_end.position.z = 0.f;
                     
-                    res.point_nearest.push_back(p_t_end);
+                    //res.point_nearest.push_back(p_end);
                     
                     geometry_msgs::Pose p_s;
                     p_s.position.x = iter_edge->first.from.x*req.map_resolution+req.map_origin_x;
                     p_s.position.y = iter_edge->first.from.y*req.map_resolution+req.map_origin_y;
                     p_s.position.z = 0.f;
                     
-                    res.point_skeleton.push_back(p_s);
+                    //res.point_skeleton.push_back(p_s);
+                    
+                    cv::Point2f p_s_(p_s.position.x,p_s.position.y);
+                    cv::Point2f p_start_(p_start.position.x,p_start.position.y);
+                    cv::Point2f p_end_(p_end.position.x,p_end.position.y);
+                    SPUnion sp_union(p_s_,p_start_,p_end_);
+
+                   SPUnionTop.insert(std::make_pair(sp_union,sp_union_key++));
+
+                   spUnionPoint.push_back(LocalPoint(p_s.position.x,p_s.position.y));
                 }
             }
         }
@@ -1230,7 +1265,56 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
 
 
     }
+   
+    ROS_INFO_STREAM("spUnionPoint_size:" << spUnionPoint.size());
+    std::map<SPUnion,int>::iterator iter_union; 
+
+    KDTree<LocalPoint> kdtree_union(spUnionPoint);
+    double radius = 1.0;
+    int delete_count = 0;
+
+    ROS_INFO_STREAM("SPUnionTop_size:" << SPUnionTop.size());
+    for(iter_union = SPUnionTop.begin();iter_union != SPUnionTop.end();){
+        
+        LocalPoint query(iter_union->first.p.x,iter_union->first.p.y);
+        const std::vector<int> radIndices = kdtree_union.radiusSearch(query, radius);
+        ROS_INFO_STREAM("radIndices_size:" << radIndices.size());
+        if(radIndices.size() > 1){
+            if((radIndices.size()-delete_count) > 1){
+                SPUnionTop.erase(iter_union++);
+                delete_count++;
+            }
+            else
+                iter_union++;
+         }
+        else
+            iter_union++;
+    }
+
+    ROS_INFO_STREAM("SPUnionTop_size_:" << SPUnionTop.size());
     
+    for(iter_union = SPUnionTop.begin();iter_union != SPUnionTop.end();iter_union++){
+        geometry_msgs::Pose p_start;
+        p_start.position.x = iter_union->first.c1.x;
+        p_start.position.y = iter_union->first.c1.y;
+        p_start.position.z = 0.f;
+        
+        res.point_nearest.push_back(p_start);
+
+        geometry_msgs::Pose p_end;
+        p_end.position.x = iter_union->first.c2.x;
+        p_end.position.y = iter_union->first.c2.y;
+        p_end.position.z = 0.f;
+        
+        res.point_nearest.push_back(p_end);
+        
+        geometry_msgs::Pose p_s;
+        p_s.position.x = iter_union->first.p.x;
+        p_s.position.y = iter_union->first.p.y;
+        p_s.position.z = 0.f;
+        
+        res.point_skeleton.push_back(p_s);
+    }
 	/*std::vector<std::vector<cv::Point> > contours;
 	std::vector<cv::Vec4i> hierarchy;
 
