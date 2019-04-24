@@ -817,7 +817,8 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
     
     std::vector<cv::Point> contour_ext;
     cv::approxPolyDP(vertices_point,contour_ext,3.0,true);
-    
+    //ROS_INFO_STREAM("contour_ext:" << contour_ext.size());
+
     //B+Tree
     NODE* head = NULL;
     head = new NODE(contour_ext.size(),0,0);
@@ -1068,13 +1069,13 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
                             ss_edge.time = t;
 
                             ROS_INFO_STREAM("v_t:" << t);
-                            geometry_msgs::Pose p_t;
+                            /*geometry_msgs::Pose p_t;
                             p_t.position.x = v->point().x()*req.map_resolution+req.map_origin_x;
                             p_t.position.y = v->point().y()*req.map_resolution+req.map_origin_y;
                             p_t.position.z = 0.f;
 
                             ROS_INFO_STREAM("p_t:(" << p_t.position.x << "," << p_t.position.y << ")");
-                            res.point_skeleton.push_back(p_t);
+                            res.point_skeleton.push_back(p_t);*/
 
                             SSEdgeTop.insert(std::make_pair(ss_edge,key_++));
                         }
@@ -1130,10 +1131,11 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
     std::map<SPEdge,int,edgeCmp> SPEdgeTop;
 
     std::map<SSEdge,int>::iterator iter_edge;
-    double sub_area_limit = 1.0;
+    double sub_area_limit = 1.5;
     double split_edge_limit = 0.5;
     int split_key = 0;
 
+    ROS_INFO_STREAM("contour_ext:" << contour_ext.size());
     for(iter_edge = SSEdgeTop.begin();iter_edge != SSEdgeTop.end();iter_edge++){
         LocalPoint query(iter_edge->first.from.x*req.map_resolution+req.map_origin_x,
                          iter_edge->first.from.y*req.map_resolution+req.map_origin_y);
@@ -1162,22 +1164,29 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
         ROS_INFO_STREAM("SPEdgeTop.count(sp_edge):" << SPEdgeTop.count(sp_edge));
         if(SPEdgeTop.count(sp_edge) == 0){
             std::vector<cv::Point2f> sub_contour;
-            for(int i = sp_edge.start_id;i < sp_edge.end_id;i++){
-                sub_contour.push_back(cv::Point2f(cv::Point2d(extPoint[i]).x,cv::Point2d(extPoint[i]).y));
-
-                ROS_INFO_STREAM("sub_contour:(" << cv::Point2d(extPoint[i]).x << "," 
-                                               << cv::Point2d(extPoint[i]).y << ")");
+            std::vector<cv::Point2f> sub_contour_;
+            
+            for(int i = 0;i < contour_ext.size();i++){
+                if(i >= sp_edge.start_id && i <= sp_edge.end_id){
+                    sub_contour.push_back(cv::Point2f(cv::Point2d(extPoint[i]).x,cv::Point2d(extPoint[i]).y));
+                }
+                else{
+                    sub_contour_.push_back(cv::Point2f(cv::Point2d(extPoint[i]).x,cv::Point2d(extPoint[i]).y));
+                }
             }
 
-            ROS_INFO_STREAM("sub_contour_size:" << sub_contour.size());
+            ROS_INFO_STREAM("sub_contour:" << sub_contour.size());
+            ROS_INFO_STREAM("sub_contour_:" << sub_contour_.size());
 
-            if(sub_contour.size() < 3)
+            if(sub_contour.size() < 3 || sub_contour_.size() < 3)
                 continue;
 
             double sub_area = cv::contourArea(sub_contour,false);
+            double sub_area_ = cv::contourArea(sub_contour_,false);
             ROS_INFO_STREAM("sub_area:" << sub_area);
+            ROS_INFO_STREAM("sub_area_:" << sub_area_);
 
-            if(sub_area > sub_area_limit){
+            if(sub_area > sub_area_limit && sub_area_ > sub_area_limit){
                 double delta_x = cv::Point2d(extPoint[sp_edge.start_id]).x-cv::Point2d(extPoint[sp_edge.end_id]).x;
                 double delta_y = cv::Point2d(extPoint[sp_edge.start_id]).y-cv::Point2d(extPoint[sp_edge.end_id]).y;
                 ROS_INFO_STREAM("split_edge_limit:" << std::sqrt(delta_x*delta_x + delta_y*delta_y));
@@ -1202,6 +1211,13 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
                     p_t_end.position.z = 0.f;
                     
                     res.point_nearest.push_back(p_t_end);
+                    
+                    geometry_msgs::Pose p_s;
+                    p_s.position.x = iter_edge->first.from.x*req.map_resolution+req.map_origin_x;
+                    p_s.position.y = iter_edge->first.from.y*req.map_resolution+req.map_origin_y;
+                    p_s.position.z = 0.f;
+                    
+                    res.point_skeleton.push_back(p_s);
                 }
             }
         }
