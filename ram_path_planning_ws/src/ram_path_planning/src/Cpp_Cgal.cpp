@@ -1453,7 +1453,17 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
     }
     
     ROS_INFO_STREAM("sp_union_.size:" << sp_union_.size());*/
+    std::map<SPPoint,int> SPPointTop;
+    int sp_point_key = 0;
+    std::vector<std::vector<int> > split_polygon;
+
     for(iter_union = SPUnionTop.begin();iter_union != SPUnionTop.end();iter_union++){
+        std::vector<int> split_polygon_cell;
+        bool is_overlap = false;
+        int start_overlap = 0;
+        int end_overlap = 0;
+        int count_overlap = 0;
+
         geometry_msgs::Pose p_start;
         p_start.position.x = iter_union->first.c1.x;
         p_start.position.y = iter_union->first.c1.y;
@@ -1476,6 +1486,50 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
         res.point_skeleton.push_back(p_s);
         ROS_INFO_STREAM("iter_union.size:" << iter_union->first.sub_contour.size());
         
+        for(int i = 0;i < iter_union->first.sub_contour.size();i++){
+            ROS_INFO_STREAM("iter_union->first.sub_contour:" << iter_union->first.sub_contour[i]);
+            SPPoint sp_point(iter_union->first.sub_contour[i]);
+            if(SPPointTop.count(sp_point) == 0){
+                split_polygon_cell.push_back(iter_union->first.sub_contour[i]);
+                SPPointTop.insert(std::make_pair(sp_point,sp_point_key++));
+            }
+            else{
+                    is_overlap = true;
+                    if(count_overlap == 0){
+                        start_overlap = iter_union->first.sub_contour[i];
+                        end_overlap = iter_union->first.sub_contour[i];
+                    }
+                    else
+                        end_overlap = iter_union->first.sub_contour[i];
+
+                    count_overlap++;
+                }
+        }
+
+        if(is_overlap){
+            int index_overlap = 0;
+            std::vector<int> split_polygon_cell_;
+            for(int i = 0;i < split_polygon_cell.size();i++){
+                if(split_polygon_cell[i] > start_overlap){
+                    index_overlap = i;
+                    break;
+                }
+                else{
+                    split_polygon_cell_.push_back(split_polygon_cell[i]);
+                }
+            }
+            split_polygon_cell_.push_back(start_overlap);
+            split_polygon_cell_.push_back(end_overlap);
+            
+            for(int i = index_overlap; i < split_polygon_cell.size();i++){
+                split_polygon_cell_.push_back(split_polygon_cell[i]);
+            }
+
+            split_polygon.push_back(split_polygon_cell_);
+        }
+        else    
+            split_polygon.push_back(split_polygon_cell);
+
         /*int p_start_x = (iter_union->first.c1.x-req.map_origin_x)/req.map_resolution;
         int p_start_y = (iter_union->first.c1.y-req.map_origin_y)/req.map_resolution;
         int p_end_x = (iter_union->first.c2.x-req.map_origin_x)/req.map_resolution;
@@ -1490,7 +1544,26 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
 	cv::threshold(map,bin_split,req.occupancy_threshold,255,cv::THRESH_BINARY_INV);
     cv::imshow("bin_split",bin_split);
     cv::waitKey(0);*/
+ 
+    ROS_INFO_STREAM("split_polygon_size: " << split_polygon.size());
 
+    for(int i = 0;i < split_polygon.size();i++){
+        ROS_INFO_STREAM("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+        ROS_INFO_STREAM("split_polygon[i].size():" << split_polygon[i].size());
+        for(int j = 0;j < split_polygon[i].size();j++){
+            ROS_INFO_STREAM("split_polygon[i][j]:" << split_polygon[i][j]);
+        }
+    }
+    
+    std::vector<int> split_last;
+    for(int i = 0;i < contour_ext.size();i++){
+        SPPoint sp_point(i);
+        if(SPPointTop.count(sp_point) == 0){
+            split_last.push_back(i);
+        }
+    }
+
+    ROS_INFO_STREAM("split_last_size: " << split_last.size());
     /*std::vector<std::vector<cv::Point> > contours;
 	std::vector<cv::Vec4i> hierarchy;
 
