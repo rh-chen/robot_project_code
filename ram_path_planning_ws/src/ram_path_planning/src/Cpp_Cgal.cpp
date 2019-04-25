@@ -745,8 +745,9 @@ typedef struct SP_Union{
     cv::Point2f p;
     cv::Point2f c1;
     cv::Point2f c2;
+    std::vector<int> sub_contour;
 
-    SP_Union(cv::Point2f& p_,cv::Point2f& c1_,cv::Point2f& c2_){
+    SP_Union(cv::Point2f& p_,cv::Point2f& c1_,cv::Point2f& c2_,std::vector<int>& sub_contour_){
         p.x = p_.x;
         p.y = p_.y;
 
@@ -755,14 +756,36 @@ typedef struct SP_Union{
         
         c2.x = c2_.x;
         c2.y = c2_.y;
+
+        for(int i = 0;i < sub_contour_.size();i++)
+            sub_contour.push_back(sub_contour_[i]);
     }
     
     bool operator < (const SP_Union& u)const
     {
-        return (p.x < u.p.x?true:false);
+        if(sub_contour.size() < u.sub_contour.size())
+            return true;
+        else if(sub_contour.size() > u.sub_contour.size())
+            return false;
+        else{
+            return (p.x < u.p.x?true:false);
+        }
     }
 
 }SPUnion;
+
+typedef struct SP_Point{
+    int index;
+
+    SP_Point(int index_){
+        index = index_;
+    }
+
+    bool operator < (const SP_Point& p_)const
+    {
+        return (index < p_.index?true:false);
+    }
+}SPPoint;
 
 void PolygonCgalToPtr(cv::Point2f* ptr,int n,PolygonCgal& poly){
     for(int i = 0;i < n;i++){
@@ -1160,7 +1183,11 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
     int sp_union_key = 0;
 
     std::map<SPUnion,int> SPUnionTop;
-    std::vector<LocalPoint> spUnionPoint; 
+    std::vector<LocalPoint> spUnionPoint;
+
+    //std::map<SPPoint,int> SPPointTop;
+    //int sp_point_key = 0;
+
     ROS_INFO_STREAM("contour_ext:" << contour_ext.size());
     for(iter_edge = SSEdgeTop.begin();iter_edge != SSEdgeTop.end();iter_edge++){
         LocalPoint query(iter_edge->first.from.x*req.map_resolution+req.map_origin_x,
@@ -1191,13 +1218,29 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
         if(SPEdgeTop.count(sp_edge) == 0){
             std::vector<cv::Point2f> sub_contour;
             std::vector<cv::Point2f> sub_contour_;
+            std::vector<int> index_contour;
+            std::vector<int> index_contour_;
             
             for(int i = 0;i < contour_ext.size();i++){
-                if(i >= sp_edge.start_id && i <= sp_edge.end_id){
-                    sub_contour.push_back(cv::Point2f(cv::Point2d(extPoint[i]).x,cv::Point2d(extPoint[i]).y));
+                if((i == sp_edge.start_id) || (i == sp_edge.end_id)){
+                        sub_contour.push_back(cv::Point2f(cv::Point2d(extPoint[i]).x,cv::Point2d(extPoint[i]).y));
+                        sub_contour_.push_back(cv::Point2f(cv::Point2d(extPoint[i]).x,cv::Point2d(extPoint[i]).y));
+
+                        index_contour.push_back(i);
+                        index_contour_.push_back(i);
                 }
                 else{
-                    sub_contour_.push_back(cv::Point2f(cv::Point2d(extPoint[i]).x,cv::Point2d(extPoint[i]).y));
+                    if((i > sp_edge.start_id) && (i < sp_edge.end_id)){
+                        sub_contour.push_back(cv::Point2f(cv::Point2d(extPoint[i]).x,cv::Point2d(extPoint[i]).y));
+                        cv::Point2f cv_point(cv::Point2d(extPoint[i]).x,cv::Point2d(extPoint[i]).y);
+                        //SPPoint sp_point(i);
+                        //SPPointTop.insert(std::make_pair(sp_point,sp_point_key++));
+                        index_contour.push_back(i);
+                    }
+                    else{
+                        sub_contour_.push_back(cv::Point2f(cv::Point2d(extPoint[i]).x,cv::Point2d(extPoint[i]).y));
+                        index_contour_.push_back(i);
+                    }
                 }
             }
 
@@ -1206,7 +1249,7 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
 
             if(sub_contour.size() < 3 || sub_contour_.size() < 3)
                 continue;
-
+            
             double sub_area = cv::contourArea(sub_contour,false);
             double sub_area_ = cv::contourArea(sub_contour_,false);
             ROS_INFO_STREAM("sub_area:" << sub_area);
@@ -1248,11 +1291,121 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
                     cv::Point2f p_s_(p_s.position.x,p_s.position.y);
                     cv::Point2f p_start_(p_start.position.x,p_start.position.y);
                     cv::Point2f p_end_(p_end.position.x,p_end.position.y);
-                    SPUnion sp_union(p_s_,p_start_,p_end_);
+                    //SPUnion sp_union(p_s_,p_start_,p_end_);
+                    
+                    if(sub_area < sub_area_){
+                        std::vector<int> index_contour_sort;
+                        int s_index = 0;
+                        std::stack<int> sIndex;
+                        
+                        for(int i = 0;i < index_contour.size();i++){
+                            ROS_INFO_STREAM("index_contour:" << index_contour[i]);
+                        }
 
-                   SPUnionTop.insert(std::make_pair(sp_union,sp_union_key++));
+                        if((index_contour[0] != sp_edge.start_id) || (index_contour[index_contour.size()-1] != sp_edge.end_id)){
+                           for(int i = 0;i < index_contour.size();i++){
+                                if(index_contour[i] == sp_edge.start_id){
+                                    s_index = i;
+                                    break;
+                                }
+                           }
+                            for(int i = s_index+1;i < index_contour.size();i++)
+                                sIndex.push(index_contour[i]);
 
-                   spUnionPoint.push_back(LocalPoint(p_s.position.x,p_s.position.y));
+                            for(int i = 0;i <= s_index;i++)
+                                sIndex.push(index_contour[i]);
+
+                            while(!sIndex.empty()){
+                                int s_index_ = sIndex.top();
+                                index_contour_sort.push_back(s_index_);
+                                sIndex.pop();
+                            }
+                        }
+                        else{
+                            for(int i = 0;i < index_contour.size();i++)
+                                index_contour_sort.push_back(index_contour[i]);
+                        }
+                            
+                         
+                        /*for(int i = s_index+1;i < index_contour.size();i++)
+                            sIndex.push(index_contour[i]);
+
+                        for(int i = 0;i <= s_index;i++)
+                            sIndex.push(index_contour[i]);
+
+                        while(!sIndex.empty()){
+                            int s_index_ = sIndex.top();
+                            index_contour_sort.push_back(s_index_);
+                            sIndex.pop();
+                        }*/
+
+                        SPUnion sp_union(p_s_,p_start_,p_end_,index_contour_sort);
+                        SPUnionTop.insert(std::make_pair(sp_union,sp_union_key++));
+
+                        
+                        for(int i = 0;i < index_contour_sort.size();i++){
+                            ROS_INFO_STREAM("index_contour_sort:" << index_contour_sort[i]);
+                            //SPPoint sp_point(index_contour[i]);
+                            //SPPointTop.insert(std::make_pair(sp_point,sp_point_key++));
+                        }
+                    }
+                    else{
+                        std::vector<int> index_contour_sort_;
+                        int s_index = 0;
+                        std::stack<int> sIndex;
+                        
+                        for(int i = 0;i < index_contour_.size();i++){
+                            ROS_INFO_STREAM("index_contour_:" << index_contour_[i]);
+                        }
+
+                        if((index_contour_[0] != sp_edge.start_id) || (index_contour_[index_contour.size()-1] != sp_edge.end_id)){
+                           for(int i = 0;i < index_contour_.size();i++){
+                                if(index_contour_[i] == sp_edge.start_id){
+                                    s_index = i;
+                                    break;
+                                }
+                           }
+
+                            for(int i = s_index+1;i < index_contour_.size();i++)
+                                sIndex.push(index_contour_[i]);
+
+                            for(int i = 0;i <= s_index;i++)
+                                sIndex.push(index_contour_[i]);
+
+                            while(!sIndex.empty()){
+                                int s_index_ = sIndex.top();
+                                index_contour_sort_.push_back(s_index_);
+                                sIndex.pop();
+                            }
+                        }
+                        else{
+                            for(int i = 0;i < index_contour_.size();i++)
+                                index_contour_sort_.push_back(index_contour_[i]);
+                        }
+                         
+                        /*for(int i = s_index+1;i < index_contour_.size();i++)
+                            sIndex.push(index_contour_[i]);
+
+                        for(int i = 0;i <= s_index;i++)
+                            sIndex.push(index_contour_[i]);
+
+                        while(!sIndex.empty()){
+                            int s_index_ = sIndex.top();
+                            index_contour_sort_.push_back(s_index_);
+                            sIndex.pop();
+                        }*/
+                        
+                        
+                        SPUnion sp_union(p_s_,p_start_,p_end_,index_contour_sort_);
+                        SPUnionTop.insert(std::make_pair(sp_union,sp_union_key++));
+                        for(int i = 0;i < index_contour_sort_.size();i++){
+                            ROS_INFO_STREAM("index_contour_sort_:" << index_contour_sort_[i]);
+                            //SPPoint sp_point(index_contour_[i]);
+                            //SPPointTop.insert(std::make_pair(sp_point,sp_point_key++));
+                        }
+                    }
+
+                    spUnionPoint.push_back(LocalPoint(p_s.position.x,p_s.position.y));
                 }
             }
         }
@@ -1292,7 +1445,14 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
     }
 
     ROS_INFO_STREAM("SPUnionTop_size_:" << SPUnionTop.size());
+    /*std::vector<cv::Point2f> sp_union_;
+    for(int i = 0;i < contour_ext.size();i++){
+        SPPoint sp_point(i);
+        if(SPPointTop.count(sp_point) == 0)
+            sp_union_.push_back(cv::Point2f(cv::Point2d(extPoint[i]).x,cv::Point2d(extPoint[i]).y));
+    }
     
+    ROS_INFO_STREAM("sp_union_.size:" << sp_union_.size());*/
     for(iter_union = SPUnionTop.begin();iter_union != SPUnionTop.end();iter_union++){
         geometry_msgs::Pose p_start;
         p_start.position.x = iter_union->first.c1.x;
@@ -1314,8 +1474,24 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
         p_s.position.z = 0.f;
         
         res.point_skeleton.push_back(p_s);
+        ROS_INFO_STREAM("iter_union.size:" << iter_union->first.sub_contour.size());
+        
+        /*int p_start_x = (iter_union->first.c1.x-req.map_origin_x)/req.map_resolution;
+        int p_start_y = (iter_union->first.c1.y-req.map_origin_y)/req.map_resolution;
+        int p_end_x = (iter_union->first.c2.x-req.map_origin_x)/req.map_resolution;
+        int p_end_y = (iter_union->first.c2.y-req.map_origin_y)/req.map_resolution;
+        cv::Point cv_p_start(p_start_x,p_start_y);
+        cv::Point cv_p_end(p_end_x,p_end_y);
+
+        cv::line(map,cv_p_start,cv_p_end,cv::Scalar::all(100),2,8,0);*/
     }
-	/*std::vector<std::vector<cv::Point> > contours;
+
+    /*cv::Mat bin_split;
+	cv::threshold(map,bin_split,req.occupancy_threshold,255,cv::THRESH_BINARY_INV);
+    cv::imshow("bin_split",bin_split);
+    cv::waitKey(0);*/
+
+    /*std::vector<std::vector<cv::Point> > contours;
 	std::vector<cv::Vec4i> hierarchy;
 
 	cv::findContours(bin,contours,hierarchy,CV_RETR_EXTERNAL,CV_CHAIN_APPROX_SIMPLE,cv::Point());
