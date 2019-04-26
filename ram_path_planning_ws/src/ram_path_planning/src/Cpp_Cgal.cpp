@@ -29,7 +29,8 @@
 #include <numeric>
 #include <exception>
 #include <functional>
-
+#include <CGAL/Boolean_set_operations_2.h>
+#include <CGAL/Polygon_set_2.h>
 
 typedef CGAL::Exact_predicates_inexact_constructions_kernel Kernel;
 typedef Kernel::FT Ft;
@@ -41,6 +42,7 @@ typedef Kernel::Vector_2 VectorCgal;
 typedef CGAL::Polygon_2<Kernel> PolygonCgal;
 typedef CGAL::Polygon_with_holes_2<Kernel> PolygonWithHolesCgal;
 typedef std::list<PolygonCgal> PolygonListCgal;
+typedef std::list<PolygonWithHolesCgal> PolygonWithHolesListCgal;
 typedef std::vector<PointCgal> ContainerCgal;
 typedef CGAL::Straight_skeleton_2<K>  Ss;
 typedef boost::shared_ptr<Ss> SsPtr;
@@ -48,6 +50,7 @@ typedef CGAL::Straight_skeleton_2<K>::Vertex_const_handle     Vertex_const_handl
 typedef CGAL::Straight_skeleton_2<K>::Halfedge_const_handle   Halfedge_const_handle ;
 typedef boost::shared_ptr<PolygonCgal> PolygonPtr;
 typedef std::vector<PolygonPtr> PolygonPtrVector;
+typedef CGAL::Polygon_set_2<Kernel> Polygon_set_2_cgal;
 
 namespace Cpp{
 #if 1
@@ -813,6 +816,86 @@ public:
 	operator cv::Point2d() const { return cv::Point2d((*this)[0], (*this)[1]); }
 };
 
+/*bool isOverlapPolygon(std::vector<int>& a,std::vector<int>& b){
+    for(int i = 0;i < a.size();i++){
+        for(int j = 0;j < b.size();j++){
+            if(a[i] == b[j])
+                return true;
+        }
+    }
+
+    return false;
+}*/
+
+typedef struct overlap_index{
+    int p;
+    std::vector<int> p_index;
+    overlap_index(int p_,std::vector<int>& p_index_)
+    {
+        p = p_;
+
+        for(int i = 0;i < p_index_.size();i++){
+            p_index.push_back(p_index_[i]);
+        }
+    }
+
+}OIndex;
+
+void print_polygon (const PolygonCgal& P){
+    PolygonCgal::Vertex_const_iterator vit;
+    std::cout << "[ " << P.size() << " vertices:";
+    for (vit = P.vertices_begin(); vit != P.vertices_end(); ++vit)
+        std::cout << " (" << *vit << ')';
+    std::cout << " ]" << std::endl;
+}
+
+void splitPolygon(std::vector<PolygonCgal>& poly_union,int a,int b,std::vector<PolygonCgal>& res){
+    res.push_back(poly_union[a]);
+   
+    PolygonWithHolesListCgal diff;
+    PolygonWithHolesListCgal::const_iterator it;
+    //CGAL::symmetric_difference(poly_union[a],poly_union[b],std::back_inserter(diff));
+    CGAL::difference(poly_union[b],poly_union[a],std::back_inserter(diff));
+   
+    ROS_INFO_STREAM("diff_size:" << diff.size());
+    
+    for(it = diff.begin();it != diff.end();it++){
+        ROS_INFO_STREAM("is_unbounded:" << it->is_unbounded());
+        if(!it->is_unbounded()){
+            print_polygon(it->outer_boundary());
+            res.push_back(it->outer_boundary());
+            
+            /*std::cout << " " << it->number_of_holes() << " holes:" << std::endl;
+            int k = 1;
+
+            PolygonWithHolesCgal::Hole_const_iterator hit;
+            for(hit = it->holes_begin(); hit != it->holes_end(); ++hit, ++k){
+                std::cout << " Hole #" << k << " = ";
+                print_polygon (*hit);
+
+            }*/
+        }
+    }
+}
+
+void diffPolygon(PolygonCgal& poly_a,PolygonCgal& poly_b,std::vector<PolygonCgal>& res){
+   
+    PolygonWithHolesListCgal diff;
+    PolygonWithHolesListCgal::const_iterator it;
+    //CGAL::symmetric_difference(poly_union[a],poly_union[b],std::back_inserter(diff));
+    CGAL::difference(poly_a,poly_b,std::back_inserter(diff));
+   
+    ROS_INFO_STREAM("diff_size:" << diff.size());
+    
+    for(it = diff.begin();it != diff.end();it++){
+        ROS_INFO_STREAM("is_unbounded:" << it->is_unbounded());
+        if(!it->is_unbounded()){
+            print_polygon(it->outer_boundary());
+            res.push_back(it->outer_boundary());
+        }
+    }
+}
+
 bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
 			   ram_path_planning::Cpp::Response& res){
   	if (req.height_between_layers <= 0)
@@ -875,6 +958,7 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
     ROS_INFO_STREAM("head->level:" << head->level);
     ROS_INFO_STREAM("head->children:" << head->children);
 
+    PolygonCgal polyCgalExt;
     PolygonCgal polyCgalPoint;
     std::vector<LocalPoint> extPoint;
 	for(int j = 0;j < contour_ext.size();j++){
@@ -890,6 +974,7 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
 
 		//res.pose.push_back(pose_);	
         polyCgalPoint.push_back(PointCgal(contour_ext[j].x,contour_ext[j].y));
+        polyCgalExt.push_back(PointCgal(point_x,point_y));
     //std::cout << __FILE__ << __LINE__ << std::endl;
         head->polygon[j].x = point_x;
         head->polygon[j].y = point_y;
@@ -898,8 +983,8 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
 	}
     
     //std::cout << __FILE__ << __LINE__ << std::endl;
-    /*if(polyCgalPoint.is_clockwise_oriented())
-        polyCgalPoint.reverse_orientation();*/
+    if(polyCgalExt.is_clockwise_oriented())
+        polyCgalExt.reverse_orientation();
 
     //std::cout << __FILE__ << __LINE__ << std::endl;
     for(int i = 0;i < head->n_children;i++){
@@ -1453,16 +1538,19 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
     }
     
     ROS_INFO_STREAM("sp_union_.size:" << sp_union_.size());*/
-    std::map<SPPoint,int> SPPointTop;
-    int sp_point_key = 0;
-    std::vector<std::vector<int> > split_polygon;
+    //std::map<SPPoint,int> SPPointTop;
+    //int sp_point_key = 0;
+    //std::vector<std::vector<int> > split_polygon;
+    //std::vector<std::vector<int> > overlap_index;
+    std::vector<PolygonCgal> polyCgalUnion;
 
     for(iter_union = SPUnionTop.begin();iter_union != SPUnionTop.end();iter_union++){
-        std::vector<int> split_polygon_cell;
+        /*std::vector<int> split_polygon_cell;
         bool is_overlap = false;
         int start_overlap = 0;
         int end_overlap = 0;
-        int count_overlap = 0;
+        int count_overlap = 0;*/
+        PolygonCgal poly_cgal_union;
 
         geometry_msgs::Pose p_start;
         p_start.position.x = iter_union->first.c1.x;
@@ -1488,82 +1576,184 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
         
         for(int i = 0;i < iter_union->first.sub_contour.size();i++){
             ROS_INFO_STREAM("iter_union->first.sub_contour:" << iter_union->first.sub_contour[i]);
-            SPPoint sp_point(iter_union->first.sub_contour[i]);
-            if(SPPointTop.count(sp_point) == 0){
-                split_polygon_cell.push_back(iter_union->first.sub_contour[i]);
+
+            //SPPoint sp_point(iter_union->first.sub_contour[i]);
+            /*if(SPPointTop.count(sp_point) == 0){
                 SPPointTop.insert(std::make_pair(sp_point,sp_point_key++));
-            }
-            else{
-                    is_overlap = true;
-                    if(count_overlap == 0){
-                        start_overlap = iter_union->first.sub_contour[i];
-                        end_overlap = iter_union->first.sub_contour[i];
-                    }
-                    else
-                        end_overlap = iter_union->first.sub_contour[i];
-
-                    count_overlap++;
-                }
+            }*/
+            double point_x = contour_ext[iter_union->first.sub_contour[i]].x*req.map_resolution+req.map_origin_x;
+            double point_y = contour_ext[iter_union->first.sub_contour[i]].y*req.map_resolution+req.map_origin_y;
+            poly_cgal_union.push_back(PointCgal(point_x,point_y)); 
         }
 
-        if(is_overlap){
-            int index_overlap = 0;
-            std::vector<int> split_polygon_cell_;
-            for(int i = 0;i < split_polygon_cell.size();i++){
-                if(split_polygon_cell[i] > start_overlap){
-                    index_overlap = i;
-                    break;
-                }
-                else{
-                    split_polygon_cell_.push_back(split_polygon_cell[i]);
-                }
-            }
-            split_polygon_cell_.push_back(start_overlap);
-            split_polygon_cell_.push_back(end_overlap);
-            
-            for(int i = index_overlap; i < split_polygon_cell.size();i++){
-                split_polygon_cell_.push_back(split_polygon_cell[i]);
-            }
-
-            split_polygon.push_back(split_polygon_cell_);
-        }
-        else    
-            split_polygon.push_back(split_polygon_cell);
-
-        /*int p_start_x = (iter_union->first.c1.x-req.map_origin_x)/req.map_resolution;
-        int p_start_y = (iter_union->first.c1.y-req.map_origin_y)/req.map_resolution;
-        int p_end_x = (iter_union->first.c2.x-req.map_origin_x)/req.map_resolution;
-        int p_end_y = (iter_union->first.c2.y-req.map_origin_y)/req.map_resolution;
-        cv::Point cv_p_start(p_start_x,p_start_y);
-        cv::Point cv_p_end(p_end_x,p_end_y);
-
-        cv::line(map,cv_p_start,cv_p_end,cv::Scalar::all(100),2,8,0);*/
+        if(poly_cgal_union.is_clockwise_oriented())
+            poly_cgal_union.reverse_orientation();
+        
+        polyCgalUnion.push_back(poly_cgal_union);
     }
 
-    /*cv::Mat bin_split;
-	cv::threshold(map,bin_split,req.occupancy_threshold,255,cv::THRESH_BINARY_INV);
-    cv::imshow("bin_split",bin_split);
-    cv::waitKey(0);*/
- 
-    ROS_INFO_STREAM("split_polygon_size: " << split_polygon.size());
+    ROS_INFO_STREAM("polyCgalUnion_size: " << polyCgalUnion.size());
 
-    for(int i = 0;i < split_polygon.size();i++){
+    for(int i = 0;i < polyCgalUnion.size();i++){
         ROS_INFO_STREAM("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-        ROS_INFO_STREAM("split_polygon[i].size():" << split_polygon[i].size());
-        for(int j = 0;j < split_polygon[i].size();j++){
-            ROS_INFO_STREAM("split_polygon[i][j]:" << split_polygon[i][j]);
+        ROS_INFO_STREAM("polyCgalUnion[i].size():" << polyCgalUnion[i].size());
+        for(int j = 0;j < polyCgalUnion[i].size();j++){
+            ROS_INFO_STREAM("polyCgalUnion[i][j]:" << polyCgalUnion[i][j]);
+        }
+    }
+
+    std::vector<PolygonCgal> polyCgalSplit;
+    std::vector<OIndex> overlap_index;
+    std::map<int,int> map_overlap_index;
+    int map_overlap_index_key = 0;
+
+    for(int i = 0;i < polyCgalUnion.size();i++){
+        bool is_overlap = false;
+        std::vector<int> overlap_index_;
+        
+        if(map_overlap_index.count(i) == 0){
+            for(int j = i+1;j < polyCgalUnion.size();j++)
+            {
+                if(CGAL::do_intersect(polyCgalUnion[i],polyCgalUnion[j])){
+                    is_overlap = true;
+                    overlap_index_.push_back(j);
+                    map_overlap_index.insert(std::make_pair(j,map_overlap_index_key++));
+                }
+            }
+            
+            if(is_overlap){
+                map_overlap_index.insert(std::make_pair(i,map_overlap_index_key++));
+                OIndex o_index(i,overlap_index_);
+                overlap_index.push_back(o_index);
+            }
+            else
+                polyCgalSplit.push_back(polyCgalUnion[i]);
         }
     }
     
-    std::vector<int> split_last;
-    for(int i = 0;i < contour_ext.size();i++){
-        SPPoint sp_point(i);
-        if(SPPointTop.count(sp_point) == 0){
-            split_last.push_back(i);
+    ROS_INFO_STREAM("polyCgalSplit_size:" << polyCgalSplit.size()); 
+    ROS_INFO_STREAM("overlap_index_size:" << overlap_index.size()); 
+    
+    std::vector<PolygonCgal> splitCgalRes;
+    for(int i = 0;i < overlap_index.size();i++){
+       ROS_INFO_STREAM("overlap_index[i].p:" << overlap_index[i].p);
+       for(int j = 0;j < overlap_index[i].p_index.size();j++){
+            ROS_INFO_STREAM("overlap_index[i].p_index[j]:" << overlap_index[i].p_index[j]);
+            splitPolygon(polyCgalUnion,overlap_index[i].p,overlap_index[i].p_index[j],splitCgalRes);
+       }
+    }
+
+//std::cout << __FILE__ << __LINE__ << std::endl;
+    for(int i = 0;i < splitCgalRes.size();i++){  
+        ROS_INFO_STREAM("splitCgalRes[i]_size:" << splitCgalRes[i].size());
+        geometry_msgs::Polygon partial_polygon;
+        for(int j = 0;j < splitCgalRes[i].size();j++){
+            geometry_msgs::Point32 point_32;
+            PointCgal p = splitCgalRes[i].vertex(j);
+            point_32.x = p.x();
+            point_32.y = p.y();
+           
+            partial_polygon.points.push_back(point_32);
+        }
+        
+        res.polygon_test.push_back(partial_polygon);
+    }
+    
+    PolygonWithHolesListCgal diff;
+    PolygonWithHolesListCgal::const_iterator it_diff;
+    CGAL::difference(polyCgalExt,splitCgalRes[0],std::back_inserter(diff));
+   
+    ROS_INFO_STREAM("diff_size:" << diff.size());
+    
+    for(it_diff = diff.begin();it_diff != diff.end();it_diff++){
+        ROS_INFO_STREAM("is_unbounded:" << it_diff->is_unbounded());
+        if(!it_diff->is_unbounded()){
+            print_polygon(it_diff->outer_boundary());       
+        }
+    }
+    
+    PolygonWithHolesListCgal diff_0;
+    PolygonWithHolesListCgal::const_iterator it_diff_0;
+std::cout << __FILE__ << __LINE__ << std::endl;
+    PolygonCgal temp_a;
+    const PolygonCgal& temp_b = it_diff->outer_boundary();
+    for(int j = 0;j < temp_b.size();j++){
+            PointCgal p = temp_b.vertex(j);
+            temp_a.push_back(PointCgal(p.x(),p.y()));
+    }
+
+    CGAL::difference(temp_a,splitCgalRes[1],std::back_inserter(diff_0));
+   
+std::cout << __FILE__ << __LINE__ << std::endl;
+    ROS_INFO_STREAM("diff_0_size:" << diff_0.size());
+    
+std::cout << __FILE__ << __LINE__ << std::endl;
+    for(it_diff_0 = diff_0.begin();it_diff_0 != diff_0.end();it_diff_0++){
+        ROS_INFO_STREAM("is_unbounded:" << it_diff_0->is_unbounded());
+        if(!it_diff_0->is_unbounded()){
+            print_polygon(it_diff_0->outer_boundary());       
         }
     }
 
-    ROS_INFO_STREAM("split_last_size: " << split_last.size());
+std::cout << __FILE__ << __LINE__ << std::endl;
+    //Polygon_set_2_cgal S;
+    //Polygon_set_2_cgal S_;
+    
+    //S_.insert(polyCgalExt);
+    /*for(int i = 0;i < polyCgalSplit.size();i++){
+        //print_polygon(polyCgalSplit[i]);
+        std::vector<PolygonCgal> diffPolygonVec;
+std::cout << __FILE__ << __LINE__ << std::endl;
+
+        diffPolygon(polyCgalExt,polyCgalSplit[i],diffPolygonVec);
+
+std::cout << __FILE__ << __LINE__ << std::endl;
+        polyCgalExt.clear();
+
+std::cout << __FILE__ << __LINE__ << std::endl;
+        ROS_INFO_STREAM("diffPolygonVec[0].size():" << diffPolygonVec[0].size());
+      
+        for(int j = 0;j < diffPolygonVec[0].size();j++){
+            PointCgal p = diffPolygonVec[0].vertex(j);
+            polyCgalExt.push_back(PointCgal(p.x(),p.y()));
+        }
+
+std::cout << __FILE__ << __LINE__ << std::endl;
+        std::vector<PolygonCgal>().swap(diffPolygonVec);
+std::cout << __FILE__ << __LINE__ << std::endl;
+    }*/
+    
+    /*ROS_INFO_STREAM("S_size:" << S.number_of_polygons_with_holes());  
+    
+    S.symmetric_difference(S_);
+    //S.difference(S_);
+    ROS_INFO_STREAM("res_S:" << S.number_of_polygons_with_holes());
+    
+    std::list<PolygonWithHolesCgal> resPolygonCgal;
+    S_.polygons_with_holes(std::back_inserter(resPolygonCgal));
+    
+    std::list<PolygonWithHolesCgal>::const_iterator polygon_it;
+    for (polygon_it = resPolygonCgal.begin(); polygon_it != resPolygonCgal.end(); ++polygon_it){
+        ROS_INFO_STREAM("is_unbounded:" << polygon_it->is_unbounded());
+        if(!polygon_it->is_unbounded()){
+            ROS_INFO_STREAM("polygon_it->outer_boundary()_size:" << polygon_it->outer_boundary().size());
+            ROS_INFO_STREAM("pwh.number_of_holes():" << polygon_it->number_of_holes());
+            
+            geometry_msgs::Polygon partial_polygon;
+            for(int i = 0;i < polygon_it->outer_boundary().size();i++){
+                geometry_msgs::Point32 point_32;
+                PointCgal p = polygon_it->outer_boundary().vertex(i);
+                point_32.x = p.x();
+                point_32.y = p.y();
+               
+                partial_polygon.points.push_back(point_32);
+            }
+            
+            res.polygon_test.push_back(partial_polygon); 
+        }       
+    }*/
+
+//std::cout << __FILE__ << __LINE__ << std::endl;
     /*std::vector<std::vector<cv::Point> > contours;
 	std::vector<cv::Vec4i> hierarchy;
 
@@ -1629,7 +1819,7 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
         double point_bot_right_y = (rect.y+rect.height)*req.map_resolution+req.map_origin_y;
 
         holes.push_back(PointCgal(point_top_left_x,point_top_left_y));
-        holes.push_back(PointCgal(point_top_right_x,point_top_right_y));
+        holes.push_back(PointCgalces:tttttttttttttttttt,point_top_right_y));
         holes.push_back(PointCgal(point_bot_right_x,point_bot_right_y));
         holes.push_back(PointCgal(point_bot_left_x,point_bot_left_y));
 

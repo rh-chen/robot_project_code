@@ -29,5 +29,6 @@ geometry_msgs/Pose[] pose
 geometry_msgs/Pose[] point_skeleton
 geometry_msgs/Pose[] point_nearest
 geometry_msgs/Polygon[] polygon
+geometry_msgs/Polygon[] polygon_test
 nav_msgs/OccupancyGrid cv_map
 

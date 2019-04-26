@@ -324,6 +324,160 @@ public:
 								}
 							}
 #endif
+
+#if 1
+								//polygon test
+							{
+                                for(int j = 0;j < srv_zigzag.response.polygon_test.size();j++){
+									geometry_msgs::Polygon polygon_ = srv_zigzag.response.polygon_test[j];
+									geometry_msgs::Pose startPose;
+									startPose.position.x = polygon_.points[0].x;
+									startPose.position.y = polygon_.points[0].y;
+									startPose.position.z = polygon_.points[0].z;
+
+									//marker start pose
+									geometry_msgs::Pose  plannerStartPose;
+									plannerStartPose.position.x = startPose.position.x;
+									plannerStartPose.position.y = startPose.position.y;
+									plannerStartPose.orientation.w = 1.0;
+
+									geometry_msgs::Vector3 plannerStartScale;
+									plannerStartScale.x = 0.1;
+									plannerStartScale.y = 0.1;
+									plannerStartScale.z = 0.1;
+
+									std_msgs::ColorRGBA plannerStartColor;
+									plannerStartColor.a = 1.0;
+									plannerStartColor.r = 1.0;
+
+
+									visualization_msgs::Marker markerSphereStart = createMarker("PlannerStart",
+																	visualization_msgs::Marker::SPHERE,
+																	plannerStartPose,
+																	plannerStartScale,
+																	plannerStartColor,
+																	plannerStartId,
+																	srv_zigzag.request.map.header.frame_id);
+									plannerStartId++;
+									markerArray.markers.push_back(markerSphereStart);
+
+									geometry_msgs::Point last_point;
+									last_point.x = startPose.position.x;
+									last_point.y = startPose.position.y;
+									//ROS_INFO("polygon__points_size:%d",polygon_.points.size());
+									for(int i = 1; i < polygon_.points.size(); ++i) {
+
+											geometry_msgs::Pose pose;
+											pose.position.x = polygon_.points[i].x;
+											pose.position.y = polygon_.points[i].y;
+											pose.position.z = polygon_.points[i].z;
+											//ROS_INFO_STREAM(pose);
+
+											//marker planner pose
+											geometry_msgs::Pose  markerArrowPose;
+											markerArrowPose.position.x = last_point.x;
+											markerArrowPose.position.y = last_point.y;
+											markerArrowPose.position.z = 0;
+											markerArrowPose.orientation.w = 1.0;
+
+											geometry_msgs::Vector3 markerArrowScale;
+											markerArrowScale.x = 0.05;
+											markerArrowScale.y = 0.05;
+											markerArrowScale.z = 0.05;
+
+											std_msgs::ColorRGBA markerArrowColor;
+											markerArrowColor.a = 1.0;
+											markerArrowColor.g = 1.0;
+
+											visualization_msgs::Marker markerArrow = createMarker("markerArrow",
+																			visualization_msgs::Marker::ARROW,
+																			markerArrowPose,
+																			markerArrowScale,
+																			markerArrowColor,
+																			plannerStartId,
+																			srv_zigzag.request.map.header.frame_id);
+
+											plannerStartId++;
+
+											//arrowHead, arrowEnd
+											geometry_msgs::Point p;
+											p.x = pose.position.x;
+											p.y = pose.position.y;
+											p.z = 0;
+
+											geometry_msgs::Point arrowHeadPoint;
+											arrowHeadPoint.x = p.x - last_point.x;
+											arrowHeadPoint.y = p.y - last_point.y;
+											arrowHeadPoint.z = 0;
+
+
+											geometry_msgs::Point arrowEndPoint;
+											arrowEndPoint.x = 0;
+											arrowEndPoint.y = 0;
+											arrowEndPoint.z = 0;
+
+											markerArrow.points.push_back(arrowEndPoint);
+											markerArrow.points.push_back(arrowHeadPoint);
+
+											markerArray.markers.push_back(markerArrow);
+
+											last_point = p;
+
+									}
+									//start point to end point
+									if(true)
+									{
+										geometry_msgs::Pose  markerArrowPose;
+										markerArrowPose.position.x = last_point.x;
+										markerArrowPose.position.y = last_point.y;
+										markerArrowPose.position.z = 0;
+										markerArrowPose.orientation.w = 1.0;
+
+										geometry_msgs::Vector3 markerArrowScale;
+										markerArrowScale.x = 0.05;
+										markerArrowScale.y = 0.05;
+										markerArrowScale.z = 0.05;
+
+										std_msgs::ColorRGBA markerArrowColor;
+										markerArrowColor.a = 1.0;
+										markerArrowColor.g = 1.0;
+
+
+										visualization_msgs::Marker markerArrow = createMarker("markerArrow",
+																			visualization_msgs::Marker::ARROW,
+																			markerArrowPose,
+																			markerArrowScale,
+																			markerArrowColor,
+																			plannerStartId,
+																			srv_zigzag.request.map.header.frame_id);
+										plannerStartId++;
+											//arrowHead, arrowEnd
+										geometry_msgs::Point p;
+										p.x = startPose.position.x;
+										p.y = startPose.position.y;
+										p.z = 0;
+
+										geometry_msgs::Point arrowHeadPoint;
+										arrowHeadPoint.x = p.x - last_point.x;
+										arrowHeadPoint.y = p.y - last_point.y;
+										arrowHeadPoint.z = 0;
+
+
+										geometry_msgs::Point arrowEndPoint;
+										arrowEndPoint.x = 0;
+										arrowEndPoint.y = 0;
+										arrowEndPoint.z = 0;
+
+										markerArrow.points.push_back(arrowEndPoint);
+										markerArrow.points.push_back(arrowHeadPoint);
+
+										markerArray.markers.push_back(markerArrow);
+									}
+								}
+							}
+#endif
+
+
 #if 0
 								//external contour
 								{
