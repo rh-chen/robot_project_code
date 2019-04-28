@@ -849,12 +849,35 @@ void print_polygon (const PolygonCgal& P){
     std::cout << " ]" << std::endl;
 }
 
-void splitPolygon(std::vector<PolygonCgal>& poly_union,int a,int b,std::vector<PolygonCgal>& res){
-    res.push_back(poly_union[a]);
-   
+typedef struct splitPoint{
+    cv::Point p;
+
+    splitPoint(cv::Point& p_){
+        p.x = p_.x;
+        p.y = p_.y;
+    }
+
+    bool operator < (const splitPoint& p_)const
+    {
+        if(p.x < p_.p.x)
+            return true;
+        else{
+            if(p.y < p_.p.y)
+                return true;
+            else
+                return false;
+        }
+    }
+}SplitPoint;
+
+void splitPolygon(std::vector<PolygonCgal>& poly_union,int a,int b,std::vector<PolygonCgal>& res,double ox,double oy,double r){
+    //res.push_back(poly_union[a]);
+    
+    print_polygon(poly_union[a]);
+
     PolygonWithHolesListCgal diff;
     PolygonWithHolesListCgal::const_iterator it;
-    //CGAL::symmetric_difference(poly_union[a],poly_union[b],std::back_inserter(diff));
+    //CGAL::symmetric_difference(poly_union[b],poly_union[a],std::back_inserter(diff));
     CGAL::difference(poly_union[b],poly_union[a],std::back_inserter(diff));
    
     ROS_INFO_STREAM("diff_size:" << diff.size());
@@ -863,7 +886,17 @@ void splitPolygon(std::vector<PolygonCgal>& poly_union,int a,int b,std::vector<P
         ROS_INFO_STREAM("is_unbounded:" << it->is_unbounded());
         if(!it->is_unbounded()){
             print_polygon(it->outer_boundary());
-            res.push_back(it->outer_boundary());
+            PolygonCgal temp;
+
+            for(int j = 0;j < it->outer_boundary().size();j++){
+                PointCgal p = it->outer_boundary().vertex(j);
+                temp.push_back(PointCgal(p.x(),p.y()));
+            }
+            
+            if(temp.is_counterclockwise_oriented())
+                temp.reverse_orientation();
+
+            res.push_back(temp);
             
             /*std::cout << " " << it->number_of_holes() << " holes:" << std::endl;
             int k = 1;
@@ -874,24 +907,6 @@ void splitPolygon(std::vector<PolygonCgal>& poly_union,int a,int b,std::vector<P
                 print_polygon (*hit);
 
             }*/
-        }
-    }
-}
-
-void diffPolygon(PolygonCgal& poly_a,PolygonCgal& poly_b,std::vector<PolygonCgal>& res){
-   
-    PolygonWithHolesListCgal diff;
-    PolygonWithHolesListCgal::const_iterator it;
-    //CGAL::symmetric_difference(poly_union[a],poly_union[b],std::back_inserter(diff));
-    CGAL::difference(poly_a,poly_b,std::back_inserter(diff));
-   
-    ROS_INFO_STREAM("diff_size:" << diff.size());
-    
-    for(it = diff.begin();it != diff.end();it++){
-        ROS_INFO_STREAM("is_unbounded:" << it->is_unbounded());
-        if(!it->is_unbounded()){
-            print_polygon(it->outer_boundary());
-            res.push_back(it->outer_boundary());
         }
     }
 }
@@ -1586,8 +1601,8 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
             poly_cgal_union.push_back(PointCgal(point_x,point_y)); 
         }
 
-        if(poly_cgal_union.is_clockwise_oriented())
-            poly_cgal_union.reverse_orientation();
+        /*if(poly_cgal_union.is_clockwise_oriented())
+            poly_cgal_union.reverse_orientation();*/
         
         polyCgalUnion.push_back(poly_cgal_union);
     }
@@ -1637,9 +1652,27 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
     std::vector<PolygonCgal> splitCgalRes;
     for(int i = 0;i < overlap_index.size();i++){
        ROS_INFO_STREAM("overlap_index[i].p:" << overlap_index[i].p);
-       for(int j = 0;j < overlap_index[i].p_index.size();j++){
-            ROS_INFO_STREAM("overlap_index[i].p_index[j]:" << overlap_index[i].p_index[j]);
-            splitPolygon(polyCgalUnion,overlap_index[i].p,overlap_index[i].p_index[j],splitCgalRes);
+       bool startFlag = true;
+        
+       if(overlap_index[i].p_index.size() > 0){
+            splitCgalRes.push_back(polyCgalUnion[overlap_index[i].p]);
+            splitPolygon(polyCgalUnion,
+                         overlap_index[i].p,
+                         overlap_index[i].p_index[0],
+                         splitCgalRes,
+                         req.map_origin_x,
+                         req.map_origin_y,
+                         req.map_resolution);
+
+            for(int j = 0;j < overlap_index[i].p_index.size()-1;j++){
+                splitPolygon(polyCgalUnion,
+                             overlap_index[i].p_index[j],
+                             overlap_index[i].p_index[j+1],
+                             splitCgalRes,
+                             req.map_origin_x,
+                             req.map_origin_y,
+                             req.map_resolution);
+            }
        }
     }
 
@@ -1658,43 +1691,9 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
         
         res.polygon_test.push_back(partial_polygon);
     }
-    
-    PolygonWithHolesListCgal diff;
-    PolygonWithHolesListCgal::const_iterator it_diff;
-    CGAL::difference(polyCgalExt,splitCgalRes[0],std::back_inserter(diff));
-   
-    ROS_INFO_STREAM("diff_size:" << diff.size());
-    
-    for(it_diff = diff.begin();it_diff != diff.end();it_diff++){
-        ROS_INFO_STREAM("is_unbounded:" << it_diff->is_unbounded());
-        if(!it_diff->is_unbounded()){
-            print_polygon(it_diff->outer_boundary());       
-        }
-    }
-    
-    PolygonWithHolesListCgal diff_0;
-    PolygonWithHolesListCgal::const_iterator it_diff_0;
-std::cout << __FILE__ << __LINE__ << std::endl;
-    PolygonCgal temp_a;
-    const PolygonCgal& temp_b = it_diff->outer_boundary();
-    for(int j = 0;j < temp_b.size();j++){
-            PointCgal p = temp_b.vertex(j);
-            temp_a.push_back(PointCgal(p.x(),p.y()));
-    }
 
-    CGAL::difference(temp_a,splitCgalRes[1],std::back_inserter(diff_0));
-   
-std::cout << __FILE__ << __LINE__ << std::endl;
-    ROS_INFO_STREAM("diff_0_size:" << diff_0.size());
-    
-std::cout << __FILE__ << __LINE__ << std::endl;
-    for(it_diff_0 = diff_0.begin();it_diff_0 != diff_0.end();it_diff_0++){
-        ROS_INFO_STREAM("is_unbounded:" << it_diff_0->is_unbounded());
-        if(!it_diff_0->is_unbounded()){
-            print_polygon(it_diff_0->outer_boundary());       
-        }
-    }
 
+    
 std::cout << __FILE__ << __LINE__ << std::endl;
     //Polygon_set_2_cgal S;
     //Polygon_set_2_cgal S_;
