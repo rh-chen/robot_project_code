@@ -998,7 +998,7 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
 
 	cv::Mat bin;
 	cv::threshold(map,bin,req.occupancy_threshold,255,cv::THRESH_BINARY_INV);
-	
+    
     double delta_point = 1;
 	std::vector<cv::Point2i> vertices_point;
 	vertices_point = makeOIP(bin,delta_point);
@@ -1738,7 +1738,7 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
             partial_polygon.points.push_back(point_32);
         }
         
-        //res.polygon_test.push_back(partial_polygon);
+        res.polygon_test.push_back(partial_polygon);
     }
 
 
@@ -1754,7 +1754,7 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
             partial_polygon.points.push_back(point_32);
         }
         
-        //res.polygon_test.push_back(partial_polygon);
+        res.polygon_test.push_back(partial_polygon);
     }
 
 std::cout << __FILE__ << __LINE__ << std::endl;
