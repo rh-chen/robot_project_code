@@ -861,42 +861,69 @@ typedef struct splitPoint{
     {
         if(p.x < p_.p.x)
             return true;
-        else{
-            if(p.y < p_.p.y)
-                return true;
-            else
-                return false;
+        else if(p.x == p_.p.x){
+            return (p.y < p_.p.y?true:false);
         }
+        else
+            return false;
     }
 }SplitPoint;
 
 void splitPolygon(std::vector<PolygonCgal>& poly_union,int a,int b,std::vector<PolygonCgal>& res,double ox,double oy,double r){
     //res.push_back(poly_union[a]);
     
-    print_polygon(poly_union[a]);
+    //print_polygon(poly_union[a]);
+    PolygonCgal a_p;
+    std::map<SplitPoint,int> map_a;
+    int split_point_key = 0;
+    for(int i = 1;i < poly_union[a].size()-1;i++){
+        PointCgal p = poly_union[a].vertex(i);
+        int p_x = (p.x()-ox)/r;
+        int p_y = (p.y()-oy)/r;
 
-    PolygonWithHolesListCgal diff;
-    PolygonWithHolesListCgal::const_iterator it;
-    //CGAL::symmetric_difference(poly_union[b],poly_union[a],std::back_inserter(diff));
-    CGAL::difference(poly_union[b],poly_union[a],std::back_inserter(diff));
-   
-    ROS_INFO_STREAM("diff_size:" << diff.size());
+        a_p.push_back(PointCgal(p_x,p_y));
+        cv::Point cv_p(p_x,p_y);
+
+        SplitPoint split_point(cv_p);
+        map_a.insert(std::make_pair(split_point,split_point_key++));
+    }
+
+    print_polygon(a_p);
+
     
-    for(it = diff.begin();it != diff.end();it++){
-        ROS_INFO_STREAM("is_unbounded:" << it->is_unbounded());
-        if(!it->is_unbounded()){
-            print_polygon(it->outer_boundary());
-            PolygonCgal temp;
+    PolygonCgal b_p;
+    for(int i = 0;i < poly_union[b].size();i++){
+        PointCgal p = poly_union[b].vertex(i);
+        int p_x = (p.x()-ox)/r;
+        int p_y = (p.y()-oy)/r;
 
-            for(int j = 0;j < it->outer_boundary().size();j++){
-                PointCgal p = it->outer_boundary().vertex(j);
-                temp.push_back(PointCgal(p.x(),p.y()));
-            }
+        b_p.push_back(PointCgal(p_x,p_y));
+    }
+
+    //print_polygon(poly_union[b]);
+    print_polygon(b_p);
+    //PolygonWithHolesListCgal diff;
+    //PolygonWithHolesListCgal::const_iterator it;
+    //CGAL::symmetric_difference(poly_union[b],poly_union[a],std::back_inserter(diff));
+    //CGAL::difference(poly_union[b],poly_union[a],std::back_inserter(diff));
+   
+    //ROS_INFO_STREAM("diff_size:" << diff.size());
+    
+    //for(it = diff.begin();it != diff.end();it++){
+        //ROS_INFO_STREAM("is_unbounded:" << it->is_unbounded());
+        //if(!it->is_unbounded()){
+            //print_polygon(it->outer_boundary());
+            //PolygonCgal temp;
+
+            //for(int j = 0;j < it->outer_boundary().size();j++){
+                //PointCgal p = it->outer_boundary().vertex(j);
+                //temp.push_back(PointCgal(p.x(),p.y()));
+            //}
             
-            if(temp.is_counterclockwise_oriented())
-                temp.reverse_orientation();
+            /*if(temp.is_counterclockwise_oriented())
+                temp.reverse_orientation();*/
 
-            res.push_back(temp);
+            //res.push_back(temp);
             
             /*std::cout << " " << it->number_of_holes() << " holes:" << std::endl;
             int k = 1;
@@ -907,8 +934,25 @@ void splitPolygon(std::vector<PolygonCgal>& poly_union,int a,int b,std::vector<P
                 print_polygon (*hit);
 
             }*/
-        }
+        //}
+    //}
+    PolygonCgal temp;
+    for(int i = 0;i < poly_union[b].size();i++){
+        PointCgal p = poly_union[b].vertex(i);
+        int p_x = (p.x()-ox)/r;
+        int p_y = (p.y()-oy)/r;
+
+        cv::Point cv_p(p_x,p_y);
+
+        SplitPoint split_point(cv_p);
+
+        if(map_a.count(split_point) == 0)
+            temp.push_back(PointCgal(p.x(),p.y()));
     }
+    
+    res.push_back(temp);
+    ROS_INFO_STREAM("temp_size:" << temp.size());
+    print_polygon(temp);
 }
 
 bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
@@ -973,23 +1017,28 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
     ROS_INFO_STREAM("head->level:" << head->level);
     ROS_INFO_STREAM("head->children:" << head->children);
 
-    PolygonCgal polyCgalExt;
+    //PolygonCgal polyCgalExt;
+    std::vector<SplitPoint> polyCgalExt;
+
     PolygonCgal polyCgalPoint;
     std::vector<LocalPoint> extPoint;
 	for(int j = 0;j < contour_ext.size();j++){
 		double point_x = contour_ext[j].x*req.map_resolution+req.map_origin_x;
 		double point_y = contour_ext[j].y*req.map_resolution+req.map_origin_y;
 				
-		//int point_x = vertices_point[j].x;
-		//int point_y = vertices_point[j].y;
-		
+		int p_x = contour_ext[j].x;
+		int p_y = contour_ext[j].y;
+		cv::Point cv_p(p_x,p_y);
+
+        SplitPoint split_point(cv_p);
+        polyCgalExt.push_back(split_point);
+
         geometry_msgs::Pose pose_;
 		pose_.position.x = point_x;
 		pose_.position.y = point_y;
 
 		//res.pose.push_back(pose_);	
         polyCgalPoint.push_back(PointCgal(contour_ext[j].x,contour_ext[j].y));
-        polyCgalExt.push_back(PointCgal(point_x,point_y));
     //std::cout << __FILE__ << __LINE__ << std::endl;
         head->polygon[j].x = point_x;
         head->polygon[j].y = point_y;
@@ -998,8 +1047,8 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
 	}
     
     //std::cout << __FILE__ << __LINE__ << std::endl;
-    if(polyCgalExt.is_clockwise_oriented())
-        polyCgalExt.reverse_orientation();
+    //if(polyCgalExt.is_clockwise_oriented())
+        //polyCgalExt.reverse_orientation();
 
     //std::cout << __FILE__ << __LINE__ << std::endl;
     for(int i = 0;i < head->n_children;i++){
@@ -1689,12 +1738,115 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
             partial_polygon.points.push_back(point_32);
         }
         
-        res.polygon_test.push_back(partial_polygon);
+        //res.polygon_test.push_back(partial_polygon);
     }
 
 
-    
+    for(int i = 0;i < polyCgalSplit.size();i++){  
+        ROS_INFO_STREAM("polyCgalSplit[i]_size:" << polyCgalSplit[i].size());
+        geometry_msgs::Polygon partial_polygon;
+        for(int j = 0;j < polyCgalSplit[i].size();j++){
+            geometry_msgs::Point32 point_32;
+            PointCgal p = polyCgalSplit[i].vertex(j);
+            point_32.x = p.x();
+            point_32.y = p.y();
+           
+            partial_polygon.points.push_back(point_32);
+        }
+        
+        //res.polygon_test.push_back(partial_polygon);
+    }
+
 std::cout << __FILE__ << __LINE__ << std::endl;
+
+    //std::vector<std::set<SplitPoint> > vec_set_cgal_res;
+    std::set<SplitPoint> vec_set_cgal_res;
+    for(int i = 0;i < splitCgalRes.size();i++){
+        //std::set<SplitPoint> set_temp;
+        for(int j = 1;j < splitCgalRes[i].size()-1;j++){
+            PointCgal p = splitCgalRes[i].vertex(j);
+            int p_x = (p.x()-req.map_origin_x)/req.map_resolution;
+            int p_y = (p.y()-req.map_origin_y)/req.map_resolution;
+
+            cv::Point cv_p(p_x,p_y);
+            SplitPoint split_point(cv_p);
+            //set_temp.insert(split_point);
+            vec_set_cgal_res.insert(split_point);
+        }
+        //vec_set_cgal_res.push_back(set_temp);
+    }
+
+    ROS_INFO_STREAM("vec_set_cgal_res_size:" << vec_set_cgal_res.size());
+    
+    //std::vector<std::set<SplitPoint> > vec_set_cgal_split;
+    std::set<SplitPoint> vec_set_cgal_split;
+
+    for(int i = 0;i < polyCgalSplit.size();i++){
+        //std::set<SplitPoint> set_temp;
+        for(int j = 1;j < polyCgalSplit[i].size()-1;j++){
+            PointCgal p = polyCgalSplit[i].vertex(j);
+            int p_x = (p.x()-req.map_origin_x)/req.map_resolution;
+            int p_y = (p.y()-req.map_origin_y)/req.map_resolution;
+
+            cv::Point cv_p(p_x,p_y);
+            SplitPoint split_point(cv_p);
+            //set_temp.insert(split_point);
+            vec_set_cgal_split.insert(split_point);
+        }
+        //vec_set_cgal_split.push_back(set_temp);
+    }
+
+    ROS_INFO_STREAM("vec_set_cgal_split_size:" << vec_set_cgal_split.size());
+
+    /*for(int i = 0;i < vec_set_cgal_res.size();i++){
+        std::vector<SplitPoint> diff;
+        std::set_difference(polyCgalExt.begin(),
+                       polyCgalExt.end(),
+                       vec_set_cgal_res[i].begin(),
+                       vec_set_cgal_res[i].end(),
+                       std::back_inserter(diff));
+
+       polyCgalExt.clear();
+       for(int j = 0;j < diff.size();j++){
+            cv::Point cv_p(diff[j].p.x,diff[j].p.y);
+            SplitPoint split_point(cv_p);
+            polyCgalExt.insert(split_point);
+       }
+       ROS_INFO_STREAM("polyCgalExt_cut_size:" << polyCgalExt.size());
+    }*/
+    ROS_INFO_STREAM("polyCgalExt_size:" << polyCgalExt.size());
+
+    geometry_msgs::Polygon partialPolygon; 
+    std::vector<SplitPoint>::iterator it_set_split;
+    for(it_set_split = polyCgalExt.begin();it_set_split != polyCgalExt.end();it_set_split++){
+        if((vec_set_cgal_res.count(*it_set_split) == 0) && (vec_set_cgal_split.count(*it_set_split) == 0))
+        {
+            geometry_msgs::Point32 point_32;
+        
+            point_32.x = (*it_set_split).p.x*req.map_resolution+req.map_origin_x;
+            point_32.y = (*it_set_split).p.y*req.map_resolution+req.map_origin_y;
+
+            partialPolygon.points.push_back(point_32);
+        }
+    }
+    /*for(int i = 0;i < vec_set_cgal_split.size();i++){
+        std::vector<SplitPoint> diff;
+        std::set_difference(polyCgalExt.begin(),
+                       polyCgalExt.end(),
+                       vec_set_cgal_split[i].begin(),
+                       vec_set_cgal_split[i].end(),
+                       std::back_inserter(diff));
+
+       polyCgalExt.clear();
+       for(int j = 0;j < diff.size();j++){
+            cv::Point cv_p(diff[j].p.x,diff[j].p.y);
+            SplitPoint split_point(cv_p);
+            polyCgalExt.insert(split_point);
+       }
+       ROS_INFO_STREAM("polyCgalExt_cut_size:" << polyCgalExt.size());
+    }*/
+    
+    res.polygon_test.push_back(partialPolygon);
     //Polygon_set_2_cgal S;
     //Polygon_set_2_cgal S_;
     
