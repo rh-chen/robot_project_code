@@ -1022,6 +1022,8 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
 
     PolygonCgal polyCgalPoint;
     std::vector<LocalPoint> extPoint;
+    PolygonCgal polyTest;
+
 	for(int j = 0;j < contour_ext.size();j++){
 		double point_x = contour_ext[j].x*req.map_resolution+req.map_origin_x;
 		double point_y = contour_ext[j].y*req.map_resolution+req.map_origin_y;
@@ -1044,6 +1046,7 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
         head->polygon[j].y = point_y;
     //std::cout << __FILE__ << __LINE__ << std::endl;
         extPoint.push_back(LocalPoint(point_x,point_y));
+        polyTest.push_back(PointCgal(p_x,p_y));
 	}
     
     //std::cout << __FILE__ << __LINE__ << std::endl;
@@ -1725,10 +1728,12 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
        }
     }
 
+    Polygon_set_2_cgal S;
 //std::cout << __FILE__ << __LINE__ << std::endl;
     for(int i = 0;i < splitCgalRes.size();i++){  
         ROS_INFO_STREAM("splitCgalRes[i]_size:" << splitCgalRes[i].size());
         geometry_msgs::Polygon partial_polygon;
+        PolygonCgal polyTestRes;
         for(int j = 0;j < splitCgalRes[i].size();j++){
             geometry_msgs::Point32 point_32;
             PointCgal p = splitCgalRes[i].vertex(j);
@@ -1736,15 +1741,21 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
             point_32.y = p.y();
            
             partial_polygon.points.push_back(point_32);
+
+            int p_x = (p.x()-req.map_origin_x)/req.map_resolution;
+            int p_y = (p.y()-req.map_origin_y)/req.map_resolution;
+            polyTestRes.push_back(PointCgal(p_x,p_y));
         }
         
-        res.polygon_test.push_back(partial_polygon);
+        //res.polygon_test.push_back(partial_polygon);
+        S.insert(polyTestRes);
     }
 
 
     for(int i = 0;i < polyCgalSplit.size();i++){  
         ROS_INFO_STREAM("polyCgalSplit[i]_size:" << polyCgalSplit[i].size());
         geometry_msgs::Polygon partial_polygon;
+        PolygonCgal polyTestSplit;
         for(int j = 0;j < polyCgalSplit[i].size();j++){
             geometry_msgs::Point32 point_32;
             PointCgal p = polyCgalSplit[i].vertex(j);
@@ -1752,9 +1763,14 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
             point_32.y = p.y();
            
             partial_polygon.points.push_back(point_32);
+            
+            int p_x = (p.x()-req.map_origin_x)/req.map_resolution;
+            int p_y = (p.y()-req.map_origin_y)/req.map_resolution;
+            polyTestSplit.push_back(PointCgal(p_x,p_y));
         }
         
-        res.polygon_test.push_back(partial_polygon);
+        //res.polygon_test.push_back(partial_polygon);
+        S.insert(polyTestSplit);
     }
 
 std::cout << __FILE__ << __LINE__ << std::endl;
@@ -1829,6 +1845,7 @@ std::cout << __FILE__ << __LINE__ << std::endl;
             partialPolygon.points.push_back(point_32);
         }
     }
+
     /*for(int i = 0;i < vec_set_cgal_split.size();i++){
         std::vector<SplitPoint> diff;
         std::set_difference(polyCgalExt.begin(),
@@ -1846,41 +1863,16 @@ std::cout << __FILE__ << __LINE__ << std::endl;
        ROS_INFO_STREAM("polyCgalExt_cut_size:" << polyCgalExt.size());
     }*/
     
-    res.polygon_test.push_back(partialPolygon);
-    //Polygon_set_2_cgal S;
-    //Polygon_set_2_cgal S_;
+    //res.polygon_test.push_back(partialPolygon);
     
-    //S_.insert(polyCgalExt);
-    /*for(int i = 0;i < polyCgalSplit.size();i++){
-        //print_polygon(polyCgalSplit[i]);
-        std::vector<PolygonCgal> diffPolygonVec;
-std::cout << __FILE__ << __LINE__ << std::endl;
-
-        diffPolygon(polyCgalExt,polyCgalSplit[i],diffPolygonVec);
-
-std::cout << __FILE__ << __LINE__ << std::endl;
-        polyCgalExt.clear();
-
-std::cout << __FILE__ << __LINE__ << std::endl;
-        ROS_INFO_STREAM("diffPolygonVec[0].size():" << diffPolygonVec[0].size());
-      
-        for(int j = 0;j < diffPolygonVec[0].size();j++){
-            PointCgal p = diffPolygonVec[0].vertex(j);
-            polyCgalExt.push_back(PointCgal(p.x(),p.y()));
-        }
-
-std::cout << __FILE__ << __LINE__ << std::endl;
-        std::vector<PolygonCgal>().swap(diffPolygonVec);
-std::cout << __FILE__ << __LINE__ << std::endl;
-    }*/
+    Polygon_set_2_cgal S_;
     
-    /*ROS_INFO_STREAM("S_size:" << S.number_of_polygons_with_holes());  
+    S_.insert(polyTest);
     
-    S.symmetric_difference(S_);
-    //S.difference(S_);
-    ROS_INFO_STREAM("res_S:" << S.number_of_polygons_with_holes());
+    S_.symmetric_difference(S);
+    ROS_INFO_STREAM("S_size:" << S_.number_of_polygons_with_holes());
     
-    std::list<PolygonWithHolesCgal> resPolygonCgal;
+    PolygonWithHolesListCgal resPolygonCgal;
     S_.polygons_with_holes(std::back_inserter(resPolygonCgal));
     
     std::list<PolygonWithHolesCgal>::const_iterator polygon_it;
@@ -1894,15 +1886,15 @@ std::cout << __FILE__ << __LINE__ << std::endl;
             for(int i = 0;i < polygon_it->outer_boundary().size();i++){
                 geometry_msgs::Point32 point_32;
                 PointCgal p = polygon_it->outer_boundary().vertex(i);
-                point_32.x = p.x();
-                point_32.y = p.y();
+                point_32.x = p.x()*req.map_resolution+req.map_origin_x;
+                point_32.y = p.y()*req.map_resolution+req.map_origin_y;
                
                 partial_polygon.points.push_back(point_32);
             }
             
             res.polygon_test.push_back(partial_polygon); 
         }       
-    }*/
+    }
 
 //std::cout << __FILE__ << __LINE__ << std::endl;
     /*std::vector<std::vector<cv::Point> > contours;
