@@ -1748,7 +1748,10 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
         }
         
         //res.polygon_test.push_back(partial_polygon);
-        S.insert(polyTestRes);
+        if(i == 0)
+            S.insert(polyTestRes);
+        else
+            S.join(polyTestRes);
     }
 
 
@@ -1770,7 +1773,13 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
         }
         
         //res.polygon_test.push_back(partial_polygon);
-        S.insert(polyTestSplit);
+        ROS_INFO_STREAM("polyTestSplit_size:" << polyTestSplit.size());
+std::cout << __FILE__ << __LINE__ << std::endl;
+        if(i == 0)
+            S.insert(polyTestSplit);
+        else
+            S.join(polyTestSplit);
+std::cout << __FILE__ << __LINE__ << std::endl;
     }
 
 std::cout << __FILE__ << __LINE__ << std::endl;
@@ -1846,6 +1855,7 @@ std::cout << __FILE__ << __LINE__ << std::endl;
         }
     }
 
+    //res.polygon_test.push_back(partialPolygon);
     /*for(int i = 0;i < vec_set_cgal_split.size();i++){
         std::vector<SplitPoint> diff;
         std::set_difference(polyCgalExt.begin(),
@@ -1862,9 +1872,7 @@ std::cout << __FILE__ << __LINE__ << std::endl;
        }
        ROS_INFO_STREAM("polyCgalExt_cut_size:" << polyCgalExt.size());
     }*/
-    
-    //res.polygon_test.push_back(partialPolygon);
-    
+std::cout << __FILE__ << __LINE__ << std::endl;
     Polygon_set_2_cgal S_;
     
     S_.insert(polyTest);
@@ -1896,7 +1904,8 @@ std::cout << __FILE__ << __LINE__ << std::endl;
         }       
     }
 
-//std::cout << __FILE__ << __LINE__ << std::endl;
+std::cout << __FILE__ << __LINE__ << std::endl;
+    //std::cout << __FILE__ << __LINE__ << std::endl;
     /*std::vector<std::vector<cv::Point> > contours;
 	std::vector<cv::Vec4i> hierarchy;
 
@@ -1950,22 +1959,6 @@ std::cout << __FILE__ << __LINE__ << std::endl;
 	for(int i = 0;i < valid_internal_contours.size();i++){
         PolygonCgal holes;
         
-        cv::Rect rect = cv::boundingRect(valid_internal_contours[i]);
-        
-        double point_top_left_x = rect.x*req.map_resolution+req.map_origin_x;
-        double point_top_left_y = rect.y*req.map_resolution+req.map_origin_y;
-        double point_top_right_x = (rect.x+rect.width)*req.map_resolution+req.map_origin_x;
-        double point_top_right_y = rect.y*req.map_resolution+req.map_origin_y;
-        double point_bot_left_x = rect.x*req.map_resolution+req.map_origin_x;
-        double point_bot_left_y = (rect.y+rect.height)*req.map_resolution+req.map_origin_y;
-        double point_bot_right_x = (rect.x+rect.width)*req.map_resolution+req.map_origin_x;
-        double point_bot_right_y = (rect.y+rect.height)*req.map_resolution+req.map_origin_y;
-
-        holes.push_back(PointCgal(point_top_left_x,point_top_left_y));
-        holes.push_back(PointCgalces:tttttttttttttttttt,point_top_right_y));
-        holes.push_back(PointCgal(point_bot_right_x,point_bot_right_y));
-        holes.push_back(PointCgal(point_bot_left_x,point_bot_left_y));
-
         /*cv::RotatedRect rRect = cv::minAreaRect(valid_internal_contours[i]);
 		cv::Point2f vertices[4];
 		rRect.points(vertices);
