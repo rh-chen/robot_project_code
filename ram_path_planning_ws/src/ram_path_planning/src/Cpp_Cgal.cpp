@@ -1004,7 +1004,7 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
 	vertices_point = makeOIP(bin,delta_point);
     
     std::vector<cv::Point> contour_ext;
-    cv::approxPolyDP(vertices_point,contour_ext,3.0,true);
+    cv::approxPolyDP(vertices_point,contour_ext,2.5,true);
     //ROS_INFO_STREAM("contour_ext:" << contour_ext.size());
 
     //B+Tree
@@ -1262,7 +1262,7 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
                 {
                     if(SSEdgeTop.count(ss_edge) == 0){
                         double t = v->time();
-                        if(t < 9.0){
+                        if(t < 15.0){
                             ss_edge.isSplitNodeFrom = true;
                             ss_edge.time = t;
 
@@ -1335,6 +1335,7 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
     int sp_union_key = 0;
 
     std::map<SPUnion,int> SPUnionTop;
+    std::map<SPUnion,int> SPUnionTop_;
     std::vector<LocalPoint> spUnionPoint;
 
     //std::map<SPPoint,int> SPPointTop;
@@ -1575,28 +1576,51 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
     std::map<SPUnion,int>::iterator iter_union; 
 
     KDTree<LocalPoint> kdtree_union(spUnionPoint);
-    double radius = 1.0;
+    double radius = 1.5;
     int delete_count = 0;
+    std::map<int,int> SPUnionTop_sel;
+    int SPUnionTop_sel_key = 0;
 
     ROS_INFO_STREAM("SPUnionTop_size:" << SPUnionTop.size());
-    for(iter_union = SPUnionTop.begin();iter_union != SPUnionTop.end();){
+    for(iter_union = SPUnionTop.begin();iter_union != SPUnionTop.end();iter_union++){
         
         LocalPoint query(iter_union->first.p.x,iter_union->first.p.y);
+        
+        ROS_INFO_STREAM("query:(" << iter_union->first.p.x << "," << iter_union->first.p.y << ")");
         const std::vector<int> radIndices = kdtree_union.radiusSearch(query, radius);
         ROS_INFO_STREAM("radIndices_size:" << radIndices.size());
         if(radIndices.size() > 1){
-            if((radIndices.size()-delete_count) > 1){
+            /*if((radIndices.size()-delete_count) > 1){
                 SPUnionTop.erase(iter_union++);
                 delete_count++;
             }
             else
-                iter_union++;
+                iter_union++;*/
+            bool sel_flag = true;
+
+            for(int i = 0;i < radIndices.size();i++){
+                if(SPUnionTop_sel.count(radIndices[i]) == 0)
+                    SPUnionTop_sel.insert(std::make_pair(radIndices[i],SPUnionTop_sel_key++));
+                else
+                    sel_flag &= false;
+            }
+            
+            if(sel_flag)
+                SPUnionTop_.insert(*iter_union);
+                
          }
-        else
-            iter_union++;
+        else{
+            //iter_union++;
+            ROS_INFO_STREAM("query*****:(" << iter_union->first.p.x << "," << iter_union->first.p.y << ")");
+            SPUnionTop_.insert(*iter_union);
+        }
     }
 
-    ROS_INFO_STREAM("SPUnionTop_size_:" << SPUnionTop.size());
+    ROS_INFO_STREAM("SPUnionTop_size_:" << SPUnionTop_.size());
+    
+    //cv::imshow("map",map);
+    //cv::waitKey(0);
+
     /*std::vector<cv::Point2f> sp_union_;
     for(int i = 0;i < contour_ext.size();i++){
         SPPoint sp_point(i);
@@ -1611,7 +1635,7 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
     //std::vector<std::vector<int> > overlap_index;
     std::vector<PolygonCgal> polyCgalUnion;
 
-    for(iter_union = SPUnionTop.begin();iter_union != SPUnionTop.end();iter_union++){
+    for(iter_union = SPUnionTop_.begin();iter_union != SPUnionTop_.end();iter_union++){
         /*std::vector<int> split_polygon_cell;
         bool is_overlap = false;
         int start_overlap = 0;
@@ -1747,7 +1771,7 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
             polyTestRes.push_back(PointCgal(p_x,p_y));
         }
         
-        //res.polygon_test.push_back(partial_polygon);
+        res.polygon_test.push_back(partial_polygon);
         if(i == 0)
             S.insert(polyTestRes);
         else
@@ -1772,14 +1796,14 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
             polyTestSplit.push_back(PointCgal(p_x,p_y));
         }
         
-        //res.polygon_test.push_back(partial_polygon);
+        res.polygon_test.push_back(partial_polygon);
         ROS_INFO_STREAM("polyTestSplit_size:" << polyTestSplit.size());
-std::cout << __FILE__ << __LINE__ << std::endl;
+//std::cout << __FILE__ << __LINE__ << std::endl;
         if(i == 0)
             S.insert(polyTestSplit);
         else
             S.join(polyTestSplit);
-std::cout << __FILE__ << __LINE__ << std::endl;
+//std::cout << __FILE__ << __LINE__ << std::endl;
     }
 
 std::cout << __FILE__ << __LINE__ << std::endl;
