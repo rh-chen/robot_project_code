@@ -377,13 +377,13 @@ void BfsTree(NODE* head){
         p = q.front();
         q.pop();
      
-        ROS_INFO_STREAM("ptr:" << p);
+        //ROS_INFO_STREAM("ptr:" << p);
         for(int i = 0;i < p->n_children;i++){
             q.push(p->children[i]);
-            ROS_INFO_STREAM("ptr_:" << p->children[i]);
+            //ROS_INFO_STREAM("ptr_:" << p->children[i]);
             s.push(p->children[i]);
         }
-        ROS_INFO_STREAM("*************************************************");
+        //ROS_INFO_STREAM("*************************************************");
     }
 
     while(!s.empty()){
@@ -888,7 +888,7 @@ void splitPolygon(std::vector<PolygonCgal>& poly_union,int a,int b,std::vector<P
         map_a.insert(std::make_pair(split_point,split_point_key++));
     }
 
-    print_polygon(a_p);
+    //print_polygon(a_p);
 
     
     PolygonCgal b_p;
@@ -901,7 +901,7 @@ void splitPolygon(std::vector<PolygonCgal>& poly_union,int a,int b,std::vector<P
     }
 
     //print_polygon(poly_union[b]);
-    print_polygon(b_p);
+    //print_polygon(b_p);
     //PolygonWithHolesListCgal diff;
     //PolygonWithHolesListCgal::const_iterator it;
     //CGAL::symmetric_difference(poly_union[b],poly_union[a],std::back_inserter(diff));
@@ -951,8 +951,8 @@ void splitPolygon(std::vector<PolygonCgal>& poly_union,int a,int b,std::vector<P
     }
     
     res.push_back(temp);
-    ROS_INFO_STREAM("temp_size:" << temp.size());
-    print_polygon(temp);
+    //ROS_INFO_STREAM("temp_size:" << temp.size());
+    //print_polygon(temp);
 }
 
 bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
@@ -1011,11 +1011,11 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
     NODE* head = NULL;
     head = new NODE(contour_ext.size(),0,0);
 
-    ROS_INFO_STREAM("head->polygon:" << head->polygon);
+    /*ROS_INFO_STREAM("head->polygon:" << head->polygon);
     ROS_INFO_STREAM("head->n_children:" << head->n_children);
     ROS_INFO_STREAM("head->n_point:" << head->n_point);
     ROS_INFO_STREAM("head->level:" << head->level);
-    ROS_INFO_STREAM("head->children:" << head->children);
+    ROS_INFO_STREAM("head->children:" << head->children);*/
 
     //PolygonCgal polyCgalExt;
     std::vector<SplitPoint> polyCgalExt;
@@ -1054,9 +1054,9 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
         //polyCgalExt.reverse_orientation();
 
     //std::cout << __FILE__ << __LINE__ << std::endl;
-    for(int i = 0;i < head->n_children;i++){
+    /*for(int i = 0;i < head->n_children;i++){
        ROS_INFO_STREAM("head->polygon:(" << head->polygon[i].x << "," << head->polygon[i].y << ")");
-    }
+    }*/
     
     /*PolygonWithHolesCgal polyWithHoles(poly_cgal);
     polyWithHoles.outer_boundary() = polyCgalPoint;
@@ -1094,21 +1094,21 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
     //std::cout << __FILE__ << __LINE__ << std::endl;
                 PolygonCgal poly_cgal;
                 PolygonCgalToPtr(node->polygon,node->n_point,poly_cgal);
-                ROS_INFO_STREAM("poly_cgal_size:" << poly_cgal.size());
+                //ROS_INFO_STREAM("poly_cgal_size:" << poly_cgal.size());
                 
                 if(poly_cgal.is_clockwise_oriented())
                     poly_cgal.reverse_orientation();
                 
-                for(int i = 0;i < poly_cgal.size();i++){
+                /*for(int i = 0;i < poly_cgal.size();i++){
                     PointCgal p = poly_cgal.vertex(i);
                     ROS_INFO_STREAM("p:(" << p.x() << "," << p.y() << ")");
-                }
+                }*/
 
                 offset_polygons = CGAL::create_interior_skeleton_and_offset_polygons_2(lOffset,poly_cgal);
     //std::cout << __FILE__ << __LINE__ << std::endl;
                 //if(offset_polygons.size() > 0)
                     //count_level++;
-                ROS_INFO_STREAM("offset_polygons_size:" << offset_polygons.size());
+                //ROS_INFO_STREAM("offset_polygons_size:" << offset_polygons.size());
                 if(offset_polygons.size() == 0){
                     flag &= true;
                     continue;
@@ -1129,11 +1129,11 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
                     PolygonCgal pi_cgal = *pi_;
                     NODE* node_cell = new NODE(pi_cgal.size(),0,count_level+1);
                     
-                    ROS_INFO_STREAM("node_cell->polygon:" << node_cell->polygon);
+                    /*ROS_INFO_STREAM("node_cell->polygon:" << node_cell->polygon);
                     ROS_INFO_STREAM("node_cell->n_children:" << node_cell->n_children);
                     ROS_INFO_STREAM("node_cell->n_point:" << node_cell->n_point);
                     ROS_INFO_STREAM("node_cell->level:" << node_cell->level);
-                    ROS_INFO_STREAM("node_cell->children:" << node_cell->children);
+                    ROS_INFO_STREAM("node_cell->children:" << node_cell->children);*/
 
                     for(int i = 0;i < pi_cgal.size();i++){
                         PointCgal p = pi_cgal.vertex(i);
@@ -1187,14 +1187,14 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
     }
     
     //BFS
-    ROS_INFO_STREAM("tempNode_size:" << tempNode.size());
+    //ROS_INFO_STREAM("tempNode_size:" << tempNode.size());
     for(int i = 0;i < tempNode.size();i++){
         //ROS_INFO_STREAM("tempNode_size:" << tempNode.size());
         //geometry_msgs::Polygon partial_polygon;
-        ROS_INFO_STREAM("tempNode_[" << i << "]:" << tempNode[i].size());
+        //ROS_INFO_STREAM("tempNode_[" << i << "]:" << tempNode[i].size());
         for(int j = 0;j < tempNode[i].size();j++){
             geometry_msgs::Polygon partial_polygon;
-            ROS_INFO_STREAM("tempNode_level:" << tempNode[i][j]->level);
+            //ROS_INFO_STREAM("tempNode_level:" << tempNode[i][j]->level);
             for(int k = 0;k < tempNode[i][j]->n_point;k++){
                 geometry_msgs::Point32 point_32;
                 point_32.x = tempNode[i][j]->polygon[k].x;
@@ -1218,9 +1218,9 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
     polyWithHoles.outer_boundary() = polyCgalPoint;
     
     SsPtr iss = CGAL::create_interior_straight_skeleton_2(polyWithHoles);
-    ROS_INFO_STREAM("iss.size_of_vertices():" << iss->size_of_vertices());
-    ROS_INFO_STREAM("iss.size_of_halfedges():" << iss->size_of_halfedges());
-    ROS_INFO_STREAM("iss.size_of_faces():" << iss->size_of_faces());
+    //ROS_INFO_STREAM("iss.size_of_vertices():" << iss->size_of_vertices());
+    //ROS_INFO_STREAM("iss.size_of_halfedges():" << iss->size_of_halfedges());
+    //ROS_INFO_STREAM("iss.size_of_faces():" << iss->size_of_faces());
     
     std::map<SSEdge,int> SSEdgeTop;
     int key_ = 0;
@@ -1249,14 +1249,14 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
                 //SP sp_op(v_op->point().x(),v_op->point().y(),v_op->time());
                 
                 SSEdge ss_edge(from,to,isSplitNodeFrom,isSplitNodeTo);
-                ROS_INFO_STREAM("#####################################################");
-                ROS_INFO_STREAM("map.count:" << SSEdgeTop.count(ss_edge));
+                //ROS_INFO_STREAM("#####################################################");
+                //ROS_INFO_STREAM("map.count:" << SSEdgeTop.count(ss_edge));
                 
-                ROS_INFO_STREAM("v_is_skeleton:" << v->is_skeleton());
-                ROS_INFO_STREAM("from:(" << from.x << "," << from.y << ")");
+                //ROS_INFO_STREAM("v_is_skeleton:" << v->is_skeleton());
+                //ROS_INFO_STREAM("from:(" << from.x << "," << from.y << ")");
                 
-                ROS_INFO_STREAM("v_op_is_contour:" << v_op->is_contour());
-                ROS_INFO_STREAM("to:(" << to.x << "," << to.y << ")");
+                //ROS_INFO_STREAM("v_op_is_contour:" << v_op->is_contour());
+                //ROS_INFO_STREAM("to:(" << to.x << "," << to.y << ")");
 
                 if(v->is_skeleton() && v_op->is_contour())
                 {
@@ -1266,7 +1266,7 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
                             ss_edge.isSplitNodeFrom = true;
                             ss_edge.time = t;
 
-                            ROS_INFO_STREAM("v_t:" << t);
+                            //ROS_INFO_STREAM("v_t:" << t);
                             /*geometry_msgs::Pose p_t;
                             p_t.position.x = v->point().x()*req.map_resolution+req.map_origin_x;
                             p_t.position.y = v->point().y()*req.map_resolution+req.map_origin_y;
@@ -1319,7 +1319,7 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
     
     ROS_INFO_STREAM("key_:" << key_);
     
-    ROS_INFO_STREAM("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$");    
+    //ROS_INFO_STREAM("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$");    
     
     //init KDtree
     KDTree<LocalPoint> kdtree(extPoint);
@@ -1341,13 +1341,13 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
     //std::map<SPPoint,int> SPPointTop;
     //int sp_point_key = 0;
 
-    ROS_INFO_STREAM("contour_ext:" << contour_ext.size());
+    //ROS_INFO_STREAM("contour_ext:" << contour_ext.size());
     for(iter_edge = SSEdgeTop.begin();iter_edge != SSEdgeTop.end();iter_edge++){
         LocalPoint query(iter_edge->first.from.x*req.map_resolution+req.map_origin_x,
                          iter_edge->first.from.y*req.map_resolution+req.map_origin_y);
-        ROS_INFO_STREAM("*************************************************************************");
-        ROS_INFO_STREAM("from:(" << iter_edge->first.from.x*req.map_resolution+req.map_origin_x << ","
-                                 << iter_edge->first.from.y*req.map_resolution+req.map_origin_y << ")");
+        //ROS_INFO_STREAM("*************************************************************************");
+        /*ROS_INFO_STREAM("from:(" << iter_edge->first.from.x*req.map_resolution+req.map_origin_x << ","
+                                 << iter_edge->first.from.y*req.map_resolution+req.map_origin_y << ")");*/
         
         const std::vector<int> knnIndices = kdtree.knnSearch(query, 2);
         int start_id = knnIndices[0] < knnIndices[1]?knnIndices[0]:knnIndices[1];
@@ -1366,8 +1366,8 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
             res.point_nearest.push_back(p_t);
         }*/
 
-        ROS_INFO_STREAM("ID:(" << start_id<< "," << end_id << ")");
-        ROS_INFO_STREAM("SPEdgeTop.count(sp_edge):" << SPEdgeTop.count(sp_edge));
+        //ROS_INFO_STREAM("ID:(" << start_id<< "," << end_id << ")");
+        //ROS_INFO_STREAM("SPEdgeTop.count(sp_edge):" << SPEdgeTop.count(sp_edge));
         if(SPEdgeTop.count(sp_edge) == 0){
             std::vector<cv::Point2f> sub_contour;
             std::vector<cv::Point2f> sub_contour_;
@@ -1397,27 +1397,27 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
                 }
             }
 
-            ROS_INFO_STREAM("sub_contour:" << sub_contour.size());
-            ROS_INFO_STREAM("sub_contour_:" << sub_contour_.size());
+            //ROS_INFO_STREAM("sub_contour:" << sub_contour.size());
+            //ROS_INFO_STREAM("sub_contour_:" << sub_contour_.size());
 
             if(sub_contour.size() < 3 || sub_contour_.size() < 3)
                 continue;
             
             double sub_area = cv::contourArea(sub_contour,false);
             double sub_area_ = cv::contourArea(sub_contour_,false);
-            ROS_INFO_STREAM("sub_area:" << sub_area);
-            ROS_INFO_STREAM("sub_area_:" << sub_area_);
+            //ROS_INFO_STREAM("sub_area:" << sub_area);
+            //ROS_INFO_STREAM("sub_area_:" << sub_area_);
 
             if(sub_area > sub_area_limit && sub_area_ > sub_area_limit){
                 double delta_x = cv::Point2d(extPoint[sp_edge.start_id]).x-cv::Point2d(extPoint[sp_edge.end_id]).x;
                 double delta_y = cv::Point2d(extPoint[sp_edge.start_id]).y-cv::Point2d(extPoint[sp_edge.end_id]).y;
-                ROS_INFO_STREAM("split_edge_limit:" << std::sqrt(delta_x*delta_x + delta_y*delta_y));
+                //ROS_INFO_STREAM("split_edge_limit:" << std::sqrt(delta_x*delta_x + delta_y*delta_y));
 
                 if(std::sqrt(delta_x*delta_x + delta_y*delta_y) > split_edge_limit){
                     SPEdgeTop.insert(std::make_pair(sp_edge,split_key++));      
 
-                    ROS_INFO_STREAM("kdtree_start:(" << cv::Point2d(extPoint[sp_edge.start_id]).x << "," 
-                                               << cv::Point2d(extPoint[sp_edge.start_id]).y << ")");
+                    /*ROS_INFO_STREAM("kdtree_start:(" << cv::Point2d(extPoint[sp_edge.start_id]).x << "," 
+                                               << cv::Point2d(extPoint[sp_edge.start_id]).y << ")");*/
                     geometry_msgs::Pose p_start;
                     p_start.position.x = cv::Point2d(extPoint[sp_edge.start_id]).x;
                     p_start.position.y = cv::Point2d(extPoint[sp_edge.start_id]).y;
@@ -1425,8 +1425,8 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
                     
                     //res.point_nearest.push_back(p_start);
 
-                    ROS_INFO_STREAM("kdtree_end:(" << cv::Point2d(extPoint[sp_edge.end_id]).x << "," 
-                                               << cv::Point2d(extPoint[sp_edge.end_id]).y << ")");
+                    /*ROS_INFO_STREAM("kdtree_end:(" << cv::Point2d(extPoint[sp_edge.end_id]).x << "," 
+                                               << cv::Point2d(extPoint[sp_edge.end_id]).y << ")");*/
                     geometry_msgs::Pose p_end;
                     p_end.position.x = cv::Point2d(extPoint[sp_edge.end_id]).x;
                     p_end.position.y = cv::Point2d(extPoint[sp_edge.end_id]).y;
@@ -1451,9 +1451,9 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
                         int s_index = 0;
                         std::stack<int> sIndex;
                         
-                        for(int i = 0;i < index_contour.size();i++){
+                        /*for(int i = 0;i < index_contour.size();i++){
                             ROS_INFO_STREAM("index_contour:" << index_contour[i]);
-                        }
+                        }*/
 
                         if((index_contour[0] != sp_edge.start_id) || (index_contour[index_contour.size()-1] != sp_edge.end_id)){
                            for(int i = 0;i < index_contour.size();i++){
@@ -1496,20 +1496,20 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
                         SPUnionTop.insert(std::make_pair(sp_union,sp_union_key++));
 
                         
-                        for(int i = 0;i < index_contour_sort.size();i++){
+                        /*for(int i = 0;i < index_contour_sort.size();i++){
                             ROS_INFO_STREAM("index_contour_sort:" << index_contour_sort[i]);
                             //SPPoint sp_point(index_contour[i]);
                             //SPPointTop.insert(std::make_pair(sp_point,sp_point_key++));
-                        }
+                        }*/
                     }
                     else{
                         std::vector<int> index_contour_sort_;
                         int s_index = 0;
                         std::stack<int> sIndex;
                         
-                        for(int i = 0;i < index_contour_.size();i++){
+                        /*for(int i = 0;i < index_contour_.size();i++){
                             ROS_INFO_STREAM("index_contour_:" << index_contour_[i]);
-                        }
+                        }*/
 
                         if((index_contour_[0] != sp_edge.start_id) || (index_contour_[index_contour.size()-1] != sp_edge.end_id)){
                            for(int i = 0;i < index_contour_.size();i++){
@@ -1551,11 +1551,11 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
                         
                         SPUnion sp_union(p_s_,p_start_,p_end_,index_contour_sort_);
                         SPUnionTop.insert(std::make_pair(sp_union,sp_union_key++));
-                        for(int i = 0;i < index_contour_sort_.size();i++){
+                        /*for(int i = 0;i < index_contour_sort_.size();i++){
                             ROS_INFO_STREAM("index_contour_sort_:" << index_contour_sort_[i]);
                             //SPPoint sp_point(index_contour_[i]);
                             //SPPointTop.insert(std::make_pair(sp_point,sp_point_key++));
-                        }
+                        }*/
                     }
 
                     spUnionPoint.push_back(LocalPoint(p_s.position.x,p_s.position.y));
@@ -1663,10 +1663,10 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
         p_s.position.z = 0.f;
         
         res.point_skeleton.push_back(p_s);
-        ROS_INFO_STREAM("iter_union.size:" << iter_union->first.sub_contour.size());
+        //ROS_INFO_STREAM("iter_union.size:" << iter_union->first.sub_contour.size());
         
         for(int i = 0;i < iter_union->first.sub_contour.size();i++){
-            ROS_INFO_STREAM("iter_union->first.sub_contour:" << iter_union->first.sub_contour[i]);
+            //ROS_INFO_STREAM("iter_union->first.sub_contour:" << iter_union->first.sub_contour[i]);
 
             //SPPoint sp_point(iter_union->first.sub_contour[i]);
             /*if(SPPointTop.count(sp_point) == 0){
@@ -1683,15 +1683,15 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
         polyCgalUnion.push_back(poly_cgal_union);
     }
 
-    ROS_INFO_STREAM("polyCgalUnion_size: " << polyCgalUnion.size());
+    //ROS_INFO_STREAM("polyCgalUnion_size: " << polyCgalUnion.size());
 
-    for(int i = 0;i < polyCgalUnion.size();i++){
+    /*for(int i = 0;i < polyCgalUnion.size();i++){
         ROS_INFO_STREAM("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
         ROS_INFO_STREAM("polyCgalUnion[i].size():" << polyCgalUnion[i].size());
         for(int j = 0;j < polyCgalUnion[i].size();j++){
             ROS_INFO_STREAM("polyCgalUnion[i][j]:" << polyCgalUnion[i][j]);
         }
-    }
+    }*/
 
     std::vector<PolygonCgal> polyCgalSplit;
     std::vector<OIndex> overlap_index;
@@ -1722,12 +1722,12 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
         }
     }
     
-    ROS_INFO_STREAM("polyCgalSplit_size:" << polyCgalSplit.size()); 
-    ROS_INFO_STREAM("overlap_index_size:" << overlap_index.size()); 
+    //ROS_INFO_STREAM("polyCgalSplit_size:" << polyCgalSplit.size()); 
+    //ROS_INFO_STREAM("overlap_index_size:" << overlap_index.size()); 
     
     std::vector<PolygonCgal> splitCgalRes;
     for(int i = 0;i < overlap_index.size();i++){
-       ROS_INFO_STREAM("overlap_index[i].p:" << overlap_index[i].p);
+       //ROS_INFO_STREAM("overlap_index[i].p:" << overlap_index[i].p);
        bool startFlag = true;
         
        if(overlap_index[i].p_index.size() > 0){
@@ -1755,7 +1755,7 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
     Polygon_set_2_cgal S;
 //std::cout << __FILE__ << __LINE__ << std::endl;
     for(int i = 0;i < splitCgalRes.size();i++){  
-        ROS_INFO_STREAM("splitCgalRes[i]_size:" << splitCgalRes[i].size());
+        //ROS_INFO_STREAM("splitCgalRes[i]_size:" << splitCgalRes[i].size());
         geometry_msgs::Polygon partial_polygon;
         PolygonCgal polyTestRes;
         for(int j = 0;j < splitCgalRes[i].size();j++){
@@ -1780,7 +1780,7 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
 
 
     for(int i = 0;i < polyCgalSplit.size();i++){  
-        ROS_INFO_STREAM("polyCgalSplit[i]_size:" << polyCgalSplit[i].size());
+        //ROS_INFO_STREAM("polyCgalSplit[i]_size:" << polyCgalSplit[i].size());
         geometry_msgs::Polygon partial_polygon;
         PolygonCgal polyTestSplit;
         for(int j = 0;j < polyCgalSplit[i].size();j++){
@@ -1797,7 +1797,7 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
         }
         
         res.polygon_test.push_back(partial_polygon);
-        ROS_INFO_STREAM("polyTestSplit_size:" << polyTestSplit.size());
+        //ROS_INFO_STREAM("polyTestSplit_size:" << polyTestSplit.size());
 //std::cout << __FILE__ << __LINE__ << std::endl;
         if(i == 0)
             S.insert(polyTestSplit);
@@ -1806,7 +1806,7 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
 //std::cout << __FILE__ << __LINE__ << std::endl;
     }
 
-std::cout << __FILE__ << __LINE__ << std::endl;
+//std::cout << __FILE__ << __LINE__ << std::endl;
 
     //std::vector<std::set<SplitPoint> > vec_set_cgal_res;
     std::set<SplitPoint> vec_set_cgal_res;
@@ -1825,7 +1825,7 @@ std::cout << __FILE__ << __LINE__ << std::endl;
         //vec_set_cgal_res.push_back(set_temp);
     }
 
-    ROS_INFO_STREAM("vec_set_cgal_res_size:" << vec_set_cgal_res.size());
+    //ROS_INFO_STREAM("vec_set_cgal_res_size:" << vec_set_cgal_res.size());
     
     //std::vector<std::set<SplitPoint> > vec_set_cgal_split;
     std::set<SplitPoint> vec_set_cgal_split;
@@ -1845,7 +1845,7 @@ std::cout << __FILE__ << __LINE__ << std::endl;
         //vec_set_cgal_split.push_back(set_temp);
     }
 
-    ROS_INFO_STREAM("vec_set_cgal_split_size:" << vec_set_cgal_split.size());
+    //ROS_INFO_STREAM("vec_set_cgal_split_size:" << vec_set_cgal_split.size());
 
     /*for(int i = 0;i < vec_set_cgal_res.size();i++){
         std::vector<SplitPoint> diff;
@@ -1863,7 +1863,7 @@ std::cout << __FILE__ << __LINE__ << std::endl;
        }
        ROS_INFO_STREAM("polyCgalExt_cut_size:" << polyCgalExt.size());
     }*/
-    ROS_INFO_STREAM("polyCgalExt_size:" << polyCgalExt.size());
+    //ROS_INFO_STREAM("polyCgalExt_size:" << polyCgalExt.size());
 
     geometry_msgs::Polygon partialPolygon; 
     std::vector<SplitPoint>::iterator it_set_split;
@@ -1896,23 +1896,23 @@ std::cout << __FILE__ << __LINE__ << std::endl;
        }
        ROS_INFO_STREAM("polyCgalExt_cut_size:" << polyCgalExt.size());
     }*/
-std::cout << __FILE__ << __LINE__ << std::endl;
+//std::cout << __FILE__ << __LINE__ << std::endl;
     Polygon_set_2_cgal S_;
     
     S_.insert(polyTest);
     
     S_.symmetric_difference(S);
-    ROS_INFO_STREAM("S_size:" << S_.number_of_polygons_with_holes());
+    //ROS_INFO_STREAM("S_size:" << S_.number_of_polygons_with_holes());
     
     PolygonWithHolesListCgal resPolygonCgal;
     S_.polygons_with_holes(std::back_inserter(resPolygonCgal));
     
     std::list<PolygonWithHolesCgal>::const_iterator polygon_it;
     for (polygon_it = resPolygonCgal.begin(); polygon_it != resPolygonCgal.end(); ++polygon_it){
-        ROS_INFO_STREAM("is_unbounded:" << polygon_it->is_unbounded());
+        //ROS_INFO_STREAM("is_unbounded:" << polygon_it->is_unbounded());
         if(!polygon_it->is_unbounded()){
-            ROS_INFO_STREAM("polygon_it->outer_boundary()_size:" << polygon_it->outer_boundary().size());
-            ROS_INFO_STREAM("pwh.number_of_holes():" << polygon_it->number_of_holes());
+            //ROS_INFO_STREAM("polygon_it->outer_boundary()_size:" << polygon_it->outer_boundary().size());
+            //ROS_INFO_STREAM("pwh.number_of_holes():" << polygon_it->number_of_holes());
             
             geometry_msgs::Polygon partial_polygon;
             for(int i = 0;i < polygon_it->outer_boundary().size();i++){
@@ -1928,7 +1928,7 @@ std::cout << __FILE__ << __LINE__ << std::endl;
         }       
     }
 
-std::cout << __FILE__ << __LINE__ << std::endl;
+//std::cout << __FILE__ << __LINE__ << std::endl;
     //std::cout << __FILE__ << __LINE__ << std::endl;
     /*std::vector<std::vector<cv::Point> > contours;
 	std::vector<cv::Vec4i> hierarchy;
