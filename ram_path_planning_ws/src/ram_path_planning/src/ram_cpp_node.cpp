@@ -328,7 +328,10 @@ public:
 #if 1
 								//polygon test
 							{
+                                //ROS_INFO_STREAM("srv_zigzag.response.polygon_test.size:" << srv_zigzag.response.polygon_test.size());
                                 for(int j = 0;j < srv_zigzag.response.polygon_test.size();j++){
+                                    //std::cout << __FILE__ << __LINE__ << std::endl;
+                                    ROS_INFO_STREAM("J:" << j);
 									geometry_msgs::Polygon polygon_ = srv_zigzag.response.polygon_test[j];
 									geometry_msgs::Pose startPose;
 									startPose.position.x = polygon_.points[0].x;
@@ -365,6 +368,7 @@ public:
 									last_point.x = startPose.position.x;
 									last_point.y = startPose.position.y;
 									//ROS_INFO("polygon__points_size:%d",polygon_.points.size());
+                                    //std::cout << __FILE__ << __LINE__ << std::endl;
 									for(int i = 1; i < polygon_.points.size(); ++i) {
 
 											geometry_msgs::Pose pose;
@@ -425,6 +429,7 @@ public:
 
 									}
 									//start point to end point
+                                    //std::cout << __FILE__ << __LINE__ << std::endl;
 									if(true)
 									{
 										geometry_msgs::Pose  markerArrowPose;
@@ -473,6 +478,7 @@ public:
 
 										markerArray.markers.push_back(markerArrow);
 									}
+                                    //std::cout << __FILE__ << __LINE__ << std::endl;
 								}
 							}
 #endif

@@ -1007,7 +1007,7 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
 	vertices_point = makeOIP(bin,delta_point);
     
     std::vector<cv::Point> contour_ext;
-    cv::approxPolyDP(vertices_point,contour_ext,2.0,true);
+    cv::approxPolyDP(vertices_point,contour_ext,2.5,true);
     //ROS_INFO_STREAM("contour_ext:" << contour_ext.size());
 
     //B+Tree
@@ -1265,7 +1265,7 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
                 {
                     if(SSEdgeTop.count(ss_edge) == 0){
                         double t = v->time();
-                        if(t < 15.0){
+                        if(t < 12.0){
                             ss_edge.isSplitNodeFrom = true;
                             ss_edge.time = t;
 
@@ -1769,7 +1769,7 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
     std::map<int,int> map_overlap_index;
     int map_overlap_index_key = 0;
 
-    for(int i = 0;i < polyCgalUnion.size();i++){
+    /*for(int i = 0;i < polyCgalUnion.size();i++){
         bool is_overlap = false;
         std::vector<int> overlap_index_;
         
@@ -1791,19 +1791,41 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
             else
                 polyCgalSplit.push_back(polyCgalUnion[i]);
         }
+    }*/
+    for(int i = polyCgalUnion.size()-1;i >= 0;i--){
+        bool is_overlap = false;
+        std::vector<int> overlap_index_;
+        
+        if(map_overlap_index.count(i) == 0){
+            for(int j = i-1;j >= 0;j--)
+            {
+                if(CGAL::do_intersect(polyCgalUnion[i],polyCgalUnion[j])){
+                    is_overlap = true;
+                    overlap_index_.push_back(j);
+                    map_overlap_index.insert(std::make_pair(j,map_overlap_index_key++));
+                }
+            }
+            
+            if(is_overlap){
+                map_overlap_index.insert(std::make_pair(i,map_overlap_index_key++));
+                OIndex o_index(i,overlap_index_);
+                overlap_index.push_back(o_index);
+            }
+            else
+                polyCgalSplit.push_back(polyCgalUnion[i]);
+        }
     }
-    
     //ROS_INFO_STREAM("polyCgalSplit_size:" << polyCgalSplit.size()); 
-    //ROS_INFO_STREAM("overlap_index_size:" << overlap_index.size()); 
+    ROS_INFO_STREAM("overlap_index_size:" << overlap_index.size()); 
     
     std::vector<PolygonCgal> splitCgalRes;
     for(int i = 0;i < overlap_index.size();i++){
-       //ROS_INFO_STREAM("overlap_index[i].p:" << overlap_index[i].p);
+       ROS_INFO_STREAM("overlap_index[i].p:" << overlap_index[i].p);
        bool startFlag = true;
         
        if(overlap_index[i].p_index.size() > 0){
             splitCgalRes.push_back(polyCgalUnion[overlap_index[i].p]);
-            splitPolygon(polyCgalUnion,
+            /*splitPolygon(polyCgalUnion,
                          overlap_index[i].p,
                          overlap_index[i].p_index[0],
                          splitCgalRes,
@@ -1819,10 +1841,11 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
                              req.map_origin_x,
                              req.map_origin_y,
                              req.map_resolution);
-            }
+            }*/
        }
     }
-
+    
+    ROS_INFO_STREAM("splitCgalRes.size:" << splitCgalRes.size());
     Polygon_set_2_cgal S;
 //std::cout << __FILE__ << __LINE__ << std::endl;
     for(int i = 0;i < splitCgalRes.size();i++){  
@@ -1849,7 +1872,8 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
             S.join(polyTestRes);
     }
 
-
+    
+    ROS_INFO_STREAM("polyCgalSplit.size:" << polyCgalSplit.size());
     for(int i = 0;i < polyCgalSplit.size();i++){  
         //ROS_INFO_STREAM("polyCgalSplit[i]_size:" << polyCgalSplit[i].size());
         geometry_msgs::Polygon partial_polygon;
@@ -1867,20 +1891,20 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
             polyTestSplit.push_back(PointCgal(p_x,p_y));
         }
         
-        res.polygon_test.push_back(partial_polygon);
+        //res.polygon_test.push_back(partial_polygon);
         //ROS_INFO_STREAM("polyTestSplit_size:" << polyTestSplit.size());
 //std::cout << __FILE__ << __LINE__ << std::endl;
-        if(i == 0)
-            S.insert(polyTestSplit);
-        else
+        //if(i == 0)
+            //S.insert(polyTestSplit);
+        //else
             S.join(polyTestSplit);
 //std::cout << __FILE__ << __LINE__ << std::endl;
     }
 
-//std::cout << __FILE__ << __LINE__ << std::endl;
+std::cout << __FILE__ << __LINE__ << std::endl;
 
     //std::vector<std::set<SplitPoint> > vec_set_cgal_res;
-    std::set<SplitPoint> vec_set_cgal_res;
+    /*std::set<SplitPoint> vec_set_cgal_res;
     for(int i = 0;i < splitCgalRes.size();i++){
         //std::set<SplitPoint> set_temp;
         for(int j = 1;j < splitCgalRes[i].size()-1;j++){
@@ -1894,13 +1918,12 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
             vec_set_cgal_res.insert(split_point);
         }
         //vec_set_cgal_res.push_back(set_temp);
-    }
+    }*/
 
     //ROS_INFO_STREAM("vec_set_cgal_res_size:" << vec_set_cgal_res.size());
     
     //std::vector<std::set<SplitPoint> > vec_set_cgal_split;
-    std::set<SplitPoint> vec_set_cgal_split;
-
+    /*std::set<SplitPoint> vec_set_cgal_split;
     for(int i = 0;i < polyCgalSplit.size();i++){
         //std::set<SplitPoint> set_temp;
         for(int j = 1;j < polyCgalSplit[i].size()-1;j++){
@@ -1914,7 +1937,7 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
             vec_set_cgal_split.insert(split_point);
         }
         //vec_set_cgal_split.push_back(set_temp);
-    }
+    }*/
 
     //ROS_INFO_STREAM("vec_set_cgal_split_size:" << vec_set_cgal_split.size());
 
@@ -1935,8 +1958,9 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
        ROS_INFO_STREAM("polyCgalExt_cut_size:" << polyCgalExt.size());
     }*/
     //ROS_INFO_STREAM("polyCgalExt_size:" << polyCgalExt.size());
-
-    geometry_msgs::Polygon partialPolygon; 
+    
+    //Plan_one
+    /*geometry_msgs::Polygon partialPolygon; 
     std::vector<SplitPoint>::iterator it_set_split;
     for(it_set_split = polyCgalExt.begin();it_set_split != polyCgalExt.end();it_set_split++){
         if((vec_set_cgal_res.count(*it_set_split) == 0) && (vec_set_cgal_split.count(*it_set_split) == 0))
@@ -1950,7 +1974,8 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
         }
     }
 
-    //res.polygon_test.push_back(partialPolygon);
+    res.polygon_test.push_back(partialPolygon);*/
+
     /*for(int i = 0;i < vec_set_cgal_split.size();i++){
         std::vector<SplitPoint> diff;
         std::set_difference(polyCgalExt.begin(),
@@ -1967,13 +1992,15 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
        }
        ROS_INFO_STREAM("polyCgalExt_cut_size:" << polyCgalExt.size());
     }*/
-//std::cout << __FILE__ << __LINE__ << std::endl;
+std::cout << __FILE__ << __LINE__ << std::endl;
     Polygon_set_2_cgal S_;
     
     S_.insert(polyTest);
     
+std::cout << __FILE__ << __LINE__ << std::endl;
     S_.symmetric_difference(S);
-    //ROS_INFO_STREAM("S_size:" << S_.number_of_polygons_with_holes());
+std::cout << __FILE__ << __LINE__ << std::endl;
+    ROS_INFO_STREAM("S_size:" << S_.number_of_polygons_with_holes());
     
     PolygonWithHolesListCgal resPolygonCgal;
     S_.polygons_with_holes(std::back_inserter(resPolygonCgal));
@@ -1995,7 +2022,7 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
                 partial_polygon.points.push_back(point_32);
             }
             
-            res.polygon_test.push_back(partial_polygon); 
+            //res.polygon_test.push_back(partial_polygon); 
         }       
     }
 
