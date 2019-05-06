@@ -51,6 +51,9 @@ typedef CGAL::Straight_skeleton_2<K>::Halfedge_const_handle   Halfedge_const_han
 typedef boost::shared_ptr<PolygonCgal> PolygonPtr;
 typedef std::vector<PolygonPtr> PolygonPtrVector;
 typedef CGAL::Polygon_set_2<Kernel> Polygon_set_2_cgal;
+typedef Kernel::Segment_2 Segment_Cgal;
+typedef Kernel::Line_2 Line_Cgal;
+typedef Kernel::Intersect_2 Intersect_Cgal;
 
 namespace Cpp{
 #if 1
@@ -1004,7 +1007,7 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
 	vertices_point = makeOIP(bin,delta_point);
     
     std::vector<cv::Point> contour_ext;
-    cv::approxPolyDP(vertices_point,contour_ext,2.5,true);
+    cv::approxPolyDP(vertices_point,contour_ext,2.0,true);
     //ROS_INFO_STREAM("contour_ext:" << contour_ext.size());
 
     //B+Tree
@@ -1353,6 +1356,74 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
         int start_id = knnIndices[0] < knnIndices[1]?knnIndices[0]:knnIndices[1];
         int end_id = knnIndices[0] > knnIndices[1]?knnIndices[0]:knnIndices[1];
         
+        ROS_INFO_STREAM("start_id:" << start_id << ",end_id" << end_id );
+        PointCgal segment_point_a(cv::Point2d(extPoint[start_id]).x,cv::Point2d(extPoint[start_id]).y);
+        PointCgal segment_point_b(cv::Point2d(extPoint[end_id]).x,cv::Point2d(extPoint[end_id]).y);
+
+        Segment_Cgal segment_ab(segment_point_a,segment_point_b);
+
+        for(int index_ = start_id+1;index_ < end_id-1;index_++){
+            PointCgal segment_temp_a(cv::Point2d(extPoint[index_]).x,cv::Point2d(extPoint[index_]).y);
+            PointCgal segment_temp_b(cv::Point2d(extPoint[index_+1]).x,cv::Point2d(extPoint[index_+1]).y);
+
+            Segment_Cgal segment_temp_ab(segment_temp_a,segment_temp_b);
+            CGAL::cpp11::result_of<Intersect_Cgal(Segment_Cgal, Segment_Cgal)>::type result = intersection(segment_ab, segment_temp_ab);
+
+            if(result){
+                double delta_a_x = segment_temp_a.x()-cv::Point2d(query).x;
+                double delta_a_y = segment_temp_a.y()-cv::Point2d(query).y;
+                double delta_b_x = segment_temp_b.x()-cv::Point2d(query).x;
+                double delta_b_y = segment_temp_b.y()-cv::Point2d(query).y;
+                
+                double distance_a = std::sqrt(delta_a_x*delta_a_x+delta_a_y*delta_a_y);
+                double distance_b = std::sqrt(delta_a_x*delta_a_x+delta_a_y*delta_a_y);
+
+                if(distance_a < distance_b){
+                    double delta_s_x = segment_temp_a.x()-cv::Point2d(extPoint[start_id]).x;
+                    double delta_s_y = segment_temp_a.y()-cv::Point2d(extPoint[start_id]).y;
+                    double delta_e_x = segment_temp_a.x()-cv::Point2d(extPoint[end_id]).x;
+                    double delta_e_y = segment_temp_a.y()-cv::Point2d(extPoint[end_id]).y;
+                
+                    double distance_s = std::sqrt(delta_s_x*delta_s_x+delta_s_y*delta_s_y);
+                    double distance_e = std::sqrt(delta_e_x*delta_e_x+delta_e_y*delta_e_y);
+
+                    if(distance_s < distance_e)
+                    {
+                        start_id = index_;
+                        break;
+                    }
+                    else{
+                        end_id = index_;
+                        break;
+                    }
+                }
+                else{
+                    double delta_s_x = segment_temp_b.x()-cv::Point2d(extPoint[start_id]).x;
+                    double delta_s_y = segment_temp_b.y()-cv::Point2d(extPoint[start_id]).y;
+                    double delta_e_x = segment_temp_b.x()-cv::Point2d(extPoint[end_id]).x;
+                    double delta_e_y = segment_temp_b.y()-cv::Point2d(extPoint[end_id]).y;
+                
+                    double distance_s = std::sqrt(delta_s_x*delta_s_x+delta_s_y*delta_s_y);
+                    double distance_e = std::sqrt(delta_e_x*delta_e_x+delta_e_y*delta_e_y);
+
+                    if(distance_s < distance_e)
+                    {
+                        start_id = index_;
+                        break;
+                    }
+                    else{
+                        end_id = index_;
+                        break;
+                    }
+
+                }
+                ROS_INFO_STREAM("intersection!");
+            }
+            //else
+                //ROS_INFO_STREAM("no intersection!");
+        }
+        
+        ROS_INFO_STREAM("start_id*******:" << start_id << ",end_id************:" << end_id);
         SPEdge sp_edge(start_id,end_id);
 
         /*ROS_INFO_STREAM("ID:(" << begin_id << "," << end_id << ")");
