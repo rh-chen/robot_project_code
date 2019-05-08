@@ -1850,6 +1850,11 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
         }
     }
 
+    delete[] marked;
+    delete[] onStack;
+    delete[] edgeTo;
+    delete[] cycle;
+
 	return true;
 }
 
