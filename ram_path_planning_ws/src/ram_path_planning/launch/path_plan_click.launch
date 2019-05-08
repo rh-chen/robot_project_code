@@ -1,5 +1,5 @@
 <launch>
-	<arg name="map_file" default="$(find ram_path_planning)/maps/3.yaml"/>
+	<arg name="map_file" default="$(find ram_path_planning)/maps/full.yaml"/>
 
     <node name="map_server_for_test" pkg="map_server" type="map_server" args="$(arg map_file)">
     </node>

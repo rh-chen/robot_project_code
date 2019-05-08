@@ -331,7 +331,7 @@ public:
                                 //ROS_INFO_STREAM("srv_zigzag.response.polygon_test.size:" << srv_zigzag.response.polygon_test.size());
                                 for(int j = 0;j < srv_zigzag.response.polygon_test.size();j++){
                                     //std::cout << __FILE__ << __LINE__ << std::endl;
-                                    ROS_INFO_STREAM("J:" << j);
+                                    //ROS_INFO_STREAM("J:" << j);
 									geometry_msgs::Polygon polygon_ = srv_zigzag.response.polygon_test[j];
 									geometry_msgs::Pose startPose;
 									startPose.position.x = polygon_.points[0].x;
