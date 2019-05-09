@@ -905,17 +905,24 @@ void splitPolygon(std::vector<PolygonCgal>& poly_union,
             s.pop();
             t.push(b);
 
-            if(i == 0){
+            /*if(i == 0){
                 S_.insert(b);
                 i++;
             }
             else{
                 S_.join(b);
-            }
+            }*/
             
             if(CGAL::do_intersect(a,b)){
                 iFlag = true;
-
+                
+                if(i == 0){
+                    S_.insert(b);
+                    i++;
+                }
+                else{
+                    S_.join(b);
+                }
                 /*ROS_INFO_STREAM("intersection!!!!!!!!!!!!!!!!!!!!");
                 PolygonWithHolesListCgal diff;
                 PolygonWithHolesListCgal::const_iterator it;
@@ -1906,7 +1913,7 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
     
     ROS_INFO_STREAM("splitCgalRes.size:" << splitCgalRes.size());
     Polygon_set_2_cgal S;
-std::cout << __FILE__ << __LINE__ << std::endl;
+//std::cout << __FILE__ << __LINE__ << std::endl;
     for(int i = 0;i < splitCgalRes.size();i++){  
         ROS_INFO_STREAM("splitCgalRes[i]_size:" << splitCgalRes[i].size());
         geometry_msgs::Polygon partial_polygon;
@@ -1924,13 +1931,13 @@ std::cout << __FILE__ << __LINE__ << std::endl;
             polyTestRes.push_back(PointCgal(p_x,p_y));
         }
         
-        //res.polygon_test.push_back(partial_polygon);
-std::cout << __FILE__ << __LINE__ << std::endl;
+        res.polygon_test.push_back(partial_polygon);
+//std::cout << __FILE__ << __LINE__ << std::endl;
         //if(i == 0)
             //S.insert(polyTestRes);
         //else
             //S.join(polyTestRes);
-std::cout << __FILE__ << __LINE__ << std::endl;
+//std::cout << __FILE__ << __LINE__ << std::endl;
     }
     
     for(int i = 0;i < splitCgalResS.size();i++){  
@@ -1950,7 +1957,7 @@ std::cout << __FILE__ << __LINE__ << std::endl;
             S.join(polyTestRes);
     }
     
-std::cout << __FILE__ << __LINE__ << std::endl;
+//std::cout << __FILE__ << __LINE__ << std::endl;
     ROS_INFO_STREAM("polyCgalSplit.size:" << polyCgalSplit.size());
     for(int i = 0;i < polyCgalSplit.size();i++){  
         //ROS_INFO_STREAM("polyCgalSplit[i]_size:" << polyCgalSplit[i].size());
@@ -1971,12 +1978,12 @@ std::cout << __FILE__ << __LINE__ << std::endl;
         
         //res.polygon_test.push_back(partial_polygon);
         //ROS_INFO_STREAM("polyTestSplit_size:" << polyTestSplit.size());
-std::cout << __FILE__ << __LINE__ << std::endl;
+//std::cout << __FILE__ << __LINE__ << std::endl;
         //if(i == 0)
             //S.insert(polyTestSplit);
         //else
             S.join(polyTestSplit);
-std::cout << __FILE__ << __LINE__ << std::endl;
+//std::cout << __FILE__ << __LINE__ << std::endl;
     }
 
 //std::cout << __FILE__ << __LINE__ << std::endl;
@@ -2100,7 +2107,7 @@ std::cout << __FILE__ << __LINE__ << std::endl;
                 partial_polygon.points.push_back(point_32);
             }
             
-            res.polygon_test.push_back(partial_polygon); 
+            //res.polygon_test.push_back(partial_polygon); 
         }       
     }
 
