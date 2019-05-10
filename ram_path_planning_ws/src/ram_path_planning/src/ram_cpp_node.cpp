@@ -798,7 +798,7 @@ public:
 								}
 #endif
 
-#if 0 
+#if 1 
 								//coverage_path
 								{
                                     //srv_zigzag.response.path.size()

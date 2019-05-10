@@ -176,6 +176,24 @@ add_dependencies(
 )
 
 add_executable(
+  cpp_cgal_plan_node
+  src/Cpp_Cgal_Plan.cpp
+)
+target_link_libraries(
+  cpp_cgal_plan_node
+  ${catkin_LIBRARIES}
+  ${VTK_LIBRARIES}
+  ${OpenCV_LIBS}
+  polypartition
+  CGAL
+)
+add_dependencies(
+  cpp_cgal_plan_node
+  ${PROJECT_NAME}_generate_messages_cpp
+  ${catkin_EXPORTED_TARGETS}
+)
+
+add_executable(
   cpp_polygon_node
   src/Cpp_Polygon.cpp
 )
