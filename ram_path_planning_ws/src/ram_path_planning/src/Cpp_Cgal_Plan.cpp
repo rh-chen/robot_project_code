@@ -2123,8 +2123,7 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
 
 //std::cout << __FILE__ << __LINE__ << std::endl;
     ROS_INFO_STREAM("start coverage path plan!!!");
-    std_msgs::Float64 footprintLength, footprintWidth, horizontalOverwrap, verticalOverwrap;
-    footprintLength.data = 0.2;
+    std_msgs::Float64 footprintWidth, horizontalOverwrap, verticalOverwrap;
     footprintWidth.data = 0.2; 
     horizontalOverwrap.data = 0;
     verticalOverwrap.data = 0;

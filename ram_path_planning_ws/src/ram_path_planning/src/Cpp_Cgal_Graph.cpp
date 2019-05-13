@@ -57,13 +57,18 @@ typedef Kernel::Segment_2 Segment_Cgal;
 typedef Kernel::Line_2 Line_Cgal;
 typedef Kernel::Intersect_2 Intersect_Cgal;
 
-//n cycle
-int n_cycle = 0;
+#define INF 1000000000
+
+/*int n_cycle = 0;
 bool* marked;
 bool* onStack;
 std::tuple<int,int,double>* edgeTo;
-std::stack<std::tuple<int,int,double>>* cycle;
-std::map<int,std::vector<std::tuple<int,int,double>>> EWD;
+std::stack<std::tuple<int,int,double>>* cycle;*/
+
+std::stack<int> s_node;
+bool* visited;
+std::vector<std::stack<int> > DPaths;
+std::map<int, std::vector<std::tuple<int, int,double>>> EWD;
 
 namespace Cpp{
 #if 1
@@ -626,72 +631,6 @@ bool compare_polygon(const PolygonCgal& poly_a,const PolygonCgal& poly_b){
     }
 }
 
-/*bool isBadPolygon(PointVector& polygon_,double step_){
-    
-    if(polygon_.size() < 3)
-    {
-        return true;
-    }
-
-    PointVector polygon_convex_hull;
-    Direction sweepDirection = identifyOptimalSweepDir(polygon_,polygon_convex_hull);
-
-    double rotationAngle = calculateHorizontalAngle(sweepDirection.baseEdge.front(), sweepDirection.baseEdge.back());
-    PointVector rotatedPolygon = rotatePoints(polygon_convex_hull, -rotationAngle);
-	
-    for(int i = 0;i < rotatedPolygon.size();i++){
-		ROS_INFO("zig_rotatedPolygon_X:%f,zig_rotatedPolygon_Y:%f",rotatedPolygon[i].x,rotatedPolygon[i].y);
-	}
-    
-    PointVector dir{ sweepDirection.opposedVertex, sweepDirection.baseEdge.front(), sweepDirection.baseEdge.back() };
-    dir = rotatePoints(dir, -rotationAngle);
-    Direction rotatedDir;
-    rotatedDir.opposedVertex = dir.at(0);
-    rotatedDir.baseEdge.front() = dir.at(1);
-    rotatedDir.baseEdge.back() = dir.at(2);
-
-    ROS_INFO("zig_rotatedDir.baseEdge.at(0).y:%f",rotatedDir.baseEdge.at(0).y);
-    ROS_INFO("zig_rotatedDir.baseEdge.at(0).x:%f",rotatedDir.baseEdge.at(0).x);
-    ROS_INFO("zig_rotatedDir.baseEdge.at(1).y:%f",rotatedDir.baseEdge.at(1).y);
-    ROS_INFO("zig_rotatedDir.baseEdge.at(1).x:%f",rotatedDir.baseEdge.at(1).x);
-
-    double verticalDistance = calculateDistance(rotatedDir.baseEdge, rotatedDir.opposedVertex);
-    ROS_INFO_STREAM("zig_verticalDistance:" << verticalDistance);
-
-    if(verticalDistance < step_)
-            return true;
-    else{
-        if(fabs(polygonArea(polygon_convex_hull,polygon_convex_hull.size())) < 0.4)
-            return true;
-        else
-            return false;
-    }
-}*/
-
-/*void selectPolygon(PolygonListCgal& src_,PolygonListCgal& dst_)
-{
-    std::list<PolygonCgal>::iterator iter;
-    for(iter = src_.begin();iter != src_.end();iter++){
-        PointVector polygon_bcd;
-
-        PolygonCgal poly_cell = *iter;
-        for(int j = 0;j < poly_cell.size();j++){
-            geometry_msgs::Point point_divide_bcd;
-
-            PointCgal p = poly_cell.vertex(j);
-
-            point_divide_bcd.x = p.x();
-            point_divide_bcd.y = p.y();
-                
-            polygon_bcd.push_back(point_divide_bcd);
-       }
-
-       if(!isBadPolygon(polygon_bcd,0.3))
-             dst_.push_back(*iter);
-    }
-
-}*/
-
 typedef struct SS_Edge{
     cv::Point from;
     bool isSplitNodeFrom;
@@ -985,7 +924,7 @@ bool IsRoot(int index_,std::vector<SPEdge>& vec_,SPEdge& e_){
     return false;
 }
 
-void dfsCycle(int v) 
+/*void dfsCycle(int v) 
 {
     onStack[v] = true;
     marked[v] = true;
@@ -1024,6 +963,94 @@ void dfsCycle(int v)
     }
 
     onStack[v] = false;
+}*/
+
+/*void Dijkstra(int s,
+              int maxv,
+              int* d,
+              bool* vis,
+              std::map<int, std::vector<std::tuple<int, int,double>>>& EWD_,
+              int* pre){
+    std::fill(d,d+maxv,INF);
+    for(int i = 0;i < maxv;i++)
+        std::cout << "d:" << d[i] << std::endl;
+
+    std::fill(vis,vis+maxv,0);
+    for(int i = 0;i < maxv;i++)
+        std::cout << "vis:" << vis[i] << std::endl;
+    
+    for(int i = 0;i < maxv;i++){
+        pre[i] = i;
+    }
+
+    d[s] = 0;
+    
+    for(int i = 0;i < maxv;i++){
+        int u = -1;
+        int MIN = INF;
+
+        for(int j = 0;j < n;j++){
+            if(vis[j] == false && d[j] < MIN){
+                u = j;
+                MIN = d[j];
+            }
+        }
+
+        if(u == -1){
+            ROS_INFO_STREAM("Dijkstra fail!!!");
+            return;
+        }
+
+        vis[u] = true;
+
+        for(int j = 0;j < EWD_[u].size();j++){
+            int v = std::get<1>(EWD_[u][j]);
+            double d_ = std::get<2>(EWD_[u][j]);
+            if(vis[v] == false && d[u]+d_ < d[v]){
+                d[v] = d[u]+d_;
+                pre[v] = u;
+            }
+        }
+
+    }
+
+}*/
+
+void DfsFindPaths(int start,int end){   
+    visited[start] = true;
+    s_node.push(start);
+
+    for(int j = 0;j < EWD[start].size();j++){
+        if(std::get<0>(EWD[start][j]) == end){
+            //s_node.push(end);
+
+            std::stack<int> path;
+            while(!s_node.empty()){
+                path.push(s_node.top());
+                s_node.pop();
+            }
+            
+            DPaths.push_back(path);
+
+            while(!path.empty()){
+                s_node.push(path.top());
+                path.pop();
+            }
+           
+            s_node.pop();
+            visited[end] = false;
+            
+            break;
+        }
+
+        if(!visited[std::get<1>(EWD[start][j])])
+            DfsFindPaths(std::get<1>(EWD[start][j]),end);
+
+        if(j == (EWD[start].size()-1)){
+            s_node.pop();
+            visited[start] = false;
+        }
+    }
 }
 
 bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
@@ -1791,6 +1818,7 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
     
     int count_e = 0;
     //std::map<int, std::vector<std::tuple<int, int,double>>> EWD;
+    int ewd_key = 0;
     for(int i = 0;i < contour_ext.size();i++){
         SPEdge e(0,0);
         if(IsRoot(i,s_e,e)){
@@ -1803,7 +1831,8 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
                 EWD[i].push_back(std::make_tuple(e.end_id,e.start_id,1));
                 
         }
-        else{
+        else
+        {
             if(i == (contour_ext.size()-1))
                 EWD[i].push_back(std::make_tuple(i,0,1));
             else
@@ -1823,7 +1852,7 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
         std::cout << std::endl;
     }
     
-    marked = new bool[EWD.size()];
+    /*marked = new bool[EWD.size()];
     for(int i = 0;i < EWD.size();i++)
         marked[i] = false;
 
@@ -1853,7 +1882,27 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
     delete[] marked;
     delete[] onStack;
     delete[] edgeTo;
-    delete[] cycle;
+    delete[] cycle;*/
+    
+    visited = new bool[EWD.size()];
+    for(int i = 0;i < EWD.size();i++)
+        visited[i] = false;
+
+    DfsFindPaths(0,19);
+
+    ROS_INFO_STREAM("DPaths_size:" << DPaths.size());
+    for(int i = 0;i < DPaths.size();i++){
+        ROS_INFO_STREAM("***************************");
+        ROS_INFO_STREAM("size:" << DPaths[i].size());
+
+        while(!DPaths[i].empty()){
+            ROS_INFO_STREAM("DPaths:" << DPaths[i].top());
+            DPaths[i].pop();
+        }
+    }
+    
+    delete[] visited;
+    DPaths.clear();
 
 	return true;
 }

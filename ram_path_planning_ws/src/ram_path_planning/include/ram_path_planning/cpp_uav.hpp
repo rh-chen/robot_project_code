@@ -300,7 +300,7 @@ bool computeConvexCoverage(const PointVector& polygon, double footprintWidth, do
   }
 
   // TODO: Change to configurable
-  const double padding = 0.2;
+  const double padding = 0.1;
 
   // rotate input polygon so that baseEdge become horizontal
   double rotationAngle = calculateHorizontalAngle(sweepDirection.baseEdge.front(), sweepDirection.baseEdge.back());
