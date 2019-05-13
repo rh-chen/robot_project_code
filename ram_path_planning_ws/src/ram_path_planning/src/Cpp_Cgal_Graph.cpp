@@ -32,7 +32,7 @@
 #include <CGAL/Boolean_set_operations_2.h>
 #include <CGAL/Polygon_set_2.h>
 #include <tuple>
-
+#include <limits.h>
 
 typedef CGAL::Exact_predicates_inexact_constructions_kernel Kernel;
 typedef Kernel::FT Ft;
@@ -1053,6 +1053,23 @@ void DfsFindPaths(int start,int end){
     }
 }
 
+int FindSplitPath(std::vector<std::stack<int> >& vec){
+    int MaxNumber = INT_MAX;
+    int index;
+    for(int i = 0;i < vec.size();i++){
+        if(vec[i].size() == 2)
+            continue;
+        else{
+            if(vec[i].size() < MaxNumber){
+                index = i;
+                MaxNumber = vec[i].size();
+            }
+        }
+    }
+
+    return index;
+}
+
 bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
 			   ram_path_planning::Cpp::Response& res){
   	if (req.height_between_layers <= 0)
@@ -1715,7 +1732,7 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
                         }*/
                         
                         
-                        SPUnion sp_union(p_s_,p_start_,sp_edge.start_id,p_end_,sp_edge.end_id,index_contour_sort_);
+                        SPUnion sp_union(p_s_,p_start_,sp_edge.end_id,p_end_,sp_edge.start_id,index_contour_sort_);
                         SPUnionTop.insert(std::make_pair(sp_union,sp_union_key++));
                         /*for(int i = 0;i < index_contour_sort_.size();i++){
                             ROS_INFO_STREAM("index_contour_sort_:" << index_contour_sort_[i]);
@@ -1820,25 +1837,34 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
     //std::map<int, std::vector<std::tuple<int, int,double>>> EWD;
     int ewd_key = 0;
     for(int i = 0;i < contour_ext.size();i++){
-        SPEdge e(0,0);
-        if(IsRoot(i,s_e,e)){
-            count_e++;
-            EWD[i].push_back(std::make_tuple(i,i+1,1));
-
-            if(e.start_id == i)
-                EWD[i].push_back(std::make_tuple(e.start_id,e.end_id,1));
-            else
-                EWD[i].push_back(std::make_tuple(e.end_id,e.start_id,1));
+        if(i == (contour_ext.size()-1)){
+            SPEdge e(0,0);
+            if(IsRoot(i,s_e,e)){
+                if(e.start_id == i)
+                    EWD[i].push_back(std::make_tuple(e.start_id,e.end_id,1));
+                else
+                    EWD[i].push_back(std::make_tuple(e.end_id,e.start_id,1));
+            }
+            
+            EWD[i].push_back(std::make_tuple(contour_ext.size()-1,0,1));
                 
         }
-        else
-        {
-            if(i == (contour_ext.size()-1))
-                EWD[i].push_back(std::make_tuple(i,0,1));
-            else
-                EWD[i].push_back(std::make_tuple(i,i+1,1));
+        else{
+            SPEdge e(0,0);
+            
+            if(IsRoot(i,s_e,e)){
+                if(e.start_id == i)
+                    EWD[i].push_back(std::make_tuple(e.start_id,e.end_id,1));
+                else
+                    EWD[i].push_back(std::make_tuple(e.end_id,e.start_id,1));
+            }
+
+
+            EWD[i].push_back(std::make_tuple(i,i+1,1));
         }
     }
+    
+    EWD[0].push_back(std::make_tuple(0,contour_ext.size()-1,1));
     
     ROS_INFO_STREAM("EWD_size:" << EWD.size());
     ROS_INFO_STREAM("count_e:" << count_e);
@@ -1884,25 +1910,56 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
     delete[] edgeTo;
     delete[] cycle;*/
     
-    visited = new bool[EWD.size()];
-    for(int i = 0;i < EWD.size();i++)
-        visited[i] = false;
+    //std::map<int,int> mapContourExt;
+    SPEdge e_l(0,contour_ext.size()-1);
+    s_e.push_back(e_l);
 
-    DfsFindPaths(0,19);
+    int key_map_ext = 0;
+    for(int e = 0;e < s_e.size();e++){
+        ROS_INFO_STREAM("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&");
+        visited = new bool[EWD.size()];
+        for(int i = 0;i < EWD.size();i++)
+            visited[i] = false;
 
-    ROS_INFO_STREAM("DPaths_size:" << DPaths.size());
-    for(int i = 0;i < DPaths.size();i++){
-        ROS_INFO_STREAM("***************************");
-        ROS_INFO_STREAM("size:" << DPaths[i].size());
+        DfsFindPaths(s_e[e].start_id,s_e[e].end_id);
 
-        while(!DPaths[i].empty()){
-            ROS_INFO_STREAM("DPaths:" << DPaths[i].top());
-            DPaths[i].pop();
+        ROS_INFO_STREAM("DPaths_size:" << DPaths.size());
+        int indexDPaths = FindSplitPath(DPaths);
+        
+        geometry_msgs::Polygon partial_polygon;
+        while(!DPaths[indexDPaths].empty()){
+
+            int p_i = DPaths[indexDPaths].top();
+            //ROS_INFO_STREAM("DPaths:" << p_i);
+            //if(mapContourExt.count(p_i) == 0)
+                //mapContourExt.insert(std::make_pair(p_i,key_map_ext++));
+
+            geometry_msgs::Point32 point;
+            point.x = contour_ext[p_i].x*req.map_resolution+req.map_origin_x;
+            point.y = contour_ext[p_i].y*req.map_resolution+req.map_origin_y;
+            partial_polygon.points.push_back(point);
+            
+            DPaths[indexDPaths].pop();
+        }
+        
+        res.polygon_test.push_back(partial_polygon); 
+        
+        delete[] visited;
+        DPaths.clear();
+    }
+
+    
+    /*geometry_msgs::Polygon partialPolygon;
+    for(int i = 0;i < contour_ext.size();i++){
+        if(mapContourExt.count(i) == 0){
+            geometry_msgs::Point32 point;
+            point.x = contour_ext[i].x*req.map_resolution+req.map_origin_x;
+            point.y = contour_ext[i].y*req.map_resolution+req.map_origin_y;
+            partialPolygon.points.push_back(point);
         }
     }
     
-    delete[] visited;
-    DPaths.clear();
+    res.polygon_test.push_back(partialPolygon);*/
 
 	return true;
 }
