@@ -1910,11 +1910,12 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
     delete[] edgeTo;
     delete[] cycle;*/
     
-    //std::map<int,int> mapContourExt;
-    SPEdge e_l(0,contour_ext.size()-1);
-    s_e.push_back(e_l);
-
+    std::map<int,int> mapContourExt;
     int key_map_ext = 0;
+    //SPEdge e_l(minIndex,maxIndex);
+    //s_e.push_back(e_l);
+
+    std::vector<PolygonCgal> FinalPolygon;
     for(int e = 0;e < s_e.size();e++){
         ROS_INFO_STREAM("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&");
         visited = new bool[EWD.size()];
@@ -1927,12 +1928,12 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
         int indexDPaths = FindSplitPath(DPaths);
         
         geometry_msgs::Polygon partial_polygon;
+        PolygonCgal polygon_cgal;
+        std::vector<int> d_path;
         while(!DPaths[indexDPaths].empty()){
 
             int p_i = DPaths[indexDPaths].top();
-            //ROS_INFO_STREAM("DPaths:" << p_i);
-            //if(mapContourExt.count(p_i) == 0)
-                //mapContourExt.insert(std::make_pair(p_i,key_map_ext++));
+            ROS_INFO_STREAM("DPaths:" << p_i);
 
             geometry_msgs::Point32 point;
             point.x = contour_ext[p_i].x*req.map_resolution+req.map_origin_x;
@@ -1940,27 +1941,95 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
             partial_polygon.points.push_back(point);
             
             DPaths[indexDPaths].pop();
+            d_path.push_back(p_i);
+
+            polygon_cgal.push_back(PointCgal(point.x,point.y));
         }
         
-        res.polygon_test.push_back(partial_polygon); 
+        for(int ii = 1; ii < (d_path.size()-1);ii++){
+            if(mapContourExt.count(d_path[ii]) == 0){
+                mapContourExt.insert(std::make_pair(d_path[ii],key_map_ext++));
+            }
+        }
+
+        FinalPolygon.push_back(polygon_cgal);
+        //res.polygon_test.push_back(partial_polygon); 
         
         delete[] visited;
         DPaths.clear();
     }
-
     
-    /*geometry_msgs::Polygon partialPolygon;
+    EWD.clear();
+    //std::map<int,int>::iterator it_t;
+    //for(it_t = mapContourExt.begin();it_t != mapContourExt.end();it_t++)
+        //ROS_INFO_STREAM("it_t:" << it_t->first);
+    
+    geometry_msgs::Polygon partialPolygon;
+    PolygonCgal polygon_cgal_;
     for(int i = 0;i < contour_ext.size();i++){
         if(mapContourExt.count(i) == 0){
             geometry_msgs::Point32 point;
             point.x = contour_ext[i].x*req.map_resolution+req.map_origin_x;
             point.y = contour_ext[i].y*req.map_resolution+req.map_origin_y;
             partialPolygon.points.push_back(point);
+            polygon_cgal_.push_back(PointCgal(point.x,point.y));
         }
     }
-    
-    res.polygon_test.push_back(partialPolygon);*/
 
+    res.polygon_test.push_back(partialPolygon);
+    
+    FinalPolygon.push_back(polygon_cgal_);
+    ROS_INFO_STREAM("FinalPolygon:" << FinalPolygon.size());
+    
+    ROS_INFO_STREAM("start coverage path plan!!!");
+    std_msgs::Float64 footprintWidth, horizontalOverwrap, verticalOverwrap;
+    footprintWidth.data = 0.2; 
+    horizontalOverwrap.data = 0;
+    verticalOverwrap.data = 0;
+
+    for(int i = 0;i < FinalPolygon.size();i++){
+        if(FinalPolygon[i].is_convex ()){ 
+            ROS_INFO_STREAM("is convex");
+            
+            if(FinalPolygon[i].is_clockwise_oriented())
+                FinalPolygon[i].reverse_orientation();
+
+            PointVector polygonBcd,candidatePath;
+            for(int j = 0;j < FinalPolygon[i].size();j++){
+                PointCgal p = FinalPolygon[i].vertex(j);
+                geometry_msgs::Point pointBcd;
+
+                pointBcd.x = p.x();
+                pointBcd.y = p.y();
+
+                polygonBcd.push_back(pointBcd);
+            }
+            bool isOptimal = computeConvexCoverage(polygonBcd, footprintWidth.data, horizontalOverwrap.data, candidatePath);
+            
+            PointVector pathBcd;
+            if(isOptimal){
+                ROS_INFO_STREAM("zigzag success!!!");
+                geometry_msgs::Point start = polygonBcd[0];
+                pathBcd = identifyOptimalAlternative(polygonBcd, candidatePath, start);
+            }
+            else
+                ROS_ERROR("zigzag fail!!!");
+
+            nav_msgs::Path path_;
+            for(int k = 0;k < pathBcd.size();k++){
+                geometry_msgs::PoseStamped current_pose;
+                current_pose.pose.position.x = pathBcd[k].x;
+                current_pose.pose.position.y = pathBcd[k].y;
+                current_pose.pose.position.z = 0;
+
+                path_.poses.push_back(current_pose);
+            }
+
+            res.path.push_back(path_);
+        }
+        else
+            ROS_INFO_STREAM("no convex");
+    }
 	return true;
 }
 
