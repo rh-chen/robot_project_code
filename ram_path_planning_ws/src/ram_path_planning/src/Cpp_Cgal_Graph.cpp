@@ -372,13 +372,15 @@ typedef struct node_t
     int n_point;
     int level;              
     struct node_t** children;
+    int region_num;
 
-    node_t(int n_point_,int n_children_,int l_){
+    node_t(int n_point_,int n_children_,int l_,int region_num_){
         polygon = new cv::Point2f[n_point_];
         n_point = n_point_;
         n_children = n_children_;
         level = l_;
         children = NULL;
+        region_num = region_num_;
     }
 } NODE;
 
@@ -396,9 +398,11 @@ void BfsTree(NODE* head){
         q.pop();
      
         ROS_INFO_STREAM("ptr:" << p);
+        ROS_INFO_STREAM("ptr_region_num:" << p->region_num);
         for(int i = 0;i < p->n_children;i++){
             q.push(p->children[i]);
             ROS_INFO_STREAM("ptr_:" << p->children[i]);
+            ROS_INFO_STREAM("ptr_region_num:" << p->children[i]->region_num);
             s.push(p->children[i]);
         }
         ROS_INFO_STREAM("*************************************************");
@@ -1087,6 +1091,7 @@ void ContourParallelPath(std::vector<std::vector<NODE*> >& tempNode){
     //std::cout << __FILE__ << __LINE__ << std::endl;
     //tempNode.push_back(tempNodeInit);
     //std::cout << __FILE__ << __LINE__ << std::endl;
+    int region_num = 0;
     while(!flag){
         flag = true;
     //std::cout << __FILE__ << __LINE__ << std::endl;
@@ -1127,6 +1132,64 @@ void ContourParallelPath(std::vector<std::vector<NODE*> >& tempNode){
                 //std::vector<NODE*>(tempNode).swap(tempNode);
     //std::cout << __FILE__ << __LINE__ << std::endl;
                 //std::vector<NODE*> tempNode_;
+                if(offset_polygons.size() == 1){
+                    
+                    for(PolygonPtrVector::const_iterator pi = offset_polygons.begin() ; pi != offset_polygons.end() ; ++ pi){
+                   
+                        PolygonPtr pi_ = *pi;
+                        PolygonCgal pi_cgal = *pi_;
+                        NODE* node_cell = new NODE(pi_cgal.size(),0,count_level+1,node->region_num);
+                        
+                        /*ROS_INFO_STREAM("node_cell->polygon:" << node_cell->polygon);
+                        ROS_INFO_STREAM("node_cell->n_children:" << node_cell->n_children);
+                        ROS_INFO_STREAM("node_cell->n_point:" << node_cell->n_point);
+                        ROS_INFO_STREAM("node_cell->level:" << node_cell->level);
+                        ROS_INFO_STREAM("node_cell->children:" << node_cell->children);*/
+
+                        for(int i = 0;i < pi_cgal.size();i++){
+                            PointCgal p = pi_cgal.vertex(i);
+                            //ROS_INFO_STREAM("p:(" << p.x() << "," << p.y() << ")");
+                            node_cell->polygon[i].x = p.x();
+                            node_cell->polygon[i].y = p.y();
+                        }
+
+                        //node_cell->polygon = pi_cgal;
+                        //node_cell->level = count_level;
+                        node->children[index++] = node_cell;
+                        tempNode_.push_back(node_cell);
+                    }  
+                    region_num = node->region_num;
+                }
+                else if(offset_polygons.size() > 1){
+                    int region_num_ = region_num;
+                    for(PolygonPtrVector::const_iterator pi = offset_polygons.begin() ; pi != offset_polygons.end() ; ++ pi){
+                        region_num_++;
+                        PolygonPtr pi_ = *pi;
+                        PolygonCgal pi_cgal = *pi_;
+                        NODE* node_cell = new NODE(pi_cgal.size(),0,count_level+1,region_num_);
+                        
+                        /*ROS_INFO_STREAM("node_cell->polygon:" << node_cell->polygon);
+                        ROS_INFO_STREAM("node_cell->n_children:" << node_cell->n_children);
+                        ROS_INFO_STREAM("node_cell->n_point:" << node_cell->n_point);
+                        ROS_INFO_STREAM("node_cell->level:" << node_cell->level);
+                        ROS_INFO_STREAM("node_cell->children:" << node_cell->children);*/
+
+                        for(int i = 0;i < pi_cgal.size();i++){
+                            PointCgal p = pi_cgal.vertex(i);
+                            //ROS_INFO_STREAM("p:(" << p.x() << "," << p.y() << ")");
+                            node_cell->polygon[i].x = p.x();
+                            node_cell->polygon[i].y = p.y();
+                        }
+
+                        //node_cell->polygon = pi_cgal;
+                        //node_cell->level = count_level;
+                        node->children[index++] = node_cell;
+                        tempNode_.push_back(node_cell);
+                    }
+                    
+                    region_num = region_num_;
+                }
+#if 0
                 for(PolygonPtrVector::const_iterator pi = offset_polygons.begin() ; pi != offset_polygons.end() ; ++ pi){
                
                     PolygonPtr pi_ = *pi;
@@ -1152,7 +1215,7 @@ void ContourParallelPath(std::vector<std::vector<NODE*> >& tempNode){
                     tempNode_.push_back(node_cell);
                 }
     //std::cout << __FILE__ << __LINE__ << std::endl;
-                
+#endif           
             }
             
             tempNode.push_back(tempNode_);
@@ -1212,11 +1275,11 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
     
     std::vector<cv::Point> contour_ext;
     cv::approxPolyDP(vertices_point,contour_ext,2.5,true);
-    //ROS_INFO_STREAM("contour_ext:" << contour_ext.size());
+    ROS_INFO_STREAM("contour_ext:" << contour_ext.size());
 
     //B+Tree
     NODE* head = NULL;
-    head = new NODE(contour_ext.size(),0,0);
+    head = new NODE(contour_ext.size(),0,0,0);
 
     /*ROS_INFO_STREAM("head->polygon:" << head->polygon);
     ROS_INFO_STREAM("head->n_children:" << head->n_children);
@@ -2133,7 +2196,7 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
             ROS_INFO_STREAM("no convex");
             
             NODE* head = NULL;
-            head = new NODE(FinalPolygon[i].size(),0,0);
+            head = new NODE(FinalPolygon[i].size(),0,0,0);
             
             if(FinalPolygon[i].is_clockwise_oriented())
                 FinalPolygon[i].reverse_orientation();
