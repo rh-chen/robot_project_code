@@ -395,13 +395,13 @@ void BfsTree(NODE* head){
         p = q.front();
         q.pop();
      
-        //ROS_INFO_STREAM("ptr:" << p);
+        ROS_INFO_STREAM("ptr:" << p);
         for(int i = 0;i < p->n_children;i++){
             q.push(p->children[i]);
-            //ROS_INFO_STREAM("ptr_:" << p->children[i]);
+            ROS_INFO_STREAM("ptr_:" << p->children[i]);
             s.push(p->children[i]);
         }
-        //ROS_INFO_STREAM("*************************************************");
+        ROS_INFO_STREAM("*************************************************");
     }
 
     while(!s.empty()){
@@ -1070,6 +1070,98 @@ int FindSplitPath(std::vector<std::stack<int> >& vec){
     return index;
 }
 
+void ContourParallelPath(std::vector<std::vector<NODE*> >& tempNode){
+    //std::cout << __FILE__ << __LINE__ << std::endl;
+    double lOffset = 0.2;
+    //PolygonPtrVector offset_polygonsncident vertex of h.  = CGAL::create_offset_polygons_2<PolygonCgal>(lOffset,*iss);
+    PolygonPtrVector offset_polygons;
+    //offset_polygons = CGAL::create_interior_skeleton_and_offset_polygons_2(lOffset,poly_cgal);
+    //ROS_INFO_STREAM("PoygonPtrVectorSize:" << offset_polygons.size());
+    bool flag = false;
+    int count_level = -1;
+    //std::vector<std::vector<NODE*> > tempNode;
+    //std::cout << __FILE__ << __LINE__ << std::endl;
+    //std::vector<NODE*> tempNodeInit;
+    //std::cout << __FILE__ << __LINE__ << std::endl;
+    //tempNodeInit.push_back(head);
+    //std::cout << __FILE__ << __LINE__ << std::endl;
+    //tempNode.push_back(tempNodeInit);
+    //std::cout << __FILE__ << __LINE__ << std::endl;
+    while(!flag){
+        flag = true;
+    //std::cout << __FILE__ << __LINE__ << std::endl;
+        if(tempNode.size() > 0){
+            count_level++;
+            std::vector<NODE*> tempNode_;
+            for(NODE* node : tempNode[count_level]){
+                  
+    //std::cout << __FILE__ << __LINE__ << std::endl;
+                PolygonCgal poly_cgal;
+                PolygonCgalToPtr(node->polygon,node->n_point,poly_cgal);
+                //ROS_INFO_STREAM("poly_cgal_size:" << poly_cgal.size());
+                
+                if(poly_cgal.is_clockwise_oriented())
+                    poly_cgal.reverse_orientation();
+                
+                /*for(int i = 0;i < poly_cgal.size();i++){
+                    PointCgal p = poly_cgal.vertex(i);
+                    ROS_INFO_STREAM("p:(" << p.x() << "," << p.y() << ")");
+                }*/
+
+                offset_polygons = CGAL::create_interior_skeleton_and_offset_polygons_2(lOffset,poly_cgal);
+    //std::cout << __FILE__ << __LINE__ << std::endl;
+                //if(offset_polygons.size() > 0)
+                    //count_level++;
+                //ROS_INFO_STREAM("offset_polygons_size:" << offset_polygons.size());
+                if(offset_polygons.size() == 0){
+                    flag &= true;
+                    continue;
+                }
+                else
+                    flag &= false;
+
+                node->n_children = offset_polygons.size();
+                node->children = new NODE* [offset_polygons.size()];
+                int index = 0;
+
+                //std::vector<NODE*>(tempNode).swap(tempNode);
+    //std::cout << __FILE__ << __LINE__ << std::endl;
+                //std::vector<NODE*> tempNode_;
+                for(PolygonPtrVector::const_iterator pi = offset_polygons.begin() ; pi != offset_polygons.end() ; ++ pi){
+               
+                    PolygonPtr pi_ = *pi;
+                    PolygonCgal pi_cgal = *pi_;
+                    NODE* node_cell = new NODE(pi_cgal.size(),0,count_level+1);
+                    
+                    /*ROS_INFO_STREAM("node_cell->polygon:" << node_cell->polygon);
+                    ROS_INFO_STREAM("node_cell->n_children:" << node_cell->n_children);
+                    ROS_INFO_STREAM("node_cell->n_point:" << node_cell->n_point);
+                    ROS_INFO_STREAM("node_cell->level:" << node_cell->level);
+                    ROS_INFO_STREAM("node_cell->children:" << node_cell->children);*/
+
+                    for(int i = 0;i < pi_cgal.size();i++){
+                        PointCgal p = pi_cgal.vertex(i);
+                        //ROS_INFO_STREAM("p:(" << p.x() << "," << p.y() << ")");
+                        node_cell->polygon[i].x = p.x();
+                        node_cell->polygon[i].y = p.y();
+                    }
+
+                    //node_cell->polygon = pi_cgal;
+                    //node_cell->level = count_level;
+                    node->children[index++] = node_cell;
+                    tempNode_.push_back(node_cell);
+                }
+    //std::cout << __FILE__ << __LINE__ << std::endl;
+                
+            }
+            
+            tempNode.push_back(tempNode_);
+    //std::cout << __FILE__ << __LINE__ << std::endl;
+        }
+    }
+}
+
+
 bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
 			   ram_path_planning::Cpp::Response& res){
   	if (req.height_between_layers <= 0)
@@ -1180,7 +1272,16 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
     ROS_INFO_STREAM("iss.size_of_vertices():" << iss->size_of_vertices());
     ROS_INFO_STREAM("iss.size_of_halfedges():" << iss->size_of_halfedges());
     ROS_INFO_STREAM("iss.size_of_faces():" << iss->size_of_faces());*/
-    
+#if 0
+    std::vector<std::vector<NODE*> > tempNode;
+    std::vector<NODE*> tempNodeInit;
+    tempNodeInit.push_back(head);
+    tempNode.push_back(tempNodeInit);
+    ContourParallelPath(tempNode);
+
+    BfsTree(head);
+#endif
+#if 0 
     //std::cout << __FILE__ << __LINE__ << std::endl;
     double lOffset = 0.2;
     //PolygonPtrVector offset_polygonsncident vertex of h.  = CGAL::create_offset_polygons_2<PolygonCgal>(lOffset,*iss);
@@ -1324,7 +1425,7 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
     //delete
     BfsTree(head);
     
-   
+#endif
     //straight skeleton
     if(polyCgalPoint.is_clockwise_oriented())
         polyCgalPoint.reverse_orientation();
@@ -1869,14 +1970,15 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
     ROS_INFO_STREAM("EWD_size:" << EWD.size());
     ROS_INFO_STREAM("count_e:" << count_e);
     ROS_INFO_STREAM("Digraph:");
-
-    for(int v = 0;v < EWD.size();v++){
+    
+    //output W=EWD
+    /*for(int v = 0;v < EWD.size();v++){
         std::cout << v << ":";
         for(std::vector<std::tuple<int, int, double>>::iterator ii = EWD[v].begin(); ii != EWD[v].end(); ii++)
             std::cout << std::get<0>(*ii) << "->" << std::get<1>(*ii) << " " << std::get<2>(*ii) << "  ";
 
         std::cout << std::endl;
-    }
+    }*/
     
     /*marked = new bool[EWD.size()];
     for(int i = 0;i < EWD.size();i++)
@@ -2027,10 +2129,51 @@ bool ZigZagCpp(ram_path_planning::Cpp::Request& req,
 
             res.path.push_back(path_);
         }
-        else
+        else{
             ROS_INFO_STREAM("no convex");
+            
+            NODE* head = NULL;
+            head = new NODE(FinalPolygon[i].size(),0,0);
+            
+            if(FinalPolygon[i].is_clockwise_oriented())
+                FinalPolygon[i].reverse_orientation();
+            
+            for(int j = 0;j < FinalPolygon[i].size();j++){
+                PointCgal p = FinalPolygon[i].vertex(j);
+                 
+                head->polygon[j].x = p.x();
+                head->polygon[j].y = p.y();
+            }
+
+            std::vector<std::vector<NODE*> > tempNode;
+            std::vector<NODE*> tempNodeInit;
+            tempNodeInit.push_back(head);
+            tempNode.push_back(tempNodeInit);
+            ContourParallelPath(tempNode);
+            
+            for(int i = 0;i < tempNode.size();i++){
+                //ROS_INFO_STREAM("tempNode_size:" << tempNode.size());
+                //geometry_msgs::Polygon partial_polygon;
+                //ROS_INFO_STREAM("tempNode_[" << i << "]:" << tempNode[i].size());
+                for(int j = 0;j < tempNode[i].size();j++){
+                    geometry_msgs::Polygon partial_polygon;
+                    //ROS_INFO_STREAM("tempNode_level:" << tempNode[i][j]->level);
+                    for(int k = 0;k < tempNode[i][j]->n_point;k++){
+                        geometry_msgs::Point32 point_32;
+                        point_32.x = tempNode[i][j]->polygon[k].x;
+                        point_32.y = tempNode[i][j]->polygon[k].y;
+
+                        partial_polygon.points.push_back(point_32);
+                    }
+                    res.polygon.push_back(partial_polygon);
+                }
+            }
+
+            BfsTree(head);
+        }
     }
-	return true;
+	
+    return true;
 }
 
 }
